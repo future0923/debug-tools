@@ -1,0 +1,52 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+  <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+  <id>io.github.future0923.DebugPower</id>
+
+  <!-- Public plugin name should be written in Title Case.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+  <name>DebugPower</name>
+
+  <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+  <vendor email="future94@qq.com" url="https://github.com/future0923">future0923</vendor>
+
+  <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+       Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+  <description><![CDATA[
+    <h2>
+      DebugPower
+    </h2>
+    <p>
+       调试神器，可以快速调用到指定的JVM方法中
+    </p>
+    <p>
+       在方法体中右键点击，选择快速调试，attach对应的项目，传入指定的参数，点击运行，就能看见断点了
+    </p>
+  ]]></description>
+
+  <!-- Product and plugin compatibility requirements.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.java</depends>
+
+  <!-- Extension points defined by the plugin.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+  <extensions defaultExtensionNs="com.intellij">
+
+    <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState" />
+
+    <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
+    <notificationGroup id="DebugPower" displayType="BALLOON"/>
+
+  </extensions>
+
+  <actions>
+    <action id="DebugPowerTool.Open" class="io.github.future0923.debug.power.idea.EditorPopupMenuAction"
+            text="Quick Debug"
+            description="Quickly call to the current location for execution">
+      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl M"/>
+    </action>
+  </actions>
+</idea-plugin>
