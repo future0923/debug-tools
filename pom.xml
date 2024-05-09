@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.future0923</groupId>
+    <artifactId>debug-power</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>debug-power</name>
+    <description>Debug power tools.</description>
+    <url>https://github.com/future0923/debug-power</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/future0923/debug-power</url>
+        <connection>scm:git:https://github.com/future0923/debug-power.git</connection>
+        <developerConnection>scm:git:https://github.com/future0923/debug-power.git</developerConnection>
+        <tag>${project.version}</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/future0923/debug-power/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>future0923</id>
+            <name>wei lai</name>
+            <url>https://github.com/future0923</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <arthas.version>3.7.2</arthas.version>
+        <spring-boot.version>2.7.4</spring-boot.version>
+        <hutool.version>5.8.26</hutool.version>
+        <pl-joegreen-lambda.version>1.7</pl-joegreen-lambda.version>
+    </properties>
+
+    <modules>
+        <module>debug-power-attach</module>
+        <module>debug-power-common</module>
+        <module>debug-power-core</module>
+        <module>debug-power-test</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.taobao.arthas</groupId>
+                <artifactId>arthas-vmtool</artifactId>
+                <version>${arthas.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>pl.joegreen</groupId>
+                <artifactId>lambda-from-string</artifactId>
+                <version>${pl-joegreen-lambda.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
