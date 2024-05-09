@@ -46,6 +46,7 @@
                         <phase>package</phase>
                         <configuration>
                             <finalName>debug-power-agent</finalName>
+                            <outputDirectory>${project.basedir}/../debug-power-idea/src/main/resources/lib</outputDirectory>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>

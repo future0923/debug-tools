@@ -88,7 +88,7 @@ public class EditorPopupMenuAction extends AnAction {
             }
 
             if (StringUtils.isBlank(settingState.getAgentPath())) {
-                InputStream inputStream = EditorPopupMenuAction.class.getResourceAsStream("/lib/debug-power-agent.jar");
+                InputStream inputStream = EditorPopupMenuAction.class.getResourceAsStream("/lib/debug-power-agent-jar-with-dependencies.jar");
                 if (inputStream == null) {
                     DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
                     return;
