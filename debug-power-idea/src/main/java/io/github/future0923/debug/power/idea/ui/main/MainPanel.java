@@ -12,6 +12,9 @@ import com.intellij.util.ui.JBDimension;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
+import io.github.future0923.debug.power.idea.listener.MulticasterEventPublisher;
+import io.github.future0923.debug.power.idea.listener.impl.PrettyDataListener;
+import io.github.future0923.debug.power.idea.listener.impl.SimpleDataListener;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
@@ -65,13 +68,14 @@ public class MainPanel extends JBPanel<MainPanel> {
             classNameField.setText(psiClass.getQualifiedName());
             methodNameField.setText(psiMethod.getName());
         }
+        MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
-        this.toolBar = new MainToolBar();
+        this.toolBar = new MainToolBar(publisher);
         // json编辑器
         this.editor = new JsonEditor(methodDataContext.cacheContent, methodDataContext.getParamList(), project);
-
+        publisher.addListener(new SimpleDataListener(editor));
+        publisher.addListener(new PrettyDataListener(editor));
         initLayout();
-
         initListener();
     }
 

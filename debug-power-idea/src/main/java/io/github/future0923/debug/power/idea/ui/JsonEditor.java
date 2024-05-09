@@ -11,7 +11,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.EditorTextField;
+import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
+import io.github.future0923.debug.power.idea.listener.impl.SimpleDataListener;
+import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +33,7 @@ public class JsonEditor extends EditorTextField {
     private final FileType fileType = JsonFileType.INSTANCE;
 
     @Nullable
+    @Getter
     private final PsiParameterList psiParameterList;
 
     public JsonEditor(String cacheText, @Nullable PsiParameterList psiParameterList, Project project) {
@@ -36,7 +41,7 @@ public class JsonEditor extends EditorTextField {
         this.psiParameterList = psiParameterList;
 
         if (StringUtils.isBlank(cacheText)) {
-            setDocument(createDocument(DebugPowerJsonElementUtil.getJsonText(psiParameterList)));
+            setDocument(createDocument(getJsonText(psiParameterList)));
         } else {
             setDocument(createDocument(cacheText));
         }
@@ -45,6 +50,18 @@ public class JsonEditor extends EditorTextField {
             editor.setHorizontalScrollbarVisible(true);
             editor.setVerticalScrollbarVisible(true);
         });
+    }
+
+    public String getJsonText(@Nullable PsiParameterList psiParameterList) {
+        return DebugPowerJsonElementUtil.getJsonText(psiParameterList);
+    }
+
+    public void regenerateJsonText() {
+        setText(getJsonText(psiParameterList));
+    }
+
+    public void prettyJsonText() {
+        setText(DebugPowerJsonUtils.pretty(getText()));
     }
 
     @Override
