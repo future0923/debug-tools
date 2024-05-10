@@ -110,7 +110,7 @@ public class DebugPowerJsonUtils {
             }
             if (RunContentType.SIMPLE.getType().equals(v.getType())
                     || RunContentType.JSON_ENTITY.getType().equals(v.getType())) {
-                result.add(k, JsonParser.parseString(v.getContent().toString()));
+                result.add(k, JsonParser.parseString(DebugPowerJsonUtils.getInstance().toJson(v.getContent())));
             }
         });
         return gsonPretty.toJson(result);

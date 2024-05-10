@@ -34,11 +34,17 @@
        Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
   <extensions defaultExtensionNs="com.intellij">
 
+    <!--状态配置-->
     <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState" />
 
+    <!--通知-->
     <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
     <notificationGroup id="DebugPower" displayType="BALLOON"/>
 
+    <!--json编辑器代码提示-->
+    <completion.contributor language="JSON" implementationClass="io.github.future0923.debug.power.idea.completion.DebugPowerJsonEditorCompletionContributor" />
+
+    <lang.directNavigationProvider implementation="io.github.future0923.debug.power.idea.navigation.DebugPowerJsonEditorDirectNavigationProvider" />
   </extensions>
 
   <actions>
