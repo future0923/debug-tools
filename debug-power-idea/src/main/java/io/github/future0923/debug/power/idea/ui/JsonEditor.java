@@ -22,16 +22,16 @@ import org.jetbrains.jps.incremental.GlobalContextKey;
 /**
  * @author future0923
  */
+@Getter
 public class JsonEditor extends EditorTextField {
 
-    public static String FILE_NAME = "DebugPowerEditFile.json";
+    public static final String FILE_NAME = "DebugPowerEditFile.json";
 
-    public static GlobalContextKey<PsiParameterList> DEBUG_POWER_EDIT_CONTENT = GlobalContextKey.create("DebugPowerEditContent");
+    public static final GlobalContextKey<PsiParameterList> DEBUG_POWER_EDIT_CONTENT = GlobalContextKey.create("DebugPowerEditContent");
 
-    private final FileType fileType = JsonFileType.INSTANCE;
+    private static final FileType fileType = JsonFileType.INSTANCE;
 
     @Nullable
-    @Getter
     private final PsiParameterList psiParameterList;
 
     public JsonEditor(String cacheText, @Nullable PsiParameterList psiParameterList, Project project) {

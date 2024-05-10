@@ -9,6 +9,8 @@ import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.tool.ToolBar;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIconUtil;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -21,8 +23,6 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
 
     private final Project project;
 
-    @Getter
-    private final JsonEditor jsonEditor;
 
     @Getter
     private final JBRadioButton json = new JBRadioButton(ConvertDataType.Json.name(), true);
@@ -30,34 +30,50 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
     @Getter
     private final JBRadioButton query = new JBRadioButton(ConvertDataType.Query.name());
 
+    private final ToolBar toolBar;
+
     @Getter
-    private final EditorTextField editorTextField = new EditorTextField();
+    private final JsonEditor jsonEditor;
+
+    @Getter
+    private final EditorTextField editorTextField;
 
     public ConvertPanel(Project project, JsonEditor jsonEditor, ConvertType convertType) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(670, 500));
         this.project = project;
         this.jsonEditor = jsonEditor;
-
+        editorTextField = new EditorTextField();
         editorTextField.addSettingsProvider(editor -> {
             editor.setVerticalScrollbarVisible(true);
             editor.setHorizontalScrollbarVisible(true);
         });
-
-        if (ConvertType.EXPORT.equals(convertType)) {
-            json.addActionListener(e -> changeText());
-            query.addActionListener(e -> changeText());
-            changeText();
-        }
-
+        toolBar = new ToolBar();
+        toolBar.genButton("Pretty Json", DebugPowerIconUtil.pretty_icon, DebugPowerIconUtil.pretty_icon, actionEvent -> {
+            if (json.isSelected()) {
+                editorTextField.setText(DebugPowerJsonUtils.pretty(editorTextField.getText()));
+            }
+        });
+        toolBar.genButton("Compress Json", DebugPowerIconUtil.compress_icon, DebugPowerIconUtil.compress_icon, actionEvent -> {
+            if (json.isSelected()) {
+                editorTextField.setText(DebugPowerJsonUtils.compress(editorTextField.getText()));
+            }
+        });
+        json.addActionListener(e -> changeText(convertType));
+        query.addActionListener(e -> changeText(convertType));
+        changeText(convertType);
         initLayout();
     }
 
-    private void changeText() {
+    private void changeText(ConvertType convertType) {
         if (json.isSelected()) {
-            editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertJson(jsonEditor.getText()));
-        } else if (query.isSelected()){
-            editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertQuery(jsonEditor.getText()));
+            if (ConvertType.EXPORT.equals(convertType)) {
+                editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertJson(jsonEditor.getText()));
+            }
+        } else if (query.isSelected()) {
+            if (ConvertType.EXPORT.equals(convertType)) {
+                editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertQuery(jsonEditor.getText()));
+            }
         }
     }
 
@@ -86,6 +102,14 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
         gbc.gridx = 0;
         gbc.gridy = 0;
         add(jPanel, gbc);
+
+        gbc.fill = GridBagConstraints.LINE_START;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0;
+        gbc.weighty = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        add(toolBar, gbc);
 
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
