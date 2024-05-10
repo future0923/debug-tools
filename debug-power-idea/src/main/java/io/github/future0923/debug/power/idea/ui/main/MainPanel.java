@@ -13,12 +13,12 @@ import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.listener.MulticasterEventPublisher;
+import io.github.future0923.debug.power.idea.listener.impl.ConvertDataListener;
 import io.github.future0923.debug.power.idea.listener.impl.PrettyDataListener;
 import io.github.future0923.debug.power.idea.listener.impl.SimpleDataListener;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
-import io.github.future0923.debug.power.idea.ui.tool.MainToolBar;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -75,6 +75,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         this.editor = new JsonEditor(methodDataContext.cacheContent, methodDataContext.getParamList(), project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
+        publisher.addListener(new ConvertDataListener(project, editor));
         initLayout();
         initListener();
     }
