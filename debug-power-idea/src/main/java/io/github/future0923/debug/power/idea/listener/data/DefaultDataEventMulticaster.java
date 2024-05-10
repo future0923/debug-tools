@@ -1,7 +1,7 @@
-package io.github.future0923.debug.power.idea.listener;
+package io.github.future0923.debug.power.idea.listener.data;
 
 import io.github.future0923.debug.power.common.utils.DebugPowerTypeUtils;
-import io.github.future0923.debug.power.idea.listener.event.DataEvent;
+import io.github.future0923.debug.power.idea.listener.data.event.DataEvent;
 
 import java.util.Collections;
 import java.util.LinkedList;
