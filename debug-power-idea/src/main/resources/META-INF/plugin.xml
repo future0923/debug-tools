@@ -49,4 +49,9 @@
       <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl M"/>
     </action>
   </actions>
+
+  <applicationListeners>
+    <listener class="io.github.future0923.debug.power.idea.listener.idea.DebugPowerExecutionListener"
+              topic="com.intellij.execution.ExecutionListener"/>
+  </applicationListeners>
 </idea-plugin>

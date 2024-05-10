@@ -39,10 +39,22 @@ public class DebugPowerJsonUtils {
         return gsonPretty;
     }
 
+    /**
+     * 美化json
+     *
+     * @param jsonStr 原始json
+     * @return 美化后的json
+     */
     public static String pretty(String jsonStr) {
         return gsonPretty.toJson(JsonParser.parseString(jsonStr));
     }
 
+    /**
+     * 压缩json
+     *
+     * @param json 原始json
+     * @return 压缩后的json
+     */
     public static String compress(String json) {
         if (StringUtils.isBlank(json) || "{}".equals(json)) {
             return json;
@@ -147,7 +159,7 @@ public class DebugPowerJsonUtils {
         runContentMap.forEach((k, v) -> {
             if (RunContentType.SIMPLE.getType().equals(v.getType())) {
                 sb.append(k).append("=");
-                if (v.getContent()!= null) {
+                if (v.getContent() != null) {
                     sb.append(v.getContent());
                 }
                 sb.append("&");

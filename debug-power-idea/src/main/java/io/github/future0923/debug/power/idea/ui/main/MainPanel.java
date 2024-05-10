@@ -1,6 +1,8 @@
 package io.github.future0923.debug.power.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -11,14 +13,16 @@ import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import io.github.future0923.debug.power.common.utils.DebugPowerExecUtils;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
-import io.github.future0923.debug.power.idea.listener.MulticasterEventPublisher;
-import io.github.future0923.debug.power.idea.listener.impl.ConvertDataListener;
-import io.github.future0923.debug.power.idea.listener.impl.PrettyDataListener;
-import io.github.future0923.debug.power.idea.listener.impl.SimpleDataListener;
+import io.github.future0923.debug.power.idea.listener.data.MulticasterEventPublisher;
+import io.github.future0923.debug.power.idea.listener.data.impl.ConvertDataListener;
+import io.github.future0923.debug.power.idea.listener.data.impl.PrettyDataListener;
+import io.github.future0923.debug.power.idea.listener.data.impl.SimpleDataListener;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -30,6 +34,8 @@ import java.util.List;
  * @author future0923
  */
 public class MainPanel extends JBPanel<MainPanel> {
+
+    private final Project project;
 
     private final ComboBox<ServerDisplayValue> serverComboBox = new ComboBox<>(500);
 
@@ -56,6 +62,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     public MainPanel(Project project, MethodDataContext methodDataContext) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(670, 500));
+        this.project = project;
         this.settingState = DebugPowerSettingState.getInstance(project);
         // attach下拉框
         initServerComboBox();
@@ -107,6 +114,7 @@ public class MainPanel extends JBPanel<MainPanel> {
             } catch (Exception ignored) {
             }
             settingState.setAgentPath(null);
+            DebugPowerNotifierUtil.notifyInfo(project, "clear cache successful");
         });
     }
 
@@ -195,9 +203,23 @@ public class MainPanel extends JBPanel<MainPanel> {
             }
             serverComboBox.addItem(new ServerDisplayValue(descriptor.id(), descriptor.displayName()));
         }
-        if (settingState.getAttach() != null) {
-            serverComboBox.setSelectedItem(settingState.getAttach());
-            setAttached();
+        ServerDisplayValue attach = settingState.getAttach();
+        if (attach != null) {
+            // jps
+            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+            if (null != projectSdk) {
+                String jps = projectSdk.getHomePath() + "/bin/jps";
+                String result = DebugPowerExecUtils.exec(jps);
+                if (result != null && result.contains(attach.getKey())) {
+                    ComboBoxModel<ServerDisplayValue> model = serverComboBox.getModel();
+                    for (int i = 0; i < model.getSize(); i++) {
+                        if (model.getElementAt(i).getKey().equals(attach.getKey())) {
+                            serverComboBox.setSelectedIndex(i);
+                        }
+                    }
+                    setAttached();
+                }
+            }
         }
     }
 

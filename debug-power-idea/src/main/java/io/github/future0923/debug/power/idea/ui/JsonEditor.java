@@ -12,8 +12,6 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.EditorTextField;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.listener.impl.SimpleDataListener;
-import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
