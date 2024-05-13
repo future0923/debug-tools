@@ -2,18 +2,27 @@ package io.github.future0923.debug.power.common.utils;
 
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
+import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 /**
  * @author future0923
  */
+@CommonsLog
 public class DebugPowerParamConvertUtils {
 
     private static final SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter();
@@ -53,8 +62,22 @@ public class DebugPowerParamConvertUtils {
             return DebugPowerJsonUtils.getInstance().fromJson(jsonStr, ResolvableType.forMethodParameter(parameter).getType());
         } else if (RunContentType.SIMPLE.getType().equals(runContentDTO.getType())) {
             if (DebugPowerClassUtils.isSimpleValueType(parameter.getParameterType())) {
-                // spring简单类型转换
-                return simpleTypeConverter.convertIfNecessary(runContentDTO.getContent(), parameter.getParameterType(), parameter);
+                try {
+                    if (parameter.getParameterType().isAssignableFrom(LocalDateTime.class)) {
+                        return LocalDateTime.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    }
+                    if (parameter.getParameterType().isAssignableFrom(LocalDate.class)) {
+                        return LocalDate.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    }
+                    if (parameter.getParameterType().isAssignableFrom(Date.class)) {
+                        return DateUtils.parseDate(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
+                    }
+                    // spring简单类型转换
+                    return simpleTypeConverter.convertIfNecessary(runContentDTO.getContent(), parameter.getParameterType(), parameter);
+                } catch (Exception e) {
+                    log.error("转换失败", e);
+                    return null;
+                }
             }
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
             return Enum.valueOf((Class<? extends Enum>)parameter.getParameterType(), runContentDTO.getContent().toString());
