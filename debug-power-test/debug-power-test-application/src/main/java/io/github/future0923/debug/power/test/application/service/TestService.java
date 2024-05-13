@@ -9,7 +9,10 @@ import io.github.future0923.debug.power.test.application.domain.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -93,4 +96,7 @@ public class TestService {
         return user;
     }
 
+    public void test(LocalDateTime localDateTime, LocalDate localDate, Date date) {
+        System.out.println("localDateTime = " + localDateTime + ", localDate = " + localDate + ", date = " + date);
+    }
 }
