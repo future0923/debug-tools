@@ -218,6 +218,8 @@ public class MainPanel extends JBPanel<MainPanel> {
                         }
                     }
                     setAttached();
+                } else {
+                    settingState.setAttach(null);
                 }
             }
         }
