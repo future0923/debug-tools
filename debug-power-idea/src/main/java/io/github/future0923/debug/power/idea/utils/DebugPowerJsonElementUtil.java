@@ -23,9 +23,12 @@ import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.net.URI;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
@@ -149,7 +152,13 @@ public class DebugPowerJsonElementUtil {
                     try {
                         Class<?> aClass = Class.forName(psiClass.getQualifiedName());
                         if (isSimpleValueType(aClass)) {
-                            return new JsonPrimitive("");
+                            if (aClass.isAssignableFrom(LocalDateTime.class) || aClass.isAssignableFrom(Date.class)) {
+                                return new JsonPrimitive(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                            } else if (aClass.isAssignableFrom(LocalDate.class)) {
+                                return new JsonPrimitive(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
+                            } else {
+                                return new JsonPrimitive("");
+                            }
                         }
                         if (isCollType(aClass)) {
                             JsonArray jsonElements = new JsonArray();
