@@ -124,7 +124,7 @@ public class DebugPowerJsonUtils {
      */
     public static String queryConvertDebugPowerJson(String queryStr) {
         try {
-            URI url = new URI(URLDecoder.decode(queryStr, StandardCharsets.UTF_8));
+            URI url = new URI(URLDecoder.decode(queryStr, StandardCharsets.UTF_8.name()));
             String query = url.getQuery() != null ? url.getQuery() : url.getPath();
             JsonObject result = new JsonObject();
             Arrays.stream(query.split("&"))
