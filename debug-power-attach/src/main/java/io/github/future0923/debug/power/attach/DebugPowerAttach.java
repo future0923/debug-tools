@@ -31,7 +31,7 @@ public class DebugPowerAttach {
             return;
         }
         if (agentArgs.startsWith("file://")) {
-            String agentJson = URLDecoder.decode(agentArgs.substring(7), StandardCharsets.UTF_8);
+            String agentJson = URLDecoder.decode(agentArgs.substring(7), StandardCharsets.UTF_8.name());
             File file = new File(agentJson);
             if (!file.exists()) {
                 System.err.println("文件不存在：" + agentJson);

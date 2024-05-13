@@ -14,7 +14,7 @@ public class DebugPowerExecUtils {
         try {
             process = new ProcessBuilder(command).redirectErrorStream(true).start();
             try (InputStream inputStream = process.getInputStream()) {
-                return new String(inputStream.readAllBytes());
+                return new String(DebugPowerIOUtils.readAllBytes(inputStream));
             } catch (Exception ignored) {
 
             }
@@ -33,7 +33,7 @@ public class DebugPowerExecUtils {
         try {
             process = new ProcessBuilder("/bin/bash", "-c", command).redirectErrorStream(true).start();
             try (InputStream inputStream = process.getInputStream()) {
-                return new String(inputStream.readAllBytes());
+                return new String(DebugPowerIOUtils.readAllBytes(inputStream));
             } catch (Exception ignored) {
 
             }
@@ -52,7 +52,7 @@ public class DebugPowerExecUtils {
         try {
             process = new ProcessBuilder(command).redirectErrorStream(true).start();
             try (InputStream inputStream = process.getInputStream()) {
-                String result = new String(inputStream.readAllBytes());
+                String result = new String(DebugPowerIOUtils.readAllBytes(inputStream));
                 consumer.accept(result);
             } catch (Exception ignored) {
 
@@ -71,7 +71,7 @@ public class DebugPowerExecUtils {
         try {
             process = new ProcessBuilder("/bin/bash", "-c", command).redirectErrorStream(true).start();
             try (InputStream inputStream = process.getInputStream()) {
-                String result = new String(inputStream.readAllBytes());
+                String result = new String(DebugPowerIOUtils.readAllBytes(inputStream));
                 consumer.accept(result);
             } catch (Exception ignored) {
 
