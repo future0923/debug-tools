@@ -49,6 +49,7 @@
         <spring-boot.version>2.7.4</spring-boot.version>
         <hutool.version>5.8.26</hutool.version>
         <pl-joegreen-lambda.version>1.7</pl-joegreen-lambda.version>
+        <hutool.version>5.8.26</hutool.version>
     </properties>
 
     <modules>
@@ -76,6 +77,11 @@
                 <groupId>pl.joegreen</groupId>
                 <artifactId>lambda-from-string</artifactId>
                 <version>${pl-joegreen-lambda.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-json</artifactId>
+                <version>${hutool.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

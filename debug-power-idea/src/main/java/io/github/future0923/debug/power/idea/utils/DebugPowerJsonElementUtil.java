@@ -1,12 +1,8 @@
 package io.github.future0923.debug.power.idea.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONNull;
+import cn.hutool.json.JSONObject;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
@@ -33,12 +29,9 @@ import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class DebugPowerJsonElementUtil {
 
@@ -107,34 +100,34 @@ public class DebugPowerJsonElementUtil {
     }
 
 
-    public static JsonElement toJson(PsiType type) {
+    public static Object toJson(PsiType type) {
         // 新版本使用：PsiTypes.intType()
         if (type.isAssignableFrom(PsiTypes.intType())) {
-            return new JsonPrimitive(0);
+            return 0;
         }
         if (type.isAssignableFrom(PsiTypes.longType())) {
-            return new JsonPrimitive(0);
+            return 0;
         }
         if (type.isAssignableFrom(PsiTypes.booleanType())) {
-            return new JsonPrimitive(false);
+            return false;
         }
         if (type.isAssignableFrom(PsiTypes.byteType())) {
-            return new JsonPrimitive("");
+            return "";
         }
         if (type.isAssignableFrom(PsiTypes.charType())) {
-            return new JsonPrimitive("");
+            return "";
         }
         if (type.isAssignableFrom(PsiTypes.doubleType())) {
-            return new JsonPrimitive(0.00);
+            return 0.00D;
         }
         if (type.isAssignableFrom(PsiTypes.floatType())) {
-            return new JsonPrimitive(0.0);
+            return 0.0F;
         }
         if (type.isAssignableFrom(PsiTypes.shortType())) {
-            return new JsonPrimitive("");
+            return 0;
         }
         if (type instanceof PsiArrayType) {
-            JsonArray jsonElements = new JsonArray();
+            JSONArray jsonElements = new JSONArray();
             jsonElements.add(toJson(((PsiArrayType) type).getComponentType()));
             return jsonElements;
         }
@@ -144,55 +137,55 @@ public class DebugPowerJsonElementUtil {
                 if (psiClass.isEnum()) {
                     PsiField[] fields = psiClass.getFields();
                     if (fields.length > 0) {
-                        return new JsonPrimitive(fields[0].getName());
+                        return fields[0].getName();
                     } else {
-                        return new JsonPrimitive("");
+                        return "";
                     }
                 } else {
                     try {
                         Class<?> aClass = Class.forName(psiClass.getQualifiedName());
                         if (isSimpleValueType(aClass)) {
                             if (aClass.isAssignableFrom(LocalDateTime.class) || aClass.isAssignableFrom(Date.class)) {
-                                return new JsonPrimitive(DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
+                                return DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
                             } else if (aClass.isAssignableFrom(LocalDate.class)) {
-                                return new JsonPrimitive(DateFormatUtils.format(new Date(), "yyyy-MM-dd"));
+                                return DateFormatUtils.format(new Date(), "yyyy-MM-dd");
                             } else {
-                                return new JsonPrimitive("");
+                                return "";
                             }
                         }
                         if (isCollType(aClass)) {
-                            JsonArray jsonElements = new JsonArray();
+                            JSONArray jsonElements = new JSONArray();
                             Arrays.stream(((PsiClassType) type).getParameters()).map(DebugPowerJsonElementUtil::toJson).forEach(jsonElements::add);
                             return jsonElements;
                         }
                         if (isMapType(aClass)) {
-                            JsonObject jsonObject = new JsonObject();
+                            JSONObject jsonObject = new JSONObject();
                             PsiType[] parameters = ((PsiClassType) type).getParameters();
                             if (parameters.length > 1) {
-                                JsonElement key = toJson(parameters[0]);
-                                JsonElement value = toJson(parameters[1]);
-                                jsonObject.add(key instanceof JsonPrimitive ? key.getAsString() : key.toString(), value);
+                                Object key = toJson(parameters[0]);
+                                Object value = toJson(parameters[1]);
+                                if (key != null) {
+                                    jsonObject.set(key.toString(), value);
+                                }
                             }
                             return jsonObject;
                         }
                     } catch (Exception ignored) {
                     }
                     if (psiClass.isInterface()) {
-                        return JsonNull.INSTANCE;
+                        return JSONNull.NULL;
                     }
-                    JsonObject jsonObject1 = new JsonObject();
+                    JSONObject jsonObject1 = new JSONObject();
                     Arrays.stream(psiClass.getFields()).forEach(field -> {
                         if (!StringUtils.contains(field.getText(), " static ")) {
-                            jsonObject1.add(field.getName(), toJson(field.getType()));
+                            jsonObject1.set(field.getName(), toJson(field.getType()));
                         }
                     });
                     return jsonObject1;
                 }
             }
         }
-
-
-        return JsonNull.INSTANCE;
+        return JSONNull.NULL;
     }
 
     public static boolean isSimpleValueType(Class<?> type) {
@@ -218,53 +211,37 @@ public class DebugPowerJsonElementUtil {
     }
 
     public static String getJsonText(PsiParameterList psiParameterList1) {
-        JsonObject jsonObject = toParamNameListNew(psiParameterList1);
-        return DebugPowerJsonUtils.getInstancePretty().toJson(jsonObject);
+        JSONObject jsonObject = toParamNameListNew(psiParameterList1);
+        return DebugPowerJsonUtils.toJsonPrettyStr(jsonObject);
     }
 
-    public static JsonObject toParamNameListNew(PsiParameterList parameterList) {
-        JsonObject jsonObject = new JsonObject();
+    public static JSONObject toParamNameListNew(PsiParameterList parameterList) {
+        JSONObject jsonObject = new JSONObject();
         for (int i = 0; i < parameterList.getParametersCount(); i++) {
             PsiParameter parameter = Objects.requireNonNull(parameterList.getParameter(i));
             String key = parameter.getName();
             PsiType type = parameter.getType();
-            JsonObject argContent = new JsonObject();
+            JSONObject argContent = new JSONObject();
             String contentType = getContentType(type);
-            argContent.addProperty("type", contentType);
+            argContent.set("type", contentType);
             if (!RunContentType.BEAN.getType().equals(contentType)) {
-                argContent.add("content", toJson(type));
+                argContent.set("content", toJson(type));
             }
-            jsonObject.add(key, argContent);
+            jsonObject.set(key, argContent);
         }
         return jsonObject;
     }
 
     public static String getSimpleText(PsiParameterList parameterList) {
-        JsonObject jsonObject = new JsonObject();
+        JSONObject jsonObject = new JSONObject();
         for (int i = 0; i < parameterList.getParametersCount(); i++) {
             PsiParameter parameter = Objects.requireNonNull(parameterList.getParameter(i));
             String key = parameter.getName();
-            jsonObject.add(key, null);
+            jsonObject.set(key, null);
         }
-        Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-        return gson.toJson(jsonObject);
+        return DebugPowerJsonUtils.toJsonStr(jsonObject);
     }
 
-    /**
-     * 获取JsonObject的所有key
-     */
-    public static Set<String> getJsonObjectKey(JsonObject jsonObject) {
-        Set<String> keys = new HashSet<>();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            String key = entry.getKey();
-            keys.add(key);
-            JsonElement value = entry.getValue();
-            if (value.isJsonObject()) {
-                keys.addAll(getJsonObjectKey(value.getAsJsonObject()));
-            }
-        }
-        return keys;
-    }
 
     public static boolean isJsonKey(PsiElement psiElement) {
         if (psiElement == null) {
@@ -321,9 +298,4 @@ public class DebugPowerJsonElementUtil {
         return 123 == preChar;
     }
 
-    public static JsonArray toJsonArray(List<String> list) {
-        JsonArray jsonArray = new JsonArray();
-        list.forEach(jsonArray::add);
-        return jsonArray;
-    }
 }

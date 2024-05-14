@@ -38,7 +38,7 @@ public class DebugPowerAttach {
             }
             agentArgs = DebugPowerFileUtils.getFileAsString(file);
         }
-        RunDTO runDTO = DebugPowerJsonUtils.getInstance().fromJson(agentArgs, RunDTO.class);
+        RunDTO runDTO = DebugPowerJsonUtils.toBean(agentArgs, RunDTO.class);
         Class<?> targetClass = DebugPowerClassUtils.loadClass(runDTO.getTargetClassName());
         Method targetMethod;
         try {

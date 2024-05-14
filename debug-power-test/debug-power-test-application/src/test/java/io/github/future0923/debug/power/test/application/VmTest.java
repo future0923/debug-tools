@@ -64,7 +64,7 @@ public class VmTest {
                 .content("19")
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class VmTest {
                 .content("(x, y) -> x + y")
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class VmTest {
                 .type(RunContentType.BEAN.getType())
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class VmTest {
                 .content("{\"name\":\"future0923\",\"age\":18}")
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test
@@ -143,7 +143,7 @@ public class VmTest {
                 .content("{\"name\":\"future0923\",\"age\":18}")
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class VmTest {
                 .content("0")
                 .build());
         runDTO.setTargetMethodContent(contentMap);
-        args = DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        args = DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 
     @Test

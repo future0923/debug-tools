@@ -1,7 +1,5 @@
 package io.github.future0923.debug.power.idea;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,6 +33,7 @@ import io.github.future0923.debug.power.idea.ui.main.MainDialog;
 import io.github.future0923.debug.power.idea.utils.DebugPowerActionUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerIdeaClassUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,34 +85,36 @@ public class EditorPopupMenuAction extends AnAction {
                 DebugPowerNotifierUtil.notifyError(project, "state not exists");
                 return;
             }
-
-            if (StringUtils.isBlank(settingState.getAgentPath())) {
-                InputStream inputStream = EditorPopupMenuAction.class.getResourceAsStream("/lib/debug-power-agent-jar-with-dependencies.jar");
-                if (inputStream == null) {
-                    DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
-                    return;
-                }
-                settingState.setAgentPath(DebugPowerFileUtils.getTmpLibFile(inputStream, "agent", ".jar"));
-            }
-
             PsiClass psiClass = (PsiClass) psiMethod.getParent();
             String cacheKey = DebugPowerActionUtil.genCacheKey(psiClass, psiMethod);
             ParamCache cache = settingState.getCache(cacheKey);
             ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass.getQualifiedName());
-            MethodDataContext methodDataContext = new MethodDataContext(classDataContext, DebugPowerIdeaClassUtil.getMethodQualifiedName(psiMethod), psiMethod, cache.content(), project);
+            MethodDataContext methodDataContext = new MethodDataContext(classDataContext, DebugPowerIdeaClassUtil.getMethodQualifiedName(psiMethod), psiMethod, cache.formatContent(), project);
             MainDialog dialog = new MainDialog(methodDataContext, project);
             PsiMethod finalPsiMethod = psiMethod;
             dialog.setOkAction((auth, text) -> {
+                if (StringUtils.isBlank(settingState.getAgentPath())) {
+                    InputStream inputStream = EditorPopupMenuAction.class.getResourceAsStream("/lib/debug-power-agent-jar-with-dependencies.jar");
+                    if (inputStream == null) {
+                        DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
+                        return;
+                    }
+                    try {
+                        settingState.setAgentPath(DebugPowerFileUtils.getTmpLibFile(inputStream, "agent", ".jar"));
+                    } catch (IOException ex) {
+                        log.error("读取代理Jar失败", ex);
+                        return;
+                    }
+                }
                 ParamCache paramCacheDto = new ParamCache(text);
                 settingState.putCache(cacheKey, paramCacheDto);
-                Gson gson = new Gson();
                 Map<String, String> headers = null;
                 if (StringUtil.isNotEmpty(auth)) {
                     headers = new HashMap<>();
                     headers.put("Authorization", auth);
                     settingState.putHeader("Authorization", auth);
                 }
-                Map<String, RunContentDTO> contentMap = gson.fromJson(text, new TypeToken<Map<String, RunContentDTO>>() {}.getType());
+                Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
                 String jsonDtoStr = getJsonDtoStr(psiClass.getQualifiedName(), finalPsiMethod.getName(), DebugPowerActionUtil.toParamTypeNameList(finalPsiMethod.getParameterList()), contentMap, headers);
                 //Messages.showInfoMessage(jsonDtoStr, methodName);
                 ServerDisplayValue attach = settingState.getAttach();
@@ -128,9 +129,7 @@ public class EditorPopupMenuAction extends AnAction {
                             String pathname = project.getBasePath() + "/.idea/DebugPower/agent.json";
                             File file = new File(pathname);
                             if (!file.exists()) {
-                                if (!file.createNewFile()) {
-                                    log.error("参数过长创建json文件失败");
-                                }
+                                FileUtils.touch(file);
                             }
                             FileUtil.writeToFile(file, jsonDtoStr);
                             agentParam = "file://" + URLEncoder.encode(pathname, StandardCharsets.UTF_8);
@@ -212,6 +211,6 @@ public class EditorPopupMenuAction extends AnAction {
         runDTO.setTargetMethodName(methodName);
         runDTO.setTargetMethodParameterTypes(paramTypeNameList);
         runDTO.setTargetMethodContent(contentMap);
-        return DebugPowerJsonUtils.getInstance().toJson(runDTO);
+        return DebugPowerJsonUtils.toJsonStr(runDTO);
     }
 }
