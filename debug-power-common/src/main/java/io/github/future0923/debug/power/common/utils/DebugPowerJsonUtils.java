@@ -1,13 +1,9 @@
 package io.github.future0923.debug.power.common.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.json.JSONNull;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
 import org.apache.commons.lang3.StringUtils;
@@ -21,22 +17,11 @@ import java.util.Map;
 /**
  * @author future0923
  */
-public class DebugPowerJsonUtils {
+public class DebugPowerJsonUtils extends JSONUtil {
 
-    private static final Gson gson;
-    private static final Gson gsonPretty;
-
-    static {
-        gson = new Gson();
-        gsonPretty = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-    }
-
-    public static Gson getInstance() {
-        return gson;
-    }
-
-    public static Gson getInstancePretty() {
-        return gsonPretty;
+    public static Map<String, RunContentDTO> toRunContentDTOMap(String jsonInput) {
+        return toBean(jsonInput, new TypeReference<Map<String, RunContentDTO>>() {
+        }, true);
     }
 
     /**
@@ -46,7 +31,7 @@ public class DebugPowerJsonUtils {
      * @return 美化后的json
      */
     public static String pretty(String jsonStr) {
-        return gsonPretty.toJson(JsonParser.parseString(jsonStr));
+        return toJsonPrettyStr(parse(jsonStr));
     }
 
     /**
@@ -59,7 +44,7 @@ public class DebugPowerJsonUtils {
         if (StringUtils.isBlank(json) || "{}".equals(json)) {
             return json;
         }
-        return gson.toJson(JsonParser.parseString(json));
+        return toJsonStr(parse(json));
     }
 
     /**
@@ -69,23 +54,21 @@ public class DebugPowerJsonUtils {
      * @return DebugPower能运行的json
      */
     public static String jsonConvertDebugPowerJson(String jsonInput) {
-        JsonObject jsonObject = gson.fromJson(jsonInput, JsonObject.class);
-        JsonObject result = new JsonObject();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+        JSONObject jsonObject = parseObj(jsonInput);
+        JSONObject result = new JSONObject();
+        for (Map.Entry<String, Object> entry : jsonObject) {
             String key = entry.getKey();
-            JsonElement value = entry.getValue();
-            JsonObject runContent = new JsonObject();
-            if (value.isJsonPrimitive()) {
-                runContent.addProperty("type", RunContentType.SIMPLE.getType());
-            } else if (value.isJsonArray() || value.isJsonObject() || value.isJsonNull()) {
-                runContent.addProperty("type", RunContentType.JSON_ENTITY.getType());
+            Object value = entry.getValue();
+            JSONObject runContent = new JSONObject();
+            if (DebugPowerClassUtils.isSimpleValueType(value.getClass())) {
+                runContent.set("type", RunContentType.SIMPLE.getType());
             } else {
-                runContent.addProperty("type", RunContentType.UNKNOWN.getType());
+                runContent.set("type", RunContentType.JSON_ENTITY.getType());
             }
-            runContent.add("content", value);
-            result.add(key, runContent);
+            runContent.set("content", value);
+            result.set(key, runContent);
         }
-        return gsonPretty.toJson(result);
+        return toJsonPrettyStr(result);
     }
 
     /**
@@ -95,25 +78,29 @@ public class DebugPowerJsonUtils {
      * @return DebugPower能运行的json
      */
     public static String debugPowerJsonConvertJson(String jsonInput) {
-        Map<String, RunContentDTO> runContentMap = gson.fromJson(jsonInput, new TypeToken<Map<String, RunContentDTO>>() {
-        }.getType());
-        JsonObject result = new JsonObject();
-        runContentMap.forEach((k, v) -> {
+        Map<String, RunContentDTO> runContentMap = toRunContentDTOMap(jsonInput);
+        JSONObject result = new JSONObject();
+        for (Map.Entry<String, RunContentDTO> entry : runContentMap.entrySet()) {
+            String k = entry.getKey();
+            RunContentDTO v = entry.getValue();
+            if (runContentMap.size() == 1 && RunContentType.JSON_ENTITY.getType().equals(v.getType())) {
+                return toJsonPrettyStr(parse(v.getContent()));
+            }
             if (v.getContent() == null) {
-                result.add(k, JsonNull.INSTANCE);
-                return;
+                result.set(k, JSONNull.NULL);
+                continue;
             }
             if (RunContentType.SIMPLE.getType().equals(v.getType())
                     && StringUtils.isBlank(v.getContent().toString())) {
-                result.add(k, new JsonPrimitive(""));
-                return;
+                result.set(k, "");
+                continue;
             }
             if (RunContentType.SIMPLE.getType().equals(v.getType())
                     || RunContentType.JSON_ENTITY.getType().equals(v.getType())) {
-                result.add(k, JsonParser.parseString(DebugPowerJsonUtils.getInstance().toJson(v.getContent())));
+                result.set(k, parse(v.getContent()));
             }
-        });
-        return gsonPretty.toJson(result);
+        }
+        return toJsonPrettyStr(result);
     }
 
     /**
@@ -126,21 +113,21 @@ public class DebugPowerJsonUtils {
         try {
             URI url = new URI(URLDecoder.decode(queryStr, StandardCharsets.UTF_8.name()));
             String query = url.getQuery() != null ? url.getQuery() : url.getPath();
-            JsonObject result = new JsonObject();
+            JSONObject result = new JSONObject();
             Arrays.stream(query.split("&"))
                     .map(p -> p.split("="))
                     .filter(p -> p.length > 0)
                     .forEach(p -> {
-                        JsonObject runContent = new JsonObject();
-                        runContent.addProperty("type", RunContentType.SIMPLE.getType());
+                        JSONObject runContent = new JSONObject();
+                        runContent.set("type", RunContentType.SIMPLE.getType());
                         if (p.length == 2) {
-                            runContent.addProperty("content", p[1]);
+                            runContent.set("content", p[1]);
                         } else {
-                            runContent.add("content", JsonNull.INSTANCE);
+                            runContent.set("content", JSONNull.NULL);
                         }
-                        result.add(p[0], runContent);
+                        result.set(p[0], runContent);
                     });
-            return gsonPretty.toJson(result);
+            return toJsonPrettyStr(result);
         } catch (Exception e) {
             return "{}";
         }
@@ -153,8 +140,7 @@ public class DebugPowerJsonUtils {
      * @return query参数
      */
     public static String debugPowerJsonConvertQuery(String jsonInput) {
-        Map<String, RunContentDTO> runContentMap = gson.fromJson(jsonInput, new TypeToken<Map<String, RunContentDTO>>() {
-        }.getType());
+        Map<String, RunContentDTO> runContentMap = toRunContentDTOMap(jsonInput);
         StringBuilder sb = new StringBuilder();
         runContentMap.forEach((k, v) -> {
             if (RunContentType.SIMPLE.getType().equals(v.getType())) {
