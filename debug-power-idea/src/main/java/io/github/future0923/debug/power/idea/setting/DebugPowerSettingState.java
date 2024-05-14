@@ -10,6 +10,7 @@ import io.github.future0923.debug.power.idea.model.ParamCache;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,18 +61,21 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
     }
 
     public void putCache(String key, ParamCache value) {
-        cache.put(key, DebugPowerJsonUtils.getInstance().toJson(value));
+        cache.put(key, DebugPowerJsonUtils.toJsonStr(value));
     }
 
     public ParamCache getCache(String key) {
         String value = cache.get(key);
+        if (StringUtils.isBlank(value)) {
+            return ParamCache.NULL;
+        }
         try {
-            ParamCache obj = DebugPowerJsonUtils.getInstance().fromJson(value, ParamCache.class);
-            if (obj.content() != null) {
+            ParamCache obj = DebugPowerJsonUtils.toBean(value, ParamCache.class);
+            if (obj.formatContent() != null) {
                 return obj;
             }
         } catch (Exception ignored) {
         }
-        return new ParamCache(value);
+        return ParamCache.NULL;
     }
 }

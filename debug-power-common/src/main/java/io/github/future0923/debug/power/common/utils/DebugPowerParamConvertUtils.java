@@ -4,7 +4,6 @@ import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
 import lombok.extern.apachecommons.CommonsLog;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -12,7 +11,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 
 import java.lang.reflect.Method;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -58,8 +56,7 @@ public class DebugPowerParamConvertUtils {
                 return DebugPowerLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());
             }
         } else if (RunContentType.JSON_ENTITY.getType().equals(runContentDTO.getType())) {
-            String jsonStr = DebugPowerJsonUtils.getInstance().toJson(runContentDTO.getContent());
-            return DebugPowerJsonUtils.getInstance().fromJson(jsonStr, ResolvableType.forMethodParameter(parameter).getType());
+            return DebugPowerJsonUtils.toBean(DebugPowerJsonUtils.toJsonStr(runContentDTO.getContent()), ResolvableType.forMethodParameter(parameter).getType(), true);
         } else if (RunContentType.SIMPLE.getType().equals(runContentDTO.getType())) {
             if (DebugPowerClassUtils.isSimpleValueType(parameter.getParameterType())) {
                 try {
