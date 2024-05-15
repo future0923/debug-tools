@@ -124,21 +124,17 @@ public class EditorPopupMenuAction extends AnAction {
                 }
                 CompletableFuture.runAsync(() -> {
                     String agentParam;
-                    if (jsonDtoStr.length() > 500) {
-                        try {
-                            String pathname = project.getBasePath() + "/.idea/DebugPower/agent.json";
-                            File file = new File(pathname);
-                            if (!file.exists()) {
-                                FileUtils.touch(file);
-                            }
-                            FileUtil.writeToFile(file, jsonDtoStr);
-                            agentParam = "file://" + URLEncoder.encode(pathname, StandardCharsets.UTF_8);
-                        } catch (IOException ex) {
-                            log.error("参数过长写入json文件失败", ex);
-                            return;
+                    try {
+                        String pathname = project.getBasePath() + "/.idea/DebugPower/agent.json";
+                        File file = new File(pathname);
+                        if (!file.exists()) {
+                            FileUtils.touch(file);
                         }
-                    } else {
-                        agentParam = jsonDtoStr;
+                        FileUtil.writeToFile(file, jsonDtoStr);
+                        agentParam = "file://" + URLEncoder.encode(pathname, StandardCharsets.UTF_8);
+                    } catch (IOException ex) {
+                        log.error("参数写入json文件失败", ex);
+                        return;
                     }
                     VirtualMachine virtualMachine = null;
                     try {
