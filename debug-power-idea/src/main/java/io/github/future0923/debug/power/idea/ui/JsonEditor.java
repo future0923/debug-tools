@@ -31,10 +31,9 @@ public class JsonEditor extends EditorTextField {
 
     private static final FileType fileType = JsonFileType.INSTANCE;
 
-    @Nullable
     private final PsiParameterList psiParameterList;
 
-    public JsonEditor(String cacheText, @Nullable PsiParameterList psiParameterList, Project project) {
+    public JsonEditor(String cacheText, PsiParameterList psiParameterList, Project project) {
         super("", project, JsonFileType.INSTANCE);
         this.psiParameterList = psiParameterList;
 
