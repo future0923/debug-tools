@@ -9,4 +9,6 @@ public enum ConvertDataType {
 
     Query,
 
+    Path,
+
 }

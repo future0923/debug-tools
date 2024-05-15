@@ -9,12 +9,15 @@ import com.intellij.psi.PsiParameterList;
 import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author future0923
@@ -67,6 +70,12 @@ public class ConvertDialog extends DialogWrapper {
                 jsonEditor.setText(DebugPowerJsonUtils.jsonConvertDebugPowerJson(text));
             } else if (convertPanel.getQuery().isSelected()) {
                 jsonEditor.setText(DebugPowerJsonUtils.queryConvertDebugPowerJson(text));
+            } else if (convertPanel.getPath().isSelected()) {
+                List<String> args = Arrays.stream(jsonEditor.getPsiParameterList().getParameters())
+                        .filter(psiParameter -> RunContentType.SIMPLE.getType().equals(DebugPowerJsonElementUtil.getContentType(psiParameter.getType())))
+                        .map(PsiParameter::getName)
+                        .toList();
+                jsonEditor.setText(DebugPowerJsonUtils.pathConvertDebugPowerJson(text, args));
             }
         } else if (ConvertType.EXPORT.equals(convertType)) {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(convertPanel.getEditorTextField().getText()), null);
