@@ -84,11 +84,24 @@ https://www.iconfont.cn/api/common/suggest.json?q=import&type=icon&t=17153029719
 q=import&type=icon&t=1715302971995&ctoken=TSzvd6zR0QMhoi2wCCSC5xNm
 ```
 
+**Path 格式：**
+```text
+# 情况1
+/arg1/arg2
+# 情况2
+arg1/arg2
+# 情况3
+arg1/arg2/
+# 情况4
+/arg1/arg2/
+```
+
+
 ### 导出
 
 ![export.png](images/export.png)
 
-当 `DebugPower` 缓存的数据你想通过postman等工具请求是，你可以点击 `export` 按钮导出 `json` 或者 `query` 参数。
+当 `DebugPower` 缓存的数据你想通过postman等工具请求是，你可以点击 `export` 按钮导出 `json` `query` `path` 参数。
 
 ### 美化
 

@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.common.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
@@ -12,6 +13,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -95,8 +97,9 @@ public class DebugPowerJsonUtils extends JSONUtil {
                 result.set(k, "");
                 continue;
             }
-            if (RunContentType.SIMPLE.getType().equals(v.getType())
-                    || RunContentType.JSON_ENTITY.getType().equals(v.getType())) {
+            if (RunContentType.SIMPLE.getType().equals(v.getType())) {
+                result.set(k, v.getContent());
+            } else if (RunContentType.JSON_ENTITY.getType().equals(v.getType())) {
                 result.set(k, parse(v.getContent()));
             }
         }
@@ -152,5 +155,48 @@ public class DebugPowerJsonUtils extends JSONUtil {
             }
         });
         return StringUtils.removeEnd(sb.toString(), "&");
+    }
+
+    /**
+     * 正常的path转为DebugPower能运行的json
+     *
+     * @param pathStr        path参数
+     * @param methodArgsName 方法SIMPLE参数名
+     * @return DebugPower能运行的json
+     */
+    public static String pathConvertDebugPowerJson(String pathStr, List<String> methodArgsName) {
+        if (StringUtils.isBlank(pathStr) || CollUtil.isEmpty(methodArgsName)) {
+            return "{}";
+        }
+        String path = StringUtils.removeEnd(StringUtils.removeStart(pathStr, "/"), "/");
+        JSONObject result = new JSONObject();
+        String[] split = path.split("/");
+        for (int i = 0; i < split.length; i++) {
+            if (i >= methodArgsName.size()) {
+                break;
+            }
+            JSONObject runContent = new JSONObject();
+            runContent.set("type", RunContentType.SIMPLE.getType());
+            runContent.set("content", split[i]);
+            result.set(methodArgsName.get(i), runContent);
+        }
+        return toJsonPrettyStr(result);
+    }
+
+    /**
+     * DebugPower能运行的json转为正常的path
+     *
+     * @param jsonInput DebugPower能运行的json
+     * @return path参数
+     */
+    public static String debugPowerJsonConvertPath(String jsonInput) {
+        Map<String, RunContentDTO> runContentMap = toRunContentDTOMap(jsonInput);
+        StringBuilder sb = new StringBuilder();
+        runContentMap.forEach((k, v) -> {
+            if (RunContentType.SIMPLE.getType().equals(v.getType()) && v.getContent() != null) {
+                sb.append("/").append(v.getContent());
+            }
+        });
+        return sb.toString();
     }
 }

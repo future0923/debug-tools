@@ -1,6 +1,7 @@
 package io.github.future0923.debug.power.idea.ui.convert;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
@@ -29,6 +30,9 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
 
     @Getter
     private final JBRadioButton query = new JBRadioButton(ConvertDataType.Query.name());
+
+    @Getter
+    private final JBRadioButton path = new JBRadioButton(ConvertDataType.Path.name());
 
     private final ToolBar toolBar;
 
@@ -61,6 +65,7 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
         });
         json.addActionListener(e -> changeText(convertType));
         query.addActionListener(e -> changeText(convertType));
+        path.addActionListener(e -> changeText(convertType));
         changeText(convertType);
         initLayout();
     }
@@ -74,6 +79,13 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
             if (ConvertType.EXPORT.equals(convertType)) {
                 editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertQuery(jsonEditor.getText()));
             }
+        } else if (path.isSelected()) {
+            if (ConvertType.EXPORT.equals(convertType)) {
+                PsiParameterList psiParameterList = jsonEditor.getPsiParameterList();
+                if (psiParameterList != null) {
+                    editorTextField.setText(DebugPowerJsonUtils.debugPowerJsonConvertPath(jsonEditor.getText()));
+                }
+            }
         }
     }
 
@@ -81,10 +93,12 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(json);
         buttonGroup.add(query);
+        buttonGroup.add(path);
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         panel.add(json);
         panel.add(query);
+        panel.add(path);
 
         JPanel jPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
