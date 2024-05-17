@@ -1,6 +1,7 @@
 package io.github.future0923.debug.power.idea.utils;
 
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import com.intellij.psi.PsiArrayType;
@@ -188,6 +189,64 @@ public class DebugPowerJsonElementUtil {
         return JSONNull.NULL;
     }
 
+    public static Object toSimpleJson(PsiType type) {
+        // 新版本使用：PsiTypes.intType()
+        if (type.isAssignableFrom(PsiTypes.intType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.longType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.booleanType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.byteType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.charType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.doubleType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.floatType())) {
+            return JSONNull.NULL;
+        }
+        if (type.isAssignableFrom(PsiTypes.shortType())) {
+            return JSONNull.NULL;
+        }
+        if (type instanceof PsiArrayType) {
+            return new JSONArray();
+        }
+        if (type instanceof PsiClassType) {
+            PsiClass psiClass = ((PsiClassType) type).resolve();
+            if (null != psiClass) {
+                if (psiClass.isEnum()) {
+                    return JSONNull.NULL;
+                } else {
+                    try {
+                        Class<?> aClass = Class.forName(psiClass.getQualifiedName());
+                        if (isSimpleValueType(aClass)) {
+                            return JSONNull.NULL;
+                        }
+                        if (isCollType(aClass)) {
+                            return new JSONArray();
+                        }
+                        if (isMapType(aClass)) {
+                            return new JSONObject();
+                        }
+                    } catch (Exception ignored) {
+                    }
+                    if (psiClass.isInterface()) {
+                        return JSONNull.NULL;
+                    }
+                    return new JSONObject();
+                }
+            }
+        }
+        return JSONNull.NULL;
+    }
+
     public static boolean isSimpleValueType(Class<?> type) {
         return (Void.class != type && void.class != type &&
                 (ClassUtils.isPrimitiveOrWrapper(type) ||
@@ -233,13 +292,17 @@ public class DebugPowerJsonElementUtil {
     }
 
     public static String getSimpleText(PsiParameterList parameterList) {
-        JSONObject jsonObject = new JSONObject();
+        JSONConfig jsonConfig = JSONConfig.create();
+        jsonConfig.setIgnoreNullValue(false);
+        JSONObject jsonObject = new JSONObject(jsonConfig);
         for (int i = 0; i < parameterList.getParametersCount(); i++) {
             PsiParameter parameter = Objects.requireNonNull(parameterList.getParameter(i));
-            String key = parameter.getName();
-            jsonObject.set(key, null);
+            JSONObject argContent = new JSONObject(jsonConfig);
+            argContent.set("type", getContentType(parameter.getType()));
+            argContent.set("content", toSimpleJson(parameter.getType()));
+            jsonObject.set(parameter.getName(), argContent);
         }
-        return DebugPowerJsonUtils.toJsonStr(jsonObject);
+        return DebugPowerJsonUtils.toJsonPrettyStr(jsonObject);
     }
 
 
