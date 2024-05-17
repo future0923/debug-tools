@@ -63,7 +63,7 @@ public class QuickDebugEditorPopupMenuAction extends AnAction {
             }
             PsiClass psiClass = (PsiClass) psiMethod.getParent();
 
-            ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass.getQualifiedName());
+            ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass);
             MethodDataContext methodDataContext = new MethodDataContext(classDataContext, psiMethod, project);
             MainDialog dialog = new MainDialog(methodDataContext, project);
             dialog.show();

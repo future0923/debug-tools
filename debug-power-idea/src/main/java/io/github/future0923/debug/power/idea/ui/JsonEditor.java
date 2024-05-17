@@ -12,6 +12,7 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.EditorTextField;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
+import io.github.future0923.debug.power.idea.listener.data.event.ExampleDataEvent;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -53,8 +54,12 @@ public class JsonEditor extends EditorTextField {
         return DebugPowerJsonElementUtil.getJsonText(psiParameterList);
     }
 
-    public void regenerateJsonText() {
-        setText(getJsonText(psiParameterList));
+    public void regenerateJsonText(ExampleDataEvent.Type type) {
+        if (ExampleDataEvent.Type.SIMPLE.equals(type)) {
+            setText(DebugPowerJsonElementUtil.getSimpleText(psiParameterList));
+        } else if (ExampleDataEvent.Type.WITH_DEFAULT.equals(type)) {
+            setText(getJsonText(psiParameterList));
+        }
     }
 
     public void prettyJsonText() {
