@@ -122,7 +122,7 @@ arg1/arg2/
 当你写乱的时候，你可以点击它重新根据方法参数生成不带默认值的参数，然后自己填写。
 
 
-### 重新生成不带默认值的参数
+### 重新生成带默认值的参数
 
 ![gen_param_default](images/gen_param_default.png)
 
