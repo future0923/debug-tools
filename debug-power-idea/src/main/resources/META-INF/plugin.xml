@@ -1,19 +1,19 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-  <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-  <id>io.github.future0923.DebugPower</id>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>io.github.future0923.DebugPower</id>
 
-  <!-- Public plugin name should be written in Title Case.
-       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-  <name>DebugPower</name>
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>DebugPower</name>
 
-  <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
-  <vendor email="future94@qq.com" url="https://github.com/future0923">future0923</vendor>
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="future94@qq.com" url="https://github.com/future0923">future0923</vendor>
 
-  <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
-       Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
-       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
-  <description><![CDATA[
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
     <h2>
       DebugPower
     </h2>
@@ -25,39 +25,52 @@
     </p>
   ]]></description>
 
-  <!-- Product and plugin compatibility requirements.
-       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-  <depends>com.intellij.modules.platform</depends>
-  <depends>com.intellij.java</depends>
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
 
-  <!-- Extension points defined by the plugin.
-       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
-  <extensions defaultExtensionNs="com.intellij">
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
 
-    <!--状态配置-->
-    <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState" />
+        <!--状态配置-->
+        <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState"/>
 
-    <!--通知-->
-    <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
-    <notificationGroup id="DebugPower" displayType="BALLOON"/>
+        <!--通知-->
+        <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
+        <notificationGroup id="DebugPower" displayType="BALLOON"/>
 
-    <!--json编辑器代码提示-->
-    <completion.contributor language="JSON" implementationClass="io.github.future0923.debug.power.idea.completion.DebugPowerJsonEditorCompletionContributor" />
+        <!--json编辑器代码提示-->
+        <completion.contributor language="JSON"
+                                implementationClass="io.github.future0923.debug.power.idea.completion.DebugPowerJsonEditorCompletionContributor"/>
 
-    <lang.directNavigationProvider implementation="io.github.future0923.debug.power.idea.navigation.DebugPowerJsonEditorDirectNavigationProvider" />
-  </extensions>
+        <lang.directNavigationProvider
+                implementation="io.github.future0923.debug.power.idea.navigation.DebugPowerJsonEditorDirectNavigationProvider"/>
+    </extensions>
 
-  <actions>
-    <action id="DebugPowerTool.Open" class="io.github.future0923.debug.power.idea.EditorPopupMenuAction"
-            text="Quick Debug"
-            description="Quickly call to the current location for execution">
-      <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-      <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl M"/>
-    </action>
-  </actions>
+    <actions>
+        <group id="DebugPowerTool">
+            <separator/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <action id="DebugPowerTool.QuickDebug"
+                    class="io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction"
+                    text="Quick Debug"
+                    description="Quickly call to the current location for execution">
+                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl M"/>
+            </action>
+            <action id="DebugPowerTool.ExecuteLast"
+                    class="io.github.future0923.debug.power.idea.action.ExecuteLastEditorPopupMenuAction"
+                    text="Execute Last"
+                    description="Quickly call last for execution">
+                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
+            </action>
+            <separator/>
+        </group>
+    </actions>
 
-  <applicationListeners>
-    <listener class="io.github.future0923.debug.power.idea.listener.idea.DebugPowerExecutionListener"
-              topic="com.intellij.execution.ExecutionListener"/>
-  </applicationListeners>
+    <applicationListeners>
+        <listener class="io.github.future0923.debug.power.idea.listener.idea.DebugPowerExecutionListener"
+                  topic="com.intellij.execution.ExecutionListener"/>
+    </applicationListeners>
 </idea-plugin>

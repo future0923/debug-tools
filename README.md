@@ -32,6 +32,12 @@ idea插件地址：[file/DebugPowerIdeaPlugin.zip](file/DebugPowerIdeaPlugin.zip
 
 - 如果你要修改，可以修改对应的参数即可。
 
+**执行上次**
+
+上面的操作会发起当前所在方法的请求，如果你已经不再当前方法了还想执行上次，点击 `Execute Last` 即可执行上次请求。
+
+![execute_last](images/execute_last.png)
+
 # Param
 
 ## 参数的类型
