@@ -1,7 +1,11 @@
 package io.github.future0923.debug.power.core;
 
+import org.springframework.aop.framework.AopProxy;
+
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Map;
 
 /**
@@ -22,7 +26,17 @@ public class DebugBootstrap {
     }
 
     public void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs) throws Exception {
-        Thread.currentThread().setContextClassLoader(DebugBootstrap.class.getClassLoader());
+        if (instance instanceof Proxy) {
+            InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
+            if (invocationHandler instanceof AopProxy) {
+                try {
+                    System.out.println(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs));
+                    return;
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         Object future0923 = bridgedMethod.invoke(instance, targetMethodArgs);
         System.out.println(future0923);
     }

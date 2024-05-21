@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.attach;
 
+import cn.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerFileUtils;
@@ -35,6 +36,7 @@ public class DebugPowerAttach {
             File file = new File(agentJson);
             if (!file.exists()) {
                 System.err.println("文件不存在：" + agentJson);
+                return;
             }
             agentArgs = DebugPowerFileUtils.getFileAsString(file);
         }
@@ -53,8 +55,8 @@ public class DebugPowerAttach {
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
         // 获取正确的目标方法（非桥接方法）
         Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(targetMethod);
+        ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugPowerParamConvertUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
-
         DebugBootstrap debugBootstrap = DebugBootstrap.getInstance(inst, new HashMap<>());
         debugBootstrap.run(targetClass, bridgedMethod, instance, targetMethodArgs);
         //File debugCoreJar = new File("/Users/weilai/Downloads/debug-power/debug-power-core/target/debug-core.jar");
@@ -71,8 +73,6 @@ public class DebugPowerAttach {
         //} catch (Exception e) {
         //    e.printStackTrace();
         //}
-        // TODO
-        Thread.currentThread().setContextClassLoader(DebugPowerAttach.class.getClassLoader());
     }
 
     public static void setRequest(RunDTO runDTO) {
