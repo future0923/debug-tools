@@ -11,6 +11,7 @@ import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.utils.DebugPowerFileUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
+import io.github.future0923.debug.power.idea.constant.ProjectConstant;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.model.ParamCache;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
@@ -68,8 +69,8 @@ public class MainDialog extends DialogWrapper {
         String auth = mainPanel.getAuthField().getText();
         String text = DebugPowerJsonUtils.compress(editor.getText());
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (StringUtils.isBlank(settingState.getAgentPath())) {
-            InputStream inputStream = QuickDebugEditorPopupMenuAction.class.getResourceAsStream("/lib/debug-power-agent-jar-with-dependencies.jar");
+        if (StringUtils.isBlank(settingState.getAgentPath()) || !new File(settingState.getAgentPath()).exists()) {
+            InputStream inputStream = QuickDebugEditorPopupMenuAction.class.getResourceAsStream(ProjectConstant.AGENT_JAR_PATH);
             if (inputStream == null) {
                 DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
                 return;

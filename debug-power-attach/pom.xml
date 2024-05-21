@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.github.future0923</groupId>
         <artifactId>debug-power</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>debug-power-attach</artifactId>
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-power-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${revision}</version>
         </dependency>
 
         <dependency>
@@ -54,7 +54,8 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <finalName>debug-power-agent</finalName>
+                            <finalName>debug-power-agent-${revision}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <outputDirectory>${project.basedir}/../debug-power-idea/src/main/resources/lib</outputDirectory>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>

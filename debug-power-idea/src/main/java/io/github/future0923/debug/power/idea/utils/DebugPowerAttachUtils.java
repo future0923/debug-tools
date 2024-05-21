@@ -28,6 +28,8 @@ public class DebugPowerAttachUtils {
                 } else {
                     if (Objects.equals(ioException.getMessage(), "No such process")) {
                         DebugPowerNotifierUtil.notifyError(project, "没有找到attach这个进程，请刷新重新attach");
+                    } else if (Objects.equals(ioException.getMessage(), "Connection refused")) {
+                        DebugPowerNotifierUtil.notifyError(project, "进程拒绝连接，请确认进程已经启动");
                     } else {
                         log.error("没有找到核心依赖 [jarFilePath:{} errMsg:{}]", agentPath, ioException.getMessage());
                         DebugPowerNotifierUtil.notifyError(project, "没有找到核心依赖，请 clear cache 后重试");
