@@ -99,4 +99,8 @@ public class TestService {
     public void test(LocalDateTime localDateTime, LocalDate localDate, Date date) {
         System.out.println("localDateTime = " + localDateTime + ", localDate = " + localDate + ", date = " + date);
     }
+
+    private void testPrivate() {
+        System.out.println("testPrivate");
+    }
 }
