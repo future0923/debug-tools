@@ -14,18 +14,39 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    <h2>
-      DebugPower
-    </h2>
-    <p>
-        <a href="https://github.com/future0923/debug-power">github</>|<a href="https://gitee.com/future94/debug-power">gitee</a>
-    </p>
-    <p>
-       调试神器，可以快速调用到指定的JVM方法中
-    </p>
-    <p>
-       在方法体中右键点击，选择快速调试，attach对应的项目，传入指定的参数，点击运行，就能看见断点了
-    </p>
+        快速调用java方法：<a href="https://github.com/future0923/debug-power">github</a>|<a href="https://gitee.com/future94/debug-power">gitee</a>
+        <br>
+        <strong>快速调试</strong>
+        <ul>
+            <li>首先你要启动服务，然后在你要调试运行的方法中右键点击 Quick Debug。</li>
+            <li>你会看到如下界面。会自动给出当前的当前启动的服务、当前的类、当前的方法和根据方法参数自动生成要请求的json实体对象。</li>
+            <li>选择你要调试的服务，然后点击 attach 按钮（如果你要刷新列表，清除缓存也可以点击另外两个）。当你运行项目的时候，会启动attach到当前启动的服务上。</li>
+            <li>如果你要登陆认证等功能，可以指定 Authorization Header，他会mock一个request并加上这个请求头，设置到 spring 的 RequestContextHolder 中，这样后续就可以拿到。</li>
+            <li>如果你要修改，可以修改对应的参数即可。</li>
+        </ul>
+
+        <ul>
+            <li>Spring Bean 方法</li>
+            <li>static 方法</li>
+            <li>dao层方法</li>
+            <li>普通类方法</li>
+            <li>private方法</li>
+            <li>...</li>
+        </ul>
+
+        <strong>执行上次</strong>
+        上面的操作会发起当前所在方法的请求，如果你已经不再当前方法了还想执行上次，点击 Execute Last 即可执行上次请求。
+
+    Quickly call Java methods:
+    <br>
+    Quick Debugging
+    <ul>
+        <li>First, you need to start the service, and then right-click on Quick Debug in the method you want to debug and run</li>
+        <li>You will see the following interface. It will automatically provide the current started service, current class, current method, and generate the JSON entity object to be requested based on method parameters</li>
+        <li>Select the service you want to debug, and then click the attach button (if you want to refresh the list, you can also click the other two to clear the cache). When you run the project, it will start attach to the currently started service</li>
+        <li>If you want to log in to authentication and other functions, you can specify the Authorization Header, which will mock a request and add this request header to the RequestContextHolder in Spring, so that you can obtain it later</li>
+        <li>If you want to modify it, you can modify the corresponding parameters</li>
+    </ul>
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
