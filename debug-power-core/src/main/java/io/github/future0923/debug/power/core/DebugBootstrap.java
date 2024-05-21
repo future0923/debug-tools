@@ -38,7 +38,7 @@ public class DebugBootstrap {
             }
         }
         Object future0923 = bridgedMethod.invoke(instance, targetMethodArgs);
-        System.out.println(future0923);
+        System.out.println("DebugPower执行结果：" + future0923);
     }
 
 }

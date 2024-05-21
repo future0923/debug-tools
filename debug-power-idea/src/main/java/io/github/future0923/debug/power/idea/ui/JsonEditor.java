@@ -41,7 +41,7 @@ public class JsonEditor extends EditorTextField {
         if (StringUtils.isBlank(cacheText)) {
             setDocument(createDocument(getJsonText(psiParameterList)));
         } else {
-            setDocument(createDocument(cacheText));
+            setDocument(createDocument(DebugPowerJsonUtils.pretty(cacheText)));
         }
 
         addSettingsProvider(editor -> {

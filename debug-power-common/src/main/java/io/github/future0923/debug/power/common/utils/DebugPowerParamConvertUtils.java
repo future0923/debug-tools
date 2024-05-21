@@ -52,7 +52,7 @@ public class DebugPowerParamConvertUtils {
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
             return  DebugPowerSpringUtils.getBean(parameter.getParameterType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
-            if (parameter.getParameterType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
+            if (runContentDTO.getContent() != null && parameter.getParameterType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugPowerLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());
             }
         } else if (RunContentType.JSON_ENTITY.getType().equals(runContentDTO.getType())) {
