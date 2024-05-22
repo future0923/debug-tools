@@ -5,7 +5,9 @@ package io.github.future0923.debug.power.idea.constant;
  */
 public interface ProjectConstant {
 
-    String VERSION = "1.0.0";
+    String NAME = "DebugPower";
+
+    String VERSION = "1.1.0";
 
     String AGENT_JAR_PATH = "/lib/debug-power-agent-" + ProjectConstant.VERSION + ".jar";
 

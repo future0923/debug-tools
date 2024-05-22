@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * @author future0923
  */
 @Data
-public class MoreDTO {
+public class MoreDTO extends TestDTO{
 
     private static final long serialVersionUID = 1L;
 

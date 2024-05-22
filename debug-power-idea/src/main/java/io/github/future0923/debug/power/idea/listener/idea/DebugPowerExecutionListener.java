@@ -16,11 +16,14 @@ public class DebugPowerExecutionListener implements ExecutionListener {
 
     @Override
     public void processStarted(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler) {
+        DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(env.getProject());
+        if (!settingState.getRunApplicationAttach()) {
+            return;
+        }
         String runClassName = env.getRunProfile().getClass().getName();
         if (!StringUtils.endsWith(runClassName, "SpringBootApplicationRunConfiguration") && !StringUtils.endsWithIgnoreCase(runClassName, "ApplicationConfiguration")) {
             return;
         }
-        DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(env.getProject());
         if (handler instanceof KillableColoredProcessHandler.Silent) {
             String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
             settingState.setAttach(new ServerDisplayValue(pid, ""));

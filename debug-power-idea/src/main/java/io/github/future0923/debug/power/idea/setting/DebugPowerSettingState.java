@@ -5,6 +5,8 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import io.github.future0923.debug.power.common.dto.RunConfigDTO;
+import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.model.ParamCache;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
@@ -32,11 +34,21 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
     @Getter
     private final Map<String, String> headers = new ConcurrentHashMap<>();
 
-    public String dataFileDir = "/.idea/debug-power-data/";
+    @Getter
+    @Setter
+    private String agentPath;
 
     @Getter
     @Setter
-    public String agentPath;
+    private Boolean runApplicationAttach = true;
+
+    @Getter
+    @Setter
+    private PrintResultType printResultType = PrintResultType.JSON;
+
+    @Getter
+    @Setter
+    private GenParamType defaultGenParamType = GenParamType.ALL;
 
     @Override
     public @Nullable DebugPowerSettingState getState() {
@@ -77,5 +89,11 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
         } catch (Exception ignored) {
         }
         return ParamCache.NULL;
+    }
+
+    public RunConfigDTO convertRunConfigDTO() {
+        RunConfigDTO dto = new RunConfigDTO();
+        dto.setPrintResultType(printResultType);
+        return dto;
     }
 }

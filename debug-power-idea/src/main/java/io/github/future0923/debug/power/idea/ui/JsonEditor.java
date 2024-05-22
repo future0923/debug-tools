@@ -12,7 +12,8 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiParameterList;
 import com.intellij.ui.EditorTextField;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.listener.data.event.ExampleDataEvent;
+import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
+import io.github.future0923.debug.power.idea.setting.GenParamType;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,8 @@ public class JsonEditor extends EditorTextField {
         this.psiParameterList = psiParameterList;
 
         if (StringUtils.isBlank(cacheText)) {
-            setDocument(createDocument(getJsonText(psiParameterList)));
+            DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
+            setDocument(createDocument(getJsonText(psiParameterList, settingState.getDefaultGenParamType())));
         } else {
             setDocument(createDocument(DebugPowerJsonUtils.pretty(cacheText)));
         }
@@ -50,15 +52,15 @@ public class JsonEditor extends EditorTextField {
         });
     }
 
-    public String getJsonText(@Nullable PsiParameterList psiParameterList) {
-        return DebugPowerJsonElementUtil.getJsonText(psiParameterList);
+    public String getJsonText(@Nullable PsiParameterList psiParameterList, GenParamType genParamType) {
+        return DebugPowerJsonElementUtil.getJsonText(psiParameterList, genParamType);
     }
 
-    public void regenerateJsonText(ExampleDataEvent.Type type) {
-        if (ExampleDataEvent.Type.SIMPLE.equals(type)) {
+    public void regenerateJsonText(GenParamType type) {
+        if (GenParamType.SIMPLE.equals(type)) {
             setText(DebugPowerJsonElementUtil.getSimpleText(psiParameterList));
-        } else if (ExampleDataEvent.Type.WITH_DEFAULT.equals(type)) {
-            setText(getJsonText(psiParameterList));
+        } else {
+            setText(getJsonText(psiParameterList, type));
         }
     }
 

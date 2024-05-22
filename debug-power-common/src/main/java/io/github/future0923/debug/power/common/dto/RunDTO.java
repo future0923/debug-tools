@@ -21,4 +21,6 @@ public class RunDTO {
 
     private Map<String, RunContentDTO> targetMethodContent;
 
+    private RunConfigDTO runConfigDTO;
+
 }
