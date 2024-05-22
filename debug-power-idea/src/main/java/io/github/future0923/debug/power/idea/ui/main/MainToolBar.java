@@ -5,6 +5,7 @@ import io.github.future0923.debug.power.idea.listener.data.MulticasterEventPubli
 import io.github.future0923.debug.power.idea.listener.data.event.ConvertDataEvent;
 import io.github.future0923.debug.power.idea.listener.data.event.PrettyDataEvent;
 import io.github.future0923.debug.power.idea.listener.data.event.ExampleDataEvent;
+import io.github.future0923.debug.power.idea.setting.GenParamType;
 import io.github.future0923.debug.power.idea.ui.convert.ConvertType;
 import io.github.future0923.debug.power.idea.ui.tool.ToolBar;
 import io.github.future0923.debug.power.idea.utils.DebugPowerIconUtil;
@@ -37,10 +38,13 @@ public class MainToolBar extends ToolBar {
             publisher.multicastEvent(new PrettyDataEvent());
         });
         genButton("Gen Param", DebugPowerIconUtil.example_simple_icon, DebugPowerIconUtil.example_simple_icon, actionEvent -> {
-            publisher.multicastEvent(new ExampleDataEvent(ExampleDataEvent.Type.SIMPLE));
+            publisher.multicastEvent(new ExampleDataEvent(GenParamType.SIMPLE));
         });
-        genButton("Gen Param With Default", DebugPowerIconUtil.example_icon, DebugPowerIconUtil.example_icon, actionEvent -> {
-            publisher.multicastEvent(new ExampleDataEvent(ExampleDataEvent.Type.WITH_DEFAULT));
+        genButton("Gen Param With Default Current Entity Class", DebugPowerIconUtil.example_current_icon, DebugPowerIconUtil.example_current_icon, actionEvent -> {
+            publisher.multicastEvent(new ExampleDataEvent(GenParamType.CURRENT));
+        });
+        genButton("Gen Param With Default All", DebugPowerIconUtil.example_all_icon, DebugPowerIconUtil.example_all_icon, actionEvent -> {
+            publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
         });
     }
 }

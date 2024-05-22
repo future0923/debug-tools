@@ -58,7 +58,7 @@ public class DebugPowerAttach {
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugPowerParamConvertUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         DebugBootstrap debugBootstrap = DebugBootstrap.getInstance(inst, new HashMap<>());
-        debugBootstrap.run(targetClass, bridgedMethod, instance, targetMethodArgs);
+        debugBootstrap.run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO.getRunConfigDTO());
         //File debugCoreJar = new File("/Users/weilai/Downloads/debug-power/debug-power-core/target/debug-core.jar");
         //if (!debugCoreJar.exists()) {
         //    throw new IllegalStateException("debugCoreJar not exists");

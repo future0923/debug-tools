@@ -12,4 +12,11 @@ public class TestUtils {
     private static void testPrivate() {
         System.out.println("testPrivateStatic");
     }
+
+    public static class TestInner {
+
+        private static void testInnerPrivate() {
+            System.out.println("testInnerPrivate");
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.idea.listener.data.event;
 
+import io.github.future0923.debug.power.idea.setting.GenParamType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,10 +13,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ExampleDataEvent extends DataEvent{
 
-    private Type type;
+    private GenParamType type;
 
-    public enum Type {
-        SIMPLE,
-        WITH_DEFAULT,
-    }
 }

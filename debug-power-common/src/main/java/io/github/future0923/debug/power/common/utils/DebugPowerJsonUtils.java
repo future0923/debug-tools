@@ -5,6 +5,7 @@ import cn.hutool.core.lang.TypeReference;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import io.github.future0923.debug.power.common.dto.RunConfigDTO;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
@@ -201,13 +202,14 @@ public class DebugPowerJsonUtils extends JSONUtil {
         return sb.toString();
     }
 
-    public static String toDebugPowerJson(String className, String methodName, List<String> paramTypeNameList, Map<String, RunContentDTO> contentMap, Map<String, String> headers) {
+    public static String toDebugPowerJson(String className, String methodName, List<String> paramTypeNameList, Map<String, RunContentDTO> contentMap, Map<String, String> headers, RunConfigDTO configDTO) {
         RunDTO runDTO = new RunDTO();
         runDTO.setHeaders(headers);
         runDTO.setTargetClassName(className);
         runDTO.setTargetMethodName(methodName);
         runDTO.setTargetMethodParameterTypes(paramTypeNameList);
         runDTO.setTargetMethodContent(contentMap);
+        runDTO.setRunConfigDTO(configDTO);
         return toJsonStr(runDTO);
     }
 }
