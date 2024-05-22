@@ -1,5 +1,8 @@
 package io.github.future0923.debug.power.core;
 
+import io.github.future0923.debug.power.common.dto.RunConfigDTO;
+import io.github.future0923.debug.power.common.enums.PrintResultType;
+import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import org.springframework.aop.framework.AopProxy;
 
 import java.lang.instrument.Instrumentation;
@@ -25,20 +28,30 @@ public class DebugBootstrap {
         return debugBootstrap;
     }
 
-    public void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs) throws Exception {
+    public void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunConfigDTO configDTO) throws Exception {
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (invocationHandler instanceof AopProxy) {
                 try {
-                    System.out.println(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs));
+                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), configDTO);
                     return;
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }
         }
-        Object future0923 = bridgedMethod.invoke(instance, targetMethodArgs);
-        System.out.println("DebugPower执行结果：" + future0923);
+        printResult(bridgedMethod.invoke(instance, targetMethodArgs), configDTO);
+    }
+
+    private void printResult(Object result, RunConfigDTO configDTO) {
+        if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
+            System.out.println("DebugPower执行结果：" + result);
+        } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
+            System.out.println("DebugPower执行结果：");
+            System.out.println(DebugPowerJsonUtils.toJsonPrettyStr(result));
+        } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
+
+        }
     }
 
 }

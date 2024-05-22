@@ -61,6 +61,12 @@
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState"/>
 
+        <!--设置-->
+        <projectConfigurable instance="io.github.future0923.debug.power.idea.setting.DebugPowerSettingConfigurable"
+                             id="DebugPowerTool.Setting"
+                             displayName="DebugPower"
+                             nonDefaultProject="true"/>
+
         <!--通知-->
         <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
         <notificationGroup id="DebugPower" displayType="BALLOON"/>
@@ -69,6 +75,7 @@
         <completion.contributor language="JSON"
                                 implementationClass="io.github.future0923.debug.power.idea.completion.DebugPowerJsonEditorCompletionContributor"/>
 
+        <!--json编辑器代码导航-->
         <lang.directNavigationProvider
                 implementation="io.github.future0923.debug.power.idea.navigation.DebugPowerJsonEditorDirectNavigationProvider"/>
     </extensions>

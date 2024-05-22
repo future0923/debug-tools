@@ -92,7 +92,14 @@ public class MainDialog extends DialogWrapper {
             settingState.putHeader("Authorization", auth);
         }
         Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
-        String jsonDtoStr = DebugPowerJsonUtils.toDebugPowerJson(methodDataContext.getPsiClass().getQualifiedName(), methodDataContext.getPsiMethod().getName(), DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()), contentMap, headers);
+        String jsonDtoStr = DebugPowerJsonUtils.toDebugPowerJson(
+                methodDataContext.getPsiClass().getQualifiedName(),
+                methodDataContext.getPsiMethod().getName(),
+                DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()),
+                contentMap,
+                headers,
+                settingState.convertRunConfigDTO()
+        );
         ServerDisplayValue attach = settingState.getAttach();
         if (attach == null || StringUtil.isEmpty(attach.getKey())) {
             Messages.showErrorDialog("Run attach first", "执行失败");
@@ -100,7 +107,7 @@ public class MainDialog extends DialogWrapper {
         }
         String agentParam;
         try {
-            String pathname = project.getBasePath() + "/.idea/DebugPower/agent.json";
+            String pathname = project.getBasePath() + ProjectConstant.PARAM_FILE;
             File file = new File(pathname);
             if (!file.exists()) {
                 FileUtils.touch(file);
