@@ -12,4 +12,8 @@ public interface ProjectConstant {
     String AGENT_JAR_PATH = "/lib/debug-power-agent-" + ProjectConstant.VERSION + ".jar";
 
     String PARAM_FILE = "/.idea/DebugPower/agent.json";
+
+    String GLOBAL_HEADER_FILE = "/.idea/DebugPower/globalHeader.json";
+
+    String TOOL_WINDOW_ID = "DebugPower";
 }

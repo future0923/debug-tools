@@ -8,7 +8,7 @@ import io.github.future0923.debug.power.idea.listener.data.event.ExampleDataEven
 import io.github.future0923.debug.power.idea.setting.GenParamType;
 import io.github.future0923.debug.power.idea.ui.convert.ConvertType;
 import io.github.future0923.debug.power.idea.ui.tool.ToolBar;
-import io.github.future0923.debug.power.idea.utils.DebugPowerIconUtil;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 
 import javax.swing.*;
 
@@ -28,22 +28,22 @@ public class MainToolBar extends ToolBar {
     }
 
     private void initButtons() {
-        genButton(ConvertType.IMPORT.getDescription(), DebugPowerIconUtil.import_icon, DebugPowerIconUtil.import_icon, actionEvent -> {
+        genButton(ConvertType.IMPORT.getDescription(), DebugPowerIcons.import_icon, DebugPowerIcons.import_icon, actionEvent -> {
             publisher.multicastEvent(new ConvertDataEvent(ConvertType.IMPORT));
         });
-        genButton(ConvertType.EXPORT.getDescription(), DebugPowerIconUtil.export_icon, DebugPowerIconUtil.export_icon, actionEvent -> {
+        genButton(ConvertType.EXPORT.getDescription(), DebugPowerIcons.export_icon, DebugPowerIcons.export_icon, actionEvent -> {
             publisher.multicastEvent(new ConvertDataEvent(ConvertType.EXPORT));
         });
-        genButton("Pretty Json", DebugPowerIconUtil.pretty_icon, DebugPowerIconUtil.pretty_icon, actionEvent -> {
+        genButton("Pretty Json", DebugPowerIcons.pretty_icon, DebugPowerIcons.pretty_icon, actionEvent -> {
             publisher.multicastEvent(new PrettyDataEvent());
         });
-        genButton("Gen Param", DebugPowerIconUtil.example_simple_icon, DebugPowerIconUtil.example_simple_icon, actionEvent -> {
+        genButton("Gen Param", DebugPowerIcons.example_simple_icon, DebugPowerIcons.example_simple_icon, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.SIMPLE));
         });
-        genButton("Gen Param With Default Current Entity Class", DebugPowerIconUtil.example_current_icon, DebugPowerIconUtil.example_current_icon, actionEvent -> {
+        genButton("Gen Param With Default Current Entity Class", DebugPowerIcons.example_current_icon, DebugPowerIcons.example_current_icon, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.CURRENT));
         });
-        genButton("Gen Param With Default All", DebugPowerIconUtil.example_all_icon, DebugPowerIconUtil.example_all_icon, actionEvent -> {
+        genButton("Gen Param With Default All", DebugPowerIcons.example_all_icon, DebugPowerIcons.example_all_icon, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
         });
     }

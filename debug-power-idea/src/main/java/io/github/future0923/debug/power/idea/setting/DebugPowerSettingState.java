@@ -22,32 +22,21 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author future0923
  */
+@Getter
+@Setter
 @State(name = "DebugPowerSettingState", storages = @Storage("DebugPowerSettingState.xml"))
 public class DebugPowerSettingState implements PersistentStateComponent<DebugPowerSettingState> {
 
-    private final Map<String, String> cache = new ConcurrentHashMap<>();
+    private Map<String, String> cache = new ConcurrentHashMap<>();
 
-    @Getter
-    @Setter
     private ServerDisplayValue attach;
 
-    @Getter
-    private final Map<String, String> headers = new ConcurrentHashMap<>();
-
-    @Getter
-    @Setter
     private String agentPath;
 
-    @Getter
-    @Setter
     private Boolean runApplicationAttach = true;
 
-    @Getter
-    @Setter
     private PrintResultType printResultType = PrintResultType.JSON;
 
-    @Getter
-    @Setter
     private GenParamType defaultGenParamType = GenParamType.ALL;
 
     @Override
@@ -62,10 +51,6 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     public static DebugPowerSettingState getInstance(@NotNull Project project) {
         return project.getService(DebugPowerSettingState.class);
-    }
-
-    public void putHeader(String key, String value) {
-        headers.put(key, value);
     }
 
     public void clearCache() {
