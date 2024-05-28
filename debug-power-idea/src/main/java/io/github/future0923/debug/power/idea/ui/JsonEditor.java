@@ -43,7 +43,7 @@ public class JsonEditor extends EditorTextField {
             DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
             setDocument(createDocument(getJsonText(psiParameterList, settingState.getDefaultGenParamType())));
         } else {
-            setDocument(createDocument(DebugPowerJsonUtils.pretty(cacheText)));
+            setDocument(createDocument(cacheText));
         }
 
         addSettingsProvider(editor -> {
