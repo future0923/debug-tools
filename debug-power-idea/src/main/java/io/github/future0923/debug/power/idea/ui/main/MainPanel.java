@@ -1,8 +1,6 @@
 package io.github.future0923.debug.power.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
@@ -11,24 +9,27 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
-import com.sun.tools.attach.VirtualMachine;
-import com.sun.tools.attach.VirtualMachineDescriptor;
-import io.github.future0923.debug.power.common.utils.DebugPowerExecUtils;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.power.idea.listener.data.impl.ConvertDataListener;
 import io.github.future0923.debug.power.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.power.idea.listener.data.impl.SimpleDataListener;
+import io.github.future0923.debug.power.idea.model.ParamCache;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
+import io.github.future0923.debug.power.idea.utils.DebugPowerUIHelper;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author future0923
@@ -36,6 +37,8 @@ import java.util.List;
 public class MainPanel extends JBPanel<MainPanel> {
 
     private final Project project;
+
+    private final MethodDataContext methodDataContext;
 
     private final ComboBox<ServerDisplayValue> serverComboBox = new ComboBox<>(500);
 
@@ -45,12 +48,11 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private final JButton clearButton = new JButton("Clear cache");
 
-    @Getter
-    private final JBTextField authField = new JBTextField();
-
     private final JBTextField classNameField = new JBTextField();
 
     private final JBTextField methodNameField = new JBTextField();
+
+    private final Map<JBTextField, JBTextField> headerItemMap = new HashMap<>();
 
     private final MainToolBar toolBar;
 
@@ -63,11 +65,10 @@ public class MainPanel extends JBPanel<MainPanel> {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(670, 500));
         this.project = project;
+        this.methodDataContext = methodDataContext;
         this.settingState = DebugPowerSettingState.getInstance(project);
         // attach下拉框
         initServerComboBox();
-        // 权限
-        authField.setText(settingState.getHeaders().getOrDefault("Authorization", ""));
         // 当前类和方法
         PsiMethod psiMethod = methodDataContext.getPsiMethod();
         PsiClass psiClass = methodDataContext.getPsiClass();
@@ -79,7 +80,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         // 工具栏
         this.toolBar = new MainToolBar(publisher);
         // json编辑器
-        this.editor = new JsonEditor(methodDataContext.cacheContent, methodDataContext.getParamList(), project);
+        this.editor = new JsonEditor(methodDataContext.getCache().formatContent(), methodDataContext.getParamList(), project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
         publisher.addListener(new ConvertDataListener(project, editor));
@@ -92,10 +93,6 @@ public class MainPanel extends JBPanel<MainPanel> {
             ServerDisplayValue item = serverComboBox.getItem();
             setAttached();
             settingState.setAttach(new ServerDisplayValue(item.getKey(), item.getValue()));
-            // 重新验证组件的布局
-            //attachButton.revalidate();
-            // 重新绘制组件
-            //attachButton.repaint();
         });
         refreshButton.addActionListener(e -> {
             attachButton.setText("Attach");
@@ -120,19 +117,17 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private void initLayout() {
         // 服务信息Panel
-        JPanel serverJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel serverJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         serverJPanel.add(serverComboBox);
         serverJPanel.add(attachButton);
         serverJPanel.add(refreshButton);
         serverJPanel.add(clearButton);
-        JPanel jPanel = FormBuilder.createFormBuilder()
+        JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        FormBuilder formBuilder = FormBuilder.createFormBuilder();
+        JPanel jPanel = formBuilder
                 .addLabeledComponent(
                         new JBLabel("Attach server:"),
                         serverJPanel
-                )
-                .addLabeledComponent(
-                        new JBLabel("Authorization header:"),
-                        authField
                 )
                 .addLabeledComponent(
                         new JBLabel("Current class:"),
@@ -142,8 +137,24 @@ public class MainPanel extends JBPanel<MainPanel> {
                         new JBLabel("Current method:"),
                         methodNameField
                 )
+                .addLabeledComponent(
+                        new JBLabel("Header:"),
+                        headerButtonPanel
+                )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
+        JButton addHeaderButton = new JButton("Add");
+        headerButtonPanel.add(addHeaderButton);
+        addHeaderButton.addActionListener(e -> {
+            DebugPowerUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap);
+            DebugPowerUIHelper.refreshUI(formBuilder);
+        });
+        Optional.of(methodDataContext)
+                .map(MethodDataContext::getCache)
+                .map(ParamCache::getItemHeaderMap)
+                .ifPresent(map -> map.forEach((key, value) -> DebugPowerUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap)));
+        DebugPowerUIHelper.refreshUI(formBuilder);
+
         GridBagConstraints gbc = new GridBagConstraints();
         // 将组件的填充方式设置为水平填充。这意味着组件将在水平方向上拉伸以填充其在容器中的可用空间，但不会在垂直方向上拉伸。
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -193,36 +204,33 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private void refreshServerComboBox() {
         serverComboBox.removeAllItems();
-        List<VirtualMachineDescriptor> list = VirtualMachine.list();
-        for (VirtualMachineDescriptor descriptor : list) {
-            if (descriptor.displayName().startsWith("org.gradle")
-                    || descriptor.displayName().startsWith("org.jetbrains")
-                    || descriptor.displayName().startsWith("com.intellij")
-            ) {
-                continue;
-            }
-            serverComboBox.addItem(new ServerDisplayValue(descriptor.id(), descriptor.displayName()));
-        }
+        DebugPowerAttachUtils.vmConsumer(descriptor -> serverComboBox.addItem(new ServerDisplayValue(descriptor.id(), descriptor.displayName())));
         ServerDisplayValue attach = settingState.getAttach();
         if (attach != null) {
             // jps
-            Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-            if (null != projectSdk) {
-                String jps = projectSdk.getHomePath() + "/bin/jps";
-                String result = DebugPowerExecUtils.exec(jps);
-                if (result != null && result.contains(attach.getKey())) {
-                    ComboBoxModel<ServerDisplayValue> model = serverComboBox.getModel();
-                    for (int i = 0; i < model.getSize(); i++) {
-                        if (model.getElementAt(i).getKey().equals(attach.getKey())) {
-                            serverComboBox.setSelectedIndex(i);
-                        }
+            if (DebugPowerAttachUtils.status(project, attach.getKey())) {
+                ComboBoxModel<ServerDisplayValue> model = serverComboBox.getModel();
+                for (int i = 0; i < model.getSize(); i++) {
+                    if (model.getElementAt(i).getKey().equals(attach.getKey())) {
+                        serverComboBox.setSelectedIndex(i);
                     }
-                    setAttached();
-                } else {
-                    settingState.setAttach(null);
                 }
+                setAttached();
+            } else {
+                settingState.setAttach(null);
             }
         }
+    }
+
+    public Map<String, String> getItemHeaderMap() {
+        Map<String, String> headerMap = new HashMap<>(headerItemMap.size());
+        headerItemMap.forEach((k, v) -> {
+            String key = k.getText();
+            if (StringUtils.isNotBlank(key)) {
+                headerMap.put(key, v.getText());
+            }
+        });
+        return headerMap;
     }
 
     private void setAttached() {

@@ -20,6 +20,7 @@ import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerActionUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
+import io.github.future0923.debug.power.idea.utils.DebugPowerStoreUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author future0923
@@ -66,7 +68,6 @@ public class MainDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         JsonEditor editor = mainPanel.getEditor();
-        String auth = mainPanel.getAuthField().getText();
         String text = DebugPowerJsonUtils.compress(editor.getText());
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         if (StringUtils.isBlank(settingState.getAgentPath()) || !new File(settingState.getAgentPath()).exists()) {
@@ -83,21 +84,22 @@ public class MainDialog extends DialogWrapper {
                 return;
             }
         }
-        ParamCache paramCacheDto = new ParamCache(text);
+        Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
+        ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text);
         settingState.putCache(methodDataContext.getCacheKey(), paramCacheDto);
-        Map<String, String> headers = null;
-        if (StringUtil.isNotEmpty(auth)) {
-            headers = new HashMap<>();
-            headers.put("Authorization", auth);
-            settingState.putHeader("Authorization", auth);
-        }
         Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
         String jsonDtoStr = DebugPowerJsonUtils.toDebugPowerJson(
                 methodDataContext.getPsiClass().getQualifiedName(),
                 methodDataContext.getPsiMethod().getName(),
                 DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()),
                 contentMap,
-                headers,
+                Stream.of(itemHeaderMap, DebugPowerStoreUtils.getAll(project))
+                        .flatMap(map -> map.entrySet().stream())
+                        .collect(Collectors.toMap(
+                                Map.Entry::getKey,
+                                Map.Entry::getValue,
+                                (v1, v2) -> v1
+                        )),
                 settingState.convertRunConfigDTO()
         );
         ServerDisplayValue attach = settingState.getAttach();

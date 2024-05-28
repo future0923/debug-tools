@@ -67,6 +67,14 @@
                              displayName="DebugPower"
                              nonDefaultProject="true"/>
 
+        <toolWindow id="DebugPower"
+                    anchor="right"
+                    secondary="false"
+                    icon="/icon/project.svg"
+                    order="last"
+                    canCloseContents="false"
+                factoryClass="io.github.future0923.debug.power.idea.tool.DebugPowerToolWindowFactory" />
+
         <!--通知-->
         <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
         <notificationGroup id="DebugPower" displayType="BALLOON"/>

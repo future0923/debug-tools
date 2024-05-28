@@ -2,12 +2,19 @@ package io.github.future0923.debug.power.idea.utils;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
+import com.sun.tools.attach.VirtualMachineDescriptor;
+import io.github.future0923.debug.power.common.utils.DebugPowerExecUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author future0923
@@ -15,6 +22,32 @@ import java.util.concurrent.CompletableFuture;
 public class DebugPowerAttachUtils {
 
     private static final Logger log = Logger.getInstance(DebugPowerAttachUtils.class);
+
+    public static List<VirtualMachineDescriptor> vmList() {
+        return VirtualMachine.list().stream().filter(descriptor -> !descriptor.displayName().startsWith("org.gradle")
+                && !descriptor.displayName().startsWith("org.jetbrains")
+                && !descriptor.displayName().startsWith("com.intellij")).collect(Collectors.toList());
+    }
+
+    public static void vmConsumer(Consumer<VirtualMachineDescriptor> consumer) {
+        vmConsumer(null, consumer);
+    }
+
+    public static void vmConsumer(Consumer<Integer> sizeConsumer, Consumer<VirtualMachineDescriptor> descriptorConsumer) {
+        List<VirtualMachineDescriptor> list = vmList();
+        if (sizeConsumer != null) {
+            sizeConsumer.accept(list.size());
+        }
+        for (VirtualMachineDescriptor descriptor : list) {
+            if (descriptor.displayName().startsWith("org.gradle")
+                    || descriptor.displayName().startsWith("org.jetbrains")
+                    || descriptor.displayName().startsWith("com.intellij")
+            ) {
+                continue;
+            }
+            descriptorConsumer.accept(descriptor);
+        }
+    }
 
     public static void attach(Project project, String pid, String agentPath, String agentParam) {
         CompletableFuture.runAsync(() -> {
@@ -54,5 +87,16 @@ public class DebugPowerAttachUtils {
                 }
             }
         });
+    }
+
+    public static boolean status(Project project, String pid) {
+        // jps
+        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
+        if (null != projectSdk) {
+            String jps = projectSdk.getHomePath() + "/bin/jps";
+            String result = DebugPowerExecUtils.exec(jps);
+            return result != null && result.contains(pid);
+        }
+        return true;
     }
 }

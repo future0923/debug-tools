@@ -11,7 +11,7 @@ import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.ui.tool.ToolBar;
-import io.github.future0923.debug.power.idea.utils.DebugPowerIconUtil;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -53,12 +53,12 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
             editor.setHorizontalScrollbarVisible(true);
         });
         toolBar = new ToolBar();
-        toolBar.genButton("Pretty Json", DebugPowerIconUtil.pretty_icon, DebugPowerIconUtil.pretty_icon, actionEvent -> {
+        toolBar.genButton("Pretty Json", DebugPowerIcons.pretty_icon, DebugPowerIcons.pretty_icon, actionEvent -> {
             if (json.isSelected()) {
                 editorTextField.setText(DebugPowerJsonUtils.pretty(editorTextField.getText()));
             }
         });
-        toolBar.genButton("Compress Json", DebugPowerIconUtil.compress_icon, DebugPowerIconUtil.compress_icon, actionEvent -> {
+        toolBar.genButton("Compress Json", DebugPowerIcons.compress_icon, DebugPowerIcons.compress_icon, actionEvent -> {
             if (json.isSelected()) {
                 editorTextField.setText(DebugPowerJsonUtils.compress(editorTextField.getText()));
             }
