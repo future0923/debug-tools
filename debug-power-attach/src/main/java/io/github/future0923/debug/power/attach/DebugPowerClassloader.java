@@ -6,8 +6,8 @@ import java.net.URLClassLoader;
 /**
  * @author future0923
  */
-public class DebugAttachClassloader extends URLClassLoader {
-    public DebugAttachClassloader(URL[] urls) {
+public class DebugPowerClassloader extends URLClassLoader {
+    public DebugPowerClassloader(URL[] urls) {
         super(urls, ClassLoader.getSystemClassLoader());
     }
 
