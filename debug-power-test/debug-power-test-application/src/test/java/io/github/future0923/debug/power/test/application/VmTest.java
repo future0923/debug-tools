@@ -21,7 +21,8 @@ import java.util.Map;
 public class VmTest {
     private static VirtualMachine vm;
 
-    private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-attach/target/debug-power-agent-jar-with-dependencies.jar";
+    private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-idea/src/main/resources/lib/debug-power-agent-1.1.1.jar";
+    //private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-attach/target/debug-power-agent.jar";
 
     private String args;
 

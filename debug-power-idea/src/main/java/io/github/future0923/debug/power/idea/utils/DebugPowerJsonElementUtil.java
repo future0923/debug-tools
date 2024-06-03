@@ -157,7 +157,7 @@ public class DebugPowerJsonElementUtil {
                         }
                         if (isCollType(aClass)) {
                             JSONArray jsonElements = new JSONArray();
-                            Arrays.stream(((PsiClassType) type).getParameters()).map(psiType -> toJson(type, genParamType)).forEach(jsonElements::add);
+                            Arrays.stream(((PsiClassType) type).getParameters()).map(psiType -> toJson(psiType, genParamType)).forEach(jsonElements::add);
                             return jsonElements;
                         }
                         if (isMapType(aClass)) {

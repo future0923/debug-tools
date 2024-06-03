@@ -3,6 +3,7 @@ package io.github.future0923.debug.power.test.application.service;
 import io.github.future0923.debug.power.test.application.dao.TestDao;
 import io.github.future0923.debug.power.test.application.dao.UserDao;
 import io.github.future0923.debug.power.test.application.domain.TestEnum;
+import io.github.future0923.debug.power.test.application.domain.dto.DealFilesHandoverCheckReq;
 import io.github.future0923.debug.power.test.application.domain.dto.MoreDTO;
 import io.github.future0923.debug.power.test.application.domain.dto.TestDTO;
 import io.github.future0923.debug.power.test.application.domain.entity.User;
@@ -102,5 +103,9 @@ public class TestService {
 
     private void testPrivate() {
         System.out.println("testPrivate");
+    }
+
+    public void test(DealFilesHandoverCheckReq req) {
+        System.out.println(req);
     }
 }

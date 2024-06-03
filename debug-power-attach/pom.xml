@@ -15,10 +15,9 @@
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
-            <artifactId>debug-power-core</artifactId>
+            <artifactId>debug-power-base</artifactId>
             <version>${revision}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
@@ -35,6 +34,7 @@
     <build>
         <finalName>debug-power-agent</finalName>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,6 +44,24 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-jar-plugin</artifactId>-->
+<!--                <version>3.3.0</version>-->
+<!--                <configuration>-->
+<!--                    <archive>-->
+<!--                        <manifestEntries>-->
+<!--                            <Agent-Class>io.github.future0923.debug.power.attach.DebugPowerAttach</Agent-Class>-->
+<!--                            <Can-Redefine-Classes>true</Can-Redefine-Classes>-->
+<!--                            <Can-Retransform-Classes>true</Can-Retransform-Classes>-->
+<!--                            <Specification-Title>debug-agent</Specification-Title>-->
+<!--                            <Specification-Version>${project.version}</Specification-Version>-->
+<!--                            <Implementation-Title>debug-agent</Implementation-Title>-->
+<!--                            <Implementation-Version>${project.version}</Implementation-Version>-->
+<!--                        </manifestEntries>-->
+<!--                    </archive>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -56,7 +74,8 @@
                         <configuration>
                             <finalName>debug-power-agent-${revision}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <outputDirectory>${project.basedir}/../debug-power-idea/src/main/resources/lib</outputDirectory>
+                            <outputDirectory>${project.basedir}/../debug-power-idea/src/main/resources/lib
+                            </outputDirectory>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
@@ -76,18 +95,18 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>dylib</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>dll</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>so</nonFilteredFileExtension>
-                    </nonFilteredFileExtensions>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-resources-plugin</artifactId>-->
+<!--                <version>2.5</version>-->
+<!--                <configuration>-->
+<!--                    <nonFilteredFileExtensions>-->
+<!--                        <nonFilteredFileExtension>dylib</nonFilteredFileExtension>-->
+<!--                        <nonFilteredFileExtension>dll</nonFilteredFileExtension>-->
+<!--                        <nonFilteredFileExtension>so</nonFilteredFileExtension>-->
+<!--                    </nonFilteredFileExtensions>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
             <!--生成源码插件-->
             <plugin>

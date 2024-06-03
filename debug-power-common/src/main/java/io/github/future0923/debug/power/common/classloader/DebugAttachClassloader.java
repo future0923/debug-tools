@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.core.classloader;
+package io.github.future0923.debug.power.common.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
