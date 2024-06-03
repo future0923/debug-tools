@@ -8,7 +8,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
-import io.github.future0923.debug.power.common.utils.DebugPowerFileUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.power.idea.constant.ProjectConstant;
@@ -77,7 +77,7 @@ public class MainDialog extends DialogWrapper {
                 return;
             }
             try {
-                settingState.setAgentPath(DebugPowerFileUtils.getTmpLibFile(inputStream, "agent", ".jar"));
+                settingState.setAgentPath(DebugPowerFileUtils.getTmpLibFile(inputStream, "agent", ".jar").getAbsolutePath());
             } catch (IOException ex) {
                 log.error("读取代理Jar失败", ex);
                 DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");

@@ -7,7 +7,7 @@ public interface ProjectConstant {
 
     String NAME = "DebugPower";
 
-    String VERSION = "1.1.0";
+    String VERSION = "1.1.1";
 
     String AGENT_JAR_PATH = "/lib/debug-power-agent-" + ProjectConstant.VERSION + ".jar";
 
