@@ -33,6 +33,8 @@ public class DebugPowerBootstrap {
     private static DebugPowerBootstrap debugBootstrap;
 
     private DebugPowerBootstrap() {
+        System.out.println(1);
+        System.out.println(2);
     }
 
     public static synchronized DebugPowerBootstrap getInstance() {

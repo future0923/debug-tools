@@ -1,7 +1,6 @@
 package io.github.future0923.debug.power.test.application.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.istack.internal.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
