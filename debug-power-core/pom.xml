@@ -38,4 +38,54 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <finalName>debug-power-core</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <outputDirectory>${project.basedir}/../debug-power-attach/src/main/resources/lib
+                            </outputDirectory>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifestEntries>
+                                    <Agent-Class>io.github.future0923.debug.power.attach.DebugPowerAttach</Agent-Class>
+                                    <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                                    <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                                    <Specification-Title>debug-agent</Specification-Title>
+                                    <Specification-Version>${project.version}</Specification-Version>
+                                    <Implementation-Title>debug-agent</Implementation-Title>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>dylib</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>dll</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>so</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
