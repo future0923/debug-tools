@@ -18,6 +18,13 @@
             <artifactId>debug-power-base</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!--作用仅保证安装时先执行debug-power-core完成后在执行当前，实际不可以使用debug-power-core中的类，必须通过DebugPowerClassLoader加载-->
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-power-core</artifactId>
+            <version>${revision}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>

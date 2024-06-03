@@ -28,8 +28,8 @@ public class DebugPowerAttach {
             throw new IllegalArgumentException("can not getResources debug-power-core.jar from classloader: "
                     + DebugPowerAttach.class.getClassLoader());
         }
-        try (DebugAttachClassloader debugAttachClassloader = new DebugAttachClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()})) {
-            Class<?> bootstrapClass = debugAttachClassloader.loadClass(DEBUG_POWER_BOOTSTRAP);
+        try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()})) {
+            Class<?> bootstrapClass = debugPowerClassloader.loadClass(DEBUG_POWER_BOOTSTRAP);
             Object bootstrap = bootstrapClass.getMethod(GET_INSTANCE).invoke(null);
             bootstrapClass.getMethod(CALL, String.class, Instrumentation.class).invoke(bootstrap, agentArgs, inst);
         } catch (Exception e) {
