@@ -32,6 +32,11 @@
         <![CDATA[
         <strong>1.1.1</strong>
         <ul>
+            <li>Fix java class contains collection properties when generating json throw StackOverflowError.</li>
+            <li>Custom class loader isolates target application.</li>
+        </ul>
+        <strong>1.1.0</strong>
+        <ul>
             <li>Add configuration.</li>
                 <ul>
                     <li>Does it automatically attach when the program starts: Yes , No.</li>
