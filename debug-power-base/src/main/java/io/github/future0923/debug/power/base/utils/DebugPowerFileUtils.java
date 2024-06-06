@@ -42,7 +42,7 @@ public class DebugPowerFileUtils {
 
                     // 如果该文件是需要提取的资源文件
                     if (DebugPowerFileUtils.pathEquals(entryName, child)) {
-                        return getTmpLibFile(jarFile.getInputStream(entry), extName(child)).getAbsolutePath();
+                        return getTmpLibFile(jarFile.getInputStream(entry), extName(child, true)).getAbsolutePath();
                     }
                 }
             }
@@ -51,7 +51,7 @@ public class DebugPowerFileUtils {
         if (file.isDirectory()) {
             file = new File(file.getAbsolutePath(), child);
         }
-        return getTmpLibFile(Files.newInputStream(file.toPath()), extName(child)).getAbsolutePath();
+        return getTmpLibFile(Files.newInputStream(file.toPath()), extName(child, true)).getAbsolutePath();
     }
 
     public static File getTmpLibFile(InputStream inputStream, String suffix) throws IOException {
@@ -361,7 +361,7 @@ public class DebugPowerFileUtils {
     private static final char UNIX_SEPARATOR = '/';
     private static final char WINDOWS_SEPARATOR = '\\';;
 
-    public static String extName(String fileName) {
+    public static String extName(String fileName, boolean hasDot) {
         if (fileName == null) {
             return null;
         }
@@ -369,13 +369,14 @@ public class DebugPowerFileUtils {
         if (index == -1) {
             return "";
         } else {
+            int dotOffset = hasDot ? 0 : 1;
             final int secondToLastIndex = fileName.substring(0, index).lastIndexOf(".");
-            final String substr = fileName.substring(secondToLastIndex == -1 ? index : secondToLastIndex + 1);
+            final String substr = fileName.substring(secondToLastIndex == -1 ? index : secondToLastIndex + dotOffset);
             if (DebugPowerStringUtils.containsAny(substr, SPECIAL_SUFFIX)) {
                 return substr;
             }
 
-            final String ext = fileName.substring(index + 1);
+            final String ext = fileName.substring(index + dotOffset);
             // 扩展名中不能包含路径相关的符号
             return DebugPowerStringUtils.containsAny(ext, UNIX_SEPARATOR, WINDOWS_SEPARATOR) ? "" : ext;
         }
