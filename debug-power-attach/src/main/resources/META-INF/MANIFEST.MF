@@ -1,4 +1,0 @@
-Agent-Class: io.github.future0923.debug.power.attach.DebugPowerAttach
-Can-Redefine-Classes: true
-Can-Retransform-Classes: true
-Can-Set-Native-Method-Prefix: true

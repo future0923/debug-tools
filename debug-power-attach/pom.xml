@@ -12,6 +12,17 @@
 
     <artifactId>debug-power-attach</artifactId>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <premain.class>io.github.future0923.debug.power.attach.DebugPowerAttach</premain.class>
+        <agent.class>io.github.future0923.debug.power.attach.DebugPowerAttach</agent.class>
+        <can.redefine.classes>true</can.redefine.classes>
+        <can.retransform.classes>true</can.retransform.classes>
+        <shade.package>io.github.future0923.attach.dependencies</shade.package>
+        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
+        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
@@ -26,106 +37,86 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <scope>provided</scope>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>debug-power-agent</finalName>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-jar-plugin</artifactId>-->
-<!--                <version>3.3.0</version>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifestEntries>-->
-<!--                            <Agent-Class>io.github.future0923.debug.power.attach.DebugPowerAttach</Agent-Class>-->
-<!--                            <Can-Redefine-Classes>true</Can-Redefine-Classes>-->
-<!--                            <Can-Retransform-Classes>true</Can-Retransform-Classes>-->
-<!--                            <Specification-Title>debug-agent</Specification-Title>-->
-<!--                            <Specification-Version>${project.version}</Specification-Version>-->
-<!--                            <Implementation-Title>debug-agent</Implementation-Title>-->
-<!--                            <Implementation-Version>${project.version}</Implementation-Version>-->
-<!--                        </manifestEntries>-->
-<!--                    </archive>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <artifactId>maven-shade-plugin</artifactId>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
                         <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
                         <configuration>
-                            <finalName>debug-power-agent-${revision}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <outputDirectory>${project.basedir}/../debug-power-idea/src/main/resources/lib
-                            </outputDirectory>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                            <archive>
-                                <manifestEntries>
-                                    <Agent-Class>io.github.future0923.debug.power.attach.DebugPowerAttach</Agent-Class>
-                                    <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                                    <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                                    <Specification-Title>debug-agent</Specification-Title>
-                                    <Specification-Version>${project.version}</Specification-Version>
-                                    <Implementation-Title>debug-agent</Implementation-Title>
-                                    <Implementation-Version>${project.version}</Implementation-Version>
-                                </manifestEntries>
-                            </archive>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Premain-Class>${premain.class}</Premain-Class>
+                                        <Agent-Class>${agent.class}</Agent-Class>
+                                        <Can-Redefine-Classes>${can.redefine.classes}</Can-Redefine-Classes>
+                                        <Can-Retransform-Classes>${can.retransform.classes}</Can-Retransform-Classes>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <relocations>
+                                <relocation>
+                                    <pattern>${shade.net.bytebuddy.source}</pattern>
+                                    <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>net.bytebuddy:byte-buddy</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/versions/9/module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-resources-plugin</artifactId>-->
-<!--                <version>2.5</version>-->
-<!--                <configuration>-->
-<!--                    <nonFilteredFileExtensions>-->
-<!--                        <nonFilteredFileExtension>dylib</nonFilteredFileExtension>-->
-<!--                        <nonFilteredFileExtension>dll</nonFilteredFileExtension>-->
-<!--                        <nonFilteredFileExtension>so</nonFilteredFileExtension>-->
-<!--                    </nonFilteredFileExtensions>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-
-            <!--生成源码插件-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>clean</id>
+                        <phase>clean</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>run</goal>
                         </goals>
+                        <configuration>
+                            <target>
+                                <delete dir="${project.basedir}/../debug-power-idea/src/main/resources/lib"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.basedir}/../debug-power-idea/src/main/resources/lib" />
+                                <copy file="${project.build.directory}/debug-power-agent.jar" tofile="${project.basedir}/../debug-power-idea/src/main/resources/lib/debug-power-agent-${project.version}.jar" overwrite="true" />
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
