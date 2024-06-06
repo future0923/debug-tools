@@ -91,7 +91,7 @@ public class DebugPowerBootstrap {
             System.out.println("DebugPower执行结果：" + result);
         } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
             System.out.println("DebugPower执行结果：");
-            System.out.println(DebugPowerJsonUtils.toJsonPrettyStr(result));
+            System.out.println(DebugPowerJsonUtils.isTypeJSON(String.valueOf(result)) ? DebugPowerJsonUtils.toJsonPrettyStr(result) : result);
         } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
 
         }
