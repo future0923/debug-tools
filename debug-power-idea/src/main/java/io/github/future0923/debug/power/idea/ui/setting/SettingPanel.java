@@ -24,18 +24,25 @@ public class SettingPanel {
     private final JBRadioButton runApplicationYes = new JBRadioButton("Yes");
     @Getter
     private final JBRadioButton runApplicationNo = new JBRadioButton("No");
+
     @Getter
     private final JBRadioButton attachApplicationNoPrintResult = new JBRadioButton(PrintResultType.NO_PRINT.getType());
     @Getter
     private final JBRadioButton attachApplicationPrintToStringResult = new JBRadioButton(PrintResultType.TOSTRING.getType());
     @Getter
     private final JBRadioButton attachApplicationPrintJsonResult = new JBRadioButton(PrintResultType.JSON.getType());
+
     @Getter
     private final JBRadioButton defaultGenParamTypeSimple = new JBRadioButton(GenParamType.SIMPLE.getType());
     @Getter
     private final JBRadioButton defaultGenParamTypeCurrent = new JBRadioButton(GenParamType.CURRENT.getType());
     @Getter
     private final JBRadioButton defaultGenParamTypeAll = new JBRadioButton(GenParamType.ALL.getType());
+
+    @Getter
+    private final JBRadioButton printSqlYes = new JBRadioButton("Yes");
+    @Getter
+    private final JBRadioButton printSqlNo = new JBRadioButton("No");
 
     public SettingPanel(Project project) {
         this.settingState = DebugPowerSettingState.getInstance(project);
@@ -87,6 +94,18 @@ public class SettingPanel {
             attachApplicationPrintJsonResult.setSelected(true);
         }
 
+        JPanel printSqlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        printSqlPanel.add(printSqlYes);
+        printSqlPanel.add(printSqlNo);
+        ButtonGroup printSqlButtonGroup = new ButtonGroup();
+        printSqlButtonGroup.add(printSqlYes);
+        printSqlButtonGroup.add(printSqlNo);
+        if (settingState.getPrintSql()) {
+            printSqlYes.setSelected(true);
+        } else {
+            printSqlNo.setSelected(true);
+        }
+
         settingPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
                         new JBLabel("Does it automatically attach when the program starts:"),
@@ -99,6 +118,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Entity class default param:"),
                         defaultGenParamType
+                )
+                .addLabeledComponent(
+                        new JBLabel("Print pretty mysql:"),
+                        printSqlPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

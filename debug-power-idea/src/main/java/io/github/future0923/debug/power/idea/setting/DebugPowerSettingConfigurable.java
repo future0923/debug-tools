@@ -4,9 +4,11 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
-import io.github.future0923.debug.power.idea.constant.ProjectConstant;
+import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.ui.setting.SettingPanel;
+import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +30,7 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     @Nls(capitalization = Nls.Capitalization.Title)
     public @NlsContexts.ConfigurableName String getDisplayName() {
-        return ProjectConstant.NAME;
+        return ProjectConstants.NAME;
     }
 
     @Override
@@ -68,6 +70,12 @@ public class DebugPowerSettingConfigurable implements Configurable {
         if (GenParamType.ALL.equals(settingState.getDefaultGenParamType()) && !settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             return true;
         }
+        if (settingState.getPrintSql() && settingPanel.getPrintSqlNo().isSelected()) {
+            return true;
+        }
+        if (!settingState.getPrintSql() && settingPanel.getPrintSqlYes().isSelected()) {
+            return true;
+        }
         return false;
     }
 
@@ -97,6 +105,11 @@ public class DebugPowerSettingConfigurable implements Configurable {
         if (GenParamType.ALL.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeAll().setSelected(true);
         }
+        if (settingState.getPrintSql()) {
+            settingPanel.getPrintSqlYes().setSelected(true);
+        } else {
+            settingPanel.getPrintSqlNo().setSelected(true);
+        }
     }
 
     @Override
@@ -125,6 +138,15 @@ public class DebugPowerSettingConfigurable implements Configurable {
         }
         if (settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.ALL);
+        }
+        if (settingPanel.getPrintSqlYes().isSelected()) {
+            if (!settingState.getPrintSql()) {
+                DebugPowerNotifierUtil.notifyInfo(project, "To start printing SQL statements, you need to restart App Service.");
+            }
+            settingState.setPrintSql(true);
+        }
+        if (settingPanel.getPrintSqlNo().isSelected()) {
+            settingState.setPrintSql(false);
         }
     }
 

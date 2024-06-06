@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.test.application.controller;
 
+import io.github.future0923.debug.power.test.application.service.TestInterface;
 import io.github.future0923.debug.power.test.application.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,13 @@ public class TestController {
     @Autowired
     private TestService testService;
 
+    @Autowired
+    private TestInterface testInterface;
+
     @GetMapping("/test")
     public String test(String name) {
-        return "success:" + testService.test(name);
+        testInterface.test(name);
+        return "success:" + name;
     }
 
     @GetMapping("/testDao")

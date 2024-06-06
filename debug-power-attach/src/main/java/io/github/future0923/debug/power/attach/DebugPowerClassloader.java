@@ -7,8 +7,8 @@ import java.net.URLClassLoader;
  * @author future0923
  */
 public class DebugPowerClassloader extends URLClassLoader {
-    public DebugPowerClassloader(URL[] urls) {
-        super(urls, ClassLoader.getSystemClassLoader());
+    public DebugPowerClassloader(URL[] urls, ClassLoader parent) {
+        super(urls, parent);
     }
 
     @Override
