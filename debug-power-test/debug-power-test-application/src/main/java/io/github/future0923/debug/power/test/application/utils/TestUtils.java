@@ -1,5 +1,8 @@
 package io.github.future0923.debug.power.test.application.utils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @author future0923
  */
@@ -18,5 +21,10 @@ public class TestUtils {
         private static void testInnerPrivate() {
             System.out.println("testInnerPrivate");
         }
+    }
+
+    public static String LocalDateTimeToMMdd(LocalDateTime localDateTime) {
+        DateTimeFormatter fmt24 = DateTimeFormatter.ofPattern("MM-dd");
+        return localDateTime.format(fmt24);
     }
 }
