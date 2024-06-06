@@ -42,7 +42,7 @@ public class DebugPowerFileUtils {
 
                     // 如果该文件是需要提取的资源文件
                     if (DebugPowerFileUtils.pathEquals(entryName, child)) {
-                        return getTmpLibFile(jarFile.getInputStream(entry)).getAbsolutePath();
+                        return getTmpLibFile(jarFile.getInputStream(entry), extName(child)).getAbsolutePath();
                     }
                 }
             }
@@ -51,11 +51,11 @@ public class DebugPowerFileUtils {
         if (file.isDirectory()) {
             file = new File(file.getAbsolutePath(), child);
         }
-        return getTmpLibFile(Files.newInputStream(file.toPath())).getAbsolutePath();
+        return getTmpLibFile(Files.newInputStream(file.toPath()), extName(child)).getAbsolutePath();
     }
 
-    public static File getTmpLibFile(InputStream inputStream) throws IOException {
-        return getTmpLibFile(inputStream, "DebugPowerJniLibrary", null);
+    public static File getTmpLibFile(InputStream inputStream, String suffix) throws IOException {
+        return getTmpLibFile(inputStream, "DebugPowerJniLibrary", suffix);
     }
 
     public static File getTmpLibFile(InputStream inputStream, String prefix, String suffix) throws IOException {
@@ -354,5 +354,30 @@ public class DebugPowerFileUtils {
             return parentFile;
         }
         return getParent(parentFile, level - 1);
+    }
+
+    private static final CharSequence[] SPECIAL_SUFFIX = {"tar.bz2", "tar.Z", "tar.gz", "tar.xz"};
+
+    private static final char UNIX_SEPARATOR = '/';
+    private static final char WINDOWS_SEPARATOR = '\\';;
+
+    public static String extName(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        final int index = fileName.lastIndexOf(".");
+        if (index == -1) {
+            return "";
+        } else {
+            final int secondToLastIndex = fileName.substring(0, index).lastIndexOf(".");
+            final String substr = fileName.substring(secondToLastIndex == -1 ? index : secondToLastIndex + 1);
+            if (DebugPowerStringUtils.containsAny(substr, SPECIAL_SUFFIX)) {
+                return substr;
+            }
+
+            final String ext = fileName.substring(index + 1);
+            // 扩展名中不能包含路径相关的符号
+            return DebugPowerStringUtils.containsAny(ext, UNIX_SEPARATOR, WINDOWS_SEPARATOR) ? "" : ext;
+        }
     }
 }

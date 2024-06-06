@@ -1,6 +1,6 @@
 package io.github.future0923.debug.power.attach;
 
-import io.github.future0923.debug.power.attach.sqlprint.MySqlPrintByteCodeEnhance;
+import io.github.future0923.debug.power.attach.sqlprint.SqlPrintByteCodeEnhance;
 import io.github.future0923.debug.power.base.DebugPower;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.base.constants.PropertiesConstants;
@@ -24,7 +24,7 @@ public class DebugPowerAttach {
     private static final Logger logger = Logger.getLogger(DebugPowerAttach.class);
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
-        MySqlPrintByteCodeEnhance.enhance(inst);
+        SqlPrintByteCodeEnhance.enhance(inst);
     }
 
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {

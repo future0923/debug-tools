@@ -120,7 +120,7 @@ public class SettingPanel {
                         defaultGenParamType
                 )
                 .addLabeledComponent(
-                        new JBLabel("Print pretty mysql:"),
+                        new JBLabel("Print pretty sql:"),
                         printSqlPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)

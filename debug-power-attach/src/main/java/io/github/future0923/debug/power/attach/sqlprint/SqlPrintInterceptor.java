@@ -43,14 +43,14 @@ public class SqlPrintInterceptor {
     }
 
     private static Connection proxyConnection(final Connection connection) {
-        Object c = Proxy.newProxyInstance(MySqlPrintByteCodeEnhance.class.getClassLoader()
+        Object c = Proxy.newProxyInstance(SqlPrintByteCodeEnhance.class.getClassLoader()
                 , new Class[]{Connection.class}, new ConnectionHandler(connection));
         return (Connection) c;
     }
 
 
     private static PreparedStatement proxyPreparedStatement(final PreparedStatement statement) {
-        Object c = Proxy.newProxyInstance(MySqlPrintByteCodeEnhance.class.getClassLoader()
+        Object c = Proxy.newProxyInstance(SqlPrintByteCodeEnhance.class.getClassLoader()
                 , new Class[]{PreparedStatement.class}, new PreparedStatementHandler(statement));
         return (PreparedStatement) c;
     }
