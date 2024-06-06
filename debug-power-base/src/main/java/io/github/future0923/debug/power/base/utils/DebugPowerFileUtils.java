@@ -207,4 +207,152 @@ public class DebugPowerFileUtils {
     private static String toStringOrEmpty(final Object obj) {
         return Objects.toString(obj, "");
     }
+
+    /**
+     * 创建文件及其父目录，如果这个文件存在，直接返回这个文件<br>
+     * 此方法不对File对象类型做判断，如果File不存在，无法判断其类型
+     *
+     * @param path 相对ClassPath的目录或者绝对路径目录，使用POSIX风格
+     * @return 文件，若路径为null，返回null
+     */
+    public static File touch(String path) {
+        if (path == null) {
+            return null;
+        }
+        return touch(new File(path));
+    }
+
+    /**
+     * 获取标准的绝对路径
+     *
+     * @param file 文件
+     * @return 绝对路径
+     */
+    public static String getAbsolutePath(File file) {
+        if (file == null) {
+            return null;
+        }
+
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            return file.getAbsolutePath();
+        }
+    }
+
+    public static File touch(File file) {
+        if (null == file) {
+            return null;
+        }
+        if (!file.exists()) {
+            mkParentDirs(file);
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                file.createNewFile();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return file;
+    }
+
+    public static File mkParentDirs(File file) {
+        if (null == file) {
+            return null;
+        }
+        return mkdir(getParent(file, 1));
+    }
+
+
+    /**
+     * 创建文件夹，会递归自动创建其不存在的父文件夹，如果存在直接返回此文件夹<br>
+     * 此方法不对File对象类型做判断，如果File不存在，无法判断其类型<br>
+     *
+     * @param dir 目录
+     * @return 创建的目录
+     */
+    public static File mkdir(File dir) {
+        if (dir == null) {
+            return null;
+        }
+        if (!dir.exists()) {
+            mkdirsSafely(dir, 5, 1);
+        }
+        return dir;
+    }
+
+
+    /**
+     * 安全地级联创建目录 (确保并发环境下能创建成功)
+     *
+     * <pre>
+     *     并发环境下，假设 test 目录不存在，如果线程A mkdirs "test/A" 目录，线程B mkdirs "test/B"目录，
+     *     其中一个线程可能会失败，进而导致以下代码抛出 FileNotFoundException 异常
+     *
+     *     file.getParentFile().mkdirs(); // 父目录正在被另一个线程创建中，返回 false
+     *     file.createNewFile(); // 抛出 IO 异常，因为该线程无法感知到父目录已被创建
+     * </pre>
+     *
+     * @param dir         待创建的目录
+     * @param tryCount    最大尝试次数
+     * @param sleepMillis 线程等待的毫秒数
+     * @return true表示创建成功，false表示创建失败
+     * @author z8g
+     * @since 5.7.21
+     */
+    public static boolean mkdirsSafely(File dir, int tryCount, long sleepMillis) {
+        if (dir == null) {
+            return false;
+        }
+        if (dir.isDirectory()) {
+            return true;
+        }
+        for (int i = 1; i <= tryCount; i++) { // 高并发场景下，可以看到 i 处于 1 ~ 3 之间
+            // 如果文件已存在，也会返回 false，所以该值不能作为是否能创建的依据，因此不对其进行处理
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+            if (dir.exists()) {
+                return true;
+            }
+            try {
+                Thread.sleep(sleepMillis);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return dir.exists();
+    }
+
+
+    /**
+     * 获取指定层级的父路径
+     *
+     * <pre>
+     * getParent(file("d:/aaa/bbb/cc/ddd", 0)) -》 "d:/aaa/bbb/cc/ddd"
+     * getParent(file("d:/aaa/bbb/cc/ddd", 2)) -》 "d:/aaa/bbb"
+     * getParent(file("d:/aaa/bbb/cc/ddd", 4)) -》 "d:/"
+     * getParent(file("d:/aaa/bbb/cc/ddd", 5)) -》 null
+     * </pre>
+     *
+     * @param file  目录或文件
+     * @param level 层级
+     * @return 路径File，如果不存在返回null
+     * @since 4.1.2
+     */
+    public static File getParent(File file, int level) {
+        if (level < 1 || null == file) {
+            return file;
+        }
+
+        File parentFile;
+        try {
+            parentFile = file.getCanonicalFile().getParentFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (1 == level) {
+            return parentFile;
+        }
+        return getParent(parentFile, level - 1);
+    }
 }

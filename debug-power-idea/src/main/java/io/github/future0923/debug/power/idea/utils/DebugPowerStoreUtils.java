@@ -5,16 +5,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.constant.ProjectConstant;
+import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.ui.main.MainDialog;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +27,7 @@ public class DebugPowerStoreUtils {
 
     public static void save(Project project) {
         try {
-            String filePath = project.getBasePath() + ProjectConstant.GLOBAL_HEADER_FILE;
+            String filePath = project.getBasePath() + IdeaPluginProjectConstants.GLOBAL_HEADER_FILE;
             File file = new File(filePath);
             if (!file.exists()) {
                 FileUtils.touch(file);
@@ -49,7 +47,7 @@ public class DebugPowerStoreUtils {
     public static Map<String, String> getAll(Project project) {
         if (globalHeader.isEmpty()) {
             try {
-                String filePath = project.getBasePath() + ProjectConstant.GLOBAL_HEADER_FILE;
+                String filePath = project.getBasePath() + IdeaPluginProjectConstants.GLOBAL_HEADER_FILE;
                 File file = new File(filePath);
                 if (file.exists()) {
                     String content = FileUtil.loadFile(file, StandardCharsets.UTF_8);

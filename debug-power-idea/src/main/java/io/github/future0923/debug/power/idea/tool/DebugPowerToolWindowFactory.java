@@ -7,7 +7,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import io.github.future0923.debug.power.idea.constant.ProjectConstant;
+import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class DebugPowerToolWindowFactory implements ToolWindowFactory {
 
     @Nullable
     public static ToolWindow getWindow(@NotNull Project project) {
-        return ToolWindowManager.getInstance(project).getToolWindow(ProjectConstant.TOOL_WINDOW_ID);
+        return ToolWindowManager.getInstance(project).getToolWindow(IdeaPluginProjectConstants.TOOL_WINDOW_ID);
     }
 
     public static void showWindow(@NotNull Project project, @Nullable Runnable onShow) {
