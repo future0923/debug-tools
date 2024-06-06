@@ -18,8 +18,4 @@ public interface ProjectConstants {
     String GET_INSTANCE = "getInstance";
 
     String CALL = "call";
-
-    String SQL_PRINT_BYTE_CODE_ENHANCE = "io.github.future0923.debug.power.core.sqlprint.MySqlPrintByteCodeEnhance";
-
-    String ENHANCE = "enhance";
 }
