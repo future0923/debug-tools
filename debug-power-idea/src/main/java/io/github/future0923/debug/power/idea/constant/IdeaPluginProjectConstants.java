@@ -13,7 +13,7 @@ public interface IdeaPluginProjectConstants {
 
     String AGENT_TMP_PREFIX = "debug-power-agent-";
 
-    Pattern AGENT_TMP_REGEX = Pattern.compile("-javaagent:[^\\s]*\\/" + AGENT_TMP_PREFIX + "[^\\s]*\\.jar");
+    Pattern AGENT_TMP_REGEX = Pattern.compile("-javaagent:[^\\s]*" + AGENT_TMP_PREFIX + "[^\\s]*\\.jar");
 
     String PARAM_FILE = "/.idea/DebugPower/agent.json";
 
