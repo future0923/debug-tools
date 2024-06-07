@@ -17,7 +17,5 @@ public interface IdeaPluginProjectConstants {
 
     String PARAM_FILE = "/.idea/DebugPower/agent.json";
 
-    String GLOBAL_HEADER_FILE = "/.idea/DebugPower/globalHeader.json";
-
     String TOOL_WINDOW_ID = "DebugPower";
 }

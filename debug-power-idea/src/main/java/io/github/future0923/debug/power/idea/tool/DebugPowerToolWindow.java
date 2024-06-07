@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
 import io.github.future0923.debug.power.idea.tool.action.AttachAction;
+import io.github.future0923.debug.power.idea.tool.action.ClearCacheAction;
 import io.github.future0923.debug.power.idea.tool.ui.GlobalParamPanel;
 
 /**
@@ -15,11 +16,14 @@ import io.github.future0923.debug.power.idea.tool.ui.GlobalParamPanel;
  */
 public class DebugPowerToolWindow extends SimpleToolWindowPanel {
 
+    private final GlobalParamPanel globalParamPanel;
+
     public DebugPowerToolWindow(Project project) {
         super(false, false);
         initToolBar();
         JBSplitter content = new JBSplitter(true, DebugPowerToolWindow.class.getName(), 0.5F);
-        content.setFirstComponent(new GlobalParamPanel(project));
+        globalParamPanel = new GlobalParamPanel(project);
+        content.setFirstComponent(globalParamPanel);
         content.setSecondComponent(null);
         this.setContent(content);
     }
@@ -27,6 +31,7 @@ public class DebugPowerToolWindow extends SimpleToolWindowPanel {
     private void initToolBar() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new AttachAction());
+        actionGroup.add(new ClearCacheAction());
         actionGroup.addSeparator();
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
                 ActionPlaces.TOOLBAR,
@@ -35,5 +40,9 @@ public class DebugPowerToolWindow extends SimpleToolWindowPanel {
         );
         actionToolbar.setTargetComponent(this);
         setToolbar(actionToolbar.getComponent());
+    }
+
+    public void clearHeader() {
+        globalParamPanel.clearHeader();
     }
 }

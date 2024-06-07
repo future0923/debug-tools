@@ -11,14 +11,15 @@ import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
-import io.github.future0923.debug.power.idea.utils.DebugPowerStoreUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerUIHelper;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,6 +42,10 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
 
     private final Map<JBTextField, JBTextField> headerItemMap = new HashMap<>();
 
+    private final List<JPanel> headerPanelList = new ArrayList<>();
+
+    private JPanel jPanel;
+
     public GlobalParamPanel(Project project) {
         super(new GridBagLayout());
         this.project = project;
@@ -57,40 +62,47 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         panel.add(attached);
         panel.add(textField);
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
-        JPanel jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
+        jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         globalHeaderPanel.add(new JBLabel("Global header:"));
         JButton addHeaderButton = new JButton("Add");
+        addHeaderButton.setToolTipText("Add global header item");
         addHeaderButton.addActionListener(e -> {
-            DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, null, null, headerItemMap);
+            headerPanelList.add(DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, null, null, headerItemMap));
             DebugPowerUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addHeaderButton);
-        JButton addAuthHeaderButton = new JButton("Add Auth");
+        JButton addAuthHeaderButton = new JButton("Auth");
+        addAuthHeaderButton.setToolTipText("Add Authorization global header item");
         addAuthHeaderButton.addActionListener(e -> {
-            DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, "Authorization", null, headerItemMap);
+            headerPanelList.add(DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, "Authorization", null, headerItemMap));
             DebugPowerUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addAuthHeaderButton);
+        JButton removeAllHeaderButton = new JButton("DelAll");
+        removeAllHeaderButton.setToolTipText("Remove all global header item");
+        removeAllHeaderButton.addActionListener(e -> {
+            clearHeader();
+            DebugPowerNotifierUtil.notifyInfo(project, "Global header remove all successfully");
+        });
+        globalHeaderPanel.add(removeAllHeaderButton);
         JButton saveHeaderButton = new JButton("Save");
+        saveHeaderButton.setToolTipText("Save global header item");
         saveHeaderButton.addActionListener(e -> {
             headerItemMap.forEach((k, v) -> {
                 String key = k.getText();
                 if (StringUtils.isNotBlank(key)) {
-                    DebugPowerStoreUtils.putGlobalHeader(key, v.getText());
+                    settingState.putGlobalHeader(key, v.getText());
                 }
             });
-            DebugPowerStoreUtils.save(project);
             DebugPowerNotifierUtil.notifyInfo(project, "Global header saved successfully");
         });
         globalHeaderPanel.add(saveHeaderButton);
         formBuilder.addComponent(panel);
         formBuilder.addComponent(globalHeaderPanel);
-        DebugPowerStoreUtils.getAll(project).forEach((k, v) -> DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, k, v, headerItemMap));
+        settingState.getGlobalHeader().forEach((k, v) -> headerPanelList.add(DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, k, v, headerItemMap)));
         DebugPowerUIHelper.refreshUI(formBuilder);
-
         add(jPanel, DebugPowerUIHelper.northGridBagConstraints());
-
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1;
@@ -121,5 +133,14 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 3,
                 TimeUnit.SECONDS
         );
+    }
+
+    public void clearHeader() {
+        for (JPanel panel : headerPanelList) {
+            jPanel.remove(panel);
+        }
+        jPanel.revalidate();
+        jPanel.repaint();
+        headerItemMap.clear();
     }
 }

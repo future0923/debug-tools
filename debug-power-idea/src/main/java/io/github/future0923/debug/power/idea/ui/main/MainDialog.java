@@ -18,7 +18,6 @@ import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerActionUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
-import io.github.future0923.debug.power.idea.utils.DebugPowerStoreUtils;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,12 +42,15 @@ public class MainDialog extends DialogWrapper {
 
     private final MethodDataContext methodDataContext;
 
+    private final DebugPowerSettingState settingState;
+
     private MainPanel mainPanel;
 
-    public MainDialog(MethodDataContext methodDataContext, @Nullable Project project) {
+    public MainDialog(MethodDataContext methodDataContext, Project project) {
         super(project, true, IdeModalityType.MODELESS);
         this.project = project;
         this.methodDataContext = methodDataContext;
+        this.settingState = DebugPowerSettingState.getInstance(project);
         setTitle("Quick Debug");
         setOKButtonText("Run");
         setOKButtonIcon(AllIcons.Actions.RunAll);
@@ -68,14 +70,14 @@ public class MainDialog extends DialogWrapper {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text);
-        settingState.putCache(methodDataContext.getCacheKey(), paramCacheDto);
+        settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
         String jsonDtoStr = DebugPowerJsonUtils.toDebugPowerJson(
                 methodDataContext.getPsiClass().getQualifiedName(),
                 methodDataContext.getPsiMethod().getName(),
                 DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()),
                 contentMap,
-                Stream.of(itemHeaderMap, DebugPowerStoreUtils.getAll(project))
+                Stream.of(itemHeaderMap, settingState.getGlobalHeader())
                         .flatMap(map -> map.entrySet().stream())
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,

@@ -41,7 +41,7 @@ public class MethodDataContext {
         this.project = project;
         this.cacheKey = DebugPowerActionUtil.genCacheKey(classDataContext.getPsiClass(), psiMethod);
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        this.cache = settingState.getCache(cacheKey);
+        this.cache = settingState.getMethodParamCache(cacheKey);
         this.psiMethod = psiMethod;
         this.classDataContext = classDataContext;
         //this.qualifiedMethodName = DebugPowerIdeaClassUtil.getMethodQualifiedName(psiMethod);
