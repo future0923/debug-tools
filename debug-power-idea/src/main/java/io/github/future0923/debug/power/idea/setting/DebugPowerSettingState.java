@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author future0923
@@ -42,7 +40,9 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     private String version;
 
-    private Map<String, String> cache = new ConcurrentHashMap<>();
+    private Map<String, String> methodParamCache = new ConcurrentHashMap<>();
+
+    private Map<String, String> globalHeader = new ConcurrentHashMap<>();
 
     private ServerDisplayValue attach;
 
@@ -70,16 +70,16 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
         return project.getService(DebugPowerSettingState.class);
     }
 
-    public void clearCache() {
-        cache.clear();
+    public void clearMethodParamCache() {
+        methodParamCache.clear();
     }
 
-    public void putCache(String key, ParamCache value) {
-        cache.put(key, DebugPowerJsonUtils.toJsonStr(value));
+    public void putMethodParamCache(String key, ParamCache value) {
+        methodParamCache.put(key, DebugPowerJsonUtils.toJsonStr(value));
     }
 
-    public ParamCache getCache(String key) {
-        String value = cache.get(key);
+    public ParamCache getMethodParamCache(String key) {
+        String value = methodParamCache.get(key);
         if (StringUtils.isBlank(value)) {
             return ParamCache.NULL;
         }
@@ -120,5 +120,35 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
             version = ProjectConstants.VERSION;
         }
         return agentPath;
+    }
+
+    public void clearAgentCache() {
+        try {
+            if (this.agentPath == null) {
+                return;
+            }
+            File file = new File(this.agentPath);
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (Exception ignored) {
+        }
+        this.agentPath = null;
+    }
+
+    public void putGlobalHeader(String key, String value) {
+        if (StringUtils.isNotBlank(key)) {
+            globalHeader.put(key, value);
+        }
+    }
+
+    public void clearGlobalHeaderCache() {
+        globalHeader.clear();
+    }
+
+    public void clearAllCache() {
+        clearAgentCache();
+        clearMethodParamCache();
+        clearGlobalHeaderCache();
     }
 }

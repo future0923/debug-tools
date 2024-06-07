@@ -17,4 +17,5 @@ public class DebugPowerIcons {
     public static final Icon import_icon = IconLoader.getIcon("/icon/import.svg", DebugPowerIcons.class);
     public static final Icon export_icon = IconLoader.getIcon("/icon/export.svg", DebugPowerIcons.class);
     public static final Icon add_icon = IconLoader.getIcon("/icon/add.svg", DebugPowerIcons.class);
+    public static final Icon clear_icon = IconLoader.getIcon("/icon/clear.svg", DebugPowerIcons.class);
 }
