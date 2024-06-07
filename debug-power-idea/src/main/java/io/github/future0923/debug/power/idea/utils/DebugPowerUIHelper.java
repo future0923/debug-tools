@@ -14,15 +14,15 @@ import java.util.Map;
  */
 public class DebugPowerUIHelper {
 
-    public static void addHeaderComponentItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
-        addHeaderItem(false, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
+    public static JPanel addHeaderComponentItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
+        return addHeaderItem(false, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
     }
 
-    public static void addHeaderLabelItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
-        addHeaderItem(true, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
+    public static JPanel addHeaderLabelItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
+        return addHeaderItem(true, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
     }
 
-    public static void addHeaderItem(boolean label, JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
+    public static JPanel addHeaderItem(boolean label, JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
         JPanel headerItem = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         JBTextField headerKeyField = new JBTextField();
         if (k != null) {
@@ -54,6 +54,7 @@ public class DebugPowerUIHelper {
         } else {
             formBuilder.addComponent(headerItem);
         }
+        return headerItem;
     }
 
     public static void refreshUI(FormBuilder formBuilder) {

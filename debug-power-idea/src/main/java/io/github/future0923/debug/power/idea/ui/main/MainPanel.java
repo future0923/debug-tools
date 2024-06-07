@@ -19,14 +19,12 @@ import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
-import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerUIHelper;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,8 +43,6 @@ public class MainPanel extends JBPanel<MainPanel> {
     private final JButton attachButton = new JButton("Attach");
 
     private final JButton refreshButton = new JButton("Refresh");
-
-    private final JButton clearButton = new JButton("Clear cache");
 
     private final JBTextField classNameField = new JBTextField();
 
@@ -100,19 +96,6 @@ public class MainPanel extends JBPanel<MainPanel> {
             settingState.setAttach(null);
             refreshServerComboBox();
         });
-        clearButton.addActionListener(e -> {
-            settingState.clearCache();
-            try {
-                String agentPath = settingState.getAgentPath();
-                File file = new File(agentPath);
-                if (file.exists()) {
-                    file.delete();
-                }
-            } catch (Exception ignored) {
-            }
-            settingState.setAgentPath(null);
-            DebugPowerNotifierUtil.notifyInfo(project, "clear cache successful");
-        });
     }
 
     private void initLayout() {
@@ -121,7 +104,6 @@ public class MainPanel extends JBPanel<MainPanel> {
         serverJPanel.add(serverComboBox);
         serverJPanel.add(attachButton);
         serverJPanel.add(refreshButton);
-        serverJPanel.add(clearButton);
         JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
