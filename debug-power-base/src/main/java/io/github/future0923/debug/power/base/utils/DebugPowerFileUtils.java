@@ -1,5 +1,7 @@
 package io.github.future0923.debug.power.base.utils;
 
+import io.github.future0923.debug.power.base.constants.ProjectConstants;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,8 +20,6 @@ import java.util.jar.JarFile;
 
 public class DebugPowerFileUtils {
 
-    private static final int TEMP_DIR_ATTEMPTS = 10000;
-
     private static final String FOLDER_SEPARATOR = "/";
 
     private static final String WINDOWS_FOLDER_SEPARATOR = "\\";
@@ -27,6 +27,26 @@ public class DebugPowerFileUtils {
     private static final String TOP_PATH = "..";
 
     private static final String CURRENT_PATH = ".";
+
+    /**
+     * 判断文件是否存在，如果path为null，则返回false
+     *
+     * @param path 文件路径
+     * @return 如果存在返回true
+     */
+    public static boolean exist(String path) {
+        return (null != path) && exist(new File(path));
+    }
+
+    /**
+     * 判断文件是否存在，如果file为null，则返回false
+     *
+     * @param file 文件
+     * @return 如果存在返回true
+     */
+    public static boolean exist(File file) {
+        return (null != file) && file.exists();
+    }
 
     /**
      * @return tmp file absolute path
@@ -61,6 +81,9 @@ public class DebugPowerFileUtils {
     public static File getTmpLibFile(InputStream inputStream, String prefix, String suffix) throws IOException {
         File tempDir = createTempDir();
         File tmpLibFile = new File(tempDir, prefix + (suffix != null ? suffix : ""));
+        if (tmpLibFile.exists()) {
+            tmpLibFile.delete();
+        }
         try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
              InputStream inputStreamNew = inputStream) {
             copy(inputStreamNew, tmpLibOutputStream);
@@ -69,17 +92,13 @@ public class DebugPowerFileUtils {
     }
 
     private static File createTempDir() {
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
-        String baseName = "debug-power-" + System.currentTimeMillis() + "-";
-
-        for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
-            File tempDir = new File(baseDir, baseName + counter);
-            if (tempDir.mkdir()) {
-                return tempDir;
+        File tempDir = new File(System.getProperty("java.io.tmpdir") + "/" + ProjectConstants.NAME);
+        if (!tempDir.exists()) {
+            if (!tempDir.mkdir()) {
+                throw new IllegalStateException("Failed to create directory within " + tempDir);
             }
         }
-        throw new IllegalStateException("Failed to create directory within " + TEMP_DIR_ATTEMPTS + " attempts (tried "
-                + baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
+        return tempDir;
     }
 
     public static void copy(InputStream in, OutputStream out) throws IOException {

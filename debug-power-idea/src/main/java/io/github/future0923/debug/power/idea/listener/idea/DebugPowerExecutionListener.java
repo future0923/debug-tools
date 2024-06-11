@@ -13,8 +13,6 @@ import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.regex.Matcher;
-
 /**
  * @author future0923
  */
@@ -27,7 +25,7 @@ public class DebugPowerExecutionListener implements ExecutionListener {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         // 检查是否是一个 Java 运行配置
         if (runProfile instanceof ApplicationConfiguration config) {
-            String jvmArg = "-javaagent:" + settingState.getAgentPath(project);
+            String jvmArg = "-javaagent:" + settingState.loadAgentPath(project);
             // 获取当前的 VM options，并添加 -javaagent 参数
             String existingOptions = config.getVMParameters();
             if (StringUtils.isNotBlank(existingOptions)) {

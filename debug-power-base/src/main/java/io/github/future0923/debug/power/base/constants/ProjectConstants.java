@@ -5,7 +5,7 @@ package io.github.future0923.debug.power.base.constants;
  */
 public interface ProjectConstants {
 
-    Boolean DEBUG = false;
+    Boolean DEBUG = true;
 
     String NAME = "DebugPower";
 

@@ -99,11 +99,11 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
         return dto;
     }
 
-    public String getAgentPath() {
-        return getAgentPath(null);
+    public synchronized String loadAgentPath() {
+        return loadAgentPath(null);
     }
 
-    public String getAgentPath(Project project) {
+    public synchronized String loadAgentPath(Project project) {
         if (ProjectConstants.DEBUG || !ProjectConstants.VERSION.equals(version) || StringUtils.isBlank(agentPath) || !new File(agentPath).exists()) {
             InputStream inputStream = QuickDebugEditorPopupMenuAction.class.getResourceAsStream(IdeaPluginProjectConstants.AGENT_JAR_PATH);
             if (inputStream == null) {
