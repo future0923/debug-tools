@@ -67,7 +67,6 @@ public class MainDialog extends DialogWrapper {
     protected void doOKAction() {
         JsonEditor editor = mainPanel.getEditor();
         String text = DebugPowerJsonUtils.compress(editor.getText());
-        DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);

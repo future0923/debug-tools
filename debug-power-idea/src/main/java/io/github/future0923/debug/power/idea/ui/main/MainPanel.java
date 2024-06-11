@@ -160,8 +160,6 @@ public class MainPanel extends JBPanel<MainPanel> {
         gbc.weighty = 1;
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 0;
-        gbc.gridheight = -1;
         this.add(editor, gbc);
     }
 

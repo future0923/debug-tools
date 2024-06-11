@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +25,10 @@ public class DebugPowerAttach {
 
     private static final Logger logger = Logger.getLogger(DebugPowerAttach.class);
 
+    private static final Map<String, Class<?>> loadClassMap = new ConcurrentHashMap<>();
+
+    private static final Properties properties = new Properties();
+
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         SqlPrintByteCodeEnhance.enhance(inst);
     }
@@ -30,7 +36,7 @@ public class DebugPowerAttach {
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
         init(ProjectConstants.DEBUG_POWER_BOOTSTRAP, bootstrapClass -> {
             try {
-                Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE).invoke(null);
+                Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Properties.class).invoke(null, properties);
                 bootstrapClass.getMethod(ProjectConstants.CALL, String.class, Instrumentation.class).invoke(bootstrap, agentArgs, inst);
             } catch (Exception e) {
                 logger.error("call target method error", e);
@@ -40,9 +46,11 @@ public class DebugPowerAttach {
 
     private static void init(String loaderClassName, Consumer<Class<?>> consumer) {
         try {
-            Class<?> loadClass = Class.forName(loaderClassName);
-            consumer.accept(loadClass);
-            return;
+            Class<?> loadClass = loadClassMap.get(loaderClassName);
+            if (loadClass != null) {
+                consumer.accept(loadClass);
+                return;
+            }
         } catch (Throwable e) {
             // ignore
         }
@@ -51,7 +59,6 @@ public class DebugPowerAttach {
         if (!cacheProperties.exists()) {
             DebugPowerFileUtils.touch(cacheProperties);
         }
-        Properties properties = new Properties();
         try {
             properties.load(cacheProperties.toURI().toURL().openStream());
         } catch (IOException e) {
@@ -76,7 +83,9 @@ public class DebugPowerAttach {
             }
         }
         try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPower.class.getClassLoader())) {
-            consumer.accept(debugPowerClassloader.loadClass(loaderClassName));
+            Class<?> loadClass = debugPowerClassloader.loadClass(loaderClassName);
+            loadClassMap.put(loaderClassName, loadClass);
+            consumer.accept(loadClass);
         } catch (Exception e) {
             logger.error("load error", e);
         }

@@ -47,6 +47,7 @@
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
         <maven-resource-plugin.version>3.3.1</maven-resource-plugin.version>
         <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
@@ -106,6 +107,11 @@
                     <configuration>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -2,19 +2,23 @@ package io.github.future0923.debug.power.core.jvm;
 
 import arthas.VmTool;
 import com.taobao.arthas.common.OSUtils;
+import io.github.future0923.debug.power.base.constants.PropertiesConstants;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerAopUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.CodeSource;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.IntStream;
 
 /**
@@ -24,11 +28,19 @@ public class VmToolsUtils {
 
     private static VmTool instance;
 
-    static {
-        init();
-    }
+    private static boolean init = false;
 
-    private static void init() {
+    private static boolean load = false;
+
+    public static synchronized void init(Properties properties) {
+        if (init) {
+            return;
+        }
+        String jniPath = properties.getProperty(PropertiesConstants.JNI_LIBRARY_PATH);
+        if (DebugPowerStringUtils.isNotBlank(jniPath) && DebugPowerFileUtils.exist(jniPath) && !load) {
+            initVmTool(jniPath);
+            return;
+        }
         String libName;
         if (OSUtils.isMac()) {
             libName = "libJniLibrary.dylib";
@@ -40,21 +52,20 @@ public class VmToolsUtils {
             throw new IllegalStateException("unsupported os");
         }
 
-        CodeSource codeSource = VmToolsUtils.class.getProtectionDomain().getCodeSource();
-        String libPath = null;
-        if (codeSource != null) {
-            try {
-                File bootJarPath = new File(codeSource.getLocation().toURI().getSchemeSpecificPart());
-                libPath = DebugPowerFileUtils.copyChildFile(bootJarPath, "lib/" + libName);
-                instance = VmTool.getInstance(libPath);
-            } catch (Throwable e) {
-                throw new IllegalStateException(e);
-            }
+        String libPath = "lib/" + libName;
+        URL jniLibraryUrl = VmToolsUtils.class.getClassLoader().getResource(libPath);
+        if (jniLibraryUrl == null) {
+            throw new IllegalArgumentException("can not getResources " + libName + " from classloader: "
+                    + VmToolsUtils.class.getClassLoader());
         }
-
-        if (instance == null) {
-            throw new IllegalStateException("VmToolUtils init fail. codeSource: " + codeSource + " libPath: " + libPath);
+        File jniLibraryFile;
+        try {
+            jniLibraryFile = DebugPowerFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugPowerJniLibrary", DebugPowerFileUtils.extName(libName, true));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        initVmTool(jniLibraryFile.getAbsolutePath());
+        properties.setProperty(PropertiesConstants.JNI_LIBRARY_PATH, jniLibraryFile.getAbsolutePath());
     }
 
     public static Object getInstance(Class<?> targetClass, Method targetMethod) {
@@ -86,6 +97,7 @@ public class VmToolsUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T instantiate(Class<T> clazz) {
         if (clazz == null || clazz.isInterface()) {
             throw new IllegalArgumentException("Specified class is null or interface. " + clazz);
@@ -112,5 +124,14 @@ public class VmToolsUtils {
             throw new IllegalArgumentException("instantiate Exception" + clazz, e);
         }
         return (T) obj;
+    }
+
+    private static void initVmTool(String libPath) {
+        instance = VmTool.getInstance(libPath);
+        if (instance == null) {
+            throw new IllegalStateException("VmToolUtils init fail. libPath: " + libPath);
+        }
+        init = true;
+        load = true;
     }
 }

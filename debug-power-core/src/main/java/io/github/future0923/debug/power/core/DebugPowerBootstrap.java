@@ -11,6 +11,7 @@ import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerParamConvertUtils;
 import io.github.future0923.debug.power.core.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.core.mock.springmvc.MockHttpServletRequest;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.core.BridgeMethodResolver;
@@ -24,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 /**
  * @author future0923
@@ -32,12 +34,15 @@ public class DebugPowerBootstrap {
 
     private static DebugPowerBootstrap debugBootstrap;
 
-    private DebugPowerBootstrap() {
+    private final Properties properties;
+
+    private DebugPowerBootstrap(Properties properties) {
+        this.properties = properties;
     }
 
-    public static synchronized DebugPowerBootstrap getInstance() {
+    public static synchronized DebugPowerBootstrap getInstance(Properties properties) {
         if (debugBootstrap == null) {
-            debugBootstrap = new DebugPowerBootstrap();
+            debugBootstrap = new DebugPowerBootstrap(properties);
         }
         return debugBootstrap;
     }
@@ -54,6 +59,7 @@ public class DebugPowerBootstrap {
 
         setRequest(runDTO);
 
+        VmToolsUtils.init(properties);
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
         // 获取正确的目标方法（非桥接方法）
         Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(targetMethod);
