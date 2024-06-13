@@ -9,7 +9,7 @@ public interface ProjectConstants {
 
     String NAME = "DebugPower";
 
-    String VERSION = "1.2.0";
+    String VERSION = "2.0.0";
 
     String RESOURCE_CORE_PATH = "lib/debug-power-core.jar";
 
@@ -17,5 +17,5 @@ public interface ProjectConstants {
 
     String GET_INSTANCE = "getInstance";
 
-    String CALL = "call";
+    String START = "start";
 }
