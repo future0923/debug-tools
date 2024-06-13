@@ -2,19 +2,15 @@ package io.github.future0923.debug.power.attach;
 
 import io.github.future0923.debug.power.attach.sqlprint.SqlPrintByteCodeEnhance;
 import io.github.future0923.debug.power.base.DebugPower;
+import io.github.future0923.debug.power.base.config.AgentConfig;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
-import io.github.future0923.debug.power.base.constants.PropertiesConstants;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -27,7 +23,7 @@ public class DebugPowerAttach {
 
     private static final Map<String, Class<?>> loadClassMap = new ConcurrentHashMap<>();
 
-    private static final Properties properties = new Properties();
+    private static final AgentConfig agentConfig = AgentConfig.INSTANCE;
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         SqlPrintByteCodeEnhance.enhance(inst);
@@ -36,8 +32,8 @@ public class DebugPowerAttach {
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
         init(ProjectConstants.DEBUG_POWER_BOOTSTRAP, bootstrapClass -> {
             try {
-                Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Properties.class).invoke(null, properties);
-                bootstrapClass.getMethod(ProjectConstants.CALL, String.class, Instrumentation.class).invoke(bootstrap, agentArgs, inst);
+                Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class).invoke(null, inst);
+                bootstrapClass.getMethod(ProjectConstants.START).invoke(bootstrap);
             } catch (Exception e) {
                 logger.error("call target method error", e);
             }
@@ -54,36 +50,27 @@ public class DebugPowerAttach {
         } catch (Throwable e) {
             // ignore
         }
-        String homeDir = System.getProperty("user.home");
-        File cacheProperties = new File(homeDir + "/" + ProjectConstants.NAME + "/debug-power-cache.properties");
-        if (!cacheProperties.exists()) {
-            DebugPowerFileUtils.touch(cacheProperties);
-        }
-        try {
-            properties.load(cacheProperties.toURI().toURL().openStream());
-        } catch (IOException e) {
-            logger.error("load properties error", e);
-            return;
-        }
-        String version = properties.getProperty(PropertiesConstants.VERSION);
+        String version = agentConfig.getVersion();
         boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
-            properties.setProperty(PropertiesConstants.VERSION, ProjectConstants.VERSION);
+            agentConfig.setVersion(ProjectConstants.VERSION);
         }
-        String corePath = properties.getProperty(PropertiesConstants.CORE_PATH);
+        String corePath = agentConfig.getCorePath();
         File debugPowerCoreJarFile;
         if (ProjectConstants.DEBUG || corePath == null || corePath.isEmpty() || isUpgrade) {
-            debugPowerCoreJarFile = createCoreTmpFile(properties, cacheProperties);
+            debugPowerCoreJarFile = createCoreTmpFile();
         } else {
             File file = new File(corePath);
             if (file.exists()) {
                 debugPowerCoreJarFile = file;
             } else {
-                debugPowerCoreJarFile = createCoreTmpFile(properties, cacheProperties);
+                debugPowerCoreJarFile = createCoreTmpFile();
             }
         }
+        agentConfig.store();
         try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPower.class.getClassLoader())) {
             Class<?> loadClass = debugPowerClassloader.loadClass(loaderClassName);
+            debugPowerClassloader.loadAllClasses();
             loadClassMap.put(loaderClassName, loadClass);
             consumer.accept(loadClass);
         } catch (Exception e) {
@@ -91,7 +78,7 @@ public class DebugPowerAttach {
         }
     }
 
-    private static File createCoreTmpFile(Properties properties, File cacheProperties) {
+    private static File createCoreTmpFile() {
         File debugPowerCoreJarFile;
         try {
             URL coreJarUrl = DebugPowerAttach.class.getClassLoader().getResource(ProjectConstants.RESOURCE_CORE_PATH);
@@ -104,14 +91,7 @@ public class DebugPowerAttach {
             throw new IllegalArgumentException("can not getResources debug-power-core.jar from classloader: "
                     + DebugPowerAttach.class.getClassLoader());
         }
-        properties.setProperty(PropertiesConstants.CORE_PATH, debugPowerCoreJarFile.getAbsolutePath());
-        try {
-            OutputStream outputStream = Files.newOutputStream(cacheProperties.toPath());
-            properties.store(outputStream, "config debug power core path");
-            outputStream.close();
-        } catch (IOException e) {
-            logger.error("store properties error", e);
-        }
+        agentConfig.setCorePath(debugPowerCoreJarFile.getAbsolutePath());
         return debugPowerCoreJarFile;
     }
 
