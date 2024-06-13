@@ -73,11 +73,11 @@ public class DebugPowerAttachUtils {
                     log.warn("jdk较高版本附加较低版本，没有影响可以忽略");
                 } else {
                     log.error("attach核心依赖失败 [errMsg:{}]", agentLoadException.getMessage());
-                    DebugPowerNotifierUtil.notifyError(project, "attach失败");
+                    DebugPowerNotifierUtil.notifyError(project, "attach失败:" + agentLoadException.getMessage());
                 }
             } catch (Exception exception) {
                 log.error("attach失败 [errMsg:{}]", exception.getMessage());
-                DebugPowerNotifierUtil.notifyError(project, "attach失败");
+                DebugPowerNotifierUtil.notifyError(project, "attach失败:" + exception.getMessage());
             } finally {
                 if (virtualMachine != null) {
                     try {
