@@ -2,6 +2,9 @@ package io.github.future0923.debug.power.attach;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * @author future0923
@@ -32,5 +35,22 @@ public class DebugPowerClassloader extends URLClassLoader {
             // ignore
         }
         return super.loadClass(name, resolve);
+    }
+
+    public void loadAllClasses() {
+        for (URL url : getURLs()) {
+            try(JarFile jarFile = new JarFile(url.getPath())) {
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry jarEntry = entries.nextElement();
+                    if (jarEntry.getName().endsWith(".class")) {
+                        String className = jarEntry.getName().replace("/", ".").substring(0, jarEntry.getName().length() - 6);
+                        loadClass(className);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

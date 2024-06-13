@@ -30,7 +30,7 @@
 
     <change-notes>
         <![CDATA[
-        <strong>1.2.0</strong>
+        <strong>2.0.0</strong>
         <ul>
             <li>Fix the problem that the class library failed to load under the window.</li>
             <li>Optimized the core package loading method.</li>
