@@ -60,6 +60,8 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
             ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest);
             RequestContextHolder.setRequestAttributes(requestAttributes);
+        }  else {
+            RequestContextHolder.resetRequestAttributes();
         }
     }
 
