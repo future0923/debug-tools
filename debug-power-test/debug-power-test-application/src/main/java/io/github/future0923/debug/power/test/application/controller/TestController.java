@@ -24,6 +24,11 @@ public class TestController {
         return "success:" + name;
     }
 
+    @GetMapping("/insertBatchSomeColumn")
+    public String insertBatchSomeColumn() {
+        return testService.insertBatchSomeColumn();
+    }
+
     @GetMapping("/testDao")
     public String test(Integer id) {
         return "success:" + testService.testDao(id);
