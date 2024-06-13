@@ -74,6 +74,8 @@ public class DebugPowerBootstrap {
             runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
             ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest);
             RequestContextHolder.setRequestAttributes(requestAttributes);
+        } else {
+            RequestContextHolder.resetRequestAttributes();
         }
     }
 
