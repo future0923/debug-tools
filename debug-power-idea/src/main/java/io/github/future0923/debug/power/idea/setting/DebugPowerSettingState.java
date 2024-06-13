@@ -38,7 +38,7 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     private static final Logger log = Logger.getInstance(DebugPowerSettingState.class);
 
-    private String version;
+    private String agentVersion;
 
     private Map<String, String> methodParamCache = new ConcurrentHashMap<>();
 
@@ -104,7 +104,7 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
     }
 
     public synchronized String loadAgentPath(Project project) {
-        if (ProjectConstants.DEBUG || !ProjectConstants.VERSION.equals(version) || StringUtils.isBlank(agentPath) || !new File(agentPath).exists()) {
+        if (ProjectConstants.DEBUG || !ProjectConstants.VERSION.equals(agentVersion) || StringUtils.isBlank(agentPath) || !new File(agentPath).exists()) {
             InputStream inputStream = QuickDebugEditorPopupMenuAction.class.getResourceAsStream(IdeaPluginProjectConstants.AGENT_JAR_PATH);
             if (inputStream == null) {
                 DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
@@ -117,7 +117,7 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
                 DebugPowerNotifierUtil.notifyError(project, "读取代理Jar失败");
                 return "";
             }
-            version = ProjectConstants.VERSION;
+            agentVersion = ProjectConstants.VERSION;
         }
         return agentPath;
     }
@@ -130,6 +130,11 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
             File file = new File(this.agentPath);
             if (file.exists()) {
                 file.delete();
+            }
+            String homeDir = System.getProperty("user.home");
+            File cacheProperties = new File(homeDir + "/" + ProjectConstants.NAME + "/" + ProjectConstants.CONFIG_FILE);
+            if (cacheProperties.exists()) {
+                cacheProperties.delete();
             }
         } catch (Exception ignored) {
         }

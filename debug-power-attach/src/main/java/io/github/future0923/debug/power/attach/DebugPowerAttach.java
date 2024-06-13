@@ -55,7 +55,7 @@ public class DebugPowerAttach {
             // ignore
         }
         String homeDir = System.getProperty("user.home");
-        File cacheProperties = new File(homeDir + "/" + ProjectConstants.NAME + "/debug-power-cache.properties");
+        File cacheProperties = new File(homeDir + "/" + ProjectConstants.NAME + "/" + ProjectConstants.CONFIG_FILE);
         if (!cacheProperties.exists()) {
             DebugPowerFileUtils.touch(cacheProperties);
         }
@@ -83,6 +83,7 @@ public class DebugPowerAttach {
             }
         }
         try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPower.class.getClassLoader())) {
+            debugPowerClassloader.loadAllClasses();
             Class<?> loadClass = debugPowerClassloader.loadClass(loaderClassName);
             loadClassMap.put(loaderClassName, loadClass);
             consumer.accept(loadClass);

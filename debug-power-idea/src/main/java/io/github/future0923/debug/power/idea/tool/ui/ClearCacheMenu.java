@@ -51,7 +51,7 @@ public class ClearCacheMenu extends JBPopupMenu {
                 }
             });
             this.setVisible(false);
-            DebugPowerNotifierUtil.notifyInfo(project, "Cache successful");
+            DebugPowerNotifierUtil.notifyInfo(project, "Clear cache successful");
         });
         buttonPane.add(clear);
         JButton clearAll = new JButton("Clear all");

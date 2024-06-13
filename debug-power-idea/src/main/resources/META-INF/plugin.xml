@@ -30,27 +30,15 @@
 
     <change-notes>
         <![CDATA[
-        <strong>1.2.0</strong>
+        <strong>1.2.1</strong>
         <ul>
-            <li>Fix the problem that the class library failed to load under the window.</li>
-            <li>Optimized the core package loading method.</li>
-            <li>Increase the time required to print execute SQL statements and SQL.(mysql、postgresql、sqlserver、clickhouse、oracle)</li>
-        </ul>
-        <strong>1.1.1</strong>
-        <ul>
-            <li>Fix java class contains collection properties when generating json throw StackOverflowError.</li>
-            <li>Custom class loader isolates target application.</li>
-        </ul>
-        <strong>1.1.0</strong>
-        <ul>
-            <li>Add configuration.</li>
-                <ul>
-                    <li>Does it automatically attach when the program starts: Yes , No.</li>
-                    <li>Target program execution result: NoPrint , ToString , JSON.</li>
-                    <li>Entity class default param: Simple , Current , All.</li>
-                </ul>
-            <li>Add window tool to configure global request headers.</li>
-            <li>Increase the configuration of the current method request header.</li>
+            <li>Fix bug that failed to clear global header save.</li>
+            <li>Fix delete all headers request again no delete request from RequestContextHolder bug.</li>
+            <li>Fix the bug of not printing sql during batch operation.</li>
+            <li>Fix the bug that clearing the cache did not reload the core jar.</li>
+            <li>Fixed the bug that the class that was not used for the first time failed to load the next time it was used.</li>
+            <li>Optimize cache clearing function.</li>
+            <li>Notification shows error message when execution fails.</li>
         </ul>
         ]]>
     </change-notes>

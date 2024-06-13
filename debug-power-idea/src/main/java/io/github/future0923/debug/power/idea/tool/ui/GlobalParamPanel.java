@@ -89,6 +89,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         JButton saveHeaderButton = new JButton("Save");
         saveHeaderButton.setToolTipText("Save global header item");
         saveHeaderButton.addActionListener(e -> {
+            settingState.clearGlobalHeaderCache();
             headerItemMap.forEach((k, v) -> {
                 String key = k.getText();
                 if (StringUtils.isNotBlank(key)) {
