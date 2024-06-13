@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,26 @@ public class TestService {
 
     @Autowired
     private UserDao userDao;
+
+    public String insertBatchSomeColumn() {
+        User user1 = new User();
+        user1.setName("1");
+        user1.setAge(1);
+        User user2 = new User();
+        user2.setName("2");
+        user2.setAge(2);
+        userDao.insertBatchSomeColumn(Arrays.asList(user1, user2));
+        return null;
+    }
+
+    public void insertBatch() {
+        User user1 = new User();
+        user1.setName("1");
+        user1.setAge(1);
+        User user2 = new User();
+        user2.setName("2");
+        user2.setAge(2);
+    }
 
     public void test() {
         System.out.println(1);

@@ -23,9 +23,11 @@ public class SqlPrintInterceptor {
 
     private static final String CONNECTION_AGENT_METHODS = "prepareStatement";
 
-    private static final List<String> PREPARED_STATEMENT_METHODS = Arrays.asList("execute", "executeUpdate", "executeQuery");
+    private static final List<String> PREPARED_STATEMENT_METHODS = Arrays.asList("execute", "executeUpdate", "executeQuery", "addBatch");
 
-    private static final List<String> STATEMENT_PREFIXES = Arrays.asList("com.mysql.cj.jdbc.ClientPreparedStatement:", "com.mysql.jdbc.ClientPreparedStatement:");
+    private static final String STATEMENT_PREFIXES = "com.mysql.jdbc.ClientPreparedStatement:";
+
+    private static final String CJ_STATEMENT_PREFIXES = "com.mysql.cj.jdbc.ClientPreparedStatement:";
 
     @RuntimeType
     public static Object intercept(
@@ -97,11 +99,12 @@ public class SqlPrintInterceptor {
     }
 
     public static void printSql(long consume, Statement sta) {
-
         final String sql = sta.toString();
         String resultSql;
-        if (STATEMENT_PREFIXES.stream().anyMatch(sql::startsWith)) {
-            resultSql = sql.split(":")[1];
+        if (sql.startsWith(STATEMENT_PREFIXES)) {
+            resultSql = sql.replace(STATEMENT_PREFIXES, "");
+        } else if (sql.startsWith(CJ_STATEMENT_PREFIXES)){
+            resultSql = sql.replace(CJ_STATEMENT_PREFIXES, "");
         } else {
             resultSql = sql;
         }

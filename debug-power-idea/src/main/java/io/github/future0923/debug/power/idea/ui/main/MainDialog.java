@@ -104,7 +104,7 @@ public class MainDialog extends DialogWrapper {
             DebugPowerNotifierUtil.notifyError(project, "参数写入json文件失败");
             return;
         }
-        DebugPowerAttachUtils.attach(project, attach.getKey(), settingState.getAgentPath(), agentParam);
+        DebugPowerAttachUtils.attach(project, attach.getKey(), settingState.loadAgentPath(), agentParam);
         super.doOKAction();
     }
 
