@@ -21,6 +21,13 @@ public class RunTargetMethodRequestPacket extends Packet {
 
     private RunDTO runDTO;
 
+    public RunTargetMethodRequestPacket() {
+    }
+
+    public RunTargetMethodRequestPacket(RunDTO runDTO) {
+        this.runDTO = runDTO;
+    }
+
     @Override
     public Byte getCommand() {
         return Command.RUN_TARGET_METHOD_REQUEST;

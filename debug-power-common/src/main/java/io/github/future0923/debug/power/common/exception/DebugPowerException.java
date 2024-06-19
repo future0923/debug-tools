@@ -3,7 +3,7 @@ package io.github.future0923.debug.power.common.exception;
 /**
  * @author future0923
  */
-public class DebugPowerException extends RuntimeException{
+public class DebugPowerException extends Exception{
 
     public DebugPowerException() {
     }

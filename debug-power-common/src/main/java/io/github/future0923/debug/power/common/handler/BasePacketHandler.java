@@ -1,7 +1,7 @@
 package io.github.future0923.debug.power.common.handler;
 
+import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
-import io.github.future0923.debug.power.common.utils.DebugPowerIOUtils;
 
 import java.io.OutputStream;
 
@@ -10,7 +10,17 @@ import java.io.OutputStream;
  */
 public abstract class BasePacketHandler<T extends Packet> implements PacketHandler<T> {
 
+    private static final Logger logger = Logger.getLogger(BasePacketHandler.class);
+
     public static void writeAndFlush(OutputStream outputStream, Packet packet) throws Exception {
-        DebugPowerIOUtils.writeAndFlush(outputStream, packet);
+        packet.writeAndFlush(outputStream);
+    }
+
+    public static void writeAndFlushNotException(OutputStream outputStream, Packet packet) {
+        try {
+            writeAndFlush(outputStream, packet);
+        } catch (Exception e) {
+            logger.error("{} write and flush error", e, packet.getClass().getSimpleName());
+        }
     }
 }

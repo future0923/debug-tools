@@ -6,6 +6,7 @@ import io.github.future0923.debug.power.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.HeartBeatResponsePacket;
+import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.protocal.serializer.Serializer;
 
 import java.io.IOException;
@@ -51,6 +52,7 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.HEARTBEAT_REQUEST, HeartBeatRequestPacket.class);
         this.packetTypeMap.put(Command.HEARTBEAT_RESPONSE, HeartBeatResponsePacket.class);
         this.packetTypeMap.put(Command.RUN_TARGET_METHOD_REQUEST, RunTargetMethodRequestPacket.class);
+        this.packetTypeMap.put(Command.RUN_TARGET_METHOD_RESPONSE, RunTargetMethodResponsePacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 

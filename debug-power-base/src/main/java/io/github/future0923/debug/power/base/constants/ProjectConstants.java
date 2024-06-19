@@ -5,17 +5,17 @@ package io.github.future0923.debug.power.base.constants;
  */
 public interface ProjectConstants {
 
-    Boolean DEBUG = false;
+    Boolean DEBUG = true;
 
     String NAME = "DebugPower";
 
     String VERSION = "2.0.0";
 
-    String RESOURCE_CORE_PATH = "lib/debug-power-core.jar";
+    String SERVER_CORE_JAR_PATH = "lib/debug-power-server.jar";
 
     String CONFIG_FILE = "debug-power.properties";
 
-    String DEBUG_POWER_BOOTSTRAP = "io.github.future0923.debug.power.core.DebugPowerBootstrap";
+    String DEBUG_POWER_BOOTSTRAP = "io.github.future0923.debug.power.server.DebugPowerBootstrap";
 
     String GET_INSTANCE = "getInstance";
 

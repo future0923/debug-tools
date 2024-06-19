@@ -8,47 +8,63 @@
         <artifactId>debug-power</artifactId>
         <version>${revision}</version>
     </parent>
-
+    <name>debug-power-core</name>
     <artifactId>debug-power-core</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
-            <artifactId>debug-power-server</artifactId>
+            <artifactId>debug-power-base</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+        <!-- for com.sun.tools.attach.VirtualMachine api -->
+        <dependency>
+            <groupId>com.github.olivergondza</groupId>
+            <artifactId>maven-jdk-tools-wrapper</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
     <build>
+        <finalName>debug-power-core</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>io.github.future0923.debug.power.core.DebugPower</mainClass>
+                                    <manifestEntries>
+                                        <Created-By>future0923.</Created-By>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                        <Implementation-Vendor-Id>io.github.future0923.debug.power</Implementation-Vendor-Id>
+                                        <Specification-Version>${project.version}</Specification-Version>
+                                        <Specification-Title>debug-power-core</Specification-Title>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <nonFilteredFileExtensions>
-                        <nonFilteredFileExtension>dylib</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>dll</nonFilteredFileExtension>
-                        <nonFilteredFileExtension>so</nonFilteredFileExtension>
-                    </nonFilteredFileExtensions>
-                </configuration>
-            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>clean</id>
@@ -58,7 +74,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/../debug-power-attach/src/main/resources/lib"/>
+                                <delete dir="${project.basedir}/../debug-power-boot/src/main/resources/lib"/>
                             </target>
                         </configuration>
                     </execution>
@@ -70,10 +86,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/../debug-power-attach/src/main/resources/lib"/>
-                                <copy file="${project.build.directory}/debug-power-core-${project.version}.jar"
-                                      tofile="${project.basedir}/../debug-power-attach/src/main/resources/lib/debug-power-core.jar"
-                                      overwrite="true"/>
+                                <mkdir dir="${project.basedir}/../debug-power-boot/src/main/resources/lib" />
+                                <copy file="${project.build.directory}/${build.finalName}.jar" tofile="${project.basedir}/../debug-power-boot/src/main/resources/lib/${build.finalName}.jar" overwrite="true" />
                             </target>
                         </configuration>
                     </execution>
