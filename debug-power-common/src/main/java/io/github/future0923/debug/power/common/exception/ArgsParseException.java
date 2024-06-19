@@ -3,7 +3,7 @@ package io.github.future0923.debug.power.common.exception;
 /**
  * @author future0923
  */
-public class ArgsParseException extends DebugPowerException{
+public class ArgsParseException extends DebugPowerRuntimeException {
 
     public ArgsParseException(String message) {
         super(message);

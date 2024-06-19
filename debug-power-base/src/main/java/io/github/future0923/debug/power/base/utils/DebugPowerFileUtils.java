@@ -1,14 +1,12 @@
 package io.github.future0923.debug.power.base.utils;
 
-import io.github.future0923.debug.power.base.constants.ProjectConstants;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -27,6 +25,23 @@ public class DebugPowerFileUtils {
     private static final String TOP_PATH = "..";
 
     private static final String CURRENT_PATH = ".";
+
+    public static File getLibResourceJar(ClassLoader classLoader, String name) {
+        String fullName = "lib/" + name + ".jar";
+        File debugPowerCoreJarFile;
+        try {
+            URL coreJarUrl = classLoader.getResource(fullName);
+            if (coreJarUrl == null) {
+                throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
+                        + classLoader);
+            }
+            debugPowerCoreJarFile = DebugPowerFileUtils.getTmpLibFile(coreJarUrl.openStream(), name, ".jar");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
+                    + classLoader);
+        }
+        return debugPowerCoreJarFile;
+    }
 
     /**
      * 判断文件是否存在，如果path为null，则返回false
@@ -86,27 +101,19 @@ public class DebugPowerFileUtils {
         }
         try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
              InputStream inputStreamNew = inputStream) {
-            copy(inputStreamNew, tmpLibOutputStream);
+            DebugPowerIOUtils.copy(inputStreamNew, tmpLibOutputStream);
         }
         return tmpLibFile;
     }
 
     private static File createTempDir() {
-        File tempDir = new File(System.getProperty("java.io.tmpdir") + "/" + ProjectConstants.NAME);
+        File tempDir = DebugPowerLibUtils.getDebugPowerLibDir();
         if (!tempDir.exists()) {
             if (!tempDir.mkdir()) {
                 throw new IllegalStateException("Failed to create directory within " + tempDir);
             }
         }
         return tempDir;
-    }
-
-    public static void copy(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = in.read(buffer)) != -1) {
-            out.write(buffer, 0, len);
-        }
     }
 
     public static boolean pathEquals(String path1, String path2) {
@@ -378,7 +385,8 @@ public class DebugPowerFileUtils {
     private static final CharSequence[] SPECIAL_SUFFIX = {"tar.bz2", "tar.Z", "tar.gz", "tar.xz"};
 
     private static final char UNIX_SEPARATOR = '/';
-    private static final char WINDOWS_SEPARATOR = '\\';;
+    private static final char WINDOWS_SEPARATOR = '\\';
+    ;
 
     public static String extName(String fileName, boolean hasDot) {
         if (fileName == null) {

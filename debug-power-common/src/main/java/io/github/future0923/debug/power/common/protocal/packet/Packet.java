@@ -1,7 +1,12 @@
 package io.github.future0923.debug.power.common.protocal.packet;
 
+import io.github.future0923.debug.power.common.protocal.buffer.ByteBuf;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
- * 需要加入到PacketCodec中
+ * 需要加入到{@link PacketCodec}中
  *
  * @author future0923
  */
@@ -50,5 +55,11 @@ public abstract class Packet {
 
     public void setResultFlag(byte resultFlag) {
         this.resultFlag = resultFlag;
+    }
+
+    public void writeAndFlush(OutputStream outputStream) throws IOException {
+        ByteBuf byteBuf = PacketCodec.INSTANCE.encode(this);
+        outputStream.write(byteBuf.toByteArray());
+        outputStream.flush();
     }
 }

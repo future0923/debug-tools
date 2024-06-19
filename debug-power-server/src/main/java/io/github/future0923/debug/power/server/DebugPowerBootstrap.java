@@ -1,6 +1,6 @@
-package io.github.future0923.debug.power.core;
+package io.github.future0923.debug.power.server;
 
-import io.github.future0923.debug.power.server.SocketServer;
+import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 
 import java.lang.instrument.Instrumentation;
 
@@ -11,10 +11,11 @@ public class DebugPowerBootstrap {
 
     private static DebugPowerBootstrap debugBootstrap;
 
-    private final SocketServer socketServer;
+    private final DebugPowerSocketServer socketServer;
 
     private DebugPowerBootstrap(Instrumentation instrumentation) {
-        this.socketServer = new SocketServer(instrumentation);
+        VmToolsUtils.init();
+        this.socketServer = new DebugPowerSocketServer(instrumentation);
     }
 
     public static synchronized DebugPowerBootstrap getInstance(Instrumentation instrumentation) {

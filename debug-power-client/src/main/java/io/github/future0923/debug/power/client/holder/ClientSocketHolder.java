@@ -3,6 +3,8 @@ package io.github.future0923.debug.power.client.holder;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.client.thread.HeartBeatRequestThread;
 import io.github.future0923.debug.power.client.thread.ServerHandleThread;
+import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.protocal.packet.Packet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,8 @@ public class ClientSocketHolder {
 
     private static final Logger logger = Logger.getLogger(ClientSocketHolder.class);
 
+    public static final ClientSocketHolder INSTANCE = new ClientSocketHolder();
+
     private Socket socket;
 
     private InputStream inputStream;
@@ -26,12 +30,8 @@ public class ClientSocketHolder {
 
     private HeartBeatRequestThread heartBeatRequestThread;
 
-    public ClientSocketHolder() {
+    private ClientSocketHolder() {
 
-    }
-
-    public ClientSocketHolder(Socket socket) {
-        setSocket(socket);
     }
 
     public void setSocket(Socket socket) {
@@ -62,7 +62,7 @@ public class ClientSocketHolder {
 
     public void connect() {
         try {
-            setSocket(new Socket("127.0.0.1", 50889));
+            setSocket(new Socket("127.0.0.1", 50888));
             logger.info("debug power client connect successful");
             if (serverHandleThread != null) {
                 serverHandleThread.interrupt();
@@ -79,6 +79,14 @@ public class ClientSocketHolder {
         Long INTERVAL = 10L;
         heartBeatRequestThread = new HeartBeatRequestThread(this, INTERVAL);
         heartBeatRequestThread.start();
+    }
+
+    public void send(Packet packet) throws SocketCloseException, IOException {
+        if (!isClosed()) {
+            packet.writeAndFlush(this.getOutputStream());
+        } else {
+            throw new SocketCloseException();
+        }
     }
 
     public void close() {

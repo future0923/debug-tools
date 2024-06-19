@@ -47,7 +47,7 @@ public class LoggerHandler {
 
     // print a message to System.out and optionally to custom stream
     protected void printMessage(String message) {
-        String log = "DebugPower: " + sdf.format(new Date()) +  " " + message;
+        String log = "DebugPower: " + sdf.format(new Date()) + " " + message;
         System.out.println(log);
         if (outputStream != null)
             outputStream.println(log);
@@ -65,7 +65,19 @@ public class LoggerHandler {
         }
 
         StringBuilder stringBuffer = new StringBuilder();
-        stringBuffer.append(level);
+        if (level.equals(Logger.Level.TRACE)) {
+            stringBuffer.append(ColorConsole.getBlue(level.name()));
+        } else if (level.equals(Logger.Level.DEBUG)) {
+            stringBuffer.append(ColorConsole.getBlueGreen(level.name()));
+        } else if (level.equals(Logger.Level.INFO)) {
+            stringBuffer.append(ColorConsole.getGreen(level.name()));
+        } else if (level.equals(Logger.Level.WARNING)) {
+            stringBuffer.append(ColorConsole.getYellow(level.name()));
+        } else if (level.equals(Logger.Level.RELOAD)) {
+            stringBuffer.append(ColorConsole.getPurple(level.name()));
+        } else if (level.equals(Logger.Level.ERROR)) {
+            stringBuffer.append(ColorConsole.getRed(level.name()));
+        }
         stringBuffer.append(" ");
         stringBuffer.append(messageWithArgs);
 

@@ -29,10 +29,9 @@
             <artifactId>debug-power-base</artifactId>
             <version>${revision}</version>
         </dependency>
-        <!--作用仅保证安装时先执行debug-power-core完成后在执行当前，实际不可以使用debug-power-core中的类，必须通过DebugPowerClassLoader加载-->
         <dependency>
             <groupId>io.github.future0923</groupId>
-            <artifactId>debug-power-core</artifactId>
+            <artifactId>debug-power-server</artifactId>
             <version>${revision}</version>
             <scope>provided</scope>
         </dependency>
@@ -91,7 +90,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>clean</id>
@@ -102,6 +100,7 @@
                         <configuration>
                             <target>
                                 <delete dir="${project.basedir}/../debug-power-idea/src/main/resources/lib"/>
+                                <delete dir="${project.basedir}/../debug-power-boot/src/main/resources/lib"/>
                             </target>
                         </configuration>
                     </execution>
@@ -113,8 +112,15 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/../debug-power-idea/src/main/resources/lib" />
-                                <copy file="${project.build.directory}/debug-power-agent.jar" tofile="${project.basedir}/../debug-power-idea/src/main/resources/lib/debug-power-agent-${project.version}.jar" overwrite="true" />
+                                <mkdir dir="${project.basedir}/../debug-power-idea/src/main/resources/lib"/>
+                                <copy file="${project.build.directory}/${build.finalName}.jar"
+                                      tofile="${project.basedir}/../debug-power-idea/src/main/resources/lib/${build.finalName}-${project.version}.jar"
+                                      overwrite="true"/>
+
+                                <mkdir dir="${project.basedir}/../debug-power-boot/src/main/resources/lib"/>
+                                <copy file="${project.build.directory}/${build.finalName}.jar"
+                                      tofile="${project.basedir}/../debug-power-boot/src/main/resources/lib/${build.finalName}.jar"
+                                      overwrite="true"/>
                             </target>
                         </configuration>
                     </execution>
