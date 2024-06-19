@@ -8,6 +8,7 @@ import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.common.exception.ArgsParseException;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
+import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerParamConvertUtils;
@@ -45,13 +46,12 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
 
         setRequest(runDTO);
 
-        VmToolsUtils.init();
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
         // 获取正确的目标方法（非桥接方法）
         Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugPowerParamConvertUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
-        run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO.getRunConfigDTO());
+        run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO.getRunConfigDTO(), outputStream);
     }
 
     private static void setRequest(RunDTO runDTO) {
@@ -60,34 +60,45 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
             ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest);
             RequestContextHolder.setRequestAttributes(requestAttributes);
-        }  else {
+        } else {
             RequestContextHolder.resetRequestAttributes();
         }
     }
 
-    private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunConfigDTO configDTO) throws Exception {
+    private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunConfigDTO configDTO, OutputStream outputStream) throws Exception {
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (invocationHandler instanceof AopProxy) {
                 try {
-                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), configDTO);
+                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), configDTO, outputStream);
                     return;
                 } catch (Throwable e) {
-                    e.printStackTrace();
+                    logger.error("invoke target method error", e);
                 }
             }
         }
-        printResult(bridgedMethod.invoke(instance, targetMethodArgs), configDTO);
+        try {
+            printResult(bridgedMethod.invoke(instance, targetMethodArgs), configDTO, outputStream);
+        } catch (Throwable throwable) {
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(throwable));
+        }
     }
 
-    private void printResult(Object result, RunConfigDTO configDTO) {
+    private void printResult(Object result, RunConfigDTO configDTO, OutputStream outputStream) {
+        RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
-            System.out.println("DebugPower执行结果：" + result);
+            String printResult = result.toString();
+            System.out.println("DebugPower执行结果：" + printResult);
+            packet.setPrintResult(printResult);
         } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
             System.out.println("DebugPower执行结果：");
-            System.out.println(DebugPowerJsonUtils.isTypeJSON(String.valueOf(result)) ? DebugPowerJsonUtils.toJsonPrettyStr(result) : result);
+            String printResult = DebugPowerJsonUtils.isTypeJSON(String.valueOf(result)) ? DebugPowerJsonUtils.toJsonPrettyStr(result) : result.toString();
+            System.out.println(printResult);
+            packet.setPrintResult(printResult);
         } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
 
         }
+        writeAndFlushNotException(outputStream, packet);
     }
+
 }

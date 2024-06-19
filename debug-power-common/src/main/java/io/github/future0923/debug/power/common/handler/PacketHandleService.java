@@ -29,7 +29,7 @@ public abstract class PacketHandleService {
             try {
                 packetHandler.handle(outputStream, packet);
             } catch (Exception e) {
-                logger.error("handle packet {} happen error {}", packet, e);
+                logger.error("{}} packet {} happen error", e, packetHandler.getClass().getSimpleName(), packet);
             }
         }
     }

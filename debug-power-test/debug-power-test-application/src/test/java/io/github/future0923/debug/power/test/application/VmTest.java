@@ -39,6 +39,12 @@ public class VmTest {
         }
     }
 
+
+    @Test
+    public void attachApplication() {
+
+    }
+
     @AfterEach
     public void loadAgent() throws Exception {
         vm.loadAgent(jarPath, args);

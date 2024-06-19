@@ -3,7 +3,6 @@ package io.github.future0923.debug.power.client.thread;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
-import io.github.future0923.debug.power.common.utils.DebugPowerIOUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +29,7 @@ public class HeartBeatRequestThread extends Thread {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 if (!holder.isClosed()) {
-                    DebugPowerIOUtils.writeAndFlush(holder.getOutputStream(), new HeartBeatRequestPacket());
+                    new HeartBeatRequestPacket().writeAndFlush(holder.getOutputStream());
                 } else {
                     logger.warning("HeartBeatRequest reconnect debug power server");
                     holder.connect();

@@ -5,7 +5,7 @@ import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import java.io.OutputStream;
 
 /**
- * 指定命令的请求处理，要加入到对应的PacketHandleService中
+ * 指定命令的请求处理，要加入到对应的{@link PacketHandleService}中
  *
  * @author future0923
  */

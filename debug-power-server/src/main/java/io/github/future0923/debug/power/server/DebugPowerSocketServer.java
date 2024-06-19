@@ -7,14 +7,19 @@ import java.lang.instrument.Instrumentation;
 /**
  * @author future0923
  */
-public class SocketServer {
+public class DebugPowerSocketServer {
 
     public static void main(String[] args) throws InterruptedException {
-        new SocketServer(null).start();
+        new DebugPowerSocketServer().start();
         Thread.sleep(100000000L);
     }
 
-    public SocketServer(Instrumentation instrumentation) {
+    public DebugPowerSocketServer() {
+
+    }
+
+    public DebugPowerSocketServer(Instrumentation instrumentation) {
+
     }
 
     public void start() {

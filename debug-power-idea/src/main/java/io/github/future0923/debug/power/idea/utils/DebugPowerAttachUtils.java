@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
-import io.github.future0923.debug.power.common.utils.DebugPowerExecUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerExecUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,8 +64,8 @@ public class DebugPowerAttachUtils {
                     } else if (Objects.equals(ioException.getMessage(), "Connection refused")) {
                         DebugPowerNotifierUtil.notifyError(project, "进程拒绝连接，请确认进程已经启动");
                     } else {
-                        log.error("没有找到核心依赖 [jarFilePath:{} errMsg:{}]", agentPath, ioException.getMessage());
-                        DebugPowerNotifierUtil.notifyError(project, "没有找到核心依赖，请 clear cache 后重试");
+                        log.error("attach agent error：", ioException);
+                        DebugPowerNotifierUtil.notifyError(project, "attach agent error：" + ioException.getMessage());
                     }
                 }
             } catch (AgentLoadException agentLoadException) {
