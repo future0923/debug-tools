@@ -5,6 +5,7 @@ import io.github.future0923.debug.power.common.protocal.Command;
 import io.github.future0923.debug.power.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
+import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.HeartBeatResponsePacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.protocal.serializer.Serializer;
@@ -53,6 +54,7 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.HEARTBEAT_RESPONSE, HeartBeatResponsePacket.class);
         this.packetTypeMap.put(Command.RUN_TARGET_METHOD_REQUEST, RunTargetMethodRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_TARGET_METHOD_RESPONSE, RunTargetMethodResponsePacket.class);
+        this.packetTypeMap.put(Command.SERVER_CLOSE_REQUEST, ServerCloseRequestPacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 
@@ -71,6 +73,7 @@ public class PacketCodec {
             inputStream.read(commandByte);
             Class<? extends Packet> requestType = getRequestType(commandByte[0]);
             if (requestType == null) {
+                logger.error("requestType {} not found.", commandByte[0]);
                 return null;
             }
             byte[] resultFlagByte = new byte[RESULT_FLAG_LENGTH];

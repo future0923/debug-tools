@@ -1,10 +1,13 @@
 package io.github.future0923.debug.power.client.holder;
 
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.client.config.ClientConfig;
 import io.github.future0923.debug.power.client.thread.HeartBeatRequestThread;
 import io.github.future0923.debug.power.client.thread.ServerHandleThread;
 import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.handler.PacketHandleService;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,20 +21,29 @@ public class ClientSocketHolder {
 
     private static final Logger logger = Logger.getLogger(ClientSocketHolder.class);
 
-    public static final ClientSocketHolder INSTANCE = new ClientSocketHolder();
+    public static ClientSocketHolder INSTANCE;
 
+    @Getter
     private Socket socket;
 
+    @Getter
     private InputStream inputStream;
 
+    @Getter
     private OutputStream outputStream;
 
     private ServerHandleThread serverHandleThread;
 
     private HeartBeatRequestThread heartBeatRequestThread;
 
-    private ClientSocketHolder() {
+    private final PacketHandleService packetHandleService;
 
+    private final ClientConfig config;
+
+    public ClientSocketHolder(ClientConfig config, PacketHandleService packetHandleService) {
+        this.config = config;
+        this.packetHandleService = packetHandleService;
+        INSTANCE = this;
     }
 
     public void setSocket(Socket socket) {
@@ -44,30 +56,18 @@ public class ClientSocketHolder {
         }
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
     public boolean isClosed() {
         return socket == null || socket.isClosed();
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
-    }
-
-    public OutputStream getOutputStream() {
-        return outputStream;
-    }
-
     public void connect() {
         try {
-            setSocket(new Socket("127.0.0.1", 50888));
+            setSocket(new Socket(config.getHost(), config.getPort()));
             logger.info("debug power client connect successful");
             if (serverHandleThread != null) {
                 serverHandleThread.interrupt();
             }
-            serverHandleThread = new ServerHandleThread(this);
+            serverHandleThread = new ServerHandleThread(this, packetHandleService);
             serverHandleThread.setDaemon(true);
             serverHandleThread.start();
         } catch (IOException e) {
@@ -76,8 +76,7 @@ public class ClientSocketHolder {
     }
 
     public void sendHeartBeat() {
-        Long INTERVAL = 10L;
-        heartBeatRequestThread = new HeartBeatRequestThread(this, INTERVAL);
+        heartBeatRequestThread = new HeartBeatRequestThread(this, config.getHeartbeatInterval());
         heartBeatRequestThread.start();
     }
 

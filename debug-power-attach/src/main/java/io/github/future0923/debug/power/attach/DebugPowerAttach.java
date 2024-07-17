@@ -32,14 +32,14 @@ public class DebugPowerAttach {
             return;
         }
         try {
-            loadCore(inst);
+            loadCore(agentArgs, inst);
         } catch (Throwable e) {
             logger.error("start debug power server error", e);
             isStarted.set(false);
         }
     }
 
-    private static void loadCore(Instrumentation inst) throws Exception {
+    private static void loadCore(String agentArgs, Instrumentation inst) throws Exception {
         String version = agentConfig.getVersion();
         boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
@@ -61,7 +61,7 @@ public class DebugPowerAttach {
         try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPowerAttach.class.getClassLoader())) {
             debugPowerClassloader.loadAllClasses();
             Class<?> bootstrapClass = debugPowerClassloader.loadClass(ProjectConstants.DEBUG_POWER_BOOTSTRAP);
-            Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class).invoke(null, inst);
+            Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, String.class, Instrumentation.class).invoke(null, agentArgs, inst);
             bootstrapClass.getMethod(ProjectConstants.START).invoke(bootstrap);
         }
     }

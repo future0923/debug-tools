@@ -2,11 +2,14 @@ package io.github.future0923.debug.power.core;
 
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.logging.AnsiLog;
 import io.github.future0923.debug.power.base.utils.DebugPowerJavaVersionUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -21,17 +24,25 @@ public class DebugPower {
         Options options = new Options();
         options.addOption("p", "pid", true, "java pid");
         options.addOption("a", "agent", true, "java agent path");
-        CommandLine cmd = parser.parse(options, args);
-        String pid = cmd.getOptionValue("pid");
-        String agent = cmd.getOptionValue("agent");
-        attachAgent(Long.parseLong(pid), agent);
+        options.addOption("lp", "listen-port", true, "target application server listen port");
+        CommandLine cmd;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("debug-power", options);
+            return;
+        }
+        attachAgent(cmd);
     }
 
-    private static void attachAgent(long javaPid, String debugPowerAgentPath) throws Exception {
+    private static void attachAgent(CommandLine cmd) throws Exception {
+        String javaPid = cmd.getOptionValue("pid");
+        String debugPowerAgentPath = cmd.getOptionValue("agent");
         VirtualMachineDescriptor virtualMachineDescriptor = null;
         for (VirtualMachineDescriptor descriptor : VirtualMachine.list()) {
             String pid = descriptor.id();
-            if (pid.equals(Long.toString(javaPid))) {
+            if (pid.equals(javaPid)) {
                 virtualMachineDescriptor = descriptor;
                 break;
             }
@@ -39,7 +50,7 @@ public class DebugPower {
         VirtualMachine virtualMachine = null;
         try {
             if (null == virtualMachineDescriptor) {
-                virtualMachine = VirtualMachine.attach("" + javaPid);
+                virtualMachine = VirtualMachine.attach(javaPid);
             } else {
                 virtualMachine = VirtualMachine.attach(virtualMachineDescriptor);
             }
@@ -55,7 +66,11 @@ public class DebugPower {
                 }
             }
             try {
-                virtualMachine.loadAgent(debugPowerAgentPath);
+                AgentArgs agentArgs = new AgentArgs();
+                if (cmd.hasOption("listen-port")) {
+                    agentArgs.setListenPort(cmd.getOptionValue("listen-port"));
+                }
+                virtualMachine.loadAgent(debugPowerAgentPath, agentArgs.format());
             } catch (IOException e) {
                 if (e.getMessage() != null && e.getMessage().contains("Non-numeric value found")) {
                     AnsiLog.warn(e);
