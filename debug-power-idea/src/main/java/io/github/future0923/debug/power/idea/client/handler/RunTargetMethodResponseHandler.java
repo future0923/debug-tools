@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.client.handler;
+package io.github.future0923.debug.power.idea.client.handler;
 
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;

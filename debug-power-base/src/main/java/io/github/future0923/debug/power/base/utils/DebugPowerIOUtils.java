@@ -1,5 +1,7 @@
 package io.github.future0923.debug.power.base.utils;
 
+import io.github.future0923.debug.power.base.logging.Logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -7,12 +9,39 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.ServerSocket;
 import java.util.zip.ZipFile;
 
 /**
  * @author future0923
  */
 public class DebugPowerIOUtils {
+
+    private static final Logger logger = Logger.getLogger(DebugPowerIOUtils.class);
+
+    public static boolean isPortAvailable(int port) {
+        try (ServerSocket ignored = new ServerSocket(port)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public ServerSocket getServerSocketByDynamicPort(int port) {
+        ServerSocket serverSocket = null;
+        int i = 0;
+        while (i < 5) {
+            try {
+                serverSocket = new ServerSocket(port + i);
+                return serverSocket;
+            } catch (Exception e) {
+                int currentPort = port + i;
+                logger.error("{}端口绑定,失败:{}", currentPort, e);
+                ++i;
+            }
+        }
+        return serverSocket;
+    }
 
     public static byte[] readAllBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
