@@ -30,12 +30,6 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>io.github.future0923</groupId>
-            <artifactId>debug-power-server</artifactId>
-            <version>${revision}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
         </dependency>

@@ -7,6 +7,11 @@ import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerJavaVersionUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerLibUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +26,17 @@ import java.util.List;
 public class DebugPowerBootstrap {
 
     public static void main(String[] args) {
+        DefaultParser parser = new DefaultParser();
+        Options options = new Options();
+        options.addOption("lp", "listen-port", true, "target application server listen port");
+        CommandLine cmd;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("debug-power", options);
+            return;
+        }
         Package bootstrapPackage = DebugPowerBootstrap.class.getPackage();
         if (bootstrapPackage != null) {
             String debugPowerBootVersion = bootstrapPackage.getImplementationVersion();
@@ -71,10 +87,15 @@ public class DebugPowerBootstrap {
 
         command.add("-jar");
         command.add(coreJarFile.getAbsolutePath());
-        command.add("-pid");
+        command.add("--pid");
         command.add(String.valueOf(pid));
-        command.add("-agent");
+        command.add("--agent");
         command.add(agentJarFile.getAbsolutePath());
+        String listenPort = cmd.getOptionValue("listen-port");
+        if (listenPort != null) {
+            command.add("--listen-port");
+            command.add(listenPort);
+        }
 
         ProcessBuilder pb = new ProcessBuilder(command);
         try {

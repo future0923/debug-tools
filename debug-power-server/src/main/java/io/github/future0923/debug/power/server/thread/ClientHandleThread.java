@@ -49,7 +49,7 @@ public class ClientHandleThread extends Thread {
     @Override
     public void run() {
         try {
-            while(true) {
+            while(!Thread.currentThread().isInterrupted()) {
                 try {
                     Packet packet = PacketCodec.INSTANCE.getPacket(inputStream, socket);
                     if (packet != null) {

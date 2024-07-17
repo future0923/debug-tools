@@ -2,8 +2,10 @@ package io.github.future0923.debug.power.server.thread;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
+import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.handler.ServerPacketHandleService;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
@@ -20,20 +22,31 @@ public class ClientAcceptThread extends Thread {
 
     private final PacketHandleService packetHandleService = new ServerPacketHandleService();
 
-    public ClientAcceptThread() {
+    private ServerSocket serverSocket;
+
+    private final ServerConfig serverConfig;
+
+    public ClientAcceptThread(ServerConfig serverConfig) {
         setName("DebugPower-ClientAccept-Thread");
         setDaemon(true);
+        this.serverConfig = serverConfig;
     }
 
     @Override
     public void run() {
         new SessionCheckThread(lastUpdateTime2Thread).start();
         try {
-            ServerSocket serverSocket = getServerSocketByDynamicPort(50888);
+            serverSocket = new ServerSocket(serverConfig.getPort());
             int bindPort = serverSocket.getLocalPort();
             logger.info("start server trans and bind port in {}", bindPort);
-            while (true) {
-                Socket socket = serverSocket.accept();
+            while (!Thread.currentThread().isInterrupted()) {
+                Socket socket;
+                try {
+                    socket = serverSocket.accept();
+                } catch (IOException e) {
+                    logger.error("accept error, maybe active disconnect.", e);
+                    break;
+                }
                 logger.info("get client conn start handle thread socket: {}", socket);
                 ClientHandleThread socketHandleThread = new ClientHandleThread(socket, lastUpdateTime2Thread, packetHandleService);
                 socketHandleThread.start();
@@ -44,19 +57,17 @@ public class ClientAcceptThread extends Thread {
         }
     }
 
-    public ServerSocket getServerSocketByDynamicPort(int port) {
-        ServerSocket serverSocket = null;
-        int i = 0;
-        while (i < 5) {
+    public void close() {
+        if (serverSocket != null) {
             try {
-                serverSocket = new ServerSocket(port + i);
-                return serverSocket;
-            } catch (Exception e) {
-                int currentPort = port + i;
-                logger.error("{}端口绑定,失败:{}", currentPort, e);
-                ++i;
+                serverSocket.close();
+            } catch (IOException ignored) {
+
             }
         }
-        return serverSocket;
+        Thread.currentThread().interrupt();
+        for (ClientHandleThread clientHandleThread : lastUpdateTime2Thread.keySet()) {
+            clientHandleThread.interrupt();
+        }
     }
 }

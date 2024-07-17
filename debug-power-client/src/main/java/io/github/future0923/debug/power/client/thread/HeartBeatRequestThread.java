@@ -15,9 +15,9 @@ public class HeartBeatRequestThread extends Thread {
 
     private final ClientSocketHolder holder;
 
-    private final Long interval;
+    private final int interval;
 
-    public HeartBeatRequestThread(ClientSocketHolder holder, Long interval) {
+    public HeartBeatRequestThread(ClientSocketHolder holder, int interval) {
         setDaemon(true);
         setName("DebugPower-HeartBeatRequest-Thread");
         this.holder = holder;

@@ -20,11 +20,11 @@ public class ServerHandleThread extends Thread {
 
     private final PacketHandleService packetHandleService;
 
-    public ServerHandleThread(ClientSocketHolder holder) {
+    public ServerHandleThread(ClientSocketHolder holder, PacketHandleService packetHandleService) {
         setDaemon(true);
         setName("DebugPower-ServerHandle-Thread");
         this.holder = holder;
-        this.packetHandleService = new ClientPacketHandleService();
+        this.packetHandleService = packetHandleService;
     }
 
     @Override
