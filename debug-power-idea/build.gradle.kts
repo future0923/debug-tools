@@ -17,7 +17,6 @@ repositories {
 dependencies {
   implementation("io.github.future0923:debug-power-common:2.0.0")
   implementation("io.github.future0923:debug-power-client:2.0.0")
-  implementation("io.github.future0923:debug-power-server:2.0.0")
   compileOnly("org.projectlombok:lombok:1.18.32")
   annotationProcessor("org.projectlombok:lombok:1.18.32")
 }

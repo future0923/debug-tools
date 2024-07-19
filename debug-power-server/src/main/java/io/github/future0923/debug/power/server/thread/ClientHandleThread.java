@@ -54,7 +54,11 @@ public class ClientHandleThread extends Thread {
                     Packet packet = PacketCodec.INSTANCE.getPacket(inputStream, socket);
                     if (packet != null) {
                         refresh();
-                        packetHandleService.handle(outputStream, packet);
+                        if (!socket.isClosed()) {
+                            packetHandleService.handle(outputStream, packet);
+                        } else {
+                            this.lastUpdateTime2Thread.remove(this);
+                        }
                     } else {
                         boolean isConn = touch(socket.getOutputStream());
                         if (!isConn) {

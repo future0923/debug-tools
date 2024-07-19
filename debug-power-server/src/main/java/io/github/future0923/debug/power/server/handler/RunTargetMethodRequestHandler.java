@@ -80,23 +80,29 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         try {
             printResult(bridgedMethod.invoke(instance, targetMethodArgs), configDTO, outputStream);
         } catch (Throwable throwable) {
+            logger.error("invoke target method error", throwable);
             writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(throwable));
         }
     }
 
     private void printResult(Object result, RunConfigDTO configDTO, OutputStream outputStream) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
-        if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
-            String printResult = result.toString();
-            System.out.println("DebugPower执行结果：" + printResult);
-            packet.setPrintResult(printResult);
-        } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
-            System.out.println("DebugPower执行结果：");
-            String printResult = DebugPowerJsonUtils.isTypeJSON(String.valueOf(result)) ? DebugPowerJsonUtils.toJsonPrettyStr(result) : result.toString();
-            System.out.println(printResult);
-            packet.setPrintResult(printResult);
-        } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
+        if (result == null) {
+            logger.info("DebugPower执行结果：null");
+            packet.setPrintResult(null);
+        } else {
+            if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
+                String printResult = result.toString();
+                System.out.println("DebugPower执行结果：" + printResult);
+                packet.setPrintResult(printResult);
+            } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
+                System.out.println("DebugPower执行结果：");
+                String printResult = DebugPowerJsonUtils.isTypeJSON(String.valueOf(result)) ? DebugPowerJsonUtils.toJsonPrettyStr(result) : result.toString();
+                System.out.println(printResult);
+                packet.setPrintResult(printResult);
+            } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
 
+            }
         }
         writeAndFlushNotException(outputStream, packet);
     }
