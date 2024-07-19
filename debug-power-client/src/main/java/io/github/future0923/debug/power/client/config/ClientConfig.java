@@ -12,15 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ClientConfig {
 
-    public static final ClientConfig DEFAULT = new ClientConfig(
-            "127.0.0.1",
-            50888,
-            10
-    );
+    private String host = "127.0.0.1";
 
-    private String host;
+    private int port = 50888;
 
-    private int port;
-
-    private int heartbeatInterval;
+    private int heartbeatInterval = 10;
 }

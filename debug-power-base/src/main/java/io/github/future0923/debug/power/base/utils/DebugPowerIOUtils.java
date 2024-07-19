@@ -19,6 +19,13 @@ public class DebugPowerIOUtils {
 
     private static final Logger logger = Logger.getLogger(DebugPowerIOUtils.class);
 
+    public static int getAvailablePort(int port) {
+        while (!isPortAvailable(port)) {
+            port++;
+        }
+        return port;
+    }
+
     public static boolean isPortAvailable(int port) {
         try (ServerSocket ignored = new ServerSocket(port)) {
             return true;
@@ -27,7 +34,7 @@ public class DebugPowerIOUtils {
         }
     }
 
-    public ServerSocket getServerSocketByDynamicPort(int port) {
+    public static ServerSocket getServerSocketByDynamicPort(int port) {
         ServerSocket serverSocket = null;
         int i = 0;
         while (i < 5) {

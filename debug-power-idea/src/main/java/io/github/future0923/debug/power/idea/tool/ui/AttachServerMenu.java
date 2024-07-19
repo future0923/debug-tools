@@ -4,14 +4,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
-import io.github.future0923.debug.power.client.DebugPowerSocketClient;
-import io.github.future0923.debug.power.client.handler.ClientPacketHandleService;
-import io.github.future0923.debug.power.common.handler.PacketHandleService;
-import io.github.future0923.debug.power.idea.client.IdeaPacketHandleService;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
-import io.github.future0923.debug.power.server.DebugPowerSocketServer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,16 +22,10 @@ public class AttachServerMenu extends JBPopupMenu {
 
     private final JPanel radioPanel = new JPanel();
 
-    private final DebugPowerSocketClient client;
-
-    private final DebugPowerSocketServer server;
-
     public AttachServerMenu(Project project) {
         super();
         this.setLayout(new BorderLayout());
         initToolbar(project);
-        this.client = new DebugPowerSocketClient(IdeaPacketHandleService.INSTANCE);
-        server = new DebugPowerSocketServer();
     }
 
     private void initToolbar(Project project) {
@@ -59,6 +48,7 @@ public class AttachServerMenu extends JBPopupMenu {
                 if (serverDisplayValue != null) {
                     DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
                     settingState.setAttach(serverDisplayValue);
+                    DebugPowerAttachUtils.attach("127.0.0.1", 12345, project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), settingState.loadAgentPath());
                 }
                 this.setVisible(false);
             });

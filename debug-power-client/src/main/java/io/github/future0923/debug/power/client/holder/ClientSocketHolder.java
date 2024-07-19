@@ -23,8 +23,18 @@ public class ClientSocketHolder {
 
     public static ClientSocketHolder INSTANCE;
 
+    public static String PID;
+
+    public static String APPLICATION_NAME;
+
+    public static String HOST;
+
+    public static int PORT;
+
     @Getter
     private Socket socket;
+
+    private volatile boolean closed = true;
 
     @Getter
     private InputStream inputStream;
@@ -57,22 +67,21 @@ public class ClientSocketHolder {
     }
 
     public boolean isClosed() {
-        return socket == null || socket.isClosed();
+        return socket == null || socket.isClosed() || closed;
     }
 
-    public void connect() {
-        try {
-            setSocket(new Socket(config.getHost(), config.getPort()));
-            logger.info("debug power client connect successful");
-            if (serverHandleThread != null) {
-                serverHandleThread.interrupt();
-            }
-            serverHandleThread = new ServerHandleThread(this, packetHandleService);
-            serverHandleThread.setDaemon(true);
-            serverHandleThread.start();
-        } catch (IOException e) {
-            logger.error("HeartBeatRequest reconnect debug power server error, {} second", e);
-        }
+    public void connect() throws IOException {
+        setSocket(new Socket(config.getHost(), config.getPort()));
+        closed = false;
+        logger.info("debug power client connect successful");
+        serverHandleThread = new ServerHandleThread(this, packetHandleService);
+        serverHandleThread.setDaemon(true);
+        serverHandleThread.start();
+    }
+
+    public void reconnect() throws Exception {
+        close();
+        connect();
     }
 
     public void sendHeartBeat() {
@@ -89,6 +98,16 @@ public class ClientSocketHolder {
     }
 
     public void close() {
+        closeSocket();
+        if (serverHandleThread != null) {
+            serverHandleThread.interrupt();
+        }
+        if (heartBeatRequestThread != null) {
+            heartBeatRequestThread.interrupt();
+        }
+    }
+
+    public void closeSocket() {
         try {
             if (this.outputStream != null) {
                 this.outputStream.close();
@@ -99,13 +118,8 @@ public class ClientSocketHolder {
             if (this.socket != null) {
                 this.socket.close();
             }
-            if (serverHandleThread != null) {
-                serverHandleThread.interrupt();
-            }
-            if (heartBeatRequestThread != null) {
-                heartBeatRequestThread.interrupt();
-            }
         } catch (IOException ignored) {
         }
+        closed = true;
     }
 }

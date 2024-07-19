@@ -5,28 +5,22 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.text.StringUtil;
+import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
+import io.github.future0923.debug.power.common.dto.RunDTO;
+import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.model.ParamCache;
-import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerActionUtil;
-import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
-import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,40 +65,32 @@ public class MainDialog extends DialogWrapper {
         ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
-        String jsonDtoStr = DebugPowerJsonUtils.toDebugPowerJson(
-                methodDataContext.getPsiClass().getQualifiedName(),
-                methodDataContext.getPsiMethod().getName(),
-                DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()),
-                contentMap,
-                Stream.of(itemHeaderMap, settingState.getGlobalHeader())
-                        .flatMap(map -> map.entrySet().stream())
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (v1, v2) -> v1
-                        )),
-                settingState.convertRunConfigDTO()
-        );
-        ServerDisplayValue attach = settingState.getAttach();
-        if (attach == null || StringUtil.isEmpty(attach.getKey())) {
+        Map<String, String> headers = Stream.of(itemHeaderMap, settingState.getGlobalHeader())
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (v1, v2) -> v1
+                ));
+        RunDTO runDTO = new RunDTO();
+        runDTO.setHeaders(headers);
+        runDTO.setTargetClassName(methodDataContext.getPsiClass().getQualifiedName());
+        runDTO.setTargetMethodName(methodDataContext.getPsiMethod().getName());
+        runDTO.setTargetMethodParameterTypes(DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));
+        runDTO.setTargetMethodContent(contentMap);
+        runDTO.setRunConfigDTO(settingState.convertRunConfigDTO());
+        RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
+        if (ClientSocketHolder.INSTANCE == null) {
             Messages.showErrorDialog("Run attach first", "执行失败");
             return;
         }
-        String agentParam;
         try {
-            String pathname = project.getBasePath() + IdeaPluginProjectConstants.PARAM_FILE;
-            File file = new File(pathname);
-            if (!file.exists()) {
-                FileUtils.touch(file);
-            }
-            FileUtil.writeToFile(file, jsonDtoStr);
-            agentParam = "file://" + URLEncoder.encode(pathname, StandardCharsets.UTF_8);
-        } catch (IOException ex) {
-            log.error("参数写入json文件失败", ex);
-            DebugPowerNotifierUtil.notifyError(project, "参数写入json文件失败");
-            return;
+            ClientSocketHolder.INSTANCE.send(packet);
+        } catch (SocketCloseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        DebugPowerAttachUtils.attach(project, attach.getKey(), settingState.loadAgentPath(), agentParam);
         super.doOKAction();
     }
 

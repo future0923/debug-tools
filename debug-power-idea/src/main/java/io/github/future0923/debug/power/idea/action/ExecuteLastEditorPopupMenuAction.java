@@ -32,7 +32,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
         CompletableFuture.runAsync(() -> {
             String pathname = project.getBasePath() + IdeaPluginProjectConstants.PARAM_FILE;
             String agentParam = "file://" + URLEncoder.encode(pathname, StandardCharsets.UTF_8);
-            DebugPowerAttachUtils.attach(project, attach.getKey(), settingState.loadAgentPath(), agentParam);
+            //DebugPowerAttachUtils.attach("127.0.0.1", 12345, project, attach.getKey(), settingState.loadAgentPath());
         });
     }
 }

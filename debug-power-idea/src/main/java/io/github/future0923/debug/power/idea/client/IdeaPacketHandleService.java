@@ -1,8 +1,8 @@
 package io.github.future0923.debug.power.idea.client;
 
 import io.github.future0923.debug.power.client.handler.ClientPacketHandleService;
-import io.github.future0923.debug.power.client.handler.RunTargetMethodResponseHandler;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
+import io.github.future0923.debug.power.idea.client.handler.RunTargetMethodResponseHandler;
 
 /**
  * @author future0923

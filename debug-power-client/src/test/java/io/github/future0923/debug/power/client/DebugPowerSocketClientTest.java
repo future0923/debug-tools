@@ -10,6 +10,7 @@ import io.github.future0923.debug.power.common.protocal.packet.request.ServerClo
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,12 @@ import java.util.Map;
  * @author future0923
  */
 class DebugPowerSocketClientTest {
+
+    @Test
+    public void connect() throws IOException {
+
+            new Socket("127.0.0.1", 32123);
+    }
 
     @Test
     public void serverClose() throws SocketCloseException, IOException, InterruptedException {
