@@ -4,9 +4,8 @@ import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.client.config.ClientConfig;
 import io.github.future0923.debug.power.client.handler.ClientPacketHandleService;
 import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
-import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.client.thread.HeartBeatRequestThread;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
-import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -21,32 +20,38 @@ public class DebugPowerSocketClient {
 
     private final ClientSocketHolder holder;
 
-    public DebugPowerSocketClient() {
-        this(ClientConfig.DEFAULT, new ClientPacketHandleService());
-    }
+    private final ClientConfig config;
 
-    public DebugPowerSocketClient(PacketHandleService packetHandleService) {
-        this(ClientConfig.DEFAULT, packetHandleService);
+    private final Thread heartbeatThread;
+
+    public DebugPowerSocketClient() {
+        this(new ClientConfig(), new ClientPacketHandleService());
     }
 
     public DebugPowerSocketClient(ClientConfig config, PacketHandleService packetHandleService) {
-        holder = new ClientSocketHolder(config, packetHandleService);
+        this.config = config;
+        this.holder = new ClientSocketHolder(config, packetHandleService);
+        this.heartbeatThread = new HeartBeatRequestThread(holder, config.getHeartbeatInterval());
     }
 
-    public void connect() {
+    public void start() throws IOException {
         holder.connect();
-        //holder.sendHeartBeat();
+        heartbeatThread.start();
+    }
+
+    public void connect() throws IOException {
+        holder.connect();
     }
 
     public void disconnect() {
         holder.close();
     }
 
-    public static void main(String[] args) throws Exception {
-        DebugPowerSocketClient socketClient = new DebugPowerSocketClient();
-        socketClient.connect();
-        ServerCloseRequestPacket packet = new ServerCloseRequestPacket();
-        ClientSocketHolder.INSTANCE.send(packet);
-        Thread.sleep(1000000000);
+    public void reconnect() throws Exception {
+        holder.reconnect();
+    }
+
+    public boolean isClosed() {
+        return holder.isClosed();
     }
 }

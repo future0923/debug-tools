@@ -7,9 +7,13 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.utils.DebugPowerExecUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
+import io.github.future0923.debug.power.idea.client.ApplicationClientHolder;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -49,15 +53,41 @@ public class DebugPowerAttachUtils {
         }
     }
 
-    public static void attach(Project project, String pid, String agentPath, String agentParam) {
+    public static void attach(String host, int port, Project project, String pid, String applicationName, String agentPath) {
+        ApplicationClientHolder.set(pid, applicationName, host, port);
+        if (!ApplicationClientHolder.CLIENT.isClosed()) {
+            return;
+        }
+        try {
+            ApplicationClientHolder.CLIENT.reconnect();
+        } catch (ConnectException e) {
+            // attach;
+            AgentArgs agentArgs = new AgentArgs();
+            agentArgs.setListenPort(String.valueOf(DebugPowerIOUtils.getAvailablePort(port)));
+            attach(() -> {
+                try {
+                    ApplicationClientHolder.CLIENT.start();
+                } catch (Exception ex) {
+                    DebugPowerNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");
+                }
+            }, project, pid, agentPath, agentArgs.format());
+
+        } catch (Exception e) {
+            log.error("attach失败 [errMsg:{}]", e.getMessage());
+        }
+    }
+
+    public static void attach(Runnable runnable, Project project, String pid, String agentPath, String agentParam) {
         CompletableFuture.runAsync(() -> {
             VirtualMachine virtualMachine = null;
             try {
                 virtualMachine = VirtualMachine.attach(pid);
                 virtualMachine.loadAgent(agentPath, agentParam);
+                runnable.run();
             } catch (IOException ioException) {
                 if (ioException.getMessage() != null && ioException.getMessage().contains("Non-numeric value found")) {
                     log.warn("jdk较低版本附加较高版本，没有影响可以忽略");
+                    runnable.run();
                 } else {
                     if (Objects.equals(ioException.getMessage(), "No such process")) {
                         DebugPowerNotifierUtil.notifyError(project, "没有找到attach这个进程，请刷新重新attach");
@@ -71,6 +101,7 @@ public class DebugPowerAttachUtils {
             } catch (AgentLoadException agentLoadException) {
                 if ("0".equals(agentLoadException.getMessage())) {
                     log.warn("jdk较高版本附加较低版本，没有影响可以忽略");
+                    runnable.run();
                 } else {
                     log.error("attach核心依赖失败 [errMsg:{}]", agentLoadException.getMessage());
                     DebugPowerNotifierUtil.notifyError(project, "attach失败:" + agentLoadException.getMessage());

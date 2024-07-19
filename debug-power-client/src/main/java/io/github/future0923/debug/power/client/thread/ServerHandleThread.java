@@ -1,13 +1,10 @@
 package io.github.future0923.debug.power.client.thread;
 
 import io.github.future0923.debug.power.base.logging.Logger;
-import io.github.future0923.debug.power.client.handler.ClientPacketHandleService;
 import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import io.github.future0923.debug.power.common.protocal.packet.PacketCodec;
-
-import java.io.IOException;
 
 /**
  * @author future0923
@@ -29,24 +26,20 @@ public class ServerHandleThread extends Thread {
 
     @Override
     public void run() {
-        try {
-            while (!Thread.currentThread().isInterrupted()) {
-                if (holder.isClosed()) {
-                    logger.warning("debug power client disconnect the link, waiting to reconnect");
-                    break;
-                }
-                try {
-                    Packet packet = PacketCodec.INSTANCE.getPacket(holder.getInputStream(), holder.getSocket());
-                    if (packet != null) {
-                        packetHandleService.handle(holder.getOutputStream(), packet);
-                    }
-                } catch (IOException e) {
-                    logger.error("remote server close socket:{} , error:{}", holder.getSocket(), e);
-                    return;
-                }
+        while (!Thread.currentThread().isInterrupted()) {
+            if (holder.isClosed()) {
+                logger.warning("debug power client disconnect the link, waiting to reconnect");
+                break;
             }
-        } finally {
-            holder.close();
+            try {
+                Packet packet = PacketCodec.INSTANCE.getPacket(holder.getInputStream(), holder.getSocket());
+                if (packet != null) {
+                    packetHandleService.handle(holder.getOutputStream(), packet);
+                }
+            } catch (Exception e) {
+                logger.error("socket io error :{} , error:{}", holder.getSocket(), e);
+                break;
+            }
         }
     }
 }

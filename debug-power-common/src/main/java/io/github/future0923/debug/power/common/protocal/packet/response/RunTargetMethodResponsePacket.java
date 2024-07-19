@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.common.protocal.packet.response;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.protocal.Command;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
@@ -51,7 +52,7 @@ public class RunTargetMethodResponsePacket extends Packet {
 
         private String printResult;
 
-        private Throwable throwable;
+        private String throwable;
     }
 
     public static RunTargetMethodResponsePacket of(Throwable throwable) {
@@ -72,7 +73,7 @@ public class RunTargetMethodResponsePacket extends Packet {
         payload.setPrintResult(printResult);
     }
 
-    public Throwable getThrowable() {
+    public String getThrowable() {
         return payload == null ? null : payload.getThrowable();
     }
 
@@ -80,6 +81,6 @@ public class RunTargetMethodResponsePacket extends Packet {
         if (payload == null) {
             payload = new Payload();
         }
-        payload.setThrowable(throwable);
+        payload.setThrowable(ExceptionUtil.stacktraceToString(throwable));
     }
 }

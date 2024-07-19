@@ -8,6 +8,8 @@ import io.github.future0923.debug.power.common.protocal.packet.Packet;
  */
 public class HeartBeatRequestPacket extends Packet {
 
+    public static final HeartBeatRequestPacket INSTANCE = new HeartBeatRequestPacket();
+
     @Override
     public Byte getCommand() {
         return Command.HEARTBEAT_REQUEST;
