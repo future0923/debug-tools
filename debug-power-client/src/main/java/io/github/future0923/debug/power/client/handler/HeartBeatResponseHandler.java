@@ -23,6 +23,6 @@ public class HeartBeatResponseHandler extends BasePacketHandler<HeartBeatRespons
 
     @Override
     public void handle(OutputStream outputStream, HeartBeatResponsePacket packet) throws Exception {
-        logger.info("Received debug power server HeartBeatResponsePacket");
+        logger.debug("Received debug power server HeartBeatResponsePacket");
     }
 }
