@@ -8,6 +8,7 @@ import io.github.future0923.debug.power.common.exception.SocketCloseException;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,18 +24,20 @@ public class ClientSocketHolder {
 
     public static ClientSocketHolder INSTANCE;
 
-    public static String PID;
-
-    public static String APPLICATION_NAME;
-
-    public static String HOST;
-
-    public static int PORT;
-
     @Getter
     private Socket socket;
 
     private volatile boolean closed = true;
+
+    @Setter
+    @Getter
+    private volatile int retry;
+
+    public static final int INIT = 1;
+
+    public static final int RETRYING = 1 << 1;
+
+    public static final int FAIL = 1 << 2;
 
     @Getter
     private InputStream inputStream;
@@ -67,7 +70,7 @@ public class ClientSocketHolder {
     }
 
     public boolean isClosed() {
-        return socket == null || socket.isClosed() || closed;
+        return socket == null || socket.isClosed() || closed || retry == FAIL;
     }
 
     public void connect() throws IOException {
@@ -82,6 +85,7 @@ public class ClientSocketHolder {
     public void reconnect() throws Exception {
         close();
         connect();
+        sendHeartBeat();
     }
 
     public void sendHeartBeat() {

@@ -6,7 +6,10 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.power.client.DebugPowerSocketClient;
+import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
+import io.github.future0923.debug.power.idea.client.ApplicationClientHolder;
 import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
@@ -117,21 +120,34 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleWithFixedDelay(
                 () -> {
-                    ServerDisplayValue attach = settingState.getAttach();
-                    if (attach != null && DebugPowerAttachUtils.status(project, attach.getKey())) {
-                        textField.setText(DebugPowerClassUtils.getShortClassName(attach.getValue()));
-                        textField.setVisible(true);
-                        attached.setText("Attached");
-                        attached.setBackground(JBColor.GREEN);
-                    } else {
+                    DebugPowerSocketClient client = ApplicationClientHolder.CLIENT;
+                    if (client == null) {
                         attached.setText("UnAttached");
                         attached.setBackground(JBColor.RED);
                         textField.setVisible(false);
                         settingState.setAttach(null);
+                    } else {
+                        if (!client.isClosed()) {
+                            textField.setText(DebugPowerClassUtils.getShortClassName(ApplicationClientHolder.APPLICATION_NAME));
+                            textField.setVisible(true);
+                            attached.setText("Connected");
+                            attached.setBackground(JBColor.GREEN);
+                        } else {
+                            if (client.getHolder().getRetry() == ClientSocketHolder.FAIL) {
+                                attached.setText("Fail");
+                            } else if (client.getHolder().getRetry() == ClientSocketHolder.RETRYING) {
+                                attached.setText("Reconnect");
+                            } else if (client.getHolder().getRetry() == ClientSocketHolder.INIT) {
+                                attached.setText("connecting");
+                            }
+                            attached.setBackground(JBColor.RED);
+                            textField.setVisible(true);
+                            settingState.setAttach(null);
+                        }
                     }
                 },
                 0,
-                3,
+                1,
                 TimeUnit.SECONDS
         );
     }

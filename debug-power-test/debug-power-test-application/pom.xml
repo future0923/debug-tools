@@ -38,7 +38,6 @@
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-power-common</artifactId>
             <version>${revision}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.sun</groupId>

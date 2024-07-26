@@ -18,6 +18,9 @@
  */
 package io.github.future0923.debug.power.base.logging;
 
+import io.github.future0923.debug.power.base.utils.DebugPowerJavaVersionUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -66,19 +69,39 @@ public class LoggerHandler {
 
         StringBuilder stringBuffer = new StringBuilder();
         if (level.equals(Logger.Level.TRACE)) {
-            stringBuffer.append(ColorConsole.getBlue(level.name()));
+            stringBuffer.append("  ").append(ColorConsole.getBlue(level.name()));
         } else if (level.equals(Logger.Level.DEBUG)) {
-            stringBuffer.append(ColorConsole.getBlueGreen(level.name()));
+            stringBuffer.append("  ").append(ColorConsole.getBlueGreen(level.name()));
         } else if (level.equals(Logger.Level.INFO)) {
-            stringBuffer.append(ColorConsole.getGreen(level.name()));
+            stringBuffer.append("   ").append(ColorConsole.getGreen(level.name()));
         } else if (level.equals(Logger.Level.WARNING)) {
             stringBuffer.append(ColorConsole.getYellow(level.name()));
         } else if (level.equals(Logger.Level.RELOAD)) {
-            stringBuffer.append(ColorConsole.getPurple(level.name()));
+            stringBuffer.append(" ").append(ColorConsole.getPurple(level.name()));
         } else if (level.equals(Logger.Level.ERROR)) {
-            stringBuffer.append(ColorConsole.getRed(level.name()));
+            stringBuffer.append("  ").append(ColorConsole.getRed(level.name()));
         }
         stringBuffer.append(" ");
+        stringBuffer.append("[").append(Thread.currentThread().getName()).append("]");
+        stringBuffer.append(" ");
+        stringBuffer.append(ColorConsole.getBlueGreen(DebugPowerStringUtils.getShortClassName(clazz.getName())));
+        stringBuffer.append(" ");
+
+        // 获取当前堆栈跟踪信息
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        // 查找第一个非CustomLogger类的方法调用
+        StackTraceElement caller = null;
+        for (StackTraceElement element : stackTrace) {
+            if (element.getClassName().equals(clazz.getName())) {
+                caller = element;
+                break;
+            }
+        }
+        if (caller != null) {
+            stringBuffer.append(ColorConsole.getRed(String.valueOf(caller.getLineNumber())));
+            stringBuffer.append(" : ");
+        }
         stringBuffer.append(messageWithArgs);
 
         if (throwable != null) {
