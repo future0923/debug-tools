@@ -15,10 +15,5 @@ public class DebugPowerTestApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DebugPowerTestApplication.class, args);
-        log.trace("trace");
-        log.debug("debug");
-        log.info("info");
-        log.warn("warn");
-        log.error("error");
     }
 }

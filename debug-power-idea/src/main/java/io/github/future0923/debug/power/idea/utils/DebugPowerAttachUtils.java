@@ -54,7 +54,7 @@ public class DebugPowerAttachUtils {
     }
 
     public static void attach(String host, int port, Project project, String pid, String applicationName, String agentPath) {
-        ApplicationClientHolder.set(pid, applicationName, host, port);
+        ApplicationClientHolder.set(project, pid, applicationName, host, port);
         if (!ApplicationClientHolder.CLIENT.isClosed()) {
             return;
         }
@@ -68,6 +68,7 @@ public class DebugPowerAttachUtils {
                 try {
                     ApplicationClientHolder.CLIENT.start();
                 } catch (Exception ex) {
+                    log.error("start client exception", ex);
                     DebugPowerNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");
                 }
             }, project, pid, agentPath, agentArgs.format());

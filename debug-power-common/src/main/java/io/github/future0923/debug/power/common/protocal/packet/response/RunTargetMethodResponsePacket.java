@@ -2,21 +2,33 @@ package io.github.future0923.debug.power.common.protocal.packet.response;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.protocal.Command;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * @author future0923
  */
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = true)
 public class RunTargetMethodResponsePacket extends Packet {
 
     private static final Logger logger = Logger.getLogger(RunTargetMethodResponsePacket.class);
+
+    private String className;
+
+    private String methodName;
+
+    private List<String> methodParameterTypes;
 
     private Payload payload;
 
@@ -27,11 +39,7 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     @Override
     public byte[] binarySerialize() {
-        if (payload == null) {
-            return new byte[0];
-        } else {
-            return DebugPowerJsonUtils.toJsonStr(payload).getBytes(StandardCharsets.UTF_8);
-        }
+        return DebugPowerJsonUtils.toJsonStr(this).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -44,7 +52,11 @@ public class RunTargetMethodResponsePacket extends Packet {
             logger.warning("The data RunTargetMethodResponsePacket received is not JSON, {}", jsonString);
             return;
         }
-        payload = DebugPowerJsonUtils.toBean(jsonString, Payload.class);
+        RunTargetMethodResponsePacket packet = DebugPowerJsonUtils.toBean(jsonString, RunTargetMethodResponsePacket.class);
+        this.setClassName(packet.getClassName());
+        this.setMethodName(packet.getMethodName());
+        this.setMethodParameterTypes(packet.getMethodParameterTypes());
+        this.setPayload(packet.getPayload());
     }
 
     @Data
@@ -55,8 +67,9 @@ public class RunTargetMethodResponsePacket extends Packet {
         private String throwable;
     }
 
-    public static RunTargetMethodResponsePacket of(Throwable throwable) {
+    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
+        packet.setRunInfo(runDTO);
         packet.setResultFlag(FAIL);
         packet.setThrowable(throwable);
         return packet;
@@ -82,5 +95,11 @@ public class RunTargetMethodResponsePacket extends Packet {
             payload = new Payload();
         }
         payload.setThrowable(ExceptionUtil.stacktraceToString(throwable));
+    }
+
+    public void setRunInfo(RunDTO runDTO) {
+        this.setClassName(runDTO.getTargetClassName());
+        this.setMethodName(runDTO.getTargetMethodName());
+        this.setMethodParameterTypes(runDTO.getTargetMethodParameterTypes());
     }
 }

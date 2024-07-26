@@ -35,6 +35,7 @@ public class HeartBeatRequestThread extends Thread {
                 try {
                     HeartBeatRequestPacket.INSTANCE.writeAndFlush(holder.getOutputStream());
                     retryCount = 0;
+                    holder.setRetry(ClientSocketHolder.INIT);
                     continue;
                 } catch (IOException e) {
                     holder.closeSocket();
@@ -42,6 +43,7 @@ public class HeartBeatRequestThread extends Thread {
                 }
             }
             logger.warning("HeartBeatRequest reconnect debug power server");
+            holder.setRetry(ClientSocketHolder.RETRYING);
             try {
                 holder.connect();
             } catch (IOException e) {
@@ -49,5 +51,6 @@ public class HeartBeatRequestThread extends Thread {
             }
             retryCount++;
         }
+        holder.setRetry(ClientSocketHolder.FAIL);
     }
 }
