@@ -2,7 +2,6 @@ package io.github.future0923.debug.power.client.handler;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
-import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.HeartBeatResponsePacket;
 
 import java.io.OutputStream;

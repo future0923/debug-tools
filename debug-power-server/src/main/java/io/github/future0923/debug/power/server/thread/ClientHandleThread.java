@@ -65,7 +65,6 @@ public class ClientHandleThread extends Thread {
                             throw new RuntimeException(socket + " close !");
                         }
                     }
-                    Thread.sleep(300L);
                 } catch (Exception e) {
                     this.lastUpdateTime2Thread.remove(this);
                     logger.error("remote client close socket:{} , error:{}", socket, e);

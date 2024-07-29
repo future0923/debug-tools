@@ -24,7 +24,7 @@ import java.util.Map;
 public class VmTest {
     private static VirtualMachine vm;
 
-    private static final String jarPath = "/Users/weilai/.debugPower/lib/debug-power-agent-2.0.0.jar";
+    private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-attach/target/debug-power-agent.jar";
     //private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-attach/target/debug-power-agent.jar";
 
     private String args;
@@ -45,7 +45,7 @@ public class VmTest {
 
     @Test
     public void attachApplication() throws Exception {
-        vm.loadAgent(jarPath, "listenPort=12346");
+        vm.loadAgent(jarPath, "listenPort=12355");
     }
 
     @AfterEach
