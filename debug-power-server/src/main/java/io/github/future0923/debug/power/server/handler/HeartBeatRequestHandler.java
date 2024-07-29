@@ -23,7 +23,7 @@ public class HeartBeatRequestHandler extends BasePacketHandler<HeartBeatRequestP
 
     @Override
     public void handle(OutputStream outputStream, HeartBeatRequestPacket packet) throws Exception {
-        logger.info("收到心跳请求{}", packet);
+        logger.debug("收到心跳请求{}", packet);
         writeAndFlush(outputStream, new HeartBeatResponsePacket());
     }
 }
