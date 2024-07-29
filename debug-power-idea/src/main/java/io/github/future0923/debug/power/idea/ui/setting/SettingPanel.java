@@ -20,10 +20,6 @@ public class SettingPanel {
     private final DebugPowerSettingState settingState;
     @Getter
     private JPanel settingPanel;
-    @Getter
-    private final JBRadioButton runApplicationYes = new JBRadioButton("Yes");
-    @Getter
-    private final JBRadioButton runApplicationNo = new JBRadioButton("No");
 
     @Getter
     private final JBRadioButton attachApplicationNoPrintResult = new JBRadioButton(PrintResultType.NO_PRINT.getType());
@@ -50,18 +46,6 @@ public class SettingPanel {
     }
 
     private void initLayout() {
-        JPanel runApplicationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        runApplicationPanel.add(runApplicationYes);
-        runApplicationPanel.add(runApplicationNo);
-        ButtonGroup runApplicationButtonGroup = new ButtonGroup();
-        runApplicationButtonGroup.add(runApplicationYes);
-        runApplicationButtonGroup.add(runApplicationNo);
-        if (settingState.getRunApplicationAttach()) {
-            runApplicationYes.setSelected(true);
-        } else {
-            runApplicationNo.setSelected(true);
-        }
-
         JPanel attachApplicationResult = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         attachApplicationResult.add(attachApplicationNoPrintResult);
         attachApplicationResult.add(attachApplicationPrintToStringResult);
@@ -107,10 +91,6 @@ public class SettingPanel {
         }
 
         settingPanel = FormBuilder.createFormBuilder()
-                .addLabeledComponent(
-                        new JBLabel("Does it automatically attach when the program starts:"),
-                        runApplicationPanel
-                )
                 .addLabeledComponent(
                         new JBLabel("Target program execution result:"),
                         attachApplicationResult

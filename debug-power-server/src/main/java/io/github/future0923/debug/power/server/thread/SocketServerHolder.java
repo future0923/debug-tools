@@ -8,9 +8,16 @@ import lombok.Getter;
 public class SocketServerHolder {
 
     @Getter
-    public static ClientAcceptThread clientAcceptThread;
+    private static ClientAcceptThread clientAcceptThread;
+
+    @Getter
+    private static SessionCheckThread sessionCheckThread;
 
     public static void setClientAcceptThread(ClientAcceptThread clientAcceptThread) {
         SocketServerHolder.clientAcceptThread = clientAcceptThread;
+    }
+
+    public static void setSessionCheckThread(SessionCheckThread sessionCheckThread) {
+        SocketServerHolder.sessionCheckThread = sessionCheckThread;
     }
 }

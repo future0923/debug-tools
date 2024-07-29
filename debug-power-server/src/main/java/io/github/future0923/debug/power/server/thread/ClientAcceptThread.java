@@ -4,6 +4,7 @@ import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
 import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.handler.ServerPacketHandleService;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,6 +19,7 @@ public class ClientAcceptThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(ClientAcceptThread.class);
 
+    @Getter
     private final Map<ClientHandleThread, Long> lastUpdateTime2Thread = new ConcurrentHashMap<>();
 
     private final PacketHandleService packetHandleService = new ServerPacketHandleService();
@@ -34,7 +36,6 @@ public class ClientAcceptThread extends Thread {
 
     @Override
     public void run() {
-        new SessionCheckThread(lastUpdateTime2Thread).start();
         try {
             serverSocket = new ServerSocket(serverConfig.getPort());
             int bindPort = serverSocket.getLocalPort();
@@ -45,7 +46,8 @@ public class ClientAcceptThread extends Thread {
                     socket = serverSocket.accept();
                 } catch (IOException e) {
                     logger.error("accept error, maybe active disconnect.", e);
-                    break;
+                    serverSocket.close();
+                    return;
                 }
                 logger.info("get client conn start handle thread socket: {}", socket);
                 ClientHandleThread socketHandleThread = new ClientHandleThread(socket, lastUpdateTime2Thread, packetHandleService);
