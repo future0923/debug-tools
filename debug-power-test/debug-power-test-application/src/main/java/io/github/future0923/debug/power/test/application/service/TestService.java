@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.test.application.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.github.future0923.debug.power.test.application.dao.TestDao;
 import io.github.future0923.debug.power.test.application.dao.UserDao;
 import io.github.future0923.debug.power.test.application.domain.TestEnum;
@@ -116,6 +117,13 @@ public class TestService {
         User user = userDao.selectById(id);
         System.out.println("user = " + user);
         return user;
+    }
+
+    public List<User> testNull() {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(User::getName, "a");
+        wrapper.eq(User::getVersion, null);
+        return userDao.selectList(wrapper);
     }
 
     public void test(LocalDateTime localDateTime, LocalDate localDate, Date date) {

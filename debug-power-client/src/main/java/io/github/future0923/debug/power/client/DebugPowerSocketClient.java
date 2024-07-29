@@ -22,8 +22,6 @@ public class DebugPowerSocketClient {
 
     private final ClientConfig config;
 
-    private final Thread heartbeatThread;
-
     public DebugPowerSocketClient() {
         this(new ClientConfig(), new ClientPacketHandleService());
     }
@@ -31,12 +29,11 @@ public class DebugPowerSocketClient {
     public DebugPowerSocketClient(ClientConfig config, PacketHandleService packetHandleService) {
         this.config = config;
         this.holder = new ClientSocketHolder(config, packetHandleService);
-        this.heartbeatThread = new HeartBeatRequestThread(holder, config.getHeartbeatInterval());
     }
 
     public void start() throws IOException {
         holder.connect();
-        heartbeatThread.start();
+        holder.sendHeartBeat();
     }
 
     public void connect() throws IOException {

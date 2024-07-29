@@ -89,6 +89,9 @@ public class ClientSocketHolder {
     }
 
     public void sendHeartBeat() {
+        if (heartBeatRequestThread != null && heartBeatRequestThread.isAlive()) {
+            heartBeatRequestThread.interrupt();
+        }
         heartBeatRequestThread = new HeartBeatRequestThread(this, config.getHeartbeatInterval());
         heartBeatRequestThread.start();
     }

@@ -14,7 +14,6 @@ import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.model.ParamCache;
-import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -44,11 +43,7 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     private Map<String, String> globalHeader = new ConcurrentHashMap<>();
 
-    private ServerDisplayValue attach;
-
     private String agentPath;
-
-    private Boolean runApplicationAttach = true;
 
     private PrintResultType printResultType = PrintResultType.JSON;
 

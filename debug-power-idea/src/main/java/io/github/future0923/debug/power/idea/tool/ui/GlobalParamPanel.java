@@ -10,9 +10,7 @@ import io.github.future0923.debug.power.client.DebugPowerSocketClient;
 import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.idea.client.ApplicationClientHolder;
-import io.github.future0923.debug.power.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
-import io.github.future0923.debug.power.idea.utils.DebugPowerAttachUtils;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerUIHelper;
 import lombok.Getter;
@@ -125,7 +123,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                         attached.setText("UnAttached");
                         attached.setBackground(JBColor.RED);
                         textField.setVisible(false);
-                        settingState.setAttach(null);
                     } else {
                         if (!client.isClosed()) {
                             textField.setText(DebugPowerClassUtils.getShortClassName(ApplicationClientHolder.APPLICATION_NAME));
@@ -142,7 +139,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             }
                             attached.setBackground(JBColor.RED);
                             textField.setVisible(true);
-                            settingState.setAttach(null);
                         }
                     }
                 },

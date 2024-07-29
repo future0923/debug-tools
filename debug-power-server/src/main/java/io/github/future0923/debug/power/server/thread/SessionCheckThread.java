@@ -29,9 +29,13 @@ public class SessionCheckThread extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 TimeUnit.SECONDS.sleep(this.INTERVAL);
+            } catch (InterruptedException e) {
+                return;
+            }
+            try {
                 long nowTime = System.currentTimeMillis();
                 Iterator<Map.Entry<ClientHandleThread, Long>> iterator = lastUpdateTime2Thread.entrySet().iterator();
                 while (iterator.hasNext()) {

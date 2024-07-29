@@ -1,7 +1,7 @@
 package io.github.future0923.debug.power.server;
 
+import cn.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.power.base.config.AgentArgs;
-import io.github.future0923.debug.power.base.config.AgentConfig;
 import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 
@@ -14,24 +14,33 @@ public class DebugPowerBootstrap {
 
     private static DebugPowerBootstrap debugBootstrap;
 
-    private final DebugPowerSocketServer socketServer;
+    private DebugPowerSocketServer socketServer;
 
-    private DebugPowerBootstrap(String agentArgs, Instrumentation instrumentation) {
+    private Integer port;
+
+    private DebugPowerBootstrap(Instrumentation instrumentation) {
         VmToolsUtils.init();
-        ServerConfig serverConfig = new ServerConfig();
-        AgentArgs parse = AgentArgs.parse(agentArgs);
-        serverConfig.setPort(Integer.parseInt(parse.getListenPort()));
-        this.socketServer = new DebugPowerSocketServer(serverConfig);
     }
 
-    public static synchronized DebugPowerBootstrap getInstance(String agentArgs, Instrumentation instrumentation) {
+    public static synchronized DebugPowerBootstrap getInstance(Instrumentation instrumentation) {
         if (debugBootstrap == null) {
-            debugBootstrap = new DebugPowerBootstrap(agentArgs, instrumentation);
+            debugBootstrap = new DebugPowerBootstrap(instrumentation);
         }
         return debugBootstrap;
     }
 
-    public void start() {
-        socketServer.start();
+    public void start(String agentArgs) {
+        ServerConfig serverConfig = new ServerConfig();
+        AgentArgs parse = AgentArgs.parse(agentArgs);
+        int listenPort = Integer.parseInt(parse.getListenPort());
+        serverConfig.setPort(listenPort);
+        if (socketServer == null) {
+            socketServer = new DebugPowerSocketServer(serverConfig);
+            socketServer.start();
+        } else if (ObjectUtil.notEqual(listenPort, port) ){
+            socketServer.close();
+            socketServer = new DebugPowerSocketServer(serverConfig);
+            socketServer.start();
+        }
     }
 }

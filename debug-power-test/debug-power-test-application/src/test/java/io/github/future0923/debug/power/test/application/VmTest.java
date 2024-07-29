@@ -1,5 +1,7 @@
 package io.github.future0923.debug.power.test.application;
 
+import com.sun.tools.attach.AgentInitializationException;
+import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.Map;
 public class VmTest {
     private static VirtualMachine vm;
 
-    private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-idea/src/main/resources/lib/debug-power-agent-2.0.0.jar";
+    private static final String jarPath = "/Users/weilai/.debugPower/lib/debug-power-agent-2.0.0.jar";
     //private static final String jarPath = "/Users/weilai/Documents/future0923/debug-power/debug-power-attach/target/debug-power-agent.jar";
 
     private String args;
@@ -41,8 +44,8 @@ public class VmTest {
 
 
     @Test
-    public void attachApplication() {
-
+    public void attachApplication() throws Exception {
+        vm.loadAgent(jarPath, "listenPort=12346");
     }
 
     @AfterEach

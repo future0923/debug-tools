@@ -30,7 +30,9 @@ public class HeartBeatRequestThread extends Thread {
     public void run() {
         int retryCount = 0;
         while (!Thread.currentThread().isInterrupted() && retryCount < 30) {
-            DebugPowerThreadUtils.sleep(this.interval, TimeUnit.SECONDS);
+            if (!DebugPowerThreadUtils.sleep(this.interval, TimeUnit.SECONDS)) {
+                return;
+            }
             if (!holder.isClosed()) {
                 try {
                     HeartBeatRequestPacket.INSTANCE.writeAndFlush(holder.getOutputStream());
