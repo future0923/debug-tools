@@ -53,8 +53,9 @@ public class DebugPowerAttachUtils {
         }
     }
 
-    public static void attach(String host, int port, Project project, String pid, String applicationName, String agentPath) {
-        ApplicationClientHolder.set(project, pid, applicationName, host, port);
+    public static void attachLocal(Project project, String pid, String applicationName, String agentPath) {
+        int port = ApplicationClientHolder.getPort(applicationName);
+        ApplicationClientHolder.set(project, pid, applicationName, "127.0.0.1", port);
         if (!ApplicationClientHolder.CLIENT.isClosed()) {
             return;
         }

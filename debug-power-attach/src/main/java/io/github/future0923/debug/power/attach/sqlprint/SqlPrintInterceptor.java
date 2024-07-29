@@ -99,7 +99,7 @@ public class SqlPrintInterceptor {
     }
 
     public static void printSql(long consume, Statement sta) {
-        final String sql = sta.toString();
+        final String sql = sta.toString().replace("** BYTE ARRAY DATA **", "NULL");
         String resultSql;
         if (sql.startsWith(STATEMENT_PREFIXES)) {
             resultSql = sql.replace(STATEMENT_PREFIXES, "");

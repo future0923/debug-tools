@@ -29,7 +29,7 @@ import java.lang.reflect.Proxy;
  */
 public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMethodRequestPacket> {
 
-    private static final Logger logger = Logger.getLogger(HeartBeatRequestHandler.class);
+    private static final Logger logger = Logger.getLogger(RunTargetMethodRequestHandler.class);
 
     public static final RunTargetMethodRequestHandler INSTANCE = new RunTargetMethodRequestHandler();
 
@@ -72,8 +72,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
                 try {
                     printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream);
                     return;
-                } catch (Throwable e) {
-                    logger.error("invoke target method error", e);
+                } catch (Throwable ignored) {
                 }
             }
         }

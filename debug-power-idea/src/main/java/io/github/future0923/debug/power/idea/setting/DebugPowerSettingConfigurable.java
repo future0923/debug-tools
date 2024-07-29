@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
-import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -46,12 +45,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (settingState.getRunApplicationAttach() && settingPanel.getRunApplicationNo().isSelected()) {
-            return true;
-        }
-        if (!settingState.getRunApplicationAttach() && settingPanel.getRunApplicationYes().isSelected()) {
-            return true;
-        }
         if (PrintResultType.NO_PRINT.equals(settingState.getPrintResultType()) && !settingPanel.getAttachApplicationNoPrintResult().isSelected()) {
             return true;
         }
@@ -82,11 +75,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public void reset() {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (settingState.getRunApplicationAttach()) {
-            settingPanel.getRunApplicationYes().setSelected(true);
-        } else {
-            settingPanel.getRunApplicationNo().setSelected(true);
-        }
         if (PrintResultType.NO_PRINT.equals(settingState.getPrintResultType())) {
             settingPanel.getAttachApplicationNoPrintResult().setSelected(true);
         }
@@ -115,12 +103,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (settingPanel.getRunApplicationYes().isSelected()) {
-            settingState.setRunApplicationAttach(true);
-        }
-        if (settingPanel.getRunApplicationNo().isSelected()) {
-            settingState.setRunApplicationAttach(false);
-        }
         if (settingPanel.getAttachApplicationNoPrintResult().isSelected()) {
             settingState.setPrintResultType(PrintResultType.NO_PRINT);
         }

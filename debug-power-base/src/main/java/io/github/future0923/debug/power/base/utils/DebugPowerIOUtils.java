@@ -20,8 +20,12 @@ public class DebugPowerIOUtils {
     private static final Logger logger = Logger.getLogger(DebugPowerIOUtils.class);
 
     public static int getAvailablePort(int port) {
+        return getAvailablePort(port, 1);
+    }
+
+    public static int getAvailablePort(int port, int step) {
         while (!isPortAvailable(port)) {
-            port++;
+            port += step;
         }
         return port;
     }

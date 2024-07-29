@@ -9,7 +9,6 @@ import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author future0923
@@ -20,26 +19,26 @@ public class DebugPowerAttach {
 
     private static final AgentConfig agentConfig = AgentConfig.INSTANCE;
 
-    private static final AtomicBoolean isStarted = new AtomicBoolean(false);
+    private static Class<?> bootstrapClass;
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         SqlPrintByteCodeEnhance.enhance(inst);
     }
 
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
-        if (!isStarted.compareAndSet(false, true)) {
-            logger.warning("debug power server already started");
-            return;
-        }
-        try {
-            loadCore(agentArgs, inst);
-        } catch (Throwable e) {
-            logger.error("start debug power server error", e);
-            isStarted.set(false);
+        loadCore();
+        if (bootstrapClass != null) {
+            Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class).invoke(null, inst);
+            bootstrapClass.getMethod(ProjectConstants.START, String.class).invoke(bootstrap, agentArgs);
         }
     }
 
-    private static void loadCore(String agentArgs, Instrumentation inst) throws Exception {
+    private static void loadCore() throws Exception {
+        try {
+            Class.forName("io.github.future0923.debug.power.base.SpyAPI");
+            return;
+        } catch (Throwable ignored) {
+        }
         String version = agentConfig.getVersion();
         boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
@@ -60,9 +59,7 @@ public class DebugPowerAttach {
         agentConfig.store();
         try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPowerAttach.class.getClassLoader())) {
             debugPowerClassloader.loadAllClasses();
-            Class<?> bootstrapClass = debugPowerClassloader.loadClass(ProjectConstants.DEBUG_POWER_BOOTSTRAP);
-            Object bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, String.class, Instrumentation.class).invoke(null, agentArgs, inst);
-            bootstrapClass.getMethod(ProjectConstants.START).invoke(bootstrap);
+            bootstrapClass = debugPowerClassloader.loadClass(ProjectConstants.DEBUG_POWER_BOOTSTRAP);
         }
     }
 
