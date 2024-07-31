@@ -1,7 +1,14 @@
 package io.github.future0923.debug.power.common.utils;
 
+import cn.hutool.json.JSONUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author future0923
@@ -92,6 +99,16 @@ public class DebugPowerJsonUtilsTest {
     }
 
     @Test
-    void debugPowerJsonConvertQuery() {
+    void toJsonPrettyStr() {
+        TestDTO testDTO = new TestDTO();
+        testDTO.setLocalDateTime(LocalDateTime.now());
+        testDTO.setLocalDate(LocalDate.now());
+        testDTO.setLocalTime(LocalTime.now());
+        testDTO.setDate(new Date());
+        testDTO.setCalendar(Calendar.getInstance());
+        String jsonPrettyStr = DebugPowerJsonUtils.toJsonPrettyStr(testDTO);
+        System.out.println(jsonPrettyStr);
+        TestDTO bean = DebugPowerJsonUtils.toBean(jsonPrettyStr, TestDTO.class);
+        System.out.println(bean);
     }
 }

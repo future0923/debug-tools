@@ -55,7 +55,7 @@
         <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
         <arthas.version>3.7.2</arthas.version>
         <spring-boot.version>2.7.4</spring-boot.version>
-        <hutool.version>5.8.26</hutool.version>
+        <hutool.version>5.8.29</hutool.version>
         <pl-joegreen-lambda.version>1.7</pl-joegreen-lambda.version>
         <apache-cli.version>1.8.0</apache-cli.version>
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
