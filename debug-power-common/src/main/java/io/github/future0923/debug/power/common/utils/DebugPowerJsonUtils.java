@@ -1,7 +1,9 @@
 package io.github.future0923.debug.power.common.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.lang.TypeReference;
+import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -20,6 +22,12 @@ import java.util.Map;
  * @author future0923
  */
 public class DebugPowerJsonUtils extends JSONUtil {
+
+    private static final JSONConfig jsonConfig;
+
+    static {
+        jsonConfig = JSONConfig.create().setDateFormat(DatePattern.NORM_DATETIME_MS_PATTERN);
+    }
 
     public static Map<String, RunContentDTO> toRunContentDTOMap(String jsonInput) {
         return toBean(jsonInput, new TypeReference<Map<String, RunContentDTO>>() {
@@ -198,5 +206,15 @@ public class DebugPowerJsonUtils extends JSONUtil {
             }
         });
         return sb.toString();
+    }
+
+    /**
+     * 转换为格式化后的JSON字符串
+     *
+     * @param obj Bean对象
+     * @return JSON字符串
+     */
+    public static String toJsonPrettyStr(Object obj) {
+        return JSONUtil.toJsonPrettyStr(parse(obj, jsonConfig));
     }
 }

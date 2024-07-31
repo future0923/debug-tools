@@ -94,18 +94,17 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             RunConfigDTO configDTO = runDTO.getRunConfigDTO();
             if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
                 String printResult = result.toString();
-                System.out.println("DebugPower执行结果：" + printResult);
+                logger.info("DebugPower执行结果：{}", printResult);
                 packet.setPrintResult(printResult);
             } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
-                System.out.println("DebugPower执行结果：");
                 String printResult;
                 try {
                     printResult = DebugPowerJsonUtils.toJsonPrettyStr(result);
                 } catch (Exception e) {
                     printResult = result.toString();
                 }
-                System.out.println(printResult);
                 packet.setPrintResult(printResult);
+                logger.info("DebugPower执行结果：{}", printResult);
             } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
 
             }

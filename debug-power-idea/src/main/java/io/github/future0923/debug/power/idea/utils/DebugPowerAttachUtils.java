@@ -64,7 +64,7 @@ public class DebugPowerAttachUtils {
         } catch (ConnectException e) {
             // attach;
             AgentArgs agentArgs = new AgentArgs();
-            agentArgs.setListenPort(String.valueOf(DebugPowerIOUtils.getAvailablePort(port)));
+            agentArgs.setListenPort(String.valueOf(port));
             attach(() -> {
                 try {
                     ApplicationClientHolder.CLIENT.start();
