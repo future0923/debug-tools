@@ -30,15 +30,10 @@
 
     <change-notes>
         <![CDATA[
-        <strong>1.2.1</strong>
+        <strong>2.0.0</strong>
         <ul>
-            <li>Fix bug that failed to clear global header save.</li>
-            <li>Fix delete all headers request again no delete request from RequestContextHolder bug.</li>
-            <li>Fix the bug of not printing sql during batch operation.</li>
-            <li>Fix the bug that clearing the cache did not reload the core jar.</li>
-            <li>Fixed the bug that the class that was not used for the first time failed to load the next time it was used.</li>
-            <li>Optimize cache clearing function.</li>
-            <li>Notification shows error message when execution fails.</li>
+            <li>Receive execution results or error messages.</li>
+            <li>Fix MySQL display error when printing Null values.</li>
         </ul>
         ]]>
     </change-notes>
