@@ -16,5 +16,5 @@ public class ClientConfig {
 
     private int port = 50888;
 
-    private int heartbeatInterval = 5;
+    private int heartbeatInterval = 60;
 }

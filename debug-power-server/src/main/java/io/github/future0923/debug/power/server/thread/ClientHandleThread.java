@@ -32,6 +32,12 @@ public class ClientHandleThread extends Thread {
 
     private final PacketHandleService packetHandleService;
 
+    private volatile boolean isClosed = false;
+
+    public void setClosed(boolean closed) {
+        isClosed = closed;
+    }
+
     public ClientHandleThread(Socket socket, Map<ClientHandleThread, Long> lastUpdateTime2Thread, PacketHandleService packetHandleService) {
         setDaemon(true);
         setName("DebugPower-ClientHandle-Thread");
@@ -49,7 +55,7 @@ public class ClientHandleThread extends Thread {
     @Override
     public void run() {
         try {
-            while(!Thread.currentThread().isInterrupted()) {
+            while(!isClosed) {
                 try {
                     Packet packet = PacketCodec.INSTANCE.getPacket(inputStream, socket);
                     if (packet != null) {

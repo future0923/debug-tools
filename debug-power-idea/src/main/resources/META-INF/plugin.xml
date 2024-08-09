@@ -30,10 +30,10 @@
 
     <change-notes>
         <![CDATA[
-        <strong>2.0.0</strong>
+        <strong>2.0.1</strong>
         <ul>
-            <li>Receive execution results or error messages.</li>
-            <li>Fix MySQL display error when printing Null values.</li>
+            <li>Fix the exception that the calling thread is interrupted due to the short heartbeat time.</li>
+            <li>Fix incomplete printing of exception information.</li>
         </ul>
         ]]>
     </change-notes>

@@ -23,7 +23,7 @@ public class SessionCheckThread extends Thread {
         setDaemon(true);
         setName("DebugPower-SessionCheck-Thread");
         this.HEALTH_CHECK_TIMEOUT = TimeUnit.SECONDS.toMillis(20L);
-        this.INTERVAL = 10L;
+        this.INTERVAL = 180L;
         this.lastUpdateTime2Thread = lastUpdateTime2Thread;
     }
 
@@ -44,7 +44,7 @@ public class SessionCheckThread extends Thread {
                     Long time = next.getValue();
                     long expireTime = nowTime - time;
                     if (expireTime > HEALTH_CHECK_TIMEOUT) {
-                        socketHandleThread.interrupt();
+                        socketHandleThread.setClosed(true);
                         iterator.remove();
                         logger.info("thread is un conn , stop and remove thread : {}", socketHandleThread.getSocket());
                     }
