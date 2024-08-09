@@ -94,7 +94,7 @@ public class RunTargetMethodResponsePacket extends Packet {
         if (payload == null) {
             payload = new Payload();
         }
-        payload.setThrowable(ExceptionUtil.stacktraceToString(throwable));
+        payload.setThrowable(ExceptionUtil.stacktraceToString(throwable, -1));
     }
 
     public void setRunInfo(RunDTO runDTO) {
