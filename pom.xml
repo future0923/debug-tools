@@ -42,10 +42,11 @@
     </developers>
 
     <properties>
-        <revision>2.0.1</revision>
+        <revision>2.1.0</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <shade.package>io.github.future0923.debug.power.dependencies</shade.package>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>

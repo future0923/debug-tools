@@ -67,6 +67,8 @@ public class DebugPowerAttach {
             debugPowerClassloader.loadAllClasses();
             bootstrapClass = debugPowerClassloader.loadClass(ProjectConstants.DEBUG_POWER_BOOTSTRAP);
             bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class).invoke(null, inst);
+        } catch (ClassNotFoundException ignored) {
+
         }
     }
 
