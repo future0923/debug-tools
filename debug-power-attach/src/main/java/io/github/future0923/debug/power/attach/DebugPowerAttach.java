@@ -63,10 +63,11 @@ public class DebugPowerAttach {
             }
         }
         agentConfig.store();
-        try (DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPowerAttach.class.getClassLoader())) {
+        try {
+            DebugPowerClassloader debugPowerClassloader = new DebugPowerClassloader(new URL[]{debugPowerCoreJarFile.toURI().toURL()}, DebugPowerAttach.class.getClassLoader());
             debugPowerClassloader.loadAllClasses();
             bootstrapClass = debugPowerClassloader.loadClass(ProjectConstants.DEBUG_POWER_BOOTSTRAP);
-            bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class).invoke(null, inst);
+            bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class, ClassLoader.class).invoke(null, inst, debugPowerClassloader);
         } catch (ClassNotFoundException ignored) {
 
         }
