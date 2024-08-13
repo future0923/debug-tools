@@ -2,6 +2,7 @@ package io.github.future0923.debug.power.server;
 
 import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 
@@ -20,13 +21,14 @@ public class DebugPowerBootstrap {
 
     private Integer port;
 
-    private DebugPowerBootstrap(Instrumentation instrumentation) {
+    private DebugPowerBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
+        DebugPowerClassUtils.setClassLoader(classloader);
         VmToolsUtils.init();
     }
 
-    public static synchronized DebugPowerBootstrap getInstance(Instrumentation instrumentation) {
+    public static synchronized DebugPowerBootstrap getInstance(Instrumentation instrumentation, ClassLoader classloader) {
         if (debugBootstrap == null) {
-            debugBootstrap = new DebugPowerBootstrap(instrumentation);
+            debugBootstrap = new DebugPowerBootstrap(instrumentation, classloader);
         }
         return debugBootstrap;
     }
