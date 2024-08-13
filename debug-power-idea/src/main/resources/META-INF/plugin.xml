@@ -30,10 +30,9 @@
 
     <change-notes>
         <![CDATA[
-        <strong>2.0.1</strong>
+        <strong>2.1.0</strong>
         <ul>
-            <li>Fix the exception that the calling thread is interrupted due to the short heartbeat time.</li>
-            <li>Fix incomplete printing of exception information.</li>
+            <li>Support is not a Spring environment.</li>
         </ul>
         ]]>
     </change-notes>

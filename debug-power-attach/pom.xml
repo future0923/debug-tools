@@ -18,7 +18,6 @@
         <agent.class>io.github.future0923.debug.power.attach.DebugPowerAttach</agent.class>
         <can.redefine.classes>true</can.redefine.classes>
         <can.retransform.classes>true</can.retransform.classes>
-        <shade.package>io.github.future0923.attach.dependencies</shade.package>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
     </properties>

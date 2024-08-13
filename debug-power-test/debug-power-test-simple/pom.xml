@@ -5,15 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.future0923</groupId>
-        <artifactId>debug-power</artifactId>
+        <artifactId>debug-power-test</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>debug-power-test</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>debug-power-test-application</module>
-        <module>debug-power-test-simple</module>
-    </modules>
+    <artifactId>debug-power-test-simple</artifactId>
 
 </project>

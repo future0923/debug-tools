@@ -11,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author future0923
@@ -28,10 +29,13 @@ public class ClientAcceptThread extends Thread {
 
     private final ServerConfig serverConfig;
 
-    public ClientAcceptThread(ServerConfig serverConfig) {
+    private final CountDownLatch countDownLatch;
+
+    public ClientAcceptThread(ServerConfig serverConfig, CountDownLatch countDownLatch) {
         setName("DebugPower-ClientAccept-Thread");
         setDaemon(true);
         this.serverConfig = serverConfig;
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
@@ -40,12 +44,13 @@ public class ClientAcceptThread extends Thread {
             serverSocket = new ServerSocket(serverConfig.getPort());
             int bindPort = serverSocket.getLocalPort();
             logger.info("start server trans and bind port in {}", bindPort);
+            countDownLatch.countDown();
             while (!Thread.currentThread().isInterrupted()) {
                 Socket socket;
                 try {
                     socket = serverSocket.accept();
                 } catch (IOException e) {
-                    logger.error("accept error, maybe active disconnect.", e);
+                    logger.error("accept error, maybe active disconnect.", e.getMessage());
                     serverSocket.close();
                     return;
                 }
@@ -67,7 +72,7 @@ public class ClientAcceptThread extends Thread {
 
             }
         }
-        Thread.currentThread().interrupt();
+        this.interrupt();
         for (ClientHandleThread clientHandleThread : lastUpdateTime2Thread.keySet()) {
             clientHandleThread.interrupt();
         }

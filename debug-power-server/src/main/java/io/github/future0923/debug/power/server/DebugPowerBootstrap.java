@@ -1,6 +1,5 @@
 package io.github.future0923.debug.power.server;
 
-import cn.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.server.config.ServerConfig;
@@ -40,7 +39,7 @@ public class DebugPowerBootstrap {
         if (socketServer == null) {
             socketServer = new DebugPowerSocketServer(serverConfig);
             socketServer.start();
-        } else if (ObjectUtil.notEqual(listenPort, port)) {
+        } else if (port != null && listenPort != port) {
             logger.error("The two ports are inconsistent. Stopping port {}, preparing to start port {}", port, listenPort);
             socketServer.close();
             socketServer = new DebugPowerSocketServer(serverConfig);

@@ -2,6 +2,7 @@ package io.github.future0923.debug.power.server.handler;
 
 import cn.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunConfigDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
@@ -11,13 +12,8 @@ import io.github.future0923.debug.power.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.common.utils.DebugPowerParamConvertUtils;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
-import io.github.future0923.debug.power.server.mock.springmvc.MockHttpServletRequest;
-import org.springframework.aop.framework.AopProxy;
-import org.springframework.core.BridgeMethodResolver;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -36,39 +32,38 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
     @Override
     public void handle(OutputStream outputStream, RunTargetMethodRequestPacket packet) throws Exception {
         RunDTO runDTO = packet.getRunDTO();
-        Class<?> targetClass = DebugPowerClassUtils.loadClass(runDTO.getTargetClassName());
+        String targetClassName = runDTO.getTargetClassName();
+        if (DebugPowerStringUtils.isBlank(targetClassName)) {
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("目标类为空")));
+            return;
+        }
+        Class<?> targetClass;
+        try {
+            targetClass = DebugPowerClassUtils.loadClass(targetClassName);
+        } catch (Exception e) {
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, e));
+            return;
+        }
         Method targetMethod;
         try {
             targetMethod = targetClass.getDeclaredMethod(runDTO.getTargetMethodName(), DebugPowerClassUtils.getTypes(runDTO.getTargetMethodParameterTypes()));
         } catch (NoSuchMethodException | SecurityException e) {
-            throw new ArgsParseException("未找到目标方法");
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("未找到目标方法")));
+            return;
         }
-
-        setRequest(runDTO);
-
+        DebugPowerEnvUtils.setRequest(runDTO);
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
-        // 获取正确的目标方法（非桥接方法）
-        Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(targetMethod);
+        DebugPowerEnvUtils.findBridgedMethod(targetMethod);
+        Method bridgedMethod = DebugPowerEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
-        Object[] targetMethodArgs = DebugPowerParamConvertUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
+        Object[] targetMethodArgs = DebugPowerEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO, outputStream);
-    }
-
-    private static void setRequest(RunDTO runDTO) {
-        if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
-            MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
-            runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
-            ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest);
-            RequestContextHolder.setRequestAttributes(requestAttributes);
-        } else {
-            RequestContextHolder.resetRequestAttributes();
-        }
     }
 
     private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
-            if (invocationHandler instanceof AopProxy) {
+            if (DebugPowerEnvUtils.isAopProxy(invocationHandler)) {
                 try {
                     printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream);
                     return;
