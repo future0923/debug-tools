@@ -53,7 +53,6 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         }
         DebugPowerEnvUtils.setRequest(runDTO);
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
-        DebugPowerEnvUtils.findBridgedMethod(targetMethod);
         Method bridgedMethod = DebugPowerEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugPowerEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());

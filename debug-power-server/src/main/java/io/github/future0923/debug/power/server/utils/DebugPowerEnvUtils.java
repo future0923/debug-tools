@@ -2,6 +2,7 @@ package io.github.future0923.debug.power.server.utils;
 
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
+import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +18,7 @@ public class DebugPowerEnvUtils {
 
     static {
         try {
-            springWebUtil = Class.forName("io.github.future0923.debug.power.server.mock.spring.SpringEnvUtil");
+            springWebUtil = DebugPowerClassUtils.loadDebugPowerClass("io.github.future0923.debug.power.server.mock.spring.SpringEnvUtil");
         } catch (ClassNotFoundException ignored) {
         }
     }
