@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.server.mock.springmvc;
+package io.github.future0923.debug.power.server.mock.spring.request;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;

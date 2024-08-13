@@ -39,17 +39,24 @@ public class DebugPowerClassloader extends URLClassLoader {
 
     public void loadAllClasses() {
         for (URL url : getURLs()) {
-            try(JarFile jarFile = new JarFile(url.getPath())) {
+            try (JarFile jarFile = new JarFile(url.getPath())) {
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry jarEntry = entries.nextElement();
-                    if (jarEntry.getName().endsWith(".class")) {
-                        String className = jarEntry.getName().replace("/", ".").substring(0, jarEntry.getName().length() - 6);
-                        loadClass(className);
+                    String jarEntryName = jarEntry.getName();
+                    if (jarEntryName.endsWith(".class")
+                            && jarEntryName.startsWith("io/github/future0923/debug/power/")
+                            && !jarEntryName.startsWith("io/github/future0923/debug/power/server/mock/")) {
+                        String className = jarEntryName.replace("/", ".").substring(0, jarEntryName.length() - 6);
+                        try {
+                            loadClass(className);
+                        } catch (ClassNotFoundException ignored) {
+
+                        }
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
+
             }
         }
     }

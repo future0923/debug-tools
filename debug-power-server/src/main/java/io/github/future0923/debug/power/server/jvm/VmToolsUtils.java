@@ -77,7 +77,10 @@ public class VmToolsUtils {
     }
 
     /**
-     * 优先通过spring 上下文获取
+     * 获取实例对象
+     * <p>优先通过spring 上下文获取
+     * <p>获取不到从jvm中获取，如果有多个取第一个
+     * <p>获取不到调用构造方法创建
      */
     public static Object getSpringInstance(Class<?> clazz) {
         try {
@@ -87,6 +90,7 @@ public class VmToolsUtils {
                 return DebugPowerSpringUtils.getBean(clazz);
             }
         } catch (Throwable ignored) {
+            // 加载不到从JVM中获取
         }
         Object[] instances = instance.getInstances(clazz);
         if (instances.length == 0) {

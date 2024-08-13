@@ -137,4 +137,8 @@ public class TestService {
     public void test(DealFilesHandoverCheckReq req) {
         System.out.println(req);
     }
+
+    public void exampleMethod(Map<String, Map<String, Map<Integer, String>>> param) {
+        // Do something
+    }
 }

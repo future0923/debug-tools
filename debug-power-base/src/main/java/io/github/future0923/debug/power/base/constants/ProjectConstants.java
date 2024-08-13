@@ -5,11 +5,11 @@ package io.github.future0923.debug.power.base.constants;
  */
 public interface ProjectConstants {
 
-    Boolean DEBUG = false;
+    Boolean DEBUG = true;
 
     String NAME = "DebugPower";
 
-    String VERSION = "2.0.1";
+    String VERSION = "2.1.0";
 
     String SERVER_CORE_JAR_PATH = "lib/debug-power-server.jar";
 
