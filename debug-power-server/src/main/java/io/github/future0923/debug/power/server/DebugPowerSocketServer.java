@@ -14,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
 public class DebugPowerSocketServer {
 
     private static final Logger log = Logger.getLogger(DebugPowerSocketServer.class);
+
     public final ClientAcceptThread clientAcceptThread;
 
     private final SessionCheckThread sessionCheckThread;
@@ -21,11 +22,7 @@ public class DebugPowerSocketServer {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public DebugPowerSocketServer() {
-        this(ServerConfig.DEFAULT);
-    }
-
-    public DebugPowerSocketServer(ServerConfig serverConfig) {
-        clientAcceptThread = new ClientAcceptThread(serverConfig, countDownLatch);
+        clientAcceptThread = new ClientAcceptThread(countDownLatch);
         SocketServerHolder.setClientAcceptThread(clientAcceptThread);
         sessionCheckThread = new SessionCheckThread(clientAcceptThread.getLastUpdateTime2Thread());
         SocketServerHolder.setSessionCheckThread(sessionCheckThread);

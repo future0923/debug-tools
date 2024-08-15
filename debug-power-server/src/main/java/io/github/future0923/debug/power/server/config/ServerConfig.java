@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ServerConfig {
 
-    public static final ServerConfig DEFAULT = new ServerConfig(50888);
+    private String applicationName;
 
     private int port;
 }
