@@ -2,7 +2,7 @@ package io.github.future0923.debug.power.server.thread;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
-import io.github.future0923.debug.power.server.config.ServerConfig;
+import io.github.future0923.debug.power.server.DebugPowerBootstrap;
 import io.github.future0923.debug.power.server.handler.ServerPacketHandleService;
 import lombok.Getter;
 
@@ -27,21 +27,18 @@ public class ClientAcceptThread extends Thread {
 
     private ServerSocket serverSocket;
 
-    private final ServerConfig serverConfig;
-
     private final CountDownLatch countDownLatch;
 
-    public ClientAcceptThread(ServerConfig serverConfig, CountDownLatch countDownLatch) {
+    public ClientAcceptThread(CountDownLatch countDownLatch) {
         setName("DebugPower-ClientAccept-Thread");
         setDaemon(true);
-        this.serverConfig = serverConfig;
         this.countDownLatch = countDownLatch;
     }
 
     @Override
     public void run() {
         try {
-            serverSocket = new ServerSocket(serverConfig.getPort());
+            serverSocket = new ServerSocket(DebugPowerBootstrap.serverConfig.getPort());
             int bindPort = serverSocket.getLocalPort();
             logger.info("start server trans and bind port in {}", bindPort);
             countDownLatch.countDown();

@@ -9,8 +9,8 @@ import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.utils.DebugPowerExecUtils;
-import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
-import io.github.future0923.debug.power.idea.client.ApplicationClientHolder;
+import io.github.future0923.debug.power.client.DebugPowerSocketClient;
+import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -54,20 +54,22 @@ public class DebugPowerAttachUtils {
     }
 
     public static void attachLocal(Project project, String pid, String applicationName, String agentPath) {
-        int port = ApplicationClientHolder.getPort(applicationName);
-        ApplicationClientHolder.set(project, pid, applicationName, "127.0.0.1", port);
-        if (!ApplicationClientHolder.CLIENT.isClosed()) {
+        int port = ApplicationProjectHolder.getPort(applicationName);
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", port);
+        DebugPowerSocketClient client = info.getClient();
+        if (!client.isClosed()) {
             return;
         }
         try {
-            ApplicationClientHolder.CLIENT.reconnect();
+            client.reconnect();
         } catch (ConnectException e) {
             // attach;
             AgentArgs agentArgs = new AgentArgs();
+            agentArgs.setApplicationName(applicationName);
             agentArgs.setListenPort(String.valueOf(port));
             attach(() -> {
                 try {
-                    ApplicationClientHolder.CLIENT.start();
+                    client.start();
                 } catch (Exception ex) {
                     log.error("start client exception", ex);
                     DebugPowerNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");

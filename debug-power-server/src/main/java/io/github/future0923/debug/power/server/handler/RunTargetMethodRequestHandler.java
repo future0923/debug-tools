@@ -12,6 +12,7 @@ import io.github.future0923.debug.power.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
+import io.github.future0923.debug.power.server.DebugPowerBootstrap;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 
@@ -34,21 +35,21 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         RunDTO runDTO = packet.getRunDTO();
         String targetClassName = runDTO.getTargetClassName();
         if (DebugPowerStringUtils.isBlank(targetClassName)) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("目标类为空")));
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("目标类为空"), DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         Class<?> targetClass;
         try {
             targetClass = DebugPowerClassUtils.loadClass(targetClassName);
         } catch (Exception e) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, e));
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, e, DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         Method targetMethod;
         try {
             targetMethod = targetClass.getDeclaredMethod(runDTO.getTargetMethodName(), DebugPowerClassUtils.getTypes(runDTO.getTargetMethodParameterTypes()));
         } catch (NoSuchMethodException | SecurityException e) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("未找到目标方法")));
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("未找到目标方法"), DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         DebugPowerEnvUtils.setRequest(runDTO);
@@ -74,13 +75,13 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream);
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, throwable));
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, throwable, DebugPowerBootstrap.serverConfig.getApplicationName()));
         }
     }
 
     private void printResult(Object result, RunDTO runDTO, OutputStream outputStream) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
-        packet.setRunInfo(runDTO);
+        packet.setRunInfo(runDTO, DebugPowerBootstrap.serverConfig.getApplicationName());
         if (result == null) {
             logger.info("DebugPower执行结果：null");
             packet.setPrintResult(null);

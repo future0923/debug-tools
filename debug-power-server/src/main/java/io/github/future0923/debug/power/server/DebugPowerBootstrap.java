@@ -19,6 +19,8 @@ public class DebugPowerBootstrap {
 
     private DebugPowerSocketServer socketServer;
 
+    public static final ServerConfig serverConfig = new ServerConfig();
+
     private Integer port;
 
     private DebugPowerBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
@@ -34,17 +36,17 @@ public class DebugPowerBootstrap {
     }
 
     public void start(String agentArgs) {
-        ServerConfig serverConfig = new ServerConfig();
         AgentArgs parse = AgentArgs.parse(agentArgs);
         int listenPort = Integer.parseInt(parse.getListenPort());
+        serverConfig.setApplicationName(parse.getApplicationName());
         serverConfig.setPort(listenPort);
         if (socketServer == null) {
-            socketServer = new DebugPowerSocketServer(serverConfig);
+            socketServer = new DebugPowerSocketServer();
             socketServer.start();
         } else if (port != null && listenPort != port) {
             logger.error("The two ports are inconsistent. Stopping port {}, preparing to start port {}", port, listenPort);
             socketServer.close();
-            socketServer = new DebugPowerSocketServer(serverConfig);
+            socketServer = new DebugPowerSocketServer();
             socketServer.start();
         }
         port = listenPort;

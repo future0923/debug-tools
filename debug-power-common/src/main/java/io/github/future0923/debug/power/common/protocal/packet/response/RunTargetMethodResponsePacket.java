@@ -24,6 +24,8 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     private static final Logger logger = Logger.getLogger(RunTargetMethodResponsePacket.class);
 
+    private String applicationName;
+
     private String className;
 
     private String methodName;
@@ -53,6 +55,7 @@ public class RunTargetMethodResponsePacket extends Packet {
             return;
         }
         RunTargetMethodResponsePacket packet = DebugPowerJsonUtils.toBean(jsonString, RunTargetMethodResponsePacket.class);
+        this.setApplicationName(packet.getApplicationName());
         this.setClassName(packet.getClassName());
         this.setMethodName(packet.getMethodName());
         this.setMethodParameterTypes(packet.getMethodParameterTypes());
@@ -67,9 +70,9 @@ public class RunTargetMethodResponsePacket extends Packet {
         private String throwable;
     }
 
-    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable) {
+    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String applicationName) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
-        packet.setRunInfo(runDTO);
+        packet.setRunInfo(runDTO, applicationName);
         packet.setResultFlag(FAIL);
         packet.setThrowable(throwable);
         return packet;
@@ -97,7 +100,8 @@ public class RunTargetMethodResponsePacket extends Packet {
         payload.setThrowable(ExceptionUtil.stacktraceToString(throwable, -1));
     }
 
-    public void setRunInfo(RunDTO runDTO) {
+    public void setRunInfo(RunDTO runDTO, String applicationName) {
+        this.setApplicationName(applicationName);
         this.setClassName(runDTO.getTargetClassName());
         this.setMethodName(runDTO.getTargetMethodName());
         this.setMethodParameterTypes(runDTO.getTargetMethodParameterTypes());
