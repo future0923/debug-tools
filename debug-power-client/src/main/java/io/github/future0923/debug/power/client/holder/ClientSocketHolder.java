@@ -92,6 +92,7 @@ public class ClientSocketHolder {
         if (heartBeatRequestThread != null && heartBeatRequestThread.isAlive()) {
             heartBeatRequestThread.interrupt();
         }
+        setRetry(INIT);
         heartBeatRequestThread = new HeartBeatRequestThread(this, config.getHeartbeatInterval());
         heartBeatRequestThread.start();
     }

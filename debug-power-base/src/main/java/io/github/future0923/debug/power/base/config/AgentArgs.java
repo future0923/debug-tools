@@ -13,6 +13,8 @@ public class AgentArgs {
 
     private String listenPort;
 
+    private String applicationName;
+
     public static AgentArgs parse(String agentArgs) {
         AgentArgs config = new AgentArgs();
         if (DebugPowerStringUtils.isNotBlank(agentArgs)) {
