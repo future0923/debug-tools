@@ -8,12 +8,14 @@ import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerLambdaUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
+import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -83,6 +85,18 @@ public class SpringParamConvertUtils {
             }
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
             return Enum.valueOf((Class<? extends Enum>) parameter.getParameterType(), runContentDTO.getContent().toString());
+        } else if (RunContentType.REQUEST.getType().equals(runContentDTO.getType())) {
+            return DebugPowerEnvUtils.getRequest();
+        } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
+            return DebugPowerEnvUtils.getResponse();
+        } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
+            return new File(runContentDTO.getContent().toString());
+        } else if (RunContentType.CLASS.getType().equals(runContentDTO.getType())) {
+            try {
+                return Class.forName(runContentDTO.getContent().toString());
+            } catch (Exception ignored) {
+
+            }
         }
         return null;
     }

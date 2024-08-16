@@ -20,6 +20,14 @@ public enum RunContentType {
 
     BEAN("bean"),
 
+    REQUEST("request"),
+
+    RESPONSE("response"),
+
+    FILE("file"),
+
+    CLASS("class"),
+
     ;
 
     private final String type;

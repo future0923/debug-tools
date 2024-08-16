@@ -22,6 +22,8 @@ public class ParamCache {
 
     private String paramContent;
 
+    private String xxlJobParam;
+
     public static final ParamCache NULL = new ParamCache();
 
     public String formatContent() {

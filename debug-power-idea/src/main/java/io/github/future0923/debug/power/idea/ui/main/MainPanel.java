@@ -40,6 +40,9 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private final Map<JBTextField, JBTextField> headerItemMap = new HashMap<>();
 
+    @Getter
+    private final JBTextField xxlJobParamField = new JBTextField();
+
     private final MainToolBar toolBar;
 
     @Getter
@@ -56,6 +59,9 @@ public class MainPanel extends JBPanel<MainPanel> {
         if (psiClass != null && psiMethod != null) {
             classNameField.setText(psiClass.getQualifiedName());
             methodNameField.setText(psiMethod.getName());
+        }
+        if (StringUtils.isNotBlank(methodDataContext.getCache().getXxlJobParam())) {
+            xxlJobParamField.setText(methodDataContext.getCache().getXxlJobParam());
         }
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
@@ -83,6 +89,10 @@ public class MainPanel extends JBPanel<MainPanel> {
                 .addLabeledComponent(
                         new JBLabel("Header:"),
                         headerButtonPanel
+                )
+                .addLabeledComponent(
+                        new JBLabel("Xxl-job param:"),
+                        xxlJobParamField
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

@@ -19,7 +19,7 @@ public class ServerHandleThread extends Thread {
 
     public ServerHandleThread(ClientSocketHolder holder, PacketHandleService packetHandleService) {
         setDaemon(true);
-        setName("DebugPower-ServerHandle-Thread");
+        setName("DebugPower-ServerHandle-Thread-" + holder.getConfig().getPort());
         this.holder = holder;
         this.packetHandleService = packetHandleService;
     }
