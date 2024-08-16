@@ -38,22 +38,30 @@ public class ApplicationProjectHolder {
     }
 
     public static Info setProject(String applicationName, Project project, String pid, String host, int port) {
-        Info applicationinfo = APPLICATION_MAPPING.computeIfAbsent(applicationName, (key) -> {
-            Info info = new Info();
-            info.setApplicationName(applicationName);
-            info.setProject(project);
-            info.setPid(pid);
-            info.setHost(host);
-            info.setPort(port);
-            ClientConfig config = new ClientConfig();
-            config.setHost(host);
-            config.setPort(port);
-            config.setHeartbeatInterval(5);
-            info.setClient(new DebugPowerSocketClient(config, IdeaPacketHandleService.INSTANCE));
+        Info info = PROJECT_MAPPING.get(project);
+        if (info != null && info.getApplicationName().equals(applicationName)) {
             return info;
-        });
-        PROJECT_MAPPING.putIfAbsent(project, applicationinfo);
-        return applicationinfo;
+        }
+        if (info != null && info.getClient() != null) {
+            info.getClient().disconnect();
+        }
+        if (info != null && info.getApplicationName() != null) {
+            APPLICATION_MAPPING.remove(info.getApplicationName());
+        }
+        Info clientInfo = new Info();
+        clientInfo.setApplicationName(applicationName);
+        clientInfo.setProject(project);
+        clientInfo.setPid(pid);
+        clientInfo.setHost(host);
+        clientInfo.setPort(port);
+        ClientConfig config = new ClientConfig();
+        config.setHost(host);
+        config.setPort(port);
+        config.setHeartbeatInterval(5);
+        clientInfo.setClient(new DebugPowerSocketClient(config, IdeaPacketHandleService.INSTANCE));
+        PROJECT_MAPPING.put(project, clientInfo);
+        APPLICATION_MAPPING.put(applicationName, clientInfo);
+        return clientInfo;
     }
 
     public static Info getInfo(String applicationName) {

@@ -6,10 +6,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
+import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,12 +40,13 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
         }
         RunDTO runDTO = DebugPowerJsonUtils.toBean(json, RunDTO.class);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        if (ClientSocketHolder.INSTANCE == null) {
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
             Messages.showErrorDialog("Run attach first", "执行失败");
             return;
         }
         try {
-            ClientSocketHolder.INSTANCE.send(packet);
+            info.getClient().getHolder().send(packet);
         } catch (Exception ex) {
             log.error("execute last request error", ex);
             Messages.showErrorDialog("Run attach first", "执行失败");

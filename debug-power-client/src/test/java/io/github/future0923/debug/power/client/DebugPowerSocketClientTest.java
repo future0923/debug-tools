@@ -1,6 +1,5 @@
 package io.github.future0923.debug.power.client;
 
-import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
@@ -31,7 +30,7 @@ class DebugPowerSocketClientTest {
         DebugPowerSocketClient socketClient = new DebugPowerSocketClient();
         socketClient.connect();
         ServerCloseRequestPacket packet = new ServerCloseRequestPacket();
-        ClientSocketHolder.INSTANCE.send(packet);
+        socketClient.getHolder().send(packet);
         Thread.sleep(1000000000);
     }
 
@@ -54,7 +53,7 @@ class DebugPowerSocketClientTest {
                 .build());
         runDTO.setTargetMethodContent(contentMap);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        ClientSocketHolder.INSTANCE.send(packet);
+        socketClient.getHolder().send(packet);
         Thread.sleep(1000000000);
     }
 

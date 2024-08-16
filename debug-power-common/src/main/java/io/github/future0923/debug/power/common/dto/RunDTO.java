@@ -21,6 +21,8 @@ public class RunDTO {
 
     private Map<String, RunContentDTO> targetMethodContent;
 
+    private String xxlJobParam;
+
     private RunConfigDTO runConfigDTO;
 
 }

@@ -26,7 +26,11 @@ public class DebugPowerJsonEditorCompletionContributor extends JsonCompletionCon
             LookupElementBuilder.create(RunContentType.ENUM.getType()),
             LookupElementBuilder.create(RunContentType.JSON_ENTITY.getType()),
             LookupElementBuilder.create(RunContentType.LAMBDA.getType()),
-            LookupElementBuilder.create(RunContentType.BEAN.getType())
+            LookupElementBuilder.create(RunContentType.BEAN.getType()),
+            LookupElementBuilder.create(RunContentType.RESPONSE.getType()),
+            LookupElementBuilder.create(RunContentType.RESPONSE.getType()),
+            LookupElementBuilder.create(RunContentType.FILE.getType()),
+            LookupElementBuilder.create(RunContentType.CLASS.getType())
     );
 
     @Override
