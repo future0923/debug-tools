@@ -22,8 +22,6 @@ public class ClientSocketHolder {
 
     private static final Logger logger = Logger.getLogger(ClientSocketHolder.class);
 
-    public static ClientSocketHolder INSTANCE;
-
     @Getter
     private Socket socket;
 
@@ -51,12 +49,12 @@ public class ClientSocketHolder {
 
     private final PacketHandleService packetHandleService;
 
+    @Getter
     private final ClientConfig config;
 
     public ClientSocketHolder(ClientConfig config, PacketHandleService packetHandleService) {
         this.config = config;
         this.packetHandleService = packetHandleService;
-        INSTANCE = this;
     }
 
     public void setSocket(Socket socket) {

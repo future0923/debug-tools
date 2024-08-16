@@ -6,12 +6,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.exception.SocketCloseException;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
+import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.model.ParamCache;
@@ -26,8 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -66,10 +64,11 @@ public class MainDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
+        Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         JsonEditor editor = mainPanel.getEditor();
         String text = DebugPowerJsonUtils.compress(editor.getText());
-        Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
-        ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text);
+        String xxlJobParam = mainPanel.getXxlJobParamField().getText();
+        ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text, xxlJobParam);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugPowerJsonUtils.toRunContentDTOMap(text);
         Map<String, String> headers = Stream.of(itemHeaderMap, settingState.getGlobalHeader())
@@ -85,14 +84,16 @@ public class MainDialog extends DialogWrapper {
         runDTO.setTargetMethodName(methodDataContext.getPsiMethod().getName());
         runDTO.setTargetMethodParameterTypes(DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));
         runDTO.setTargetMethodContent(contentMap);
+        runDTO.setXxlJobParam(xxlJobParam);
         runDTO.setRunConfigDTO(settingState.convertRunConfigDTO());
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        if (ClientSocketHolder.INSTANCE == null) {
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
             Messages.showErrorDialog("Run attach first", "执行失败");
             return;
         }
         try {
-            ClientSocketHolder.INSTANCE.send(packet);
+            info.getClient().getHolder().send(packet);
         } catch (SocketCloseException e) {
             Messages.showErrorDialog("Socket close", "执行失败");
             return;

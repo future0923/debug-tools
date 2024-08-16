@@ -11,6 +11,9 @@ import io.github.future0923.debug.power.test.application.domain.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -140,5 +143,19 @@ public class TestService {
 
     public void exampleMethod(Map<String, Map<String, Map<Integer, String>>> param) {
         // Do something
+    }
+
+    public void test(HttpServletRequest request, HttpServletResponse response) {
+
+    }
+
+    public String test(File file) {
+        String absolutePath = file.getAbsolutePath();
+        System.out.println(absolutePath);
+        return absolutePath;
+    }
+
+    public String test(Class<?> clz) {
+        return clz.getName();
     }
 }

@@ -23,6 +23,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
@@ -86,10 +87,20 @@ public class DebugPowerJsonElementUtil {
                     if (psiClass.isInterface() && psiClass.getAnnotation("java.lang.FunctionalInterface") != null) {
                         return RunContentType.LAMBDA.getType();
                     }
+                    if (psiClass.isInterface() && "javax.servlet.http.HttpServletRequest".equals(psiClass.getQualifiedName())) {
+                        return RunContentType.REQUEST.getType();
+                    }
+                    if (psiClass.isInterface() && "javax.servlet.http.HttpServletResponse".equals(psiClass.getQualifiedName())) {
+                        return RunContentType.RESPONSE.getType();
+                    }
                     try {
                         Class<?> aClass = Class.forName(psiClass.getQualifiedName());
                         if (isSimpleValueType(aClass)) {
                             return RunContentType.SIMPLE.getType();
+                        } else if (aClass.isAssignableFrom(File.class)) {
+                            return RunContentType.FILE.getType();
+                        } else if (aClass.isAssignableFrom(Class.class)) {
+                            return RunContentType.CLASS.getType();
                         }
                     } catch (Exception ignored) {
                     }
@@ -154,6 +165,12 @@ public class DebugPowerJsonElementUtil {
                             } else {
                                 return "";
                             }
+                        }
+                        if (aClass.isAssignableFrom(Class.class)) {
+                            return "";
+                        }
+                        if (aClass.isAssignableFrom(File.class)) {
+                            return "";
                         }
                         if (isCollType(aClass)) {
                             JSONArray jsonElements = new JSONArray();
@@ -270,8 +287,7 @@ public class DebugPowerJsonElementUtil {
                         Temporal.class.isAssignableFrom(type) ||
                         URI.class == type ||
                         URL.class == type ||
-                        Locale.class == type ||
-                        Class.class == type));
+                        Locale.class == type));
     }
 
     public static boolean isCollType(Class<?> type) {

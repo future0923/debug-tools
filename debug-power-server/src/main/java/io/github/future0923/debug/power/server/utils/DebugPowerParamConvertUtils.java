@@ -10,6 +10,7 @@ import io.github.future0923.debug.power.common.utils.DebugPowerLambdaUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.LocalDate;
@@ -72,6 +73,18 @@ public class DebugPowerParamConvertUtils {
             }
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
             return Enum.valueOf((Class<? extends Enum>) parameter.getType(), runContentDTO.getContent().toString());
+        } else if (RunContentType.REQUEST.getType().equals(runContentDTO.getType())) {
+            return null;
+        } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
+            return null;
+        } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
+            return new File(runContentDTO.getContent().toString());
+        } else if (RunContentType.CLASS.getType().equals(runContentDTO.getType())) {
+            try {
+                return Class.forName(runContentDTO.getContent().toString());
+            } catch (Exception ignored) {
+
+            }
         }
         return null;
     }

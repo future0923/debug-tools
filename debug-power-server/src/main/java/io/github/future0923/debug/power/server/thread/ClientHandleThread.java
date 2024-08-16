@@ -40,7 +40,7 @@ public class ClientHandleThread extends Thread {
 
     public ClientHandleThread(Socket socket, Map<ClientHandleThread, Long> lastUpdateTime2Thread, PacketHandleService packetHandleService) {
         setDaemon(true);
-        setName("DebugPower-ClientHandle-Thread");
+        setName("DebugPower-ClientHandle-Thread-" + socket.getPort());
         this.socket = socket;
         this.lastUpdateTime2Thread = lastUpdateTime2Thread;
         this.packetHandleService = packetHandleService;

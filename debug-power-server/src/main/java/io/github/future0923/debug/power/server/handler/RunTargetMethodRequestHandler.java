@@ -53,6 +53,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             return;
         }
         DebugPowerEnvUtils.setRequest(runDTO);
+        DebugPowerEnvUtils.setXxlJobParam(runDTO.getXxlJobParam());
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
         Method bridgedMethod = DebugPowerEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
