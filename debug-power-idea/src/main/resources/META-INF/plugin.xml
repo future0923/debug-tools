@@ -50,10 +50,6 @@
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
         <nonProjectFileWritingAccessExtension
                 implementation="io.github.future0923.debug.power.idea.extensions.MakePluginFilesAlwaysEditable"/>
-        <!--用于为特定文件或代码类型启用语法高亮。-->
-        <syntaxHighlighter
-                factoryClass="io.github.future0923.debug.power.idea.extensions.EnableSyntaxHighlighterInDebugPowerPlugins"
-                order="first"/>
 
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState"/>
