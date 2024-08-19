@@ -25,10 +25,11 @@ dependencies {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set("DebugPower")
-    version.set("2024.1")
-    type.set("IU")
+    version = System.getenv().getOrDefault(
+        "IJ_VERSION", "2024.2"
+    )
+    downloadSources = true
     plugins.set(listOf("com.intellij.java"))
-//    plugins = ["java"]
 }
 
 tasks {
