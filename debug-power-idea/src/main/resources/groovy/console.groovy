@@ -1,0 +1,3 @@
+package groovy
+
+System.getProperties()

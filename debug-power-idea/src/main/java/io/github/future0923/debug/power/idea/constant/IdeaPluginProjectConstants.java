@@ -18,4 +18,12 @@ public interface IdeaPluginProjectConstants {
     String PARAM_FILE = "/.idea/DebugPower/agent.json";
 
     String TOOL_WINDOW_ID = "DebugPower";
+
+    String SCRATCH_PATH = "/debug-power-plugins";
+
+    String ROOT_TYPE_ID = "DebugPowerPlugin";
+
+    String ROOT_TYPE_DISPLAY_NAME = "Debug Power Plugins";
+
+    String GROOVY_CONSOLE_FILE = "groovy/console.groovy";
 }
