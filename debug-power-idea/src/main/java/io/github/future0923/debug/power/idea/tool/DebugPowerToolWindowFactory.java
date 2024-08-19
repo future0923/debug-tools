@@ -67,4 +67,10 @@ public class DebugPowerToolWindowFactory implements ToolWindowFactory {
         Content content = contentFactory.createContent(new DebugPowerToolWindow(project), null, false);
         toolWindow.getContentManager().addContent(content);
     }
+
+    @Override
+    public boolean isDumbAware() {
+        // 不需要等待索引完成
+        return true;
+    }
 }
