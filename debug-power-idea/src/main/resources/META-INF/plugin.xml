@@ -45,6 +45,15 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <!--定义自己的Extensions文件格式与目录-->
+        <scratch.rootType implementation="io.github.future0923.debug.power.idea.extensions.ScratchDebugPowerRootType"/>
+        <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
+        <nonProjectFileWritingAccessExtension
+                implementation="io.github.future0923.debug.power.idea.extensions.MakePluginFilesAlwaysEditable"/>
+        <!--用于为特定文件或代码类型启用语法高亮。-->
+        <syntaxHighlighter
+                factoryClass="io.github.future0923.debug.power.idea.extensions.EnableSyntaxHighlighterInDebugPowerPlugins"
+                order="first"/>
 
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.power.idea.setting.DebugPowerSettingState"/>
@@ -61,7 +70,7 @@
                     icon="/icon/project.svg"
                     order="last"
                     canCloseContents="false"
-                factoryClass="io.github.future0923.debug.power.idea.tool.DebugPowerToolWindowFactory" />
+                    factoryClass="io.github.future0923.debug.power.idea.tool.DebugPowerToolWindowFactory"/>
 
         <!--通知-->
         <applicationService serviceImplementation="io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil"/>
@@ -92,6 +101,22 @@
                     description="Quickly call last for execution">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
             </action>
+            <action id="DebugPowerTool.EvaluateGroovy"
+                    class="io.github.future0923.debug.power.idea.action.EvaluateGroovyAction"
+                    text="Evaluate Groovy"
+                    description="Evaluate groovy script for attach application">
+                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl E"/>
+            </action>
+            <separator/>
+        </group>
+        <group id="DebugPowerRun">
+            <separator/>
+            <add-to-group group-id="RunContextGroup"  anchor="last" />
+            <action id="DebugPower.RunGroovy"
+                    text="Run Current Groovy"
+                    icon="AllIcons.Actions.Execute"
+                    description="Run current groovy"
+                    class="io.github.future0923.debug.power.idea.action.RunGroovyAction"/>
             <separator/>
         </group>
     </actions>
