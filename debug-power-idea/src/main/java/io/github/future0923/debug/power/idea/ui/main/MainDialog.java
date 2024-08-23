@@ -16,7 +16,6 @@ import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.model.ParamCache;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerActionUtil;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import org.apache.commons.io.FileUtils;
@@ -65,7 +64,7 @@ public class MainDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
-        JsonEditor editor = mainPanel.getEditor();
+        MainJsonEditor editor = mainPanel.getEditor();
         String text = DebugPowerJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
         ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text, xxlJobParam);

@@ -12,7 +12,7 @@ import io.github.future0923.debug.power.common.protocal.packet.response.RunTarge
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
-import io.github.future0923.debug.power.idea.ui.editor.UpgradeJsonEditor;
+import io.github.future0923.debug.power.idea.ui.editor.JsonEditor;
 import io.github.future0923.debug.power.idea.ui.tree.ResultTreePanel;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 
@@ -31,7 +31,7 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private TextEditor stringTab;
 
-    private UpgradeJsonEditor jsonTab;
+    private JsonEditor jsonTab;
 
     private ResultTreePanel debugTab;
 
@@ -55,7 +55,7 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         stringTab.setName("STRING");
         tabPane.addTab("toString", stringTab);
 
-        jsonTab = new UpgradeJsonEditor(project);
+        jsonTab = new JsonEditor(project);
         jsonTab.setName("JSON");
         tabPane.addTab("json", jsonTab);
 
