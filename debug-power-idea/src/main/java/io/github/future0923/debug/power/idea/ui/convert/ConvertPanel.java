@@ -9,7 +9,7 @@ import com.intellij.ui.components.JBRadioButton;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.main.MainJsonEditor;
 import io.github.future0923.debug.power.idea.ui.tool.ToolBar;
 import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import lombok.Getter;
@@ -37,12 +37,12 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
     private final ToolBar toolBar;
 
     @Getter
-    private final JsonEditor jsonEditor;
+    private final MainJsonEditor jsonEditor;
 
     @Getter
     private final EditorTextField editorTextField;
 
-    public ConvertPanel(Project project, JsonEditor jsonEditor, ConvertType convertType) {
+    public ConvertPanel(Project project, MainJsonEditor jsonEditor, ConvertType convertType) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(670, 500));
         this.project = project;

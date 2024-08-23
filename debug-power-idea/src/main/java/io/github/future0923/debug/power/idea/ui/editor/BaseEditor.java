@@ -82,6 +82,7 @@ public abstract class BaseEditor extends EditorTextField {
         if (virtualFile != null) {
             editor.setFile(virtualFile);
         }
+        onCreateEditor(editor);
         return editor;
     }
 
@@ -109,7 +110,16 @@ public abstract class BaseEditor extends EditorTextField {
                 true,
                 false
         );
+        onCreateDocument(psiFile);
         virtualFile = psiFile.getVirtualFile();
         return PsiDocumentManager.getInstance(getProject()).getDocument(psiFile);
+    }
+
+    protected void onCreateEditor(EditorEx editor) {
+
+    }
+
+    protected void onCreateDocument(PsiFile psiFile) {
+
     }
 }

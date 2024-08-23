@@ -8,7 +8,7 @@ import com.intellij.json.codeinsight.JsonCompletionContributor;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import io.github.future0923.debug.power.common.enums.RunContentType;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.main.MainJsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +36,7 @@ public class DebugPowerJsonEditorCompletionContributor extends JsonCompletionCon
     @Override
     public void fillCompletionVariants(@NotNull CompletionParameters parameters, @NotNull CompletionResultSet result) {
         super.fillCompletionVariants(parameters, result);
-        if (!parameters.getOriginalFile().getName().equals(JsonEditor.FILE_NAME)) {
+        if (!parameters.getOriginalFile().getName().equals(MainJsonEditor.FILE_NAME)) {
             return;
         }
         // 非key不做处理
@@ -44,7 +44,7 @@ public class DebugPowerJsonEditorCompletionContributor extends JsonCompletionCon
             result.addAllElements(VALUE);
             return;
         }
-        PsiParameterList parameterList = parameters.getEditor().getUserData(JsonEditor.DEBUG_POWER_EDIT_CONTENT);
+        PsiParameterList parameterList = parameters.getEditor().getUserData(MainJsonEditor.DEBUG_POWER_EDIT_CONTENT);
         if (parameterList != null && parameterList.getParametersCount() > 0) {
             for (PsiParameter parameter : parameterList.getParameters()) {
                 result.addAllElements(KEY);
