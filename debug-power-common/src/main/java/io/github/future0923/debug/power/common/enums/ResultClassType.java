@@ -6,20 +6,20 @@ import lombok.Getter;
  * @author future0923
  */
 @Getter
-public enum PrintResultType {
+public enum ResultClassType {
 
-    NO_PRINT("NoPrint"),
+    VOID("Void"),
 
-    TOSTRING("ToString"),
+    NULL("Null"),
 
-    JSON("Json"),
+    SIMPLE("Simple"),
 
-    DEBUG("Debug"),
+    OBJECT("Object"),
     ;
 
     private final String type;
 
-    PrintResultType(String type) {
+    ResultClassType(String type) {
         this.type = type;
     }
 }

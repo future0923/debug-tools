@@ -1,7 +1,5 @@
-package io.github.future0923.debug.power.server;
+package io.github.future0923.debug.power.server.scoket;
 
-import io.github.future0923.debug.power.base.logging.Logger;
-import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.thread.ClientAcceptThread;
 import io.github.future0923.debug.power.server.thread.SessionCheckThread;
 import io.github.future0923.debug.power.server.thread.SocketServerHolder;
@@ -12,8 +10,6 @@ import java.util.concurrent.CountDownLatch;
  * @author future0923
  */
 public class DebugPowerSocketServer {
-
-    private static final Logger log = Logger.getLogger(DebugPowerSocketServer.class);
 
     public final ClientAcceptThread clientAcceptThread;
 

@@ -1,6 +1,7 @@
 package io.github.future0923.debug.power.common.utils;
 
 import cn.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 
 import java.util.List;
 
@@ -20,6 +21,10 @@ public class DebugPowerClassUtils extends ClassUtil {
             return ClassUtil.loadClass(name);
         }
         return classLoader.loadClass(name);
+    }
+
+    public static String getSimpleName(String className) {
+        return DebugPowerStringUtils.getSimpleName(className);
     }
 
     /**

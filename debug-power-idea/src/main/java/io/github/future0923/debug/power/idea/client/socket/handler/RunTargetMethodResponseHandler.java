@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.idea.client.handler;
+package io.github.future0923.debug.power.idea.client.socket.handler;
 
 import com.intellij.openapi.application.ApplicationManager;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;

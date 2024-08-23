@@ -3,13 +3,15 @@ package io.github.future0923.debug.power.common.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.lang.TypeReference;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
+import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -34,6 +36,11 @@ public class DebugPowerJsonUtils extends JSONUtil {
         }, true);
     }
 
+    public static List<RunResultDTO> toRunResultDTOList(String jsonInput) {
+        return toBean(jsonInput, new TypeReference<List<RunResultDTO>>() {
+        }, true);
+    }
+
     /**
      * 美化json
      *
@@ -51,7 +58,7 @@ public class DebugPowerJsonUtils extends JSONUtil {
      * @return 压缩后的json
      */
     public static String compress(String json) {
-        if (StringUtils.isBlank(json) || "{}".equals(json)) {
+        if (DebugPowerStringUtils.isBlank(json) || "{}".equals(json)) {
             return json;
         }
         return toJsonStr(parse(json));
@@ -101,7 +108,7 @@ public class DebugPowerJsonUtils extends JSONUtil {
                 continue;
             }
             if (RunContentType.SIMPLE.getType().equals(v.getType())
-                    && StringUtils.isBlank(v.getContent().toString())) {
+                    && DebugPowerStringUtils.isBlank(v.getContent().toString())) {
                 result.set(k, "");
                 continue;
             }
@@ -162,7 +169,7 @@ public class DebugPowerJsonUtils extends JSONUtil {
                 sb.append("&");
             }
         });
-        return StringUtils.removeEnd(sb.toString(), "&");
+        return StrUtil.removeSuffix(sb.toString(), "&");
     }
 
     /**
@@ -173,10 +180,10 @@ public class DebugPowerJsonUtils extends JSONUtil {
      * @return DebugPower能运行的json
      */
     public static String pathConvertDebugPowerJson(String pathStr, List<String> methodArgsName) {
-        if (StringUtils.isBlank(pathStr) || CollUtil.isEmpty(methodArgsName)) {
+        if (DebugPowerStringUtils.isBlank(pathStr) || CollUtil.isEmpty(methodArgsName)) {
             return "{}";
         }
-        String path = StringUtils.removeEnd(StringUtils.removeStart(pathStr, "/"), "/");
+        String path = StrUtil.removeSuffix(StrUtil.removePrefix(pathStr, "/"), "/");
         JSONObject result = new JSONObject();
         String[] split = path.split("/");
         for (int i = 0; i < split.length; i++) {

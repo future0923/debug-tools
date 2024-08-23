@@ -1,20 +1,22 @@
-package io.github.future0923.debug.power.server.handler;
+package io.github.future0923.debug.power.server.scoket.handler;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
-import io.github.future0923.debug.power.common.dto.RunConfigDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
-import io.github.future0923.debug.power.common.enums.PrintResultType;
+import io.github.future0923.debug.power.common.dto.RunResultDTO;
+import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.exception.ArgsParseException;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
-import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.server.DebugPowerBootstrap;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
+import io.github.future0923.debug.power.server.utils.DebugPowerResultUtils;
 
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -62,47 +64,44 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
     }
 
     private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
+        boolean voidType = bridgedMethod.getReturnType().isAssignableFrom(void.class) || bridgedMethod.getReturnType().isAssignableFrom(Void.class);
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugPowerEnvUtils.isAopProxy(invocationHandler)) {
                 try {
-                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream);
+                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType);
                     return;
                 } catch (Throwable ignored) {
                 }
             }
         }
         try {
-            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream);
+            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType);
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
             writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, throwable, DebugPowerBootstrap.serverConfig.getApplicationName()));
         }
     }
 
-    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream) {
+    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, DebugPowerBootstrap.serverConfig.getApplicationName());
-        if (result == null) {
-            logger.info("DebugPower执行结果：null");
-            packet.setPrintResult(null);
+        if (voidType) {
+            packet.setResultClassType(ResultClassType.VOID);
+            packet.setPrintResult("Void");
         } else {
-            RunConfigDTO configDTO = runDTO.getRunConfigDTO();
-            if (configDTO == null || configDTO.getPrintResultType() == null || PrintResultType.TOSTRING.equals(configDTO.getPrintResultType())) {
-                String printResult = result.toString();
-                logger.info("DebugPower执行结果：{}", printResult);
-                packet.setPrintResult(printResult);
-            } else if (PrintResultType.JSON.equals(configDTO.getPrintResultType())) {
-                String printResult;
-                try {
-                    printResult = DebugPowerJsonUtils.toJsonPrettyStr(result);
-                } catch (Exception e) {
-                    printResult = result.toString();
-                }
-                packet.setPrintResult(printResult);
-                logger.info("DebugPower执行结果：{}", printResult);
-            } else if (PrintResultType.NO_PRINT.equals(configDTO.getPrintResultType())) {
-
+            if (result == null) {
+                packet.setResultClassType(ResultClassType.NULL);
+                packet.setPrintResult("NULL");
+            } else if (ClassUtil.isSimpleValueType(result.getClass())) {
+                packet.setResultClassType(ResultClassType.SIMPLE);
+                packet.setPrintResult(Convert.toStr(result));
+            } else {
+                packet.setResultClassType(ResultClassType.OBJECT);
+                packet.setPrintResult(result.toString());
+                String offsetPath = RunResultDTO.genOffsetPath(result);
+                packet.setOffsetPath(offsetPath);
+                DebugPowerResultUtils.putCache(offsetPath, result);
             }
         }
         writeAndFlushNotException(outputStream, packet);
