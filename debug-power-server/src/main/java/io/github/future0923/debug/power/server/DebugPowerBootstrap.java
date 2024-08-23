@@ -4,7 +4,9 @@ import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.server.config.ServerConfig;
+import io.github.future0923.debug.power.server.http.DebugPowerHttpServer;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.power.server.scoket.DebugPowerSocketServer;
 
 import java.lang.instrument.Instrumentation;
 
@@ -15,13 +17,15 @@ public class DebugPowerBootstrap {
 
     private static final Logger logger = Logger.getLogger(DebugPowerBootstrap.class);
 
-    private static DebugPowerBootstrap debugBootstrap;
+    private static volatile DebugPowerBootstrap debugBootstrap;
 
     private DebugPowerSocketServer socketServer;
 
     public static final ServerConfig serverConfig = new ServerConfig();
 
     private Integer port;
+
+    public static Integer httpPort;
 
     private DebugPowerBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
         DebugPowerClassUtils.setClassLoader(classloader);
@@ -49,6 +53,9 @@ public class DebugPowerBootstrap {
             socketServer = new DebugPowerSocketServer();
             socketServer.start();
         }
-        port = listenPort;
+        this.port = listenPort;
+        DebugPowerHttpServer httpServer = DebugPowerHttpServer.getInstance();
+        httpServer.start();
+        this.httpPort = httpServer.getListenPort();
     }
 }

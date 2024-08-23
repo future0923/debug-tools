@@ -21,6 +21,13 @@ public class DebugPowerStringUtils {
         return result.toString();
     }
 
+    public static String getSimpleName(String className) {
+        if (DebugPowerStringUtils.isBlank(className)) {
+            return className;
+        }
+        return className.substring(className.lastIndexOf('.') + 1);
+    }
+
     /**
      * <p>字符串是否为非空白，非空白的定义如下： </p>
      * <ol>

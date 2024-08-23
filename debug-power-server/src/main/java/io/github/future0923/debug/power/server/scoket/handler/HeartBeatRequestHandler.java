@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.server.handler;
+package io.github.future0923.debug.power.server.scoket.handler;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;

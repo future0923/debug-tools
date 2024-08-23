@@ -1,6 +1,7 @@
-package io.github.future0923.debug.power.server.handler;
+package io.github.future0923.debug.power.server.scoket.handler;
 
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
+import io.github.future0923.debug.power.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
@@ -16,5 +17,6 @@ public class ServerPacketHandleService extends PacketHandleService {
         register(HeartBeatRequestPacket.class, HeartBeatRequestHandler.INSTANCE);
         register(ServerCloseRequestPacket.class, ServerCloseRequestHandler.INSTANCE);
         register(RunTargetMethodRequestPacket.class, RunTargetMethodRequestHandler.INSTANCE);
+        register(ClearRunResultRequestPacket.class, ClearRunResultRequestHandler.INSTANCE);
     }
 }

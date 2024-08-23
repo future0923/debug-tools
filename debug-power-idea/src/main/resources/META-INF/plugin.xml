@@ -30,7 +30,7 @@
 
     <change-notes>
         <![CDATA[
-        <strong>2.1.0</strong>
+        <strong>2.2.0</strong>
         <ul>
             <li>Support is not a Spring environment</li>
             <li>Support 2024.2.* version</li>
