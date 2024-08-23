@@ -5,7 +5,6 @@ import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
@@ -14,6 +13,8 @@ import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
+import io.github.future0923.debug.power.idea.ui.tab.ResultTabbedPane;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -49,11 +50,15 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
         }
         Component resultComponent;
         if (project == null) {
-            resultComponent = new EditorTextField(runResult);
+            resultComponent = new TextEditor(null, runResult);
         } else {
-            ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-            consoleView.print(runResult, ConsoleViewContentType.NORMAL_OUTPUT);
-            resultComponent = consoleView.getComponent();
+            if (packet.isSuccess()) {
+                resultComponent = new ResultTabbedPane(project, packet);
+            } else {
+                ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
+                consoleView.print(runResult, ConsoleViewContentType.NORMAL_OUTPUT);
+                resultComponent = consoleView.getComponent();
+            }
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder

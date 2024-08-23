@@ -1,9 +1,8 @@
-package io.github.future0923.debug.power.server.handler;
+package io.github.future0923.debug.power.server.scoket.handler;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
-import io.github.future0923.debug.power.server.thread.ClientAcceptThread;
 import io.github.future0923.debug.power.server.thread.SocketServerHolder;
 
 import java.io.OutputStream;
