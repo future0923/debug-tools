@@ -9,7 +9,6 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 import io.github.future0923.debug.power.common.dto.RunConfigDTO;
-import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
@@ -44,8 +43,6 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
     private Map<String, String> globalHeader = new ConcurrentHashMap<>();
 
     private String agentPath;
-
-    private PrintResultType printResultType = PrintResultType.JSON;
 
     private GenParamType defaultGenParamType = GenParamType.ALL;
 
@@ -91,9 +88,7 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
     }
 
     public RunConfigDTO convertRunConfigDTO() {
-        RunConfigDTO dto = new RunConfigDTO();
-        dto.setPrintResultType(printResultType);
-        return dto;
+        return new RunConfigDTO();
     }
 
     public synchronized String loadAgentPath() {
