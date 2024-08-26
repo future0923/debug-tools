@@ -6,10 +6,15 @@ import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.JdkUnsafeUtils;
 import io.github.future0923.debug.power.server.http.DebugPowerHttpServer;
+import io.github.future0923.debug.power.server.utils.dto.PageR;
+import io.github.future0923.debug.power.server.utils.dto.ProfitBatchVO;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -97,5 +102,33 @@ class DebugPowerResultUtilsTest {
 
     }
 
+    @Test
+    public void vo() {
+        ProfitBatchVO vo1 = new ProfitBatchVO();
+        vo1.setId(0L);
+        vo1.setType(0);
+        vo1.setSettlementBatchNo("");
+        vo1.setStartTime(LocalDate.now());
+        vo1.setEndTime(LocalDate.now());
+        vo1.setPerformanceTime(LocalDateTime.now());
+        vo1.setProfitTime(LocalDateTime.now());
+        vo1.setCarryTime(LocalDateTime.now());
+        vo1.setStatus(0);
+        vo1.setStatusName("");
+        vo1.setId(0L);
+        vo1.setCreateBy(0L);
+        vo1.setCreateByName("");
+        vo1.setCreateTime(LocalDateTime.now());
+        vo1.setUpdateBy(0L);
+        vo1.setUpdateByName("");
+        vo1.setUpdateTime(LocalDateTime.now());
+        vo1.setVersion(0);
+        vo1.setButPerm(new HashSet<Integer>());
+        vo1.setButPcPerm(new HashSet<Integer>());
+        PageR<ProfitBatchVO> runDTO = PageR.pageResp(1, 1, Arrays.asList(vo1));
+        RunResultDTO runResultDTO = new RunResultDTO(null, runDTO);
+        Object valueByOffset = DebugPowerResultUtils.getValueByOffset(runDTO, runResultDTO.getFiledOffset());
+        List<RunResultDTO> runResultDTOS = DebugPowerResultUtils.convertRunResultDTO(runDTO, runResultDTO.getFiledOffset());
+    }
 
 }

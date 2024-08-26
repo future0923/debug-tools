@@ -1,5 +1,7 @@
 package io.github.future0923.debug.power.test.application.service;
 
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.github.future0923.debug.power.test.application.dao.TestDao;
 import io.github.future0923.debug.power.test.application.dao.UserDao;
@@ -8,6 +10,8 @@ import io.github.future0923.debug.power.test.application.domain.dto.DealFilesHan
 import io.github.future0923.debug.power.test.application.domain.dto.MoreDTO;
 import io.github.future0923.debug.power.test.application.domain.dto.TestDTO;
 import io.github.future0923.debug.power.test.application.domain.entity.User;
+import io.github.future0923.debug.power.test.application.dto.PageR;
+import io.github.future0923.debug.power.test.application.dto.ProfitBatchVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -157,5 +161,34 @@ public class TestService {
 
     public String test(Class<?> clz) {
         return clz.getName();
+    }
+
+    public PageR<ProfitBatchVO> page() {
+        String json = "{\"code\":200,\"message\":\"操作成功\",\"data\":[{\"id\":1823615117445890049,\"type\":1,\"settlementBatchNo\":\"2024002\",\"startTime\":1719763200000,\"endTime\":1723564800000,\"profitTime\":1723651199000,\"status\":1,\"statusName\":\"进行中\",\"createBy\":1762736500306149377,\"createTime\":1723618700000,\"updateBy\":1823237365605113857,\"updateTime\":1724062252000,\"version\":4,\"butPcPerm\":[80000]},{\"id\":1,\"type\":1,\"settlementBatchNo\":\"2024001\",\"startTime\":1717171200000,\"endTime\":1719676800000,\"performanceTime\":1719763199000,\"profitTime\":1719763199000,\"carryTime\":1719763199000,\"status\":3,\"statusName\":\"已结束\",\"createBy\":0,\"updateBy\":0,\"updateTime\":1723618700000,\"version\":52,\"butPcPerm\":[]}],\"total\":2,\"subTotal\":0}";
+        PageR<ProfitBatchVO> bean = JSONUtil.toBean(json, new TypeReference<PageR<ProfitBatchVO>>() {
+        }, true);
+        return bean;
+        /*ProfitBatchVO vo1 = new ProfitBatchVO();
+        vo1.setId(0L);
+        vo1.setType(0);
+        vo1.setSettlementBatchNo("");
+        vo1.setStartTime(LocalDate.now());
+        vo1.setEndTime(LocalDate.now());
+        vo1.setPerformanceTime(LocalDateTime.now());
+        vo1.setProfitTime(LocalDateTime.now());
+        vo1.setCarryTime(LocalDateTime.now());
+        vo1.setStatus(0);
+        vo1.setStatusName("");
+        vo1.setId(0L);
+        vo1.setCreateBy(0L);
+        vo1.setCreateByName("");
+        vo1.setCreateTime(LocalDateTime.now());
+        vo1.setUpdateBy(0L);
+        vo1.setUpdateByName("");
+        vo1.setUpdateTime(LocalDateTime.now());
+        vo1.setVersion(0);
+        vo1.setButPerm(new HashSet<Integer>());
+        vo1.setButPcPerm(new HashSet<Integer>());
+        return PageR.pageResp(1, 1, Arrays.asList(vo1));*/
     }
 }

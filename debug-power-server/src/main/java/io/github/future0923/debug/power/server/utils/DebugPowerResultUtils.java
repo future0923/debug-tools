@@ -7,6 +7,8 @@ import cn.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
+import io.github.future0923.debug.power.common.enums.ResultVarClassType;
+import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.JdkUnsafeUtils;
 
 import java.lang.reflect.Field;
@@ -60,31 +62,38 @@ public class DebugPowerResultUtils {
     }
 
     public static Object getValueByField(Object object, Field field) {
-        return getValueByOffset(object, JdkUnsafeUtils.getObjectFieldOffset(field));
+        return JdkUnsafeUtils.getObject(object, JdkUnsafeUtils.getObjectFieldOffset(field), ResultVarClassType.getByClass(field.getType()));
+    }
+
+    public static String getObjectFieldOffset(Field field) {
+        return JdkUnsafeUtils.getObjectFieldOffset(field) + "@" + ResultVarClassType.getByClass(field.getType());
     }
 
     public static Object getValueByOffset(Object object, String offsetPath) {
-        long[] offsetPathArr;
+        String[] offsetPathArr;
         try {
-            offsetPathArr = Arrays.stream(offsetPath.split("/"))
-                    .filter(DebugPowerStringUtils::isNotBlank)
-                    .mapToLong(Long::valueOf).toArray();
+            offsetPathArr = offsetPath.split("/");
         } catch (NumberFormatException e) {
             log.error("getValueByOffset error", e);
             return null;
         }
         if (ArrayUtil.isNotEmpty(offsetPathArr)) {
-            long[] offsetArr = Arrays.copyOfRange(offsetPathArr, 1, offsetPathArr.length);// 1~length
+            String[] offsetArr = Arrays.copyOfRange(offsetPathArr, 1, offsetPathArr.length);// 1~length
             Object result = object;
-            for (long offset : offsetArr) {
-                result = getValueByOffset(result, offset);
+            for (String offsetStr : offsetArr) {
+                String[] split = offsetStr.split("@");
+                if (split.length == 2) {
+                    long offset = Long.parseLong(split[0]);
+                    String type = split[1];
+                    result = getValueByOffset(result, offset, type);
+                }
             }
             return result;
         }
         return null;
     }
 
-    public static Object getValueByOffset(Object object, long offset) {
+    public static Object getValueByOffset(Object object, long offset, String type) {
         if (ClassUtil.isBasicType(object.getClass())) {
             return object;
         }
@@ -116,7 +125,7 @@ public class DebugPowerResultUtils {
         } else if (ArrayUtil.isArray(object)) {
             return ArrayUtil.get(object, Math.toIntExact(offset));
         } else {
-            return JdkUnsafeUtils.getObject(object, offset);
+            return JdkUnsafeUtils.getObject(object, offset, type);
         }
     }
 
@@ -127,9 +136,6 @@ public class DebugPowerResultUtils {
         if (ClassUtil.isBasicType(object.getClass())) {
             return Collections.singletonList(new RunResultDTO(null, object, RunResultDTO.Type.SIMPLE, filedOffset));
         }
-        if (object instanceof CharSequence) {
-            return Collections.singletonList(new RunResultDTO(null, object, RunResultDTO.Type.SIMPLE, filedOffset));
-        }
         if (object instanceof Map<?, ?>) {
             Map<?, ?> map = (Map<?, ?>) object;
             return map(map, filedOffset);
@@ -137,8 +143,8 @@ public class DebugPowerResultUtils {
         if (object instanceof Map.Entry<?, ?>) {
             Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
             return Arrays.asList(
-                    new RunResultDTO("key", entry.getKey(), RunResultDTO.Type.MAP, filedOffset + "/0"),
-                    new RunResultDTO("value", entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/1")
+                    new RunResultDTO("key", entry.getKey(), RunResultDTO.Type.MAP, filedOffset + "/0@" + ResultVarClassType.MAP_ENTRY.getType()),
+                    new RunResultDTO("value", entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/1@" + ResultVarClassType.MAP_ENTRY.getType())
             );
         }
         if (object instanceof Collection<?>) {
@@ -163,14 +169,14 @@ public class DebugPowerResultUtils {
     }
 
     private static List<RunResultDTO> object(Object object, String filedOffset) {
-        Field[] declaredFields = ClassUtil.getDeclaredFields(object.getClass());
-        List<RunResultDTO> result = new ArrayList<>(declaredFields.length);
+        List<Field> declaredFields = DebugPowerClassUtils.getAllDeclaredFields(object.getClass());
+        List<RunResultDTO> result = new ArrayList<>(declaredFields.size());
         for (Field declaredField : declaredFields) {
             if (Modifier.isStatic(declaredField.getModifiers())) {
                 continue;
             }
             Object value = getValueByField(object, declaredField);
-            result.add(new RunResultDTO(declaredField.getName(), value, RunResultDTO.Type.PROPERTY, filedOffset + "/" + JdkUnsafeUtils.getObjectFieldOffset(declaredField)));
+            result.add(new RunResultDTO(declaredField.getName(), value, RunResultDTO.Type.PROPERTY, filedOffset + "/" + getObjectFieldOffset(declaredField)));
         }
         return result;
     }
@@ -179,7 +185,7 @@ public class DebugPowerResultUtils {
         List<RunResultDTO> result = new ArrayList<>(array.length);
         for (int i = 0; i < array.length; i++) {
             String index = java.lang.String.valueOf(i);
-            result.add(new RunResultDTO(index, array[i], RunResultDTO.Type.COLLECTION, filedOffset + "/" + index));
+            result.add(new RunResultDTO(index, array[i], RunResultDTO.Type.COLLECTION, filedOffset + "/" + index + "@" + ResultVarClassType.COLLECTION.getType()));
         }
         return result;
     }
@@ -187,7 +193,7 @@ public class DebugPowerResultUtils {
     private static List<RunResultDTO> map(Map<?, ?> map, String filedOffset) {
         List<RunResultDTO> result = new ArrayList<>(map.size());
         for (Map.Entry<?, ?> entry : map.entrySet()) {
-            result.add(new RunResultDTO(entry.getKey().toString(), entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/" + System.identityHashCode(entry.getKey())));
+            result.add(new RunResultDTO(entry.getKey().toString(), entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/" + System.identityHashCode(entry.getKey()) + "@" + ResultVarClassType.MAP));
         }
         return result;
     }

@@ -6,6 +6,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.idea.ui.tree.node.ExpandTreeNode;
@@ -25,20 +26,32 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
             RunResultDTO runResultDTO = treeNode.getUserObject();
             append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
             append(" = ");
-            append("{" + DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName()) + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
+            String simpleName = DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName());
+            if (simpleName == null) {
+                simpleName = "Null";
+            }
+            append("{" + simpleName + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
             append(" ");
             Class<?> simpleType = isSimpleType(runResultDTO.getClassName());
             if (simpleType != null && !CharSequence.class.isAssignableFrom(simpleType)) {
                 append(Convert.toStr(runResultDTO.getValue()));
             } else {
-                append("\"" + runResultDTO.getValue() + "\"");
+                if (runResultDTO.getValue() == null) {
+                    append("null");
+                } else {
+                    append("\"" + runResultDTO.getValue() + "\"");
+                }
             }
         } else if (value instanceof ExpandTreeNode treeNode) {
             setIcon(AllIcons.Nodes.Field);
             RunResultDTO runResultDTO = treeNode.getUserObject();
             append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
             append(" = ");
-            append("{" + DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName()) + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
+            String simpleName = DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName());
+            if (simpleName == null) {
+                simpleName = "Null";
+            }
+            append("{" + simpleName + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
             append(" ");
             Class<?> simpleType = isSimpleType(runResultDTO.getClassName());
             if (simpleType != null) {
@@ -48,12 +61,19 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
                     append(Convert.toStr(runResultDTO.getValue()));
                 }
             } else {
-                append("\"" + runResultDTO.getValue() + "\"");
+                if (runResultDTO.getValue() == null) {
+                    append("null");
+                } else {
+                    append("\"" + runResultDTO.getValue() + "\"");
+                }
             }
         }
     }
 
     private Class<?> isSimpleType(String className) {
+        if (DebugPowerStringUtils.isBlank(className)) {
+            return Void.class;
+        }
         try {
             Class<?> clazz = Class.forName(className);
             return ClassUtil.isSimpleValueType(clazz) ? clazz : null;
