@@ -13,6 +13,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,11 +22,18 @@ import java.util.List;
  */
 public class HttpClientUtils {
 
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static final HttpClient httpClient;
 
     private static final String RESULT_TYPE_URI = "/result/type";
 
     private static final String RESULT_DETAIL_URI = "/result/detail";
+
+    static {
+        httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(Duration.ofSeconds(3))
+                .build();
+    }
 
     public static String resultType(Project project, String offsetPath, String printResultType) {
         RunResultTypeReq req = new RunResultTypeReq();

@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.common.utils;
 
+import io.github.future0923.debug.power.common.enums.ResultVarClassType;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -25,11 +26,34 @@ public class JdkUnsafeUtils {
         return unsafe.objectFieldOffset(field);
     }
 
-    public static Object getObject(Object object, long offset) {
+    public static Object getObject(Object object, long offset, String type) {
+        if (ResultVarClassType.INT.getType().equals(type)) {
+            return unsafe.getInt(object, offset);
+        }
+        if (ResultVarClassType.OBJECT.getType().equals(type)) {
+            return unsafe.getObject(object, offset);
+        }
+        if (ResultVarClassType.BOOLEAN.getType().equals(type)) {
+            return unsafe.getBoolean(object, offset);
+        }
+        if (ResultVarClassType.BYTE.getType().equals(type)) {
+            return unsafe.getByte(object, offset);
+        }
+        if (ResultVarClassType.SHORT.getType().equals(type)) {
+            return unsafe.getShort(object, offset);
+        }
+        if (ResultVarClassType.CHAR.getType().equals(type)) {
+            return unsafe.getChar(object, offset);
+        }
+        if (ResultVarClassType.LONG.getType().equals(type)) {
+            return unsafe.getLong(object, offset);
+        }
+        if (ResultVarClassType.FLOAT.getType().equals(type)) {
+            return unsafe.getFloat(object, offset);
+        }
+        if (ResultVarClassType.DOUBLE.getType().equals(type)) {
+            return unsafe.getDouble(object, offset);
+        }
         return unsafe.getObject(object, offset);
-    }
-
-    public static void main(String[] args) {
-        System.out.println(unsafe.getObject(new Object(), 0));
     }
 }

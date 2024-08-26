@@ -31,14 +31,22 @@ public abstract class BaseHttpHandler<Req, Res> implements HttpHandler {
         Req req = DebugPowerJsonUtils.toBean(requestBody, reqClass);
         Headers responseHeaders = httpExchange.getResponseHeaders();
         Res res = doHandle(req, responseHeaders);
-        String responseBody = DebugPowerJsonUtils.toJsonStr(res);
+        String responseBody = "";
+        if (res != null) {
+            if (res instanceof String) {
+                responseBody = (String) res;
+            } else {
+                responseBody = DebugPowerJsonUtils.toJsonPrettyStr(res);
+            }
+        }
         responseHeaders.set("Content-Type", "application/json; charset=UTF-8");
         responseHeaders.set("Access-Control-Allow-Origin", "*");
         responseHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        httpExchange.sendResponseHeaders(200, responseBody.length());
+        byte[] bytes = responseBody.getBytes(StandardCharsets.UTF_8);
+        httpExchange.sendResponseHeaders(200, bytes.length);
         // 返回响应
         OutputStream outputStream = httpExchange.getResponseBody();
-        outputStream.write(responseBody.getBytes(StandardCharsets.UTF_8));
+        outputStream.write(bytes);
         outputStream.close();
     }
 
