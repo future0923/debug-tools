@@ -4,6 +4,9 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.LogicalPosition;
+import com.intellij.openapi.editor.ScrollType;
+import com.intellij.openapi.editor.ScrollingModel;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
@@ -27,6 +30,8 @@ import javax.swing.border.Border;
 public abstract class BaseEditor extends EditorTextField {
 
     private VirtualFile virtualFile;
+
+    private EditorEx editorEx;
 
     public BaseEditor(Project project, FileType fileType, String text) {
         super(text == null ? null : EditorFactory.getInstance().createDocument(StringUtil.convertLineSeparators(text)), project, fileType, false, false);
@@ -53,8 +58,18 @@ public abstract class BaseEditor extends EditorTextField {
                     getProject(),
                     () -> {
                         CodeStyleManager.getInstance(getProject()).reformat(psiFile);
+                        moveToTop();
                     }
             );
+        }
+    }
+
+    private void moveToTop() {
+        if (editorEx != null) {
+            editorEx.getCaretModel().moveToLogicalPosition(new LogicalPosition(0, 0));
+            // 获取 ScrollingModel 并滚动到顶部
+            ScrollingModel scrollingModel = editorEx.getScrollingModel();
+            scrollingModel.scrollTo(new LogicalPosition(0, 0), ScrollType.CENTER);
         }
     }
 
@@ -83,6 +98,8 @@ public abstract class BaseEditor extends EditorTextField {
             editor.setFile(virtualFile);
         }
         onCreateEditor(editor);
+        this.editorEx = editor;
+        moveToTop();
         return editor;
     }
 
@@ -99,7 +116,7 @@ public abstract class BaseEditor extends EditorTextField {
         super.setBorder(JBUI.Borders.empty());
     }
 
-    public Document createDocument(@Nullable final String text, @NotNull final FileType fileType) {
+    private Document createDocument(@Nullable final String text, @NotNull final FileType fileType) {
         final PsiFileFactory factory = PsiFileFactory.getInstance(getProject());
         final long stamp = LocalTimeCounter.currentTime();
         final PsiFile psiFile = factory.createFileFromText(

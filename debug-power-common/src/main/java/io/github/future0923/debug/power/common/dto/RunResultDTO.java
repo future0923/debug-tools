@@ -2,6 +2,7 @@ package io.github.future0923.debug.power.common.dto;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassUtil;
 import lombok.Data;
 
@@ -70,15 +71,19 @@ public class RunResultDTO implements Serializable {
         this.name = name;
         this.type = type;
         this.filedOffset = filedOffset;
-        this.leaf = valueObj == null || ClassUtil.isSimpleValueType(valueObj.getClass());
+        this.leaf = valueObj == null || ClassUtil.isBasicType(valueObj.getClass()) || (ArrayUtil.isArray(valueObj) && ClassUtil.isBasicType(valueObj.getClass().getComponentType()));
         if (valueObj == null) {
             this.value = "null";
         } else {
-            this.className = valueObj.getClass().getName();
             try {
                 childSize = CollUtil.size(valueObj);
             } catch (Exception e) {
                 childSize = 0;
+            }
+            if (ArrayUtil.isArray(valueObj)) {
+                this.className = valueObj.getClass().getComponentType().getName() + "[" + childSize +"]";
+            } else {
+                this.className = valueObj.getClass().getName();
             }
             this.value = Convert.toStr(valueObj);
         }

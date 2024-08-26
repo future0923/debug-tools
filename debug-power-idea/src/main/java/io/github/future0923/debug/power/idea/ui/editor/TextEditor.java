@@ -3,7 +3,6 @@ package io.github.future0923.debug.power.idea.ui.editor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypes;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @author future0923
