@@ -5,7 +5,6 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
-import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -45,15 +44,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (PrintResultType.NO_PRINT.equals(settingState.getPrintResultType()) && !settingPanel.getAttachApplicationNoPrintResult().isSelected()) {
-            return true;
-        }
-        if (PrintResultType.TOSTRING.equals(settingState.getPrintResultType()) && !settingPanel.getAttachApplicationPrintToStringResult().isSelected()) {
-            return true;
-        }
-        if (PrintResultType.JSON.equals(settingState.getPrintResultType()) && !settingPanel.getAttachApplicationPrintJsonResult().isSelected()) {
-            return true;
-        }
         if (GenParamType.SIMPLE.equals(settingState.getDefaultGenParamType()) && !settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             return true;
         }
@@ -75,15 +65,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public void reset() {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (PrintResultType.NO_PRINT.equals(settingState.getPrintResultType())) {
-            settingPanel.getAttachApplicationNoPrintResult().setSelected(true);
-        }
-        if (PrintResultType.TOSTRING.equals(settingState.getPrintResultType())) {
-            settingPanel.getAttachApplicationPrintToStringResult().setSelected(true);
-        }
-        if (PrintResultType.JSON.equals(settingState.getPrintResultType())) {
-            settingPanel.getAttachApplicationPrintJsonResult().setSelected(true);
-        }
         if (GenParamType.SIMPLE.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeSimple().setSelected(true);
         }
@@ -103,15 +84,6 @@ public class DebugPowerSettingConfigurable implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-        if (settingPanel.getAttachApplicationNoPrintResult().isSelected()) {
-            settingState.setPrintResultType(PrintResultType.NO_PRINT);
-        }
-        if (settingPanel.getAttachApplicationPrintToStringResult().isSelected()) {
-            settingState.setPrintResultType(PrintResultType.TOSTRING);
-        }
-        if (settingPanel.getAttachApplicationPrintJsonResult().isSelected()) {
-            settingState.setPrintResultType(PrintResultType.JSON);
-        }
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.SIMPLE);
         }

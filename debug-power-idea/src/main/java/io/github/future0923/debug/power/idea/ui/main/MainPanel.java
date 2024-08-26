@@ -49,7 +49,7 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     public MainPanel(Project project, MethodDataContext methodDataContext) {
         super(new GridBagLayout());
-        setPreferredSize(new JBDimension(670, 500));
+        setPreferredSize(new JBDimension(800, 600));
         this.project = project;
         this.methodDataContext = methodDataContext;
         // 当前类和方法
@@ -86,12 +86,12 @@ public class MainPanel extends JBPanel<MainPanel> {
                         methodNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Header:"),
-                        headerButtonPanel
-                )
-                .addLabeledComponent(
                         new JBLabel("Xxl-job param:"),
                         xxlJobParamField
+                )
+                .addLabeledComponent(
+                        new JBLabel("Header:"),
+                        headerButtonPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
