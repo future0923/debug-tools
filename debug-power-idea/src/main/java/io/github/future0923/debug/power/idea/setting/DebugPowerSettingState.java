@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
-import io.github.future0923.debug.power.common.dto.RunConfigDTO;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
@@ -85,10 +84,6 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
         } catch (Exception ignored) {
         }
         return ParamCache.NULL;
-    }
-
-    public RunConfigDTO convertRunConfigDTO() {
-        return new RunConfigDTO();
     }
 
     public synchronized String loadAgentPath() {

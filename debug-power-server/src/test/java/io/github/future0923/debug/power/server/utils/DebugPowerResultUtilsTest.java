@@ -1,5 +1,7 @@
 package io.github.future0923.debug.power.server.utils;
 
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.json.JSONUtil;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -104,31 +107,32 @@ class DebugPowerResultUtilsTest {
 
     @Test
     public void vo() {
-        ProfitBatchVO vo1 = new ProfitBatchVO();
-        vo1.setId(0L);
-        vo1.setType(0);
-        vo1.setSettlementBatchNo("");
-        vo1.setStartTime(LocalDate.now());
-        vo1.setEndTime(LocalDate.now());
-        vo1.setPerformanceTime(LocalDateTime.now());
-        vo1.setProfitTime(LocalDateTime.now());
-        vo1.setCarryTime(LocalDateTime.now());
-        vo1.setStatus(0);
-        vo1.setStatusName("");
-        vo1.setId(0L);
-        vo1.setCreateBy(0L);
-        vo1.setCreateByName("");
-        vo1.setCreateTime(LocalDateTime.now());
-        vo1.setUpdateBy(0L);
-        vo1.setUpdateByName("");
-        vo1.setUpdateTime(LocalDateTime.now());
-        vo1.setVersion(0);
-        vo1.setButPerm(new HashSet<Integer>());
-        vo1.setButPcPerm(new HashSet<Integer>());
-        PageR<ProfitBatchVO> runDTO = PageR.pageResp(1, 1, Arrays.asList(vo1));
+        String json = "{\"code\":200,\"message\":\"操作成功\",\"data\":[{\"id\":1823615117445890049,\"type\":1,\"settlementBatchNo\":\"2024002\",\"startTime\":1719763200000,\"endTime\":1723564800000,\"profitTime\":1723651199000,\"status\":1,\"statusName\":\"进行中\",\"createBy\":1762736500306149377,\"createTime\":1723618700000,\"updateBy\":1823237365605113857,\"updateTime\":1724062252000,\"version\":4,\"butPcPerm\":[80000]},{\"id\":1,\"type\":1,\"settlementBatchNo\":\"2024001\",\"startTime\":1717171200000,\"endTime\":1719676800000,\"performanceTime\":1719763199000,\"profitTime\":1719763199000,\"carryTime\":1719763199000,\"status\":3,\"statusName\":\"已结束\",\"createBy\":0,\"updateBy\":0,\"updateTime\":1723618700000,\"version\":52,\"butPcPerm\":[]}],\"total\":2,\"subTotal\":0}";
+        PageR<ProfitBatchVO> runDTO = JSONUtil.toBean(json, new TypeReference<PageR<ProfitBatchVO>>() {
+        }, true);
         RunResultDTO runResultDTO = new RunResultDTO(null, runDTO);
         Object valueByOffset = DebugPowerResultUtils.getValueByOffset(runDTO, runResultDTO.getFiledOffset());
         List<RunResultDTO> runResultDTOS = DebugPowerResultUtils.convertRunResultDTO(runDTO, runResultDTO.getFiledOffset());
+    }
+
+    @Test
+    public void map() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("1", "2");
+        RunResultDTO runResultDTO = new RunResultDTO("result", map);
+        Object valueByOffset = DebugPowerResultUtils.getValueByOffset(map, runResultDTO.getFiledOffset());
+        List<RunResultDTO> runResultDTOS = DebugPowerResultUtils.convertRunResultDTO(map, runResultDTO.getFiledOffset());
+        System.out.println(runResultDTOS);
+    }
+
+    @Test
+    public void iterator() {
+        Iterator<String> iterator = Arrays.asList("1", "2").iterator();
+        RunResultDTO runResultDTO = new RunResultDTO("result", iterator);
+        DebugPowerResultUtils.putCache(runResultDTO.getFiledOffset(), iterator);
+        List<RunResultDTO> runResultDTOS = DebugPowerResultUtils.convertRunResultDTO(iterator, runResultDTO.getFiledOffset());
+        Object valueByOffset = DebugPowerResultUtils.getValueByOffset(runResultDTOS.get(3).getFiledOffset());
+        List<RunResultDTO> runR = DebugPowerResultUtils.convertRunResultDTO(valueByOffset, runResultDTOS.get(3).getFiledOffset());
     }
 
 }

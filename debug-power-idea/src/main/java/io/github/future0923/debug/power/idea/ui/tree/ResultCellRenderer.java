@@ -1,7 +1,5 @@
 package io.github.future0923.debug.power.idea.ui.tree;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ClassUtil;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.JBColor;
@@ -9,8 +7,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
-import io.github.future0923.debug.power.idea.ui.tree.node.ExpandTreeNode;
-import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
+import io.github.future0923.debug.power.idea.ui.tree.node.TreeNode;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -21,62 +18,81 @@ import javax.swing.*;
 public class ResultCellRenderer extends ColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (value instanceof ResultTreeNode treeNode) {
+        RunResultDTO runResultDTO = ((TreeNode) value).getUserObject();
+        if (RunResultDTO.Type.ROOT.equals(runResultDTO.getType())) {
             setIcon(AllIcons.Debugger.Value);
-            RunResultDTO runResultDTO = treeNode.getUserObject();
+            append("result", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
+            append(" = ");
+        } else if (RunResultDTO.Type.MAP.equals(runResultDTO.getType())) {
+            setIcon(AllIcons.Debugger.Value);
+            appendClassInfo(runResultDTO.getNameClassName(), runResultDTO.getNameIdentity(), runResultDTO.getName(), runResultDTO.getNameArray());
+            append(" ");
+            appendValueInfo(runResultDTO.getNameClassName(), runResultDTO.getName(), runResultDTO.getNameChildSize(), runResultDTO.getNameArray());
+            append(" -> ");
+        } else if (RunResultDTO.Type.MAP_ENTRY.equals(runResultDTO.getType())) {
+            setIcon(AllIcons.Debugger.Value);
             append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
             append(" = ");
-            String simpleName = DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName());
-            if (simpleName == null) {
-                simpleName = "Null";
-            }
-            append("{" + simpleName + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
-            append(" ");
-            Class<?> simpleType = isSimpleType(runResultDTO.getClassName());
-            if (simpleType != null && !CharSequence.class.isAssignableFrom(simpleType)) {
-                append(Convert.toStr(runResultDTO.getValue()));
-            } else {
-                if (runResultDTO.getValue() == null) {
-                    append("null");
-                } else {
-                    append("\"" + runResultDTO.getValue() + "\"");
-                }
-            }
-        } else if (value instanceof ExpandTreeNode treeNode) {
+        } else {
             setIcon(AllIcons.Nodes.Field);
-            RunResultDTO runResultDTO = treeNode.getUserObject();
             append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
             append(" = ");
-            String simpleName = DebugPowerClassUtils.getSimpleName(runResultDTO.getClassName());
-            if (simpleName == null) {
-                simpleName = "Null";
-            }
-            append("{" + simpleName + "@" + runResultDTO.getIdentity() +"}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
-            append(" ");
-            Class<?> simpleType = isSimpleType(runResultDTO.getClassName());
-            if (simpleType != null) {
-                if (CharSequence.class.isAssignableFrom(simpleType)) {
-                    append("\"" + runResultDTO.getValue() + "\"", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GREEN));
-                } else {
-                    append(Convert.toStr(runResultDTO.getValue()));
-                }
+        }
+        appendClassInfo(runResultDTO.getValueClassName(), runResultDTO.getValueIdentity(), runResultDTO.getValue(), runResultDTO.getValueArray());
+        append(" ");
+        appendValueInfo(runResultDTO.getValueClassName(), runResultDTO.getValue(), runResultDTO.getValueChildSize(), runResultDTO.getValueArray());
+    }
+
+    private void appendValueInfo(String className, String value, Integer childSize, boolean array) {
+        // 有子集，并且不是数组
+        if (childSize != null && !array) {
+            append("size = " + childSize);
+        } else {
+            if (value == null) {
+                append("null");
             } else {
-                if (runResultDTO.getValue() == null) {
-                    append("null");
+                Class<?> aClass = getClass(className);
+                if (DebugPowerClassUtils.isBasicType(aClass)) {
+                    append(value);
+                } else if ("java.lang.String".equals(className)) {
+                    append("\"" + value + "\"", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GREEN));
                 } else {
-                    append("\"" + runResultDTO.getValue() + "\"");
+                    append("\"" + value + "\"");
                 }
             }
         }
     }
 
-    private Class<?> isSimpleType(String className) {
+    private void appendClassInfo(String className, String identity, String value, boolean array) {
+        // null不展示
+        if (value == null) {
+            return;
+        }
+        // 不是数组，因为数组className格式为"byte[1]"等，肯定不能得到class
+        if (!array) {
+            // 基本类型不展示
+            Class<?> aClass = getClass(className);
+            if (aClass != null && aClass.isPrimitive()) {
+                return;
+            }
+        }
+        // String不展示
+        if ("java.lang.String".equals(className)) {
+            return;
+        }
+        String simpleName = DebugPowerClassUtils.getSimpleName(className);
+        if (simpleName == null) {
+            simpleName = "Null";
+        }
+        append("{" + simpleName + "@" + identity + "}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
+    }
+
+    private Class<?> getClass(String className) {
         if (DebugPowerStringUtils.isBlank(className)) {
-            return Void.class;
+            return null;
         }
         try {
-            Class<?> clazz = Class.forName(className);
-            return ClassUtil.isSimpleValueType(clazz) ? clazz : null;
+            return Class.forName(className);
         } catch (ClassNotFoundException e) {
             return null;
         }
