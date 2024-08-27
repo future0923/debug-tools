@@ -64,7 +64,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
     }
 
     private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
-        boolean voidType = bridgedMethod.getReturnType().isAssignableFrom(void.class) || bridgedMethod.getReturnType().isAssignableFrom(Void.class);
+        boolean voidType = void.class.isAssignableFrom(bridgedMethod.getReturnType()) || Void.class.isAssignableFrom(bridgedMethod.getReturnType());
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugPowerEnvUtils.isAopProxy(invocationHandler)) {

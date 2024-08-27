@@ -19,18 +19,9 @@ public class RunResultDTO implements Serializable {
         SIMPLE,
         PROPERTY,
         MAP,
+        MAP_ENTRY,
         COLLECTION,
     }
-
-    /**
-     * 唯一标识
-     */
-    private String identity;
-
-    /**
-     * 类名
-     */
-    private String className;
 
     /**
      * 类型
@@ -43,14 +34,49 @@ public class RunResultDTO implements Serializable {
     private String name;
 
     /**
-     * 属性值
+     * 属性名是否是数组
      */
-    private Object value;
+    private boolean nameArray;
 
     /**
-     * 数量
+     * 属性名类型
      */
-    private Integer childSize;
+    private String nameClassName;
+
+    /**
+     * 属性名唯一标识
+     */
+    private String nameIdentity;
+
+    /**
+     * 属性名数量
+     */
+    private Integer nameChildSize;
+
+    /**
+     * 属性值
+     */
+    private String value;
+
+    /**
+     * 属性值是否是数组
+     */
+    private boolean valueArray;
+
+    /**
+     * 属性值类名
+     */
+    private String valueClassName;
+
+    /**
+     * 属性值唯一标识
+     */
+    private String valueIdentity;
+
+    /**
+     * 属性值数量
+     */
+    private Integer valueChildSize;
 
     /**
      * 字段偏移量
@@ -62,38 +88,67 @@ public class RunResultDTO implements Serializable {
      */
     private boolean leaf;
 
-    public RunResultDTO(String name, Object valueObj) {
-        this(name, valueObj, Type.ROOT, String.valueOf(System.identityHashCode(valueObj)));
+    public RunResultDTO(Object name, Object value) {
+        this(name, value, Type.ROOT, String.valueOf(System.identityHashCode(value)));
     }
 
-    public RunResultDTO(String name, Object valueObj, Type type, String filedOffset) {
-        this.identity = Integer.toHexString(System.identityHashCode(valueObj));
-        this.name = name;
+    public RunResultDTO(Object name, Object value, Type type, String filedOffset) {
+        this.nameIdentity = Integer.toHexString(System.identityHashCode(name));
+        this.valueIdentity = Integer.toHexString(System.identityHashCode(value));
         this.type = type;
         this.filedOffset = filedOffset;
-        this.leaf = valueObj == null || ClassUtil.isBasicType(valueObj.getClass()) || (ArrayUtil.isArray(valueObj) && ClassUtil.isBasicType(valueObj.getClass().getComponentType()));
-        if (valueObj == null) {
-            this.value = "null";
-        } else {
+        if (name != null) {
             try {
-                childSize = CollUtil.size(valueObj);
-            } catch (Exception e) {
-                childSize = 0;
+                nameChildSize = CollUtil.size(name);
+            } catch (Exception ignored) {
             }
-            if (ArrayUtil.isArray(valueObj)) {
-                this.className = valueObj.getClass().getComponentType().getName() + "[" + childSize +"]";
-            } else {
-                this.className = valueObj.getClass().getName();
-            }
-            this.value = Convert.toStr(valueObj);
+            this.nameClassName = genClassName(name, nameChildSize);
+            this.name = Convert.toStr(name);
         }
+        this.nameArray = ArrayUtil.isArray(name);
+        if (value != null) {
+            try {
+                valueChildSize = CollUtil.size(value);
+            } catch (Exception ignored) {
+            }
+            this.valueClassName = genClassName(value, valueChildSize);
+            this.value = Convert.toStr(value);
+        }
+        this.valueArray = ArrayUtil.isArray(value);
+        this.leaf = value == null || ClassUtil.isBasicType(value.getClass()) || (ArrayUtil.isArray(value) && ClassUtil.isBasicType(value.getClass().getComponentType()));
     }
 
+    /**
+     * json序列化用
+     */
+    public boolean getNameArray() {
+        return nameArray;
+    }
+
+    /**
+     * json序列号用
+     */
+    public boolean getValueArray() {
+        return valueArray;
+    }
+
+    /**
+     * json序列号用
+     */
     public boolean getLeaf() {
         return leaf;
     }
 
+
     public static String genOffsetPath(Object valueObj) {
         return String.valueOf(System.identityHashCode(valueObj));
+    }
+
+    private String genClassName(Object object, Integer childSize) {
+        if (ArrayUtil.isArray(object)) {
+            return object.getClass().getComponentType().getName() + "[" + childSize + "]";
+        } else {
+            return object.getClass().getName();
+        }
     }
 }

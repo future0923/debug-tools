@@ -84,7 +84,6 @@ public class MainDialog extends DialogWrapper {
         runDTO.setTargetMethodParameterTypes(DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));
         runDTO.setTargetMethodContent(contentMap);
         runDTO.setXxlJobParam(xxlJobParam);
-        runDTO.setRunConfigDTO(settingState.convertRunConfigDTO());
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {

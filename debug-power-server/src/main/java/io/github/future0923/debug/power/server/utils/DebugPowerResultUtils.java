@@ -1,7 +1,6 @@
 package io.github.future0923.debug.power.server.utils;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.IterUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
@@ -17,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -109,19 +106,6 @@ public class DebugPowerResultUtils {
             return offset == 0 ? entry.getKey() : entry.getValue();
         } else if (object instanceof Collection<?>) {
             return CollUtil.get((Collection<?>) object, Math.toIntExact(offset));
-        } else if (object instanceof Iterable<?>) {
-            return IterUtil.get(IterUtil.getIter((Iterable<?>) object), Math.toIntExact(offset));
-        } else if (object instanceof Iterator<?>) {
-            return IterUtil.get((Iterator<?>) object, Math.toIntExact(offset));
-        } else if (object instanceof Enumeration<?>) {
-            final Enumeration<?> it = (Enumeration<?>) object;
-            int index = 0;
-            while (it.hasMoreElements()) {
-                if (index++ == offset) {
-                    return it.nextElement();
-                }
-            }
-            return object;
         } else if (ArrayUtil.isArray(object)) {
             return ArrayUtil.get(object, Math.toIntExact(offset));
         } else {
@@ -143,23 +127,14 @@ public class DebugPowerResultUtils {
         if (object instanceof Map.Entry<?, ?>) {
             Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
             return Arrays.asList(
-                    new RunResultDTO("key", entry.getKey(), RunResultDTO.Type.MAP, filedOffset + "/0@" + ResultVarClassType.MAP_ENTRY.getType()),
-                    new RunResultDTO("value", entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/1@" + ResultVarClassType.MAP_ENTRY.getType())
+                    new RunResultDTO("key", entry.getKey(), RunResultDTO.Type.MAP_ENTRY, filedOffset + "/0@" + ResultVarClassType.MAP_ENTRY.getType()),
+                    new RunResultDTO("value", entry.getValue(), RunResultDTO.Type.MAP_ENTRY, filedOffset + "/1@" + ResultVarClassType.MAP_ENTRY.getType())
             );
         }
         if (object instanceof Collection<?>) {
             Collection<?> coll = (Collection<?>) object;
             Object[] array = coll.toArray();
             return array(array, filedOffset);
-        }
-        if (object instanceof Iterable<?>) {
-            return Collections.emptyList();
-        }
-        if (object instanceof Iterator<?>) {
-            return Collections.emptyList();
-        }
-        if (object instanceof Enumeration<?>) {
-            return Collections.emptyList();
         }
         if (ArrayUtil.isArray(object)) {
             Object[] array = (Object[]) object;
@@ -193,7 +168,7 @@ public class DebugPowerResultUtils {
     private static List<RunResultDTO> map(Map<?, ?> map, String filedOffset) {
         List<RunResultDTO> result = new ArrayList<>(map.size());
         for (Map.Entry<?, ?> entry : map.entrySet()) {
-            result.add(new RunResultDTO(entry.getKey().toString(), entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/" + System.identityHashCode(entry.getKey()) + "@" + ResultVarClassType.MAP));
+            result.add(new RunResultDTO(entry.getKey(), entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/" + System.identityHashCode(entry.getKey()) + "@" + ResultVarClassType.MAP));
         }
         return result;
     }
