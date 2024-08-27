@@ -23,6 +23,4 @@ public class RunDTO {
 
     private String xxlJobParam;
 
-    private RunConfigDTO runConfigDTO;
-
 }

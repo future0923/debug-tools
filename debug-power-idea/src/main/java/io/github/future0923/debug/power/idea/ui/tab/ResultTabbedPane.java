@@ -11,8 +11,8 @@ import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
-import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
 import io.github.future0923.debug.power.idea.ui.editor.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
 import io.github.future0923.debug.power.idea.ui.tree.ResultTreePanel;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 
@@ -59,8 +59,12 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         jsonTab.setName("JSON");
         tabPane.addTab("json", jsonTab);
 
-        debugTab = new ResultTreePanel(project);
-        tabPane.addTab("debug", debugTab);
+        if (!ResultClassType.VOID.equals(packet.getResultClassType())
+                && !ResultClassType.NULL.equals(packet.getResultClassType())) {
+            debugTab = new ResultTreePanel(project);
+            tabPane.addTab("debug", debugTab);
+        }
+
 
         add(tabPane, BorderLayout.CENTER);
     }
@@ -85,7 +89,7 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             text = "{\n    \"result\": \"Void\"\n}";
         } else if (ResultClassType.NULL.equals(packet.getResultClassType())) {
             text = "{\n    \"result\": \"Null\"\n}";
-        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())){
+        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())) {
             text = "{\n    \"result\": \"" + packet.getPrintResult() + "\"\n}";
         } else if (ResultClassType.OBJECT.equals(packet.getResultClassType())) {
             text = HttpClientUtils.resultType(project, packet.getOffsetPath(), PrintResultType.JSON.getType());
@@ -95,11 +99,14 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
     }
 
     private void changeDebug() {
+        if (debugTab == null) {
+            return;
+        }
         if (ResultClassType.VOID.equals(packet.getResultClassType())) {
             Messages.showErrorDialog(project, "Void does not support viewing", "Debug Result");
         } else if (ResultClassType.NULL.equals(packet.getResultClassType())) {
             Messages.showErrorDialog(project, "Null does not support viewing", "Debug Result");
-        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())){
+        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())) {
             debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", packet.getPrintResult())));
             loadDebug = true;
         } else if (ResultClassType.OBJECT.equals(packet.getResultClassType())) {

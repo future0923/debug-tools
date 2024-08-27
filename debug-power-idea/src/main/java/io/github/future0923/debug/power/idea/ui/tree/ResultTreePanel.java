@@ -9,7 +9,6 @@ import com.intellij.util.ui.JBUI;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.power.idea.ui.tree.node.EmptyTreeNode;
-import io.github.future0923.debug.power.idea.ui.tree.node.ExpandTreeNode;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 import io.github.future0923.debug.power.idea.ui.tree.node.TreeNode;
 
@@ -38,21 +37,20 @@ public class ResultTreePanel extends JBScrollPane {
         this.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.setBorder(new CustomLineBorder(JBUI.insetsTop(1)));
         tree.setCellRenderer(new ResultCellRenderer());
-        tree.setRootVisible(true);
-        tree.setShowsRootHandles(true);
         tree.addTreeWillExpandListener(new TreeWillExpandListener() {
 
             // 展开
             @Override
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
-                TreeNode node = (TreeNode) event.getPath().getLastPathComponent();
-                if (node.getChildCount() == 1 && node.getFirstChild() instanceof EmptyTreeNode) {
-                    node.removeAllChildren();
-                    List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, node.getUserObject().getFiledOffset());
-                    for (RunResultDTO runResultDTO : runResultDTOList) {
-                        node.add(new ExpandTreeNode(runResultDTO, runResultDTO.getLeaf()));
+                if (event.getPath().getLastPathComponent() instanceof TreeNode node) {
+                    if (node.getChildCount() == 1 && node.getFirstChild() instanceof EmptyTreeNode) {
+                        node.removeAllChildren();
+                        List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, node.getUserObject().getFiledOffset());
+                        for (RunResultDTO runResultDTO : runResultDTOList) {
+                            node.add(new ResultTreeNode(runResultDTO, runResultDTO.getLeaf()));
+                        }
+                        ((DefaultTreeModel) tree.getModel()).reload(node);
                     }
-                    ((DefaultTreeModel) tree.getModel()).reload(node);
                 }
             }
 
@@ -69,7 +67,6 @@ public class ResultTreePanel extends JBScrollPane {
 
     public void setRoot(ResultTreeNode root) {
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
-        tree.setCellRenderer(new ResultCellRenderer());
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         model.setRoot(root);

@@ -18,11 +18,14 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -163,32 +166,63 @@ public class TestService {
         return clz.getName();
     }
 
+    public Object returnObject() {
+        Object obj = null;
+        return obj;
+    }
+
     public PageR<ProfitBatchVO> page() {
         String json = "{\"code\":200,\"message\":\"操作成功\",\"data\":[{\"id\":1823615117445890049,\"type\":1,\"settlementBatchNo\":\"2024002\",\"startTime\":1719763200000,\"endTime\":1723564800000,\"profitTime\":1723651199000,\"status\":1,\"statusName\":\"进行中\",\"createBy\":1762736500306149377,\"createTime\":1723618700000,\"updateBy\":1823237365605113857,\"updateTime\":1724062252000,\"version\":4,\"butPcPerm\":[80000]},{\"id\":1,\"type\":1,\"settlementBatchNo\":\"2024001\",\"startTime\":1717171200000,\"endTime\":1719676800000,\"performanceTime\":1719763199000,\"profitTime\":1719763199000,\"carryTime\":1719763199000,\"status\":3,\"statusName\":\"已结束\",\"createBy\":0,\"updateBy\":0,\"updateTime\":1723618700000,\"version\":52,\"butPcPerm\":[]}],\"total\":2,\"subTotal\":0}";
-        PageR<ProfitBatchVO> bean = JSONUtil.toBean(json, new TypeReference<PageR<ProfitBatchVO>>() {
+        return JSONUtil.toBean(json, new TypeReference<PageR<ProfitBatchVO>>() {
         }, true);
-        return bean;
-        /*ProfitBatchVO vo1 = new ProfitBatchVO();
-        vo1.setId(0L);
-        vo1.setType(0);
-        vo1.setSettlementBatchNo("");
-        vo1.setStartTime(LocalDate.now());
-        vo1.setEndTime(LocalDate.now());
-        vo1.setPerformanceTime(LocalDateTime.now());
-        vo1.setProfitTime(LocalDateTime.now());
-        vo1.setCarryTime(LocalDateTime.now());
-        vo1.setStatus(0);
-        vo1.setStatusName("");
-        vo1.setId(0L);
-        vo1.setCreateBy(0L);
-        vo1.setCreateByName("");
-        vo1.setCreateTime(LocalDateTime.now());
-        vo1.setUpdateBy(0L);
-        vo1.setUpdateByName("");
-        vo1.setUpdateTime(LocalDateTime.now());
-        vo1.setVersion(0);
-        vo1.setButPerm(new HashSet<Integer>());
-        vo1.setButPcPerm(new HashSet<Integer>());
-        return PageR.pageResp(1, 1, Arrays.asList(vo1));*/
+    }
+
+    public HashMap<String, String> returnMap() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("1", "2");
+        return map;
+    }
+
+    public HashMap<ProfitBatchVO, String> returnKeyMap() {
+        HashMap<ProfitBatchVO, String> map = new HashMap<>();
+        ProfitBatchVO vo1 = new ProfitBatchVO();
+        vo1.setId(123L);
+        map.put(vo1, "1");
+
+        ProfitBatchVO vo2 = new ProfitBatchVO();
+        vo2.setId(456L);
+        map.put(vo2, "2");
+        return map;
+    }
+
+    public HashMap<ProfitBatchVO, User> returnKeyValueMap() {
+        HashMap<ProfitBatchVO, User> map = new HashMap<>();
+        ProfitBatchVO vo1 = new ProfitBatchVO();
+        vo1.setId(123L);
+        User user1 = new User();
+        user1.setId(123);
+        map.put(vo1, user1);
+
+        ProfitBatchVO vo2 = new ProfitBatchVO();
+        vo2.setId(456L);
+        User user2 = new User();
+        user2.setId(456);
+        map.put(vo2, user2);
+        return map;
+    }
+
+    public List<String> returnList() {
+        List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        return list;
+    }
+
+    public List<User> returnUserList() {
+        User user1 = new User();
+        user1.setId(123);
+        User user2 = new User();
+        user2.setId(456);
+        return Arrays.asList(user1, user2);
     }
 }
