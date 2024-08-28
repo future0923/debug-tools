@@ -39,11 +39,8 @@ public abstract class BaseEditor extends EditorTextField {
 
     protected abstract String fileName();
 
-    public static void setupTextFieldEditor(@NotNull EditorEx editor) {
-        EditorSettings settings = editor.getSettings();
-        settings.setFoldingOutlineShown(true);
-        settings.setLineNumbersShown(true);
-        settings.setIndentGuidesShown(true);
+    public void setupEditor(@NotNull EditorEx editor) {
+        setting(editor.getSettings());
         editor.setHorizontalScrollbarVisible(true);
         editor.setVerticalScrollbarVisible(true);
     }
@@ -93,7 +90,7 @@ public abstract class BaseEditor extends EditorTextField {
     protected @NotNull EditorEx createEditor() {
         EditorEx editor = super.createEditor();
         initOneLineMode(editor);
-        setupTextFieldEditor(editor);
+        setupEditor(editor);
         if (virtualFile != null) {
             editor.setFile(virtualFile);
         }
@@ -130,6 +127,12 @@ public abstract class BaseEditor extends EditorTextField {
         onCreateDocument(psiFile);
         virtualFile = psiFile.getVirtualFile();
         return PsiDocumentManager.getInstance(getProject()).getDocument(psiFile);
+    }
+
+    protected void setting(EditorSettings settings) {
+        settings.setFoldingOutlineShown(true);
+        settings.setLineNumbersShown(true);
+        settings.setIndentGuidesShown(true);
     }
 
     protected void onCreateEditor(EditorEx editor) {
