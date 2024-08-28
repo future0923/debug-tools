@@ -14,7 +14,6 @@ import io.github.future0923.debug.power.idea.listener.data.impl.ConvertDataListe
 import io.github.future0923.debug.power.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.power.idea.listener.data.impl.SimpleDataListener;
 import io.github.future0923.debug.power.idea.model.ParamCache;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerUIHelper;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
@@ -46,11 +45,11 @@ public class MainPanel extends JBPanel<MainPanel> {
     private final MainToolBar toolBar;
 
     @Getter
-    private final JsonEditor editor;
+    private final MainJsonEditor editor;
 
     public MainPanel(Project project, MethodDataContext methodDataContext) {
         super(new GridBagLayout());
-        setPreferredSize(new JBDimension(670, 500));
+        setPreferredSize(new JBDimension(800, 600));
         this.project = project;
         this.methodDataContext = methodDataContext;
         // 当前类和方法
@@ -67,7 +66,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         // 工具栏
         this.toolBar = new MainToolBar(publisher);
         // json编辑器
-        this.editor = new JsonEditor(methodDataContext.getCache().formatContent(), methodDataContext.getParamList(), project);
+        this.editor = new MainJsonEditor(methodDataContext.getCache().formatContent(), methodDataContext.getParamList(), project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
         publisher.addListener(new ConvertDataListener(project, editor));
@@ -87,12 +86,12 @@ public class MainPanel extends JBPanel<MainPanel> {
                         methodNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Header:"),
-                        headerButtonPanel
-                )
-                .addLabeledComponent(
                         new JBLabel("Xxl-job param:"),
                         xxlJobParamField
+                )
+                .addLabeledComponent(
+                        new JBLabel("Header:"),
+                        headerButtonPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

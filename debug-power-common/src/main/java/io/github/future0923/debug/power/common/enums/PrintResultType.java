@@ -13,6 +13,8 @@ public enum PrintResultType {
     TOSTRING("ToString"),
 
     JSON("Json"),
+
+    DEBUG("Debug"),
     ;
 
     private final String type;

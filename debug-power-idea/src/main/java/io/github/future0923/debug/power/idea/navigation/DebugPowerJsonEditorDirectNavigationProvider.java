@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.main.MainJsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ public class DebugPowerJsonEditorDirectNavigationProvider implements DirectNavig
 
     @Override
     public @Nullable PsiElement getNavigationElement(@NotNull PsiElement element) {
-        if (!element.getContainingFile().getName().equals(JsonEditor.FILE_NAME)) {
+        if (!element.getContainingFile().getName().equals(MainJsonEditor.FILE_NAME)) {
             return null;
         }
 
@@ -32,7 +32,7 @@ public class DebugPowerJsonEditorDirectNavigationProvider implements DirectNavig
             return null;
         }
 
-        PsiParameterList psiParameterList = element.getContainingFile().getUserData(JsonEditor.DEBUG_POWER_EDIT_CONTENT);
+        PsiParameterList psiParameterList = element.getContainingFile().getUserData(MainJsonEditor.DEBUG_POWER_EDIT_CONTENT);
         if (psiParameterList == null) {
             return null;
         }

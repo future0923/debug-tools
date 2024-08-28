@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
 import io.github.future0923.debug.power.client.DebugPowerSocketClient;
 import io.github.future0923.debug.power.client.config.ClientConfig;
+import io.github.future0923.debug.power.idea.client.socket.IdeaPacketHandleService;
 import lombok.Data;
 
 import java.util.HashMap;

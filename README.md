@@ -10,20 +10,27 @@
 
 - 启动项目
 - 项目启动成功后点击工具窗口的加号选择对应应用，可以配置全家Header信息
-![1.jpg](images/1.jpg)
+![tool_window](images/tool_window.jpg)
 - 在对应的方法体上右键唤醒菜单（也可以自己设置快捷键），
   - `Quick Debug` 调用方法
   - `Execute Last` 快速调用上一次执行的方法
-![2.jpg](images/2.jpg)
+![right_menu](images/right_menu.jpg)
 - 点击 `Run` 调用目标应用方法，可以设置当前方法要传递的Header信息
-![3.jpg](images/3.jpg)
+![quick_debug](images/quick_debug.jpg)
 - 调用成功后返回执行的对应结果
   - 调用成功返回方法执行结果
-  ![4.jpg](images/4.jpg)
+    - `toString` 
+  ![result_to_string](images/result_to_string.jpg)
+    - `json`
+  ![result_json](images/result_json.jpg)
+    - `debug`
+  ![result_debug](images/result_debug.jpg)
   - 调用失败返回错误信息
-  ![5.jpg](images/5.jpg)
+    - `console` 
+  ![exception_console](images/exception_console.jpg)
+    - `debug`
+  ![exception_debug](images/exception_debug.jpg)
 - 修改配置
-  - `Target program execution result` 执行结果打印格式：不打印、调用ToString、转Json
-  - `Entity class default param` 打开当前方法的实体类默认值：没有默认、当前类、所有夫类
+  - `Entity class default param` 打开当前方法的实体类默认值：没有默认、当前类、所有父类（最多5层）
   - `Print pretty sql` 打印执行的SQL语句：不打印、打印
-![6.jpg](images/6.jpg)
+![config](images/config.jpg)

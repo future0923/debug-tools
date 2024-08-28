@@ -18,21 +18,39 @@
     <br>
     Quick Debugging <a href="https://github.com/future0923/debug-power">github</a> | <a href="https://gitee.com/future94/debug-power">gitee</a>
     <ul>
-        <li>First, you need to start the service, and then right-click on Quick Debug in the method you want to debug and run</li>
-        <li>You will see the following interface. It will automatically provide the current started service, current class, current method, and generate the JSON entity object to be requested based on method parameters</li>
-        <li>Select the service you want to debug, and then click the attach button (if you want to refresh the list, you can also click the other two to clear the cache). When you run the project, it will start attach to the currently started service</li>
-        <li>If you want to log in to authentication and other functions, you can specify the Authorization Header, which will mock a request and add this request header to the RequestContextHolder in Spring, so that you can obtain it later</li>
-        <li>If you want to modify it, you can modify the corresponding parameters</li>
+        <li>First, open the ToolWindow of Debug Power on the right, click + and select the service you want to attach (the service should already be started).</li>
+        <li>Then wake up the right-click menu in the method body to be called and click Quick Debug.</li>
+        <li>Pass in the type and corresponding value corresponding to the parameter, and click Run to quickly call it.</li>
+        <li>If you want to log in to authentication and other functions, you can specify the Authorization Header, which will mock a request and add this request header to the RequestContextHolder in Spring, so that you can obtain it later. Debug Power ToolWindow is global scope, Quick Debug is the current method, if the same, Quick Debug higher priority.</li>
+        <li>You can view the execution result through toString, json, and debug.</li>
+        <li>If you want to quickly execute the last request, you can right-click the menu and click Execute Last.</li>
     </ul>
-    <strong>Execute Last</strong>
-    The above operation will initiate a request for the current method. If you no longer use the current method and want to execute the last request, click Execute Last to execute the last request.
+    <ul>
+        <li>首先，打开右侧的Debug Power的ToolWindow，点击 + 选择要你要attach的服务（服务要已经是启动完成的状态）</li>
+        <li>然后在要调用方法体中唤醒右键菜单并点击 Quick Debug</li>
+        <li>传入参数对应的类型与对应的值，点击运行即可快速调用</li>
+        <li>如果要登录认证等功能，可以指定AuthorizationHeader，它会模拟一个请求，并将这个请求头添加到Spring中的RequestContextHolder，以便以后获取。Debug Power ToolWindow中是全局范围，Quick Debug中是当前方法，如果相同，Quick Debug优先级更高。</li>
+        <li>你可以通过toString、json、debug的方式查看执行结果</li>
+        <li>如果您想快速执行上次的请求，可以右键菜单中点击Execute Last</li>
+    </ul>
   ]]></description>
 
     <change-notes>
         <![CDATA[
-        <strong>2.1.0</strong>
+        <strong>2.2.0</strong>
         <ul>
-            <li>Support is not a Spring environment.</li>
+            <li>Support toString、json、debug to view the returned results</li>
+            <li>Support console、debug to view tAhe exception results</li>
+            <li>Support org.springframework.web.multipart.MultipartFile param type</li>
+            <li>Optimize style</li>
+            <li>Fix recursive stack overflow exception when parameters are nested</li>
+        </ul>
+        <ul>
+            <li>支持toString、json、debug的方式查看返回结果</li>
+            <li>支持console、debug的方式查看异常信息</li>
+            <li>支持org.springframework.web.multipart.MultipartFile类型参数</li>
+            <li>样式优化</li>
+            <li>修复参数嵌套时的递归堆栈溢出异常</li>
         </ul>
         ]]>
     </change-notes>
