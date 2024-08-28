@@ -57,8 +57,8 @@ public class ConvertDialog extends DialogWrapper {
                 if (psiParameterList != null && psiParameterList.getParametersCount() == 1) {
                     PsiParameter parameter = psiParameterList.getParameter(0);
                     if (parameter != null && parameter.getType() instanceof PsiClassType) {
-                        JSONObject jsonObject = new JSONObject();
-                        JSONObject argContent = new JSONObject();
+                        JSONObject jsonObject = DebugPowerJsonUtils.createJsonObject();
+                        JSONObject argContent = DebugPowerJsonUtils.createJsonObject();
                         argContent.set("type", RunContentType.JSON_ENTITY.getType());
                         argContent.set("content", DebugPowerJsonUtils.parse(text));
                         jsonObject.set(parameter.getName(), argContent);

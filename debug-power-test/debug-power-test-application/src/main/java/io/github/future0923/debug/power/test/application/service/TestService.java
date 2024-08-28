@@ -12,8 +12,10 @@ import io.github.future0923.debug.power.test.application.domain.dto.TestDTO;
 import io.github.future0923.debug.power.test.application.domain.entity.User;
 import io.github.future0923.debug.power.test.application.dto.PageR;
 import io.github.future0923.debug.power.test.application.dto.ProfitBatchVO;
+import io.github.future0923.debug.power.test.application.dto.RecursionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -164,6 +166,14 @@ public class TestService {
 
     public String test(Class<?> clz) {
         return clz.getName();
+    }
+
+    public void file(MultipartFile file) {
+        System.out.println(file);
+    }
+
+    public void recursion(RecursionDTO dto) {
+        System.out.println(dto);
     }
 
     public Object returnObject() {
