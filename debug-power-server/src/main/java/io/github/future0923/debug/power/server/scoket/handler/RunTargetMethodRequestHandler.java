@@ -37,21 +37,29 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         RunDTO runDTO = packet.getRunDTO();
         String targetClassName = runDTO.getTargetClassName();
         if (DebugPowerStringUtils.isBlank(targetClassName)) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("目标类为空"), DebugPowerBootstrap.serverConfig.getApplicationName()));
+            ArgsParseException exception = new ArgsParseException("目标类为空");
+            String offsetPath = RunResultDTO.genOffsetPath(exception);
+            DebugPowerResultUtils.putCache(offsetPath, exception);
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         Class<?> targetClass;
         try {
             targetClass = DebugPowerClassUtils.loadClass(targetClassName);
         } catch (Exception e) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, e, DebugPowerBootstrap.serverConfig.getApplicationName()));
+            String offsetPath = RunResultDTO.genOffsetPath(e);
+            DebugPowerResultUtils.putCache(offsetPath, e);
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, e, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         Method targetMethod;
         try {
             targetMethod = targetClass.getDeclaredMethod(runDTO.getTargetMethodName(), DebugPowerClassUtils.getTypes(runDTO.getTargetMethodParameterTypes()));
         } catch (NoSuchMethodException | SecurityException e) {
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, new ArgsParseException("未找到目标方法"), DebugPowerBootstrap.serverConfig.getApplicationName()));
+            ArgsParseException exception = new ArgsParseException("未找到目标方法");
+            String offsetPath = RunResultDTO.genOffsetPath(exception);
+            DebugPowerResultUtils.putCache(offsetPath, exception);
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
         }
         DebugPowerEnvUtils.setRequest(runDTO);
@@ -79,7 +87,10 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType);
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, throwable, DebugPowerBootstrap.serverConfig.getApplicationName()));
+            Throwable cause = throwable.getCause();
+            String offsetPath = RunResultDTO.genOffsetPath(cause);
+            DebugPowerResultUtils.putCache(offsetPath, cause);
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, cause, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
         }
     }
 
