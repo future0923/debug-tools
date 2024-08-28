@@ -1,8 +1,5 @@
 package io.github.future0923.debug.power.idea.ui.main;
 
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.ui.ConsoleView;
-import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
@@ -14,6 +11,7 @@ import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
+import io.github.future0923.debug.power.idea.ui.tab.ExceptionTabbedPane;
 import io.github.future0923.debug.power.idea.ui.tab.ResultTabbedPane;
 import lombok.Getter;
 
@@ -35,12 +33,6 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
         List<String> methodParameterTypes = packet.getMethodParameterTypes();
         JTextArea parameterTypesField = new JTextArea(methodParameterTypes.size(), 1);
         parameterTypesField.setText(" " + String.join("\n ", methodParameterTypes));
-        String runResult;
-        if (DebugPowerStringUtils.isNotBlank(packet.getThrowable())) {
-            runResult = packet.getThrowable();
-        } else {
-            runResult = packet.getPrintResult() == null ? "NULL" : packet.getPrintResult();
-        }
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
         Project project;
         if (info != null && info.getProject() != null) {
@@ -50,14 +42,18 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
         }
         Component resultComponent;
         if (project == null) {
+            String runResult;
+            if (DebugPowerStringUtils.isNotBlank(packet.getThrowable())) {
+                runResult = packet.getThrowable();
+            } else {
+                runResult = packet.getPrintResult() == null ? "NULL" : packet.getPrintResult();
+            }
             resultComponent = new TextEditor(null, runResult);
         } else {
             if (packet.isSuccess()) {
                 resultComponent = new ResultTabbedPane(project, packet);
             } else {
-                ConsoleView consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-                consoleView.print(runResult, ConsoleViewContentType.NORMAL_OUTPUT);
-                resultComponent = consoleView.getComponent();
+                resultComponent = new ExceptionTabbedPane(project, packet);
             }
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
