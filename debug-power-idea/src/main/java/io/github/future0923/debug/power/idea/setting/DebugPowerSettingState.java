@@ -8,8 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
-import io.github.future0923.debug.power.common.dto.RunConfigDTO;
-import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
@@ -45,11 +43,11 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     private String agentPath;
 
-    private PrintResultType printResultType = PrintResultType.JSON;
-
     private GenParamType defaultGenParamType = GenParamType.ALL;
 
     private Boolean printSql = false;
+
+    private Integer httpPort = 22222;
 
     @Override
     public @Nullable DebugPowerSettingState getState() {
@@ -86,12 +84,6 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
         } catch (Exception ignored) {
         }
         return ParamCache.NULL;
-    }
-
-    public RunConfigDTO convertRunConfigDTO() {
-        RunConfigDTO dto = new RunConfigDTO();
-        dto.setPrintResultType(printResultType);
-        return dto;
     }
 
     public synchronized String loadAgentPath() {

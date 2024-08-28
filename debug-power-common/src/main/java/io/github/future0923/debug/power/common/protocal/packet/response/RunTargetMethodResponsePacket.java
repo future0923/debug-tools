@@ -3,10 +3,10 @@ package io.github.future0923.debug.power.common.protocal.packet.response;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.dto.RunDTO;
+import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.protocal.Command;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +17,8 @@ import java.util.List;
 /**
  * @author future0923
  */
-@Getter
 @Setter
+@Getter
 @EqualsAndHashCode(callSuper = true)
 public class RunTargetMethodResponsePacket extends Packet {
 
@@ -32,7 +32,14 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     private List<String> methodParameterTypes;
 
-    private Payload payload;
+    private ResultClassType resultClassType;
+
+    private String printResult;
+
+    private String throwable;
+
+    private String offsetPath;
+
 
     @Override
     public Byte getCommand() {
@@ -59,45 +66,23 @@ public class RunTargetMethodResponsePacket extends Packet {
         this.setClassName(packet.getClassName());
         this.setMethodName(packet.getMethodName());
         this.setMethodParameterTypes(packet.getMethodParameterTypes());
-        this.setPayload(packet.getPayload());
+        this.setResultClassType(packet.getResultClassType());
+        this.setPrintResult(packet.getPrintResult());
+        this.setThrowable(packet.getThrowable());
+        this.setOffsetPath(packet.getOffsetPath());
     }
 
-    @Data
-    static class Payload {
-
-        private String printResult;
-
-        private String throwable;
-    }
-
-    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String applicationName) {
+    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String offsetPath, String applicationName) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, applicationName);
         packet.setResultFlag(FAIL);
-        packet.setThrowable(throwable);
+        packet.setThrowableMessage(throwable);
+        packet.setOffsetPath(offsetPath);
         return packet;
     }
 
-    public String getPrintResult() {
-        return payload == null ? null : payload.getPrintResult();
-    }
-
-    public void setPrintResult(String printResult) {
-        if (payload == null) {
-            payload = new Payload();
-        }
-        payload.setPrintResult(printResult);
-    }
-
-    public String getThrowable() {
-        return payload == null ? null : payload.getThrowable();
-    }
-
-    public void setThrowable(Throwable throwable) {
-        if (payload == null) {
-            payload = new Payload();
-        }
-        payload.setThrowable(ExceptionUtil.stacktraceToString(throwable, -1));
+    public void setThrowableMessage(Throwable throwable) {
+        setThrowable(ExceptionUtil.stacktraceToString(throwable, -1));
     }
 
     public void setRunInfo(RunDTO runDTO, String applicationName) {

@@ -30,7 +30,12 @@ public class DebugPowerParamConvertUtils {
         Object[] targetMethodArgs = new Object[bridgedMethod.getParameterCount()];
         for (int i = 0; i < bridgedMethod.getParameterCount(); i++) {
             Parameter parameter = bridgedMethod.getParameters()[i];
-            targetMethodArgs[i] = getArg(targetMethodContent, parameter, i);
+            try {
+                targetMethodArgs[i] = getArg(targetMethodContent, parameter, i);
+            } catch (Exception e) {
+                log.error("转换第{}个参数失败", e, i);
+                targetMethodArgs[i] = null;
+            }
         }
         return targetMethodArgs;
     }

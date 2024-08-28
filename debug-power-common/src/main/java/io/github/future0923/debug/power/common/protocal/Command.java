@@ -14,4 +14,8 @@ public interface Command {
     Byte RUN_TARGET_METHOD_RESPONSE = 4;
 
     Byte SERVER_CLOSE_REQUEST = 5;
+
+    Byte CONNECT_SUCCESS_RESPONSE = 6;
+
+    Byte CLEAR_RUN_RESULT = 7;
 }

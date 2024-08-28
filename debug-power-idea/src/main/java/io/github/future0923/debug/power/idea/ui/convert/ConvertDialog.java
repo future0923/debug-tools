@@ -8,7 +8,7 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
-import io.github.future0923.debug.power.idea.ui.JsonEditor;
+import io.github.future0923.debug.power.idea.ui.main.MainJsonEditor;
 import io.github.future0923.debug.power.idea.utils.DebugPowerJsonElementUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,13 +26,13 @@ public class ConvertDialog extends DialogWrapper {
 
     private final Project project;
 
-    private final JsonEditor jsonEditor;
+    private final MainJsonEditor jsonEditor;
 
     private final ConvertType convertType;
 
     private ConvertPanel convertPanel;
 
-    public ConvertDialog(@Nullable Project project, JsonEditor jsonEditor, ConvertType convertType) {
+    public ConvertDialog(@Nullable Project project, MainJsonEditor jsonEditor, ConvertType convertType) {
         super(project, true, IdeModalityType.IDE);
         this.project = project;
         this.jsonEditor = jsonEditor;
@@ -57,8 +57,8 @@ public class ConvertDialog extends DialogWrapper {
                 if (psiParameterList != null && psiParameterList.getParametersCount() == 1) {
                     PsiParameter parameter = psiParameterList.getParameter(0);
                     if (parameter != null && parameter.getType() instanceof PsiClassType) {
-                        JSONObject jsonObject = new JSONObject();
-                        JSONObject argContent = new JSONObject();
+                        JSONObject jsonObject = DebugPowerJsonUtils.createJsonObject();
+                        JSONObject argContent = DebugPowerJsonUtils.createJsonObject();
                         argContent.set("type", RunContentType.JSON_ENTITY.getType());
                         argContent.set("content", DebugPowerJsonUtils.parse(text));
                         jsonObject.set(parameter.getName(), argContent);
