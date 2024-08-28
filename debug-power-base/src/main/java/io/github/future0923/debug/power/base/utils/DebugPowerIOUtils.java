@@ -65,6 +65,16 @@ public class DebugPowerIOUtils {
         return buffer.toByteArray();
     }
 
+    public static boolean writeAndFlush(byte[] payload, OutputStream outputStream) {
+        try {
+            outputStream.write(payload);
+            outputStream.flush();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int len;

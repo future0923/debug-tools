@@ -17,11 +17,12 @@ public abstract class Packet {
     private static final String EMPTY_BYTE = "\u0000";
     private static final String EMPTY_STRING = "";
     @Setter
-    private byte version;
     @Getter
+    private byte version;
     private final byte[] ipBytes = new byte[15];
     @Setter
-    private byte resultFlag;
+    @Getter
+    private byte resultFlag = SUCCESS;
     public static final byte SUCCESS = 1;
     public static final byte FAIL = 0;
 
@@ -34,20 +35,20 @@ public abstract class Packet {
 
     public abstract void binaryDeserialization(byte[] bytes);
 
-    public byte getVersion() {
-        return this.version;
-    }
-
     public void setIpBytes(byte[] bytes) {
         System.arraycopy(bytes, 0, this.ipBytes, 0, bytes.length);
+    }
+
+    public byte[] getIpBytes() {
+        return ipBytes;
     }
 
     public String getIp() {
         return (new String(this.ipBytes)).replaceAll(EMPTY_BYTE, EMPTY_STRING);
     }
 
-    public byte getResultFlag() {
-        return resultFlag;
+    public boolean isSuccess() {
+        return resultFlag == SUCCESS;
     }
 
     public void writeAndFlush(OutputStream outputStream) throws IOException {
