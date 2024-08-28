@@ -25,10 +25,16 @@ import java.util.Map;
  */
 public class DebugPowerJsonUtils extends JSONUtil {
 
-    private static final JSONConfig jsonConfig;
+    public static final JSONConfig JSON_CONFIG;
 
     static {
-        jsonConfig = JSONConfig.create().setDateFormat(DatePattern.NORM_DATETIME_MS_PATTERN);
+        JSON_CONFIG = JSONConfig.create()
+                .setDateFormat(DatePattern.NORM_DATETIME_MS_PATTERN)
+                .setIgnoreNullValue(false);
+    }
+
+    public static JSONObject createJsonObject() {
+        return new JSONObject(JSON_CONFIG);
     }
 
     public static Map<String, RunContentDTO> toRunContentDTOMap(String jsonInput) {
@@ -72,11 +78,11 @@ public class DebugPowerJsonUtils extends JSONUtil {
      */
     public static String jsonConvertDebugPowerJson(String jsonInput) {
         JSONObject jsonObject = parseObj(jsonInput);
-        JSONObject result = new JSONObject();
+        JSONObject result = DebugPowerJsonUtils.createJsonObject();
         for (Map.Entry<String, Object> entry : jsonObject) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            JSONObject runContent = new JSONObject();
+            JSONObject runContent = DebugPowerJsonUtils.createJsonObject();
             if (DebugPowerClassUtils.isSimpleValueType(value.getClass())) {
                 runContent.set("type", RunContentType.SIMPLE.getType());
             } else {
@@ -96,7 +102,7 @@ public class DebugPowerJsonUtils extends JSONUtil {
      */
     public static String debugPowerJsonConvertJson(String jsonInput) {
         Map<String, RunContentDTO> runContentMap = toRunContentDTOMap(jsonInput);
-        JSONObject result = new JSONObject();
+        JSONObject result = DebugPowerJsonUtils.createJsonObject();
         for (Map.Entry<String, RunContentDTO> entry : runContentMap.entrySet()) {
             String k = entry.getKey();
             RunContentDTO v = entry.getValue();
@@ -131,12 +137,12 @@ public class DebugPowerJsonUtils extends JSONUtil {
         try {
             URI url = new URI(URLDecoder.decode(queryStr, StandardCharsets.UTF_8.name()));
             String query = url.getQuery() != null ? url.getQuery() : url.getPath();
-            JSONObject result = new JSONObject();
+            JSONObject result = DebugPowerJsonUtils.createJsonObject();
             Arrays.stream(query.split("&"))
                     .map(p -> p.split("="))
                     .filter(p -> p.length > 0)
                     .forEach(p -> {
-                        JSONObject runContent = new JSONObject();
+                        JSONObject runContent = DebugPowerJsonUtils.createJsonObject();
                         runContent.set("type", RunContentType.SIMPLE.getType());
                         if (p.length == 2) {
                             runContent.set("content", p[1]);
@@ -184,13 +190,13 @@ public class DebugPowerJsonUtils extends JSONUtil {
             return "{}";
         }
         String path = StrUtil.removeSuffix(StrUtil.removePrefix(pathStr, "/"), "/");
-        JSONObject result = new JSONObject();
+        JSONObject result = DebugPowerJsonUtils.createJsonObject();
         String[] split = path.split("/");
         for (int i = 0; i < split.length; i++) {
             if (i >= methodArgsName.size()) {
                 break;
             }
-            JSONObject runContent = new JSONObject();
+            JSONObject runContent = DebugPowerJsonUtils.createJsonObject();
             runContent.set("type", RunContentType.SIMPLE.getType());
             runContent.set("content", split[i]);
             result.set(methodArgsName.get(i), runContent);
@@ -222,6 +228,6 @@ public class DebugPowerJsonUtils extends JSONUtil {
      * @return JSON字符串
      */
     public static String toJsonPrettyStr(Object obj) {
-        return JSONUtil.toJsonPrettyStr(parse(obj, jsonConfig));
+        return JSONUtil.toJsonPrettyStr(parse(obj, JSON_CONFIG));
     }
 }
