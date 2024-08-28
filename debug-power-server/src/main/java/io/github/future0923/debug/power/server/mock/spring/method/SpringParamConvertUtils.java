@@ -1,5 +1,6 @@
 package io.github.future0923.debug.power.server.mock.spring.method;
 
+import cn.hutool.core.io.FileUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
@@ -8,14 +9,17 @@ import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerLambdaUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
+import io.github.future0923.debug.power.server.mock.spring.request.MockMultipartFile;
 import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.SynthesizingMethodParameter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +45,12 @@ public class SpringParamConvertUtils {
         for (int i = 0; i < parameters.length; i++) {
             SynthesizingMethodParameter parameter = parameters[i];
             parameter.initParameterNameDiscovery(new DefaultParameterNameDiscoverer());
-            targetMethodArgs[i] = SpringParamConvertUtils.getArg(targetMethodContent, parameter);
+            try {
+                targetMethodArgs[i] = SpringParamConvertUtils.getArg(targetMethodContent, parameter);
+            } catch (Exception e) {
+                log.error("转换参数[{}]失败", e, parameter.getParameterName());
+                targetMethodArgs[i] = null;
+            }
         }
         return targetMethodArgs;
     }
@@ -90,12 +99,21 @@ public class SpringParamConvertUtils {
         } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
             return DebugPowerEnvUtils.getResponse();
         } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
-            return new File(runContentDTO.getContent().toString());
+            File file = new File(runContentDTO.getContent().toString());
+            if (MultipartFile.class.isAssignableFrom(parameter.getParameterType())) {
+                try {
+                    return new MockMultipartFile(file.getName(), FileUtil.getInputStream(file));
+                } catch (IOException e) {
+                    log.error("转换MockMultipartFile异常", e);
+                    return null;
+                }
+            }
+            return file;
         } else if (RunContentType.CLASS.getType().equals(runContentDTO.getType())) {
             try {
                 return Class.forName(runContentDTO.getContent().toString());
-            } catch (Exception ignored) {
-
+            } catch (Exception e) {
+                log.error("转换Class异常", e);
             }
         }
         return null;

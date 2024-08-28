@@ -93,6 +93,9 @@ public class DebugPowerJsonElementUtil {
                     if (psiClass.isInterface() && "javax.servlet.http.HttpServletResponse".equals(psiClass.getQualifiedName())) {
                         return RunContentType.RESPONSE.getType();
                     }
+                    if (psiClass.isInterface() && "org.springframework.web.multipart.MultipartFile".equals(psiClass.getQualifiedName())) {
+                        return RunContentType.FILE.getType();
+                    }
                     try {
                         Class<?> aClass = Class.forName(psiClass.getQualifiedName());
                         if (isSimpleValueType(aClass)) {
@@ -113,7 +116,7 @@ public class DebugPowerJsonElementUtil {
     }
 
 
-    public static Object toJson(PsiType type, GenParamType genParamType) {
+    public static Object toJson(PsiType type, GenParamType genParamType, DeepHolder deep) {
         // 新版本使用：PsiTypes.intType()
         if (type.isAssignableFrom(PsiTypes.intType())) {
             return 0;
@@ -141,7 +144,9 @@ public class DebugPowerJsonElementUtil {
         }
         if (type instanceof PsiArrayType) {
             JSONArray jsonElements = new JSONArray();
-            jsonElements.add(toJson(((PsiArrayType) type).getComponentType(), genParamType));
+            if (!deep.isMaxDeep()) {
+                jsonElements.add(toJson(((PsiArrayType) type).getComponentType(), genParamType, deep.increment()));
+            }
             return jsonElements;
         }
         if (type instanceof PsiClassType) {
@@ -174,15 +179,19 @@ public class DebugPowerJsonElementUtil {
                         }
                         if (isCollType(aClass)) {
                             JSONArray jsonElements = new JSONArray();
-                            Arrays.stream(((PsiClassType) type).getParameters()).map(psiType -> toJson(psiType, genParamType)).forEach(jsonElements::add);
+                            if (!deep.isMaxDeep()) {
+                                DeepHolder increment = deep.increment();
+                                Arrays.stream(((PsiClassType) type).getParameters()).map(psiType -> toJson(psiType, genParamType, increment)).forEach(jsonElements::add);
+                            }
                             return jsonElements;
                         }
                         if (isMapType(aClass)) {
-                            JSONObject jsonObject = new JSONObject();
+                            JSONObject jsonObject = DebugPowerJsonUtils.createJsonObject();
                             PsiType[] parameters = ((PsiClassType) type).getParameters();
-                            if (parameters.length > 1) {
-                                Object key = toJson(parameters[0], genParamType);
-                                Object value = toJson(parameters[1], genParamType);
+                            if (parameters.length > 1 && !deep.isMaxDeep()) {
+                                DeepHolder increment = deep.increment();
+                                Object key = toJson(parameters[0], genParamType, increment);
+                                Object value = toJson(parameters[1], genParamType, increment);
                                 if (key != null) {
                                     jsonObject.set(key.toString(), value);
                                 }
@@ -194,10 +203,10 @@ public class DebugPowerJsonElementUtil {
                     if (psiClass.isInterface()) {
                         return JSONNull.NULL;
                     }
-                    JSONObject jsonObject1 = new JSONObject();
+                    JSONObject jsonObject1 = DebugPowerJsonUtils.createJsonObject();
                     if (GenParamType.SIMPLE.equals(genParamType)) {
                         return jsonObject1;
-                    } else {
+                    } else if (!deep.isMaxDeep()) {
                         PsiField[] fields;
                         if (GenParamType.CURRENT.equals(genParamType)) {
                             fields = psiClass.getFields();
@@ -206,9 +215,10 @@ public class DebugPowerJsonElementUtil {
                         } else {
                             fields = psiClass.getFields();
                         }
+                        DeepHolder increment = deep.increment();
                         Arrays.stream(fields).forEach(field -> {
                             if (!StringUtils.contains(field.getText(), " static ")) {
-                                jsonObject1.set(field.getName(), toJson(field.getType(), genParamType));
+                                jsonObject1.set(field.getName(), toJson(field.getType(), genParamType, increment));
                             }
                         });
                     }
@@ -263,14 +273,14 @@ public class DebugPowerJsonElementUtil {
                             return new JSONArray();
                         }
                         if (isMapType(aClass)) {
-                            return new JSONObject();
+                            return DebugPowerJsonUtils.createJsonObject();
                         }
                     } catch (Exception ignored) {
                     }
                     if (psiClass.isInterface()) {
                         return JSONNull.NULL;
                     }
-                    return new JSONObject();
+                    return DebugPowerJsonUtils.createJsonObject();
                 }
             }
         }
@@ -304,16 +314,16 @@ public class DebugPowerJsonElementUtil {
     }
 
     public static JSONObject toParamNameListNew(PsiParameterList parameterList, GenParamType genParamType) {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = DebugPowerJsonUtils.createJsonObject();
         for (int i = 0; i < parameterList.getParametersCount(); i++) {
             PsiParameter parameter = Objects.requireNonNull(parameterList.getParameter(i));
             String key = parameter.getName();
             PsiType type = parameter.getType();
-            JSONObject argContent = new JSONObject();
+            JSONObject argContent = DebugPowerJsonUtils.createJsonObject();
             String contentType = getContentType(type);
             argContent.set("type", contentType);
             if (!RunContentType.BEAN.getType().equals(contentType)) {
-                argContent.set("content", toJson(type, genParamType));
+                argContent.set("content", toJson(type, genParamType, new DeepHolder()));
             }
             jsonObject.set(key, argContent);
         }
@@ -388,6 +398,24 @@ public class DebugPowerJsonElementUtil {
             }
         }
         return 123 == preChar;
+    }
+
+    public static class DeepHolder {
+
+        private int deep;
+
+        public DeepHolder() {
+            this.deep = 1;
+        }
+
+        public boolean isMaxDeep() {
+            return deep >= 5;
+        }
+
+        public DeepHolder increment() {
+            ++deep;
+            return this;
+        }
     }
 
 }
