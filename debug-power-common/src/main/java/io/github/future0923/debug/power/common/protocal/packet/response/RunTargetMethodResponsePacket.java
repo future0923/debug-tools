@@ -72,11 +72,12 @@ public class RunTargetMethodResponsePacket extends Packet {
         this.setOffsetPath(packet.getOffsetPath());
     }
 
-    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String applicationName) {
+    public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String offsetPath, String applicationName) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, applicationName);
         packet.setResultFlag(FAIL);
         packet.setThrowableMessage(throwable);
+        packet.setOffsetPath(offsetPath);
         return packet;
     }
 
