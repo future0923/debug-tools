@@ -14,6 +14,7 @@ import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
+import io.github.future0923.debug.power.idea.ui.console.MyConsolePanel;
 import io.github.future0923.debug.power.idea.ui.tree.ResultTreePanel;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 
@@ -26,19 +27,22 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
 
     private final Project project;
 
-    private final RunTargetMethodResponsePacket packet;
+    private final String throwable;
+
+    private final String offsetPath;
 
     private JBTabbedPane tabPane;
 
-    private ConsoleView consoleView;
+    private MyConsolePanel consoleView;
 
     private ResultTreePanel debugTab;
 
     private boolean loadDebug = false;
 
-    public ExceptionTabbedPane(Project project, RunTargetMethodResponsePacket packet) {
+    public ExceptionTabbedPane(Project project, String throwable, String offsetPath) {
         this.project = project;
-        this.packet = packet;
+        this.throwable = throwable;
+        this.offsetPath = offsetPath;
         initView();
         initEvent();
     }
@@ -48,9 +52,9 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
 
         tabPane = new JBTabbedPane();
 
-        consoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole();
-        consoleView.print(packet.getThrowable(), ConsoleViewContentType.NORMAL_OUTPUT);
-        tabPane.addTab("console", consoleView.getComponent());
+        consoleView = new MyConsolePanel(project);
+        consoleView.print(throwable, ConsoleViewContentType.ERROR_OUTPUT);
+        tabPane.addTab("console", consoleView);
 
         debugTab = new ResultTreePanel(project);
         tabPane.addTab("debug", debugTab);
@@ -72,7 +76,7 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
     }
 
     private void changeDebug() {
-        String body = HttpClientUtils.resultType(project, packet.getOffsetPath(), PrintResultType.DEBUG.getType());
+        String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
         if (DebugPowerStringUtils.isNotBlank(body)) {
             debugTab.setRoot(new ResultTreeNode(DebugPowerJsonUtils.toBean(body, RunResultDTO.class)));
             loadDebug = true;

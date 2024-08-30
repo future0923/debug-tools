@@ -20,6 +20,7 @@ import io.github.future0923.debug.power.idea.context.DataContext;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 import io.github.future0923.debug.power.idea.ui.main.MainDialog;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,11 @@ public class QuickDebugEditorPopupMenuAction extends AnAction {
     private static final Logger log = Logger.getInstance(QuickDebugEditorPopupMenuAction.class);
 
     private final static Key<PsiMethod> USER_DATE_ELEMENT_KEY = new Key<>("user.psi.Element");
+
+    public QuickDebugEditorPopupMenuAction() {
+        getTemplatePresentation().setText("Quick Debug");
+        getTemplatePresentation().setIcon(DebugPowerIcons.request_icon);
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

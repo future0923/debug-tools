@@ -116,10 +116,10 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
             </action>
             <action id="DebugPowerTool.EvaluateGroovy"
-                    class="io.github.future0923.debug.power.idea.action.EvaluateGroovyAction"
-                    text="Evaluate Groovy"
+                    class="io.github.future0923.debug.power.idea.action.GroovyConsoleAction"
+                    text="Groovy Console"
                     description="Evaluate groovy script for attach application">
-                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl E"/>
+                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl G"/>
             </action>
             <separator/>
         </group>

@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ThrowableRunnable;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -21,9 +22,14 @@ import java.io.InputStream;
 /**
  * @author future0923
  */
-public class EvaluateGroovyAction extends AnAction {
+public class GroovyConsoleAction extends AnAction {
 
-    private static final Logger log = Logger.getInstance(EvaluateGroovyAction.class);
+    private static final Logger log = Logger.getInstance(GroovyConsoleAction.class);
+
+    public GroovyConsoleAction() {
+        getTemplatePresentation().setText("Groovy Console");
+        getTemplatePresentation().setIcon(DebugPowerIcons.groovy_icon);
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -34,7 +40,7 @@ public class EvaluateGroovyAction extends AnAction {
         String relativeFilePath = IdeaPluginProjectConstants.GROOVY_CONSOLE_FILE;
         String text = "";
         try {
-            InputStream inputStream = EvaluateGroovyAction.class.getClassLoader().getResourceAsStream(relativeFilePath);
+            InputStream inputStream = GroovyConsoleAction.class.getClassLoader().getResourceAsStream(relativeFilePath);
             if (inputStream != null) {
                 text = FileUtil.loadTextAndClose(inputStream);
             }
