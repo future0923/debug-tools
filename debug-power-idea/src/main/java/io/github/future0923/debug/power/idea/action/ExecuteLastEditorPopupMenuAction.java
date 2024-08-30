@@ -11,6 +11,7 @@ import io.github.future0923.debug.power.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -23,6 +24,11 @@ import java.nio.charset.StandardCharsets;
 public class ExecuteLastEditorPopupMenuAction extends AnAction {
 
     private static final Logger log = Logger.getInstance(ExecuteLastEditorPopupMenuAction.class);
+
+    public ExecuteLastEditorPopupMenuAction() {
+        getTemplatePresentation().setText("Execute Last");
+        getTemplatePresentation().setIcon(DebugPowerIcons.last_icon);
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

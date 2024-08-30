@@ -18,4 +18,8 @@ public interface Command {
     Byte CONNECT_SUCCESS_RESPONSE = 6;
 
     Byte CLEAR_RUN_RESULT = 7;
+
+    Byte RUN_GROOVY_SCRIPT_REQUEST = 8;
+
+    Byte RUN_GROOVY_SCRIPT_RESPONSE = 9;
 }
