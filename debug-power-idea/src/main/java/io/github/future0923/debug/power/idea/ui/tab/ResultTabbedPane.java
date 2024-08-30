@@ -8,11 +8,10 @@ import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
 import io.github.future0923.debug.power.common.enums.ResultClassType;
-import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
+import io.github.future0923.debug.power.idea.ui.console.MyConsolePanel;
 import io.github.future0923.debug.power.idea.ui.editor.JsonEditor;
-import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
 import io.github.future0923.debug.power.idea.ui.tree.ResultTreePanel;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 
@@ -25,11 +24,15 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private final Project project;
 
-    private final RunTargetMethodResponsePacket packet;
+    private final String printResult;
+
+    private final String offsetPath;
+
+    private final ResultClassType resultClassType;
 
     private JBTabbedPane tabPane;
 
-    private TextEditor stringTab;
+    private MyConsolePanel stringTab;
 
     private JsonEditor jsonTab;
 
@@ -39,9 +42,15 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private boolean loadDebug = false;
 
-    public ResultTabbedPane(Project project, RunTargetMethodResponsePacket packet) {
+    public ResultTabbedPane(Project project, String printResult, String offsetPath) {
+        this(project,printResult, offsetPath, ResultClassType.OBJECT);
+    }
+
+    public ResultTabbedPane(Project project, String printResult, String offsetPath, ResultClassType resultClassType) {
         this.project = project;
-        this.packet = packet;
+        this.printResult = printResult;
+        this.offsetPath = offsetPath;
+        this.resultClassType = resultClassType;
         initView();
         initEvent();
     }
@@ -51,16 +60,17 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
         tabPane = new JBTabbedPane();
 
-        stringTab = new TextEditor(project, packet.getPrintResult());
+        stringTab = new MyConsolePanel(project);
         stringTab.setName("STRING");
+        stringTab.print(printResult);
         tabPane.addTab("toString", stringTab);
 
         jsonTab = new JsonEditor(project);
         jsonTab.setName("JSON");
         tabPane.addTab("json", jsonTab);
 
-        if (!ResultClassType.VOID.equals(packet.getResultClassType())
-                && !ResultClassType.NULL.equals(packet.getResultClassType())) {
+        if (!ResultClassType.VOID.equals(resultClassType)
+                && !ResultClassType.NULL.equals(resultClassType)) {
             debugTab = new ResultTreePanel(project);
             tabPane.addTab("debug", debugTab);
         }
@@ -85,14 +95,14 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private void changeJson() {
         String text = "{}";
-        if (ResultClassType.VOID.equals(packet.getResultClassType())) {
+        if (ResultClassType.VOID.equals(resultClassType)) {
             text = "{\n    \"result\": \"Void\"\n}";
-        } else if (ResultClassType.NULL.equals(packet.getResultClassType())) {
+        } else if (ResultClassType.NULL.equals(resultClassType)) {
             text = "{\n    \"result\": \"Null\"\n}";
-        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())) {
-            text = "{\n    \"result\": \"" + packet.getPrintResult() + "\"\n}";
-        } else if (ResultClassType.OBJECT.equals(packet.getResultClassType())) {
-            text = HttpClientUtils.resultType(project, packet.getOffsetPath(), PrintResultType.JSON.getType());
+        } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
+            text = "{\n    \"result\": \"" + printResult + "\"\n}";
+        } else if (ResultClassType.OBJECT.equals(resultClassType)) {
+            text = HttpClientUtils.resultType(project, offsetPath, PrintResultType.JSON.getType());
         }
         jsonTab.setText(text);
         loadJson = true;
@@ -102,15 +112,15 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         if (debugTab == null) {
             return;
         }
-        if (ResultClassType.VOID.equals(packet.getResultClassType())) {
+        if (ResultClassType.VOID.equals(resultClassType)) {
             Messages.showErrorDialog(project, "Void does not support viewing", "Debug Result");
-        } else if (ResultClassType.NULL.equals(packet.getResultClassType())) {
+        } else if (ResultClassType.NULL.equals(resultClassType)) {
             Messages.showErrorDialog(project, "Null does not support viewing", "Debug Result");
-        } else if (ResultClassType.SIMPLE.equals(packet.getResultClassType())) {
-            debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", packet.getPrintResult())));
+        } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
+            debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", printResult)));
             loadDebug = true;
-        } else if (ResultClassType.OBJECT.equals(packet.getResultClassType())) {
-            String body = HttpClientUtils.resultType(project, packet.getOffsetPath(), PrintResultType.DEBUG.getType());
+        } else if (ResultClassType.OBJECT.equals(resultClassType)) {
+            String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
             if (DebugPowerStringUtils.isNotBlank(body)) {
                 debugTab.setRoot(new ResultTreeNode(DebugPowerJsonUtils.toBean(body, RunResultDTO.class)));
                 loadDebug = true;

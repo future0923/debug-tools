@@ -51,9 +51,9 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             resultComponent = new TextEditor(null, runResult);
         } else {
             if (packet.isSuccess()) {
-                resultComponent = new ResultTabbedPane(project, packet);
+                resultComponent = new ResultTabbedPane(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType());
             } else {
-                resultComponent = new ExceptionTabbedPane(project, packet);
+                resultComponent = new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
             }
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();

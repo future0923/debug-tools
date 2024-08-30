@@ -3,6 +3,7 @@ package io.github.future0923.debug.power.server.scoket.handler;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
 import io.github.future0923.debug.power.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeatRequestPacket;
+import io.github.future0923.debug.power.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
 
@@ -18,5 +19,6 @@ public class ServerPacketHandleService extends PacketHandleService {
         register(ServerCloseRequestPacket.class, ServerCloseRequestHandler.INSTANCE);
         register(RunTargetMethodRequestPacket.class, RunTargetMethodRequestHandler.INSTANCE);
         register(ClearRunResultRequestPacket.class, ClearRunResultRequestHandler.INSTANCE);
+        register(RunGroovyScriptRequestPacket.class, RunGroovyScriptRequestHandler.INSTANCE);
     }
 }

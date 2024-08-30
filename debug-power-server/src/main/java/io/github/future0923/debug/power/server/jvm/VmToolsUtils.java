@@ -76,6 +76,10 @@ public class VmToolsUtils {
         }
     }
 
+    public static Object[] getInstance(Class<?> targetClass) {
+        return instance.getInstances(targetClass);
+    }
+
     /**
      * 获取实例对象
      * <p>优先通过spring 上下文获取

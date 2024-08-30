@@ -10,6 +10,9 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiFile;
+import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.protocal.packet.request.RunGroovyScriptRequestPacket;
+import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,22 +21,34 @@ import org.jetbrains.annotations.NotNull;
 public class RunGroovyAction extends AnAction {
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        Project project = e.getProject();
+    public void actionPerformed(@NotNull AnActionEvent event) {
+        Project project = event.getProject();
         if (project == null) {
             return;
         }
         // 获取当前编辑的文件
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
+        Editor editor = event.getData(CommonDataKeys.EDITOR);
         if (editor == null) {
             return;
         }
         // 保存当前文件
         FileDocumentManager.getInstance().saveDocument(editor.getDocument());
-        //VirtualFile currentFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
-        //if (currentFile == null) return;
         String content = editor.getDocument().getText();
         Messages.showErrorDialog(content, "文件内容");
+        RunGroovyScriptRequestPacket packet = new RunGroovyScriptRequestPacket();
+        packet.setScript(content);
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
+            Messages.showErrorDialog("Run attach first", "执行失败");
+            return;
+        }
+        try {
+            info.getClient().getHolder().send(packet);
+        } catch (SocketCloseException e) {
+            Messages.showErrorDialog("Socket close", "执行失败");
+        } catch (Exception e) {
+            Messages.showErrorDialog("Socket send error " + e.getMessage(), "执行失败");
+        }
     }
 
 

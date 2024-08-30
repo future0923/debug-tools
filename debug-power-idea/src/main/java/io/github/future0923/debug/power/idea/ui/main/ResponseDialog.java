@@ -1,10 +1,8 @@
 package io.github.future0923.debug.power.idea.ui.main;
 
 import com.intellij.openapi.ui.DialogWrapper;
-import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
-import io.github.future0923.debug.power.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
-import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.power.idea.client.socket.utils.SocketSendUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,19 +33,14 @@ public class ResponseDialog extends DialogWrapper {
     }
 
     @Override
-    protected void doOKAction() {
+    protected void dispose() {
+        super.dispose();
+        close();
+    }
+
+    private void close() {
         if (packet.isSuccess()) {
-            String filedOffset = packet.getOffsetPath();
-            if (DebugPowerStringUtils.isNotBlank(filedOffset)) {
-                ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
-                if (info != null) {
-                    try {
-                        info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset));
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
+            SocketSendUtils.clearRunResult(packet.getApplicationName(), packet.getOffsetPath());
         }
-        super.doOKAction();
     }
 }
