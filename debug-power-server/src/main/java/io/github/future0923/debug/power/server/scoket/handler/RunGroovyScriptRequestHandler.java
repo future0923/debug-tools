@@ -1,7 +1,10 @@
 package io.github.future0923.debug.power.server.scoket.handler;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.ClassUtil;
 import groovy.lang.GroovyShell;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
+import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunGroovyScriptResponsePacket;
@@ -41,10 +44,19 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
         }
         RunGroovyScriptResponsePacket responsePacket = new RunGroovyScriptResponsePacket();
         responsePacket.setApplicationName(applicationName);
-        responsePacket.setPrintResult(evaluateResult.toString());
-        String offsetPath = RunResultDTO.genOffsetPath(evaluateResult);
-        DebugPowerResultUtils.putCache(offsetPath, evaluateResult);
-        responsePacket.setOffsetPath(offsetPath);
+        if (evaluateResult == null) {
+            responsePacket.setResultClassType(ResultClassType.NULL);
+            responsePacket.setPrintResult("NULL");
+        } else if (ClassUtil.isSimpleValueType(evaluateResult.getClass())) {
+            responsePacket.setResultClassType(ResultClassType.SIMPLE);
+            responsePacket.setPrintResult(Convert.toStr(evaluateResult));
+        } else {
+            responsePacket.setResultClassType(ResultClassType.OBJECT);
+            responsePacket.setPrintResult(evaluateResult.toString());
+            String offsetPath = RunResultDTO.genOffsetPath(evaluateResult);
+            responsePacket.setOffsetPath(offsetPath);
+            DebugPowerResultUtils.putCache(offsetPath, evaluateResult);
+        }
         writeAndFlushNotException(outputStream, responsePacket);
     }
 }
