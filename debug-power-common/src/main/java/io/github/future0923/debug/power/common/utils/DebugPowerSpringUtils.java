@@ -135,8 +135,8 @@ public class DebugPowerSpringUtils {
         return null;
     }
 
-    private static <T> T doGetBean(Class<T> requiredType, List<ApplicationContext> applicationContextList1) {
-        for (ApplicationContext applicationContext : applicationContextList1) {
+    private static <T> T doGetBean(Class<T> requiredType, List<ApplicationContext> applicationContextList) {
+        for (ApplicationContext applicationContext : applicationContextList) {
             try {
                 return applicationContext.getBean(requiredType);
             } catch (BeansException ignored) {

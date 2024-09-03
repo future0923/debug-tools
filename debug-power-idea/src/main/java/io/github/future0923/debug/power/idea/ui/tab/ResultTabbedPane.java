@@ -42,10 +42,6 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private boolean loadDebug = false;
 
-    public ResultTabbedPane(Project project, String printResult, String offsetPath) {
-        this(project,printResult, offsetPath, ResultClassType.OBJECT);
-    }
-
     public ResultTabbedPane(Project project, String printResult, String offsetPath, ResultClassType resultClassType) {
         this.project = project;
         this.printResult = printResult;

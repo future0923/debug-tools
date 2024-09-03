@@ -48,7 +48,7 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
 
     private static @NotNull RunContentDescriptor getRunContentDescriptor(RunGroovyScriptResponsePacket packet, Project project, String consoleTitle) {
         JComponent resultTabbedPane = packet.isSuccess()
-                ? new ResultTabbedPane(project, packet.getPrintResult(), packet.getOffsetPath())
+                ? new ResultTabbedPane(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType())
                 : new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
         return new RunContentDescriptor(null, null, resultTabbedPane, consoleTitle) {
             @Override
