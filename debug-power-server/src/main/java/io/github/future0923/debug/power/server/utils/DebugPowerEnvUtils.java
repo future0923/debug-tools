@@ -7,6 +7,8 @@ import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +25,70 @@ public class DebugPowerEnvUtils {
             springEnvUtil = DebugPowerClassUtils.loadDebugPowerClass("io.github.future0923.debug.power.server.mock.spring.SpringEnvUtil");
             xxlJobEnvUtil = DebugPowerClassUtils.loadDebugPowerClass("io.github.future0923.debug.power.server.mock.xxljob.XxlJobEnvUtil");
         } catch (ClassNotFoundException ignored) {
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getFirstBean(String beanName) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method getFirstBean = springEnvUtil.getMethod("getFirstBean", String.class);
+            return (T) getFirstBean.invoke(null, beanName);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            return null;
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getBeans(String beanName) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method getBeans = springEnvUtil.getMethod("getBeans", String.class);
+            return (List<T>) getBeans.invoke(null, beanName);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            return Collections.emptyList();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getFirstBean(Class<T> requiredType) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method getFirstBean = springEnvUtil.getMethod("getFirstBean", Class.class);
+            return (T) getFirstBean.invoke(null, requiredType);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            return null;
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> getBeans(Class<T> requiredType) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method getBean = springEnvUtil.getMethod("getBeans", Class.class);
+            return (List<T>) getBean.invoke(null, requiredType);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            return Collections.emptyList();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object getSpringValue(String value) {
+        try {
+            Class.forName("org.springframework.core.env.Environment");
+            Method getSpringValue = springEnvUtil.getMethod("getSpringValue", String.class);
+            return getSpringValue.invoke(null, value);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+            return null;
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -104,10 +170,9 @@ public class DebugPowerEnvUtils {
             Method setXxlJobParam = xxlJobEnvUtil.getMethod("setXxlJobParam", String.class);
             setXxlJobParam.invoke(null, jobParam);
         } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            
+
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
-
 }

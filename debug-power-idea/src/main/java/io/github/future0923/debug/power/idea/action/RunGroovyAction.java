@@ -34,7 +34,6 @@ public class RunGroovyAction extends AnAction {
         // 保存当前文件
         FileDocumentManager.getInstance().saveDocument(editor.getDocument());
         String content = editor.getDocument().getText();
-        Messages.showErrorDialog(content, "文件内容");
         RunGroovyScriptRequestPacket packet = new RunGroovyScriptRequestPacket();
         packet.setScript(content);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);

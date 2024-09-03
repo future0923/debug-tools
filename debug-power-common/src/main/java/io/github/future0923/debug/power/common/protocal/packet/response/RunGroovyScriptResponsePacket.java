@@ -2,6 +2,7 @@ package io.github.future0923.debug.power.common.protocal.packet.response;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.common.enums.ResultClassType;
 import io.github.future0923.debug.power.common.protocal.Command;
 import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
@@ -22,6 +23,8 @@ public class RunGroovyScriptResponsePacket extends Packet {
     private static final Logger logger = Logger.getLogger(RunGroovyScriptResponsePacket.class);
 
     private String applicationName;
+
+    private ResultClassType resultClassType;
 
     private String printResult;
 
@@ -51,6 +54,7 @@ public class RunGroovyScriptResponsePacket extends Packet {
         }
         RunGroovyScriptResponsePacket packet = DebugPowerJsonUtils.toBean(jsonString, RunGroovyScriptResponsePacket.class);
         this.setApplicationName(packet.getApplicationName());
+        this.setResultClassType(packet.getResultClassType());
         this.setPrintResult(packet.getPrintResult());
         this.setThrowable(packet.getThrowable());
         this.setOffsetPath(packet.getOffsetPath());
