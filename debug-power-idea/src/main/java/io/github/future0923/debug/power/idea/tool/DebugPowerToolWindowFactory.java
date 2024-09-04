@@ -68,7 +68,7 @@ public class DebugPowerToolWindowFactory implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
     }
 
-    @Override
+    // 加 @Override 注解在2023.3及以下编译会报错
     public boolean isDumbAware() {
         // 不需要等待索引完成
         return true;
