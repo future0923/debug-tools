@@ -19,6 +19,9 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         RunResultDTO runResultDTO = ((TreeNode) value).getUserObject();
+        if (runResultDTO == null) {
+            return;
+        }
         if (RunResultDTO.Type.ROOT.equals(runResultDTO.getType())) {
             setIcon(AllIcons.Debugger.Value);
             append("result", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));

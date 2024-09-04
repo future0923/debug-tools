@@ -124,7 +124,9 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         } else if (ResultClassType.NULL.equals(resultClassType)) {
             Messages.showErrorDialog(project, "Null does not support viewing", "Debug Result");
         } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
-            debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", printResult)));
+            debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", printResult) {{
+                setLeaf(true);
+            }}));
             loadDebug = true;
         } else if (ResultClassType.OBJECT.equals(resultClassType)) {
             String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
