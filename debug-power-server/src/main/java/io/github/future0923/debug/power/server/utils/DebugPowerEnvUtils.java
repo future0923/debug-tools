@@ -80,15 +80,36 @@ public class DebugPowerEnvUtils {
         }
     }
 
-    public static Object getSpringValue(String value) {
+    public static Object getSpringConfig(String value) {
         try {
             Class.forName("org.springframework.core.env.Environment");
-            Method getSpringValue = springEnvUtil.getMethod("getSpringValue", String.class);
-            return getSpringValue.invoke(null, value);
+            Method getSpringConfig = springEnvUtil.getMethod("getSpringConfig", String.class);
+            return getSpringConfig.invoke(null, value);
         } catch (ClassNotFoundException | NoSuchMethodException ignored) {
             return null;
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getTargetObject(Object candidate) {
+        try {
+            Class.forName("org.springframework.aop.SpringProxy");
+            Method getTargetObject = springEnvUtil.getMethod("getTargetObject", Object.class);
+            return (T) getTargetObject.invoke(null, candidate);
+        } catch (Exception ignored) {
+            return (T) candidate;
+        }
+    }
+
+    public static Class<?> getTargetClass(Object candidate) {
+        try {
+            Class.forName("org.springframework.aop.SpringProxy");
+            Method getTargetClass = springEnvUtil.getMethod("getTargetClass", Object.class);
+            return (Class<?>) getTargetClass.invoke(null, candidate);
+        } catch (Exception ignored) {
+            return candidate.getClass();
         }
     }
 

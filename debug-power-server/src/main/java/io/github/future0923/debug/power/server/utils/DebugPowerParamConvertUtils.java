@@ -7,7 +7,6 @@ import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerLambdaUtils;
-import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.File;
@@ -50,7 +49,7 @@ public class DebugPowerParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return DebugPowerSpringUtils.getBean(parameter.getType());
+            return DebugPowerEnvUtils.getFirstBean(parameter.getType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugPowerLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getParameterizedType());

@@ -2,14 +2,16 @@ package io.github.future0923.debug.power.server.mock.spring;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.ReflectUtil;
+import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
-import io.github.future0923.debug.power.common.exception.DebugPowerException;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.mock.spring.method.SpringParamConvertUtils;
 import io.github.future0923.debug.power.server.mock.spring.request.MockHttpServletRequest;
 import io.github.future0923.debug.power.server.mock.spring.request.MockHttpServletResponse;
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.TargetClassAware;
+import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -17,14 +19,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +42,8 @@ import java.util.Map;
  * @author future0923
  */
 public class SpringEnvUtil {
+
+    private static final Logger logger = Logger.getLogger(SpringEnvUtil.class);
 
     private static volatile boolean init = false;
 
@@ -159,9 +166,51 @@ public class SpringEnvUtil {
         return beanList;
     }
     
-    public static Object getSpringValue(String value) {
+    public static Object getSpringConfig(String value) {
         Environment environment = getFirstBean(Environment.class);
         return environment.getProperty(value, Object.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getTargetObject(Object candidate) {
+        if (candidate == null) {
+            return null;
+        }
+        try {
+            if (isAopProxy(candidate) && candidate instanceof Advised) {
+                Object target = ((Advised) candidate).getTargetSource().getTarget();
+                if (target != null) {
+                    return getTargetObject(target);
+                }
+            }
+        } catch (Throwable ignored) {
+
+        }
+        return (T) candidate;
+    }
+
+    public static Class<?> getTargetClass(Object candidate) {
+        if (candidate == null) {
+            return null;
+        }
+        Class<?> result = null;
+        if (candidate instanceof TargetClassAware) {
+            result = ((TargetClassAware) candidate).getTargetClass();
+        }
+        if (result == null) {
+            result = (isCglibProxy(candidate) ? candidate.getClass().getSuperclass() : candidate.getClass());
+        }
+        return result;
+    }
+
+    private static boolean isCglibProxy(@Nullable Object object) {
+        return (object instanceof SpringProxy &&
+                object.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR));
+    }
+
+    private static boolean isAopProxy(@Nullable Object object) {
+        return (object instanceof SpringProxy && (Proxy.isProxyClass(object.getClass()) ||
+                object.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)));
     }
 
     public static void setRequest(RunDTO runDTO) {
