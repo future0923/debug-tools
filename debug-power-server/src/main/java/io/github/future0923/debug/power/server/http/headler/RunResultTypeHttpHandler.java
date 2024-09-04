@@ -36,7 +36,7 @@ public class RunResultTypeHttpHandler extends BaseHttpHandler<RunResultTypeReq, 
                 return "{\n\"result\": \"" + e.getMessage()+"\"\n}";
             }
         } else if (PrintResultType.DEBUG.getType().equals(req.getPrintResultType())) {
-            return new RunResultDTO("result", valueByOffset);
+            return new RunResultDTO("result", valueByOffset, RunResultDTO.Type.ROOT, offsetPath);
         }
         return null;
     }

@@ -37,7 +37,7 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
         try {
             evaluateResult = groovyShell.evaluate(packet.getScript());
         } catch (Exception e) {
-            String offsetPath = RunResultDTO.genOffsetPath(e);
+            String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugPowerResultUtils.putCache(offsetPath, e);
             writeAndFlushNotException(outputStream, RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName));
             return;
@@ -53,7 +53,7 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
         } else {
             responsePacket.setResultClassType(ResultClassType.OBJECT);
             responsePacket.setPrintResult(evaluateResult.toString());
-            String offsetPath = RunResultDTO.genOffsetPath(evaluateResult);
+            String offsetPath = RunResultDTO.genOffsetPathRandom(evaluateResult);
             responsePacket.setOffsetPath(offsetPath);
             DebugPowerResultUtils.putCache(offsetPath, evaluateResult);
         }

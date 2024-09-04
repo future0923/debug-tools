@@ -7,6 +7,7 @@ import cn.hutool.core.util.ClassUtil;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Random;
 
 /**
  * @author future0923
@@ -89,7 +90,7 @@ public class RunResultDTO implements Serializable {
     private boolean leaf;
 
     public RunResultDTO(Object name, Object value) {
-        this(name, value, Type.ROOT, String.valueOf(System.identityHashCode(value)));
+        this(name, value, Type.ROOT, genOffsetPath(value));
     }
 
     public RunResultDTO(Object name, Object value, Type type, String filedOffset) {
@@ -142,6 +143,11 @@ public class RunResultDTO implements Serializable {
 
     public static String genOffsetPath(Object valueObj) {
         return String.valueOf(System.identityHashCode(valueObj));
+    }
+
+    public static String genOffsetPathRandom(Object valueObj) {
+        // 同一个对象生成的identityHashCode相同，增加随机数区分。异步销毁的缓存的时候和异步生成缓存是不会把之前的缓存销毁掉。
+        return System.identityHashCode(valueObj) + "" + new Random().nextInt(999999);
     }
 
     private String genClassName(Object object, Integer childSize) {
