@@ -64,6 +64,10 @@ public class TestService {
         user2.setAge(2);
     }
 
+    public void testException() {
+        throw new RuntimeException("test");
+    }
+
     public void test() {
         System.out.println(1);
     }

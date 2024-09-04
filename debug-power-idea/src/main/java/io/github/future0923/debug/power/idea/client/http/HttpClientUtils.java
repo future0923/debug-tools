@@ -71,6 +71,7 @@ public class HttpClientUtils {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("http://127.0.0.1:" + settingState.getHttpPort() + uri))
+                .timeout(Duration.ofSeconds(3))
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
