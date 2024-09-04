@@ -5,10 +5,7 @@ import com.taobao.arthas.common.OSUtils;
 import io.github.future0923.debug.power.base.config.AgentConfig;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
-import io.github.future0923.debug.power.common.utils.DebugPowerAopUtils;
-import io.github.future0923.debug.power.common.utils.DebugPowerSpringUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.ApplicationContext;
+import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +67,7 @@ public class VmToolsUtils {
     public static Object getInstance(Class<?> targetClass, Method targetMethod) {
         Object instance = VmToolsUtils.getSpringInstance(targetClass);
         if (!Modifier.isPublic(targetMethod.getModifiers())) {
-            return DebugPowerAopUtils.getTargetObject(instance);
+            return DebugPowerEnvUtils.getTargetObject(instance);
         } else {
             return instance;
         }
@@ -88,11 +85,12 @@ public class VmToolsUtils {
      */
     public static Object getSpringInstance(Class<?> clazz) {
         try {
+            return DebugPowerEnvUtils.getFirstBean(clazz);
             // 这里用的是被调用项目的ApplicationContext
-            DebugPowerSpringUtils.initApplicationContexts(() -> instance.getInstances(ApplicationContext.class), () -> instance.getInstances(BeanFactory.class));
-            if (DebugPowerSpringUtils.containsBean(clazz)) {
-                return DebugPowerSpringUtils.getBean(clazz);
-            }
+            //DebugPowerSpringUtils.initApplicationContexts(() -> instance.getInstances(ApplicationContext.class), () -> instance.getInstances(BeanFactory.class));
+            //if (DebugPowerSpringUtils.containsBean(clazz)) {
+            //    return DebugPowerSpringUtils.getBean(clazz);
+            //}
         } catch (Throwable ignored) {
             // 加载不到从JVM中获取
         }

@@ -16,6 +16,7 @@ import io.github.future0923.debug.power.idea.ui.tree.ResultTreePanel;
 import io.github.future0923.debug.power.idea.ui.tree.node.ResultTreeNode;
 
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * @author future0923
@@ -61,18 +62,28 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         stringTab.print(printResult);
         tabPane.addTab("toString", stringTab);
 
-        jsonTab = new JsonEditor(project);
-        jsonTab.setName("JSON");
-        tabPane.addTab("json", jsonTab);
+        if (jsonTab()) {
+            jsonTab = new JsonEditor(project);
+            jsonTab.setName("JSON");
+            tabPane.addTab("json", jsonTab);
+        }
 
         if (!ResultClassType.VOID.equals(resultClassType)
-                && !ResultClassType.NULL.equals(resultClassType)) {
+                && !ResultClassType.NULL.equals(resultClassType)
+                && debugTab()) {
             debugTab = new ResultTreePanel(project);
             tabPane.addTab("debug", debugTab);
         }
 
-
         add(tabPane, BorderLayout.CENTER);
+    }
+
+    protected boolean jsonTab() {
+        return false;
+    }
+
+    protected boolean debugTab() {
+        return false;
     }
 
     private void initEvent() {
@@ -80,10 +91,10 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             // 获取当前选中的选项卡索引
             int selectedIndex = tabPane.getSelectedIndex();
             // 获取当前选中的选项卡标题
-            //String selectedTabTitle = tabPane.getTitleAt(selectedIndex);
-            if (selectedIndex == 1 && !loadJson) {
+            String selectedTabTitle = tabPane.getTitleAt(selectedIndex);
+            if (Objects.equals(selectedTabTitle, "json") && !loadJson) {
                 changeJson();
-            } else if (selectedIndex == 2 && !loadDebug) {
+            } else if (Objects.equals(selectedTabTitle, "debug") && !loadDebug) {
                 changeDebug();
             }
         });

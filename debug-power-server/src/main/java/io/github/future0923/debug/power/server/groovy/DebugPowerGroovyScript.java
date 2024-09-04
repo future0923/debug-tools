@@ -42,15 +42,14 @@ public abstract class DebugPowerGroovyScript extends Script {
     }
 
     public String getSpringProfilesActive() {
-        // TODO 获取spring环境
-        return null;
+        return (String) getSpringConfig("spring.profiles.active");
     }
 
-    public Object gsv(String value) {
-        return getSpringValue(value);
+    public Object gsc(String value) {
+        return getSpringConfig(value);
     }
 
-    public Object getSpringValue(String value) {
-        return DebugPowerEnvUtils.getSpringValue(value);
+    public Object getSpringConfig(String value) {
+        return DebugPowerEnvUtils.getSpringConfig(value);
     }
 }

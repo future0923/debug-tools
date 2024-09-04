@@ -12,7 +12,7 @@ import io.github.future0923.debug.power.common.protocal.packet.response.RunTarge
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.ui.editor.TextEditor;
 import io.github.future0923.debug.power.idea.ui.tab.ExceptionTabbedPane;
-import io.github.future0923.debug.power.idea.ui.tab.ResultTabbedPane;
+import io.github.future0923.debug.power.idea.ui.tab.RunResult;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -51,7 +51,7 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             resultComponent = new TextEditor(null, runResult);
         } else {
             if (packet.isSuccess()) {
-                resultComponent = new ResultTabbedPane(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType());
+                resultComponent = new RunResult(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType());
             } else {
                 resultComponent = new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
             }

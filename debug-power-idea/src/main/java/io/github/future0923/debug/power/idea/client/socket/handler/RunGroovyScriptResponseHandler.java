@@ -11,7 +11,7 @@ import io.github.future0923.debug.power.common.protocal.packet.response.RunGroov
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.power.idea.ui.tab.ExceptionTabbedPane;
-import io.github.future0923.debug.power.idea.ui.tab.ResultTabbedPane;
+import io.github.future0923.debug.power.idea.ui.tab.GroovyResult;
 import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +48,7 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
 
     private static @NotNull RunContentDescriptor getRunContentDescriptor(RunGroovyScriptResponsePacket packet, Project project, String consoleTitle) {
         JComponent resultTabbedPane = packet.isSuccess()
-                ? new ResultTabbedPane(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType())
+                ? new GroovyResult(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType())
                 : new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
         return new RunContentDescriptor(null, null, resultTabbedPane, consoleTitle) {
             @Override

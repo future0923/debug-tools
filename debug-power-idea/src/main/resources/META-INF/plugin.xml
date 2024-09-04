@@ -37,7 +37,7 @@
 
     <change-notes>
         <![CDATA[
-        <strong>2.2.0</strong>
+        <strong>2.3.0</strong>
         <ul>
             <li>Support toString、json、debug to view the returned results</li>
             <li>Support console、debug to view tAhe exception results</li>
