@@ -49,7 +49,7 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
     private void appendValueInfo(String className, String value, Integer childSize, boolean array) {
         // 有子集，并且不是数组
         if (childSize != null && !array) {
-            append("size = " + childSize);
+            append(value);
         } else {
             if (value == null) {
                 append("null");
