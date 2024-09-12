@@ -98,24 +98,25 @@ public class RunResultDTO implements Serializable {
         this.valueIdentity = Integer.toHexString(System.identityHashCode(value));
         this.type = type;
         this.filedOffset = filedOffset;
+        this.nameArray = ArrayUtil.isArray(name);
         if (name != null) {
             try {
                 nameChildSize = CollUtil.size(name);
             } catch (Exception ignored) {
             }
             this.nameClassName = genClassName(name, nameChildSize);
-            this.name = Convert.toStr(name);
+            this.name = nameChildSize != null && !nameArray ? "size = " + nameChildSize : Convert.toStr(name);
         }
-        this.nameArray = ArrayUtil.isArray(name);
+        this.valueArray = ArrayUtil.isArray(value);
         if (value != null) {
             try {
                 valueChildSize = CollUtil.size(value);
             } catch (Exception ignored) {
             }
             this.valueClassName = genClassName(value, valueChildSize);
-            this.value = Convert.toStr(value);
+            this.value = valueChildSize != null && !valueArray ? "size = " + valueChildSize : Convert.toStr(value);
         }
-        this.valueArray = ArrayUtil.isArray(value);
+
         this.leaf = value == null || ClassUtil.isBasicType(value.getClass()) || (ArrayUtil.isArray(value) && ClassUtil.isBasicType(value.getClass().getComponentType()));
     }
 
