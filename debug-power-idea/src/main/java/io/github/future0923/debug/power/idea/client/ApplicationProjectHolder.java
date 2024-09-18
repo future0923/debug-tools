@@ -5,9 +5,12 @@ import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
 import io.github.future0923.debug.power.client.DebugPowerSocketClient;
 import io.github.future0923.debug.power.client.config.ClientConfig;
+import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.protocal.packet.Packet;
 import io.github.future0923.debug.power.idea.client.socket.IdeaPacketHandleService;
 import lombok.Data;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -71,6 +74,16 @@ public class ApplicationProjectHolder {
 
     public static Info getInfo(Project project) {
         return PROJECT_MAPPING.get(project);
+    }
+
+    public static void close(Project project) {
+        getInfo(project).getClient().disconnect();
+        Info remove = PROJECT_MAPPING.remove(project);
+        APPLICATION_MAPPING.remove(remove.getApplicationName());
+    }
+
+    public static void send(Project project, Packet packet) throws SocketCloseException, IOException {
+        getInfo(project).getClient().getHolder().send(packet);
     }
 
     @Data

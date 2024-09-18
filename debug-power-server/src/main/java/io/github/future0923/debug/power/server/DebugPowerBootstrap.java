@@ -17,7 +17,9 @@ public class DebugPowerBootstrap {
 
     private static final Logger logger = Logger.getLogger(DebugPowerBootstrap.class);
 
-    private static volatile DebugPowerBootstrap debugBootstrap;
+    public static volatile DebugPowerBootstrap debugBootstrap;
+
+    public static volatile boolean started = false;
 
     private DebugPowerSocketServer socketServer;
 
@@ -44,7 +46,7 @@ public class DebugPowerBootstrap {
         int listenPort = Integer.parseInt(parse.getListenPort());
         serverConfig.setApplicationName(parse.getApplicationName());
         serverConfig.setPort(listenPort);
-        if (socketServer == null) {
+        if (!started || socketServer == null) {
             socketServer = new DebugPowerSocketServer();
             socketServer.start();
         } else if (port != null && listenPort != port) {
@@ -56,6 +58,16 @@ public class DebugPowerBootstrap {
         this.port = listenPort;
         DebugPowerHttpServer httpServer = DebugPowerHttpServer.getInstance();
         httpServer.start();
-        this.httpPort = httpServer.getListenPort();
+        httpPort = httpServer.getListenPort();
+        started = true;
+    }
+
+    public void stop() {
+        if (socketServer != null) {
+            socketServer.close();
+            socketServer = null;
+        }
+        started = false;
+        logger.info("stop successful");
     }
 }

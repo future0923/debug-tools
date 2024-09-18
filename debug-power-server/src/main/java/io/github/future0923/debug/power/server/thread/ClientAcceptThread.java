@@ -48,7 +48,6 @@ public class ClientAcceptThread extends Thread {
                 try {
                     socket = serverSocket.accept();
                 } catch (IOException e) {
-                    logger.error("accept error, maybe active disconnect.", e.getMessage());
                     serverSocket.close();
                     return;
                 }
