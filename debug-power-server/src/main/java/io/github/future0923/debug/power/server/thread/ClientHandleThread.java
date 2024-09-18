@@ -73,7 +73,7 @@ public class ClientHandleThread extends Thread {
                     }
                 } catch (Exception e) {
                     this.lastUpdateTime2Thread.remove(this);
-                    logger.error("remote client close socket:{} , error:{}", socket, e);
+                    logger.warning("remote client close socket:{} , error:{}", socket, e);
                     return;
                 }
             }
