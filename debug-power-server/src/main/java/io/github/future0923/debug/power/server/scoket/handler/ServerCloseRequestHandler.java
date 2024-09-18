@@ -1,9 +1,8 @@
 package io.github.future0923.debug.power.server.scoket.handler;
 
-import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.BasePacketHandler;
 import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
-import io.github.future0923.debug.power.server.thread.SocketServerHolder;
+import io.github.future0923.debug.power.server.DebugPowerBootstrap;
 
 import java.io.OutputStream;
 
@@ -12,8 +11,6 @@ import java.io.OutputStream;
  */
 public class ServerCloseRequestHandler extends BasePacketHandler<ServerCloseRequestPacket> {
 
-    private static final Logger logger = Logger.getLogger(ServerCloseRequestHandler.class);
-
     public static final ServerCloseRequestHandler INSTANCE = new ServerCloseRequestHandler();
 
     private ServerCloseRequestHandler() {
@@ -21,6 +18,6 @@ public class ServerCloseRequestHandler extends BasePacketHandler<ServerCloseRequ
 
     @Override
     public void handle(OutputStream outputStream, ServerCloseRequestPacket packet) throws Exception {
-        SocketServerHolder.getClientAcceptThread().close();
+        DebugPowerBootstrap.debugBootstrap.stop();
     }
 }

@@ -1,12 +1,14 @@
 package io.github.future0923.debug.power.idea.tool.ui;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.power.client.holder.ClientSocketHolder;
+import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
@@ -54,13 +56,28 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     }
 
     private void initLayout() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        JPanel attachStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         attached.setEditable(false);
         attached.setForeground(JBColor.WHITE);
         attached.setOpaque(true);
-        panel.add(new JBLabel("Attach status:"));
-        panel.add(attached);
-        panel.add(textField);
+        attachStatusPanel.add(new JBLabel("Attach status:"));
+        attachStatusPanel.add(attached);
+        attachStatusPanel.add(textField);
+        JPanel attachButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        JButton closeButton = new JButton("Close");
+        attachButtonPanel.add(closeButton);
+        closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
+        JButton stopButton = new JButton("Stop");
+        attachButtonPanel.add(stopButton);
+        stopButton.addActionListener(e -> {
+            try {
+                ApplicationProjectHolder.send(project, new ServerCloseRequestPacket());
+            } catch (Exception ex) {
+                Messages.showErrorDialog(project, ex.getMessage(), "Stop Server Fail");
+            }
+            ApplicationProjectHolder.close(project);
+            unAttached(attachButtonPanel);
+        });
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -99,7 +116,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
             DebugPowerNotifierUtil.notifyInfo(project, "Global header saved successfully");
         });
         globalHeaderPanel.add(saveHeaderButton);
-        formBuilder.addComponent(panel);
+        formBuilder.addComponent(attachStatusPanel);
+        formBuilder.addComponent(attachButtonPanel);
         formBuilder.addComponent(globalHeaderPanel);
         settingState.getGlobalHeader().forEach((k, v) -> headerPanelList.add(DebugPowerUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, k, v, headerItemMap)));
         DebugPowerUIHelper.refreshUI(formBuilder);
@@ -119,15 +137,14 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 () -> {
                     ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
                     if (info == null || info.getClient() == null) {
-                        attached.setText("UnAttached");
-                        attached.setBackground(JBColor.RED);
-                        textField.setVisible(false);
+                        unAttached(attachButtonPanel);
                     } else {
                         if (!info.getClient().isClosed()) {
                             textField.setText(DebugPowerClassUtils.getShortClassName(info.getApplicationName()));
                             textField.setVisible(true);
                             attached.setText("Connected");
                             attached.setBackground(JBColor.GREEN);
+                            attachButtonPanel.setVisible(true);
                         } else {
                             if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
                                 attached.setText("Fail");
@@ -138,6 +155,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             }
                             attached.setBackground(JBColor.RED);
                             textField.setVisible(true);
+                            attachButtonPanel.setVisible(true);
                         }
                     }
                 },
@@ -145,6 +163,13 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 1,
                 TimeUnit.SECONDS
         );
+    }
+
+    private void unAttached(JPanel attachButtonPanel) {
+        attached.setText("UnAttached");
+        attached.setBackground(JBColor.RED);
+        textField.setVisible(false);
+        attachButtonPanel.setVisible(false);
     }
 
     public void clearHeader() {

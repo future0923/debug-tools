@@ -55,7 +55,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
             info.getClient().getHolder().send(packet);
         } catch (Exception ex) {
             log.error("execute last request error", ex);
-            Messages.showErrorDialog("Run attach first", "执行失败");
+            Messages.showErrorDialog(ex.getMessage(), "执行失败");
         }
     }
 }
