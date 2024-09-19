@@ -39,18 +39,14 @@
         <![CDATA[
         <strong>2.3.0</strong>
         <ul>
-            <li>Support toString、json、debug to view the returned results</li>
-            <li>Support console、debug to view tAhe exception results</li>
-            <li>Support org.springframework.web.multipart.MultipartFile param type</li>
-            <li>Optimize style</li>
-            <li>Fix recursive stack overflow exception when parameters are nested</li>
+            <li>Add groovy console to quickly executable code through target application.</li>
+            <li>Debug method to quickly copy names and values.</li>
+            <li>Additional services can be disconnected and stopped.</li>
         </ul>
         <ul>
-            <li>支持toString、json、debug的方式查看返回结果</li>
-            <li>支持console、debug的方式查看异常信息</li>
-            <li>支持org.springframework.web.multipart.MultipartFile类型参数</li>
-            <li>样式优化</li>
-            <li>修复参数嵌套时的递归堆栈溢出异常</li>
+            <li>增加groovy控制台，通过目标应用快捷执行代码</li>
+            <li>debug的方式可以快捷复制name和value</li>
+            <li>attach的服务可以断开链接和停止服务</li>
         </ul>
         ]]>
     </change-notes>
@@ -125,7 +121,7 @@
         </group>
         <group id="DebugPowerRun">
             <separator/>
-            <add-to-group group-id="RunContextGroup"  anchor="last" />
+            <add-to-group group-id="RunContextGroup" anchor="last"/>
             <action id="DebugPower.RunGroovy"
                     text="Run Current Groovy"
                     icon="AllIcons.Actions.Execute"
