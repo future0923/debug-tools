@@ -80,6 +80,42 @@ public class DebugPowerEnvUtils {
         }
     }
 
+    public static <T> void registerBean(T bean) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method registerBean = springEnvUtil.getMethod("registerBean", Object.class);
+            registerBean.invoke(null, bean);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> void registerBean(String beanName, T bean) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method registerBean = springEnvUtil.getMethod("registerBean", String.class, Object.class);
+            registerBean.invoke(null, beanName, bean);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void unregisterBean(String beanName) {
+        try {
+            Class.forName("org.springframework.beans.factory.BeanFactory");
+            Method unregisterBean = springEnvUtil.getMethod("unregisterBean", String.class);
+            unregisterBean.invoke(null, beanName);
+        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
+
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Object getSpringConfig(String value) {
         try {
             Class.forName("org.springframework.core.env.Environment");

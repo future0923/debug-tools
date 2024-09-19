@@ -37,6 +37,29 @@ public abstract class DebugPowerGroovyScript extends Script {
         return (T[]) DebugPowerEnvUtils.getBeans(beanName).toArray(new Object[0]);
     }
 
+    public <T> void rb(T bean) {
+        registerBean(bean);
+    }
+
+    public <T> void registerBean(T bean) {
+        DebugPowerEnvUtils.registerBean(bean);
+    }
+
+    public <T> void rb(String beanName, T bean) {
+        registerBean(beanName, bean);
+    }
+    public <T> void registerBean(String beanName, T bean) {
+        DebugPowerEnvUtils.registerBean(beanName, bean);
+    }
+
+    public void urb(String beanName) {
+        unregisterBean(beanName);
+    }
+
+    public void unregisterBean(String beanName) {
+        DebugPowerEnvUtils.unregisterBean(beanName);
+    }
+
     public String gActive() {
         return getSpringProfilesActive();
     }

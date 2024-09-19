@@ -15,18 +15,21 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -120,6 +123,58 @@ public class SpringEnvUtil {
         return getBeansByBeanFactory(requiredType);
     }
 
+    public static <T> void registerBean(T bean) {
+        registerBean(Introspector.decapitalize(ClassUtils.getShortName(bean.getClass())), bean);
+    }
+
+    public static <T> void registerBean(String beanName, T bean) {
+        initSpringContext();
+        boolean factoryFound = false;
+        for (BeanFactory beanFactory : beanFactories) {
+            if (beanFactory instanceof ConfigurableListableBeanFactory) {
+                ConfigurableListableBeanFactory factory = (ConfigurableListableBeanFactory) beanFactory;
+                factory.autowireBean(bean);
+                factory.registerSingleton(beanName, bean);
+                factoryFound = true;
+                break;
+            }
+        }
+        if (!factoryFound) {
+            for (ApplicationContext applicationContext : applicationContexts) {
+                if (applicationContext instanceof ConfigurableApplicationContext) {
+                    ConfigurableListableBeanFactory factory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+                    factory.autowireBean(bean);
+                    factory.registerSingleton(beanName, bean);
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void unregisterBean(String beanName) {
+        initSpringContext();
+        boolean factoryFound = false;
+        for (BeanFactory beanFactory : beanFactories) {
+            if (beanFactory instanceof DefaultSingletonBeanRegistry) {
+                DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) beanFactory;
+                registry.destroySingleton(beanName);
+                factoryFound = true;
+                break;
+            }
+        }
+        if (!factoryFound) {
+            for (ApplicationContext applicationContext : applicationContexts) {
+                if (applicationContext instanceof ConfigurableApplicationContext) {
+                    ConfigurableListableBeanFactory factory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+                    if (factory instanceof DefaultSingletonBeanRegistry) {
+                        ((DefaultSingletonBeanRegistry) factory).destroySingleton(beanName);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private static <T> List<T> getBeansByApplicationContext(Class<T> requiredType) {
         List<T> beanList = new LinkedList<>();
         for (ApplicationContext applicationContext : applicationContexts) {
@@ -168,7 +223,26 @@ public class SpringEnvUtil {
     
     public static Object getSpringConfig(String value) {
         Environment environment = getFirstBean(Environment.class);
-        return environment.getProperty(value, Object.class);
+        Object property = environment.getProperty(value, Object.class);
+        if (property == null) {
+            // 尝试获取数组
+            List<Object> result = new LinkedList<>();
+            int i = 0;
+            Object object;
+            do {
+                object = environment.getProperty(value + "[" + i++ + "]", Object.class);
+                if (object != null) {
+                    result.add(object);
+                }
+            } while (object != null);
+            if (result.isEmpty()) {
+                return null;
+            } else {
+                return result.toArray(new Object[0]);
+            }
+        } else {
+            return property;
+        }
     }
 
     @SuppressWarnings("unchecked")
