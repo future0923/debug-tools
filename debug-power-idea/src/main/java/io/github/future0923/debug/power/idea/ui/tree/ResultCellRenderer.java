@@ -11,11 +11,19 @@ import io.github.future0923.debug.power.idea.ui.tree.node.TreeNode;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * @author future0923
  */
 public class ResultCellRenderer extends ColoredTreeCellRenderer {
+
+    private static final Color ORANGE = new JBColor(new Color(0x753F3E), new Color(0xE6AE87));
+
+    private static final Color GREEN = new JBColor(new Color(0x377A2A), new Color(0x79A878));
+
+    private static final Color GRAY = new JBColor(new Color(0x818593), new Color(0x707379));
+
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
         RunResultDTO runResultDTO = ((TreeNode) value).getUserObject();
@@ -24,7 +32,7 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
         }
         if (RunResultDTO.Type.ROOT.equals(runResultDTO.getType())) {
             setIcon(AllIcons.Debugger.Value);
-            append("result", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
+            append("result", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ORANGE));
             append(" = ");
         } else if (RunResultDTO.Type.MAP.equals(runResultDTO.getType())) {
             setIcon(AllIcons.Debugger.Value);
@@ -34,11 +42,11 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
             append(" -> ");
         } else if (RunResultDTO.Type.MAP_ENTRY.equals(runResultDTO.getType())) {
             setIcon(AllIcons.Debugger.Value);
-            append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
+            append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ORANGE));
             append(" = ");
         } else {
             setIcon(AllIcons.Nodes.Field);
-            append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.ORANGE));
+            append(runResultDTO.getName(), new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, ORANGE));
             append(" = ");
         }
         appendClassInfo(runResultDTO.getValueClassName(), runResultDTO.getValueIdentity(), runResultDTO.getValue(), runResultDTO.getValueArray());
@@ -58,7 +66,7 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
                 if (DebugPowerClassUtils.isBasicType(aClass)) {
                     append(value);
                 } else if ("java.lang.String".equals(className)) {
-                    append("\"" + value + "\"", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GREEN));
+                    append("\"" + value + "\"", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, GREEN));
                 } else {
                     append("\"" + value + "\"");
                 }
@@ -87,7 +95,7 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
         if (simpleName == null) {
             simpleName = "Null";
         }
-        append("{" + simpleName + "@" + identity + "}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GRAY));
+        append("{" + simpleName + "@" + identity + "}", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, GRAY));
     }
 
     private Class<?> getClass(String className) {
