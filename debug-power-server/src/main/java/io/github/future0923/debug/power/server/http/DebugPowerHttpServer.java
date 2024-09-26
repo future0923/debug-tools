@@ -3,9 +3,10 @@ package io.github.future0923.debug.power.server.http;
 import com.sun.net.httpserver.HttpServer;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
-import io.github.future0923.debug.power.server.http.headler.IndexHttpHandler;
-import io.github.future0923.debug.power.server.http.headler.RunResultDetailHttpHandler;
-import io.github.future0923.debug.power.server.http.headler.RunResultTypeHttpHandler;
+import io.github.future0923.debug.power.server.http.handler.AllClassLoaderHttpHandler;
+import io.github.future0923.debug.power.server.http.handler.IndexHttpHandler;
+import io.github.future0923.debug.power.server.http.handler.RunResultDetailHttpHandler;
+import io.github.future0923.debug.power.server.http.handler.RunResultTypeHttpHandler;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -43,9 +44,10 @@ public class DebugPowerHttpServer {
             logger.error("start http server bind port in {} error", e, listenPort);
             return;
         }
-        httpServer.createContext("/", IndexHttpHandler.INSTANCE);
-        httpServer.createContext("/result/type", RunResultTypeHttpHandler.INSTANCE);
-        httpServer.createContext("/result/detail", RunResultDetailHttpHandler.INSTANCE);
+        httpServer.createContext(IndexHttpHandler.PATH, IndexHttpHandler.INSTANCE);
+        httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
+        httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
+        httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
     }
 
     public void start() {

@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.server.http.headler;
+package io.github.future0923.debug.power.server.http.handler;
 
 import com.sun.net.httpserver.Headers;
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
@@ -9,6 +9,8 @@ import io.github.future0923.debug.power.base.constants.ProjectConstants;
 public class IndexHttpHandler extends BaseHttpHandler<String, String> {
 
     public static final IndexHttpHandler INSTANCE = new IndexHttpHandler();
+
+    public static final String PATH = "/";
 
     private IndexHttpHandler() {
 

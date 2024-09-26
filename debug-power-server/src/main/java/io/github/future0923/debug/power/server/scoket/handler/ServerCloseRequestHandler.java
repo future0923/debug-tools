@@ -18,6 +18,6 @@ public class ServerCloseRequestHandler extends BasePacketHandler<ServerCloseRequ
 
     @Override
     public void handle(OutputStream outputStream, ServerCloseRequestPacket packet) throws Exception {
-        DebugPowerBootstrap.debugBootstrap.stop();
+        DebugPowerBootstrap.INSTANCE.stop();
     }
 }
