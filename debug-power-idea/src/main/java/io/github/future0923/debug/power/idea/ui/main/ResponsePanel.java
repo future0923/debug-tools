@@ -27,7 +27,7 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
 
     public ResponsePanel(RunTargetMethodResponsePacket packet) {
         super(new GridBagLayout());
-        setPreferredSize(new JBDimension(670, 500));
+        setPreferredSize(new JBDimension(800, 600));
         JBTextField classNameField = new JBTextField(packet.getClassName());
         JBTextField methodNameField = new JBTextField(packet.getMethodName());
         List<String> methodParameterTypes = packet.getMethodParameterTypes();
@@ -57,6 +57,13 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             }
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
+        if (packet.getClassLoaderIdentity() != null) {
+            JBTextField classLoaderField = new JBTextField(packet.getClassLoaderIdentity());
+            formBuilder.addLabeledComponent(
+                    new JBLabel("Class loader:"),
+                    classLoaderField
+            );
+        }
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
                         new JBLabel("Current class:"),

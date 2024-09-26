@@ -1,6 +1,7 @@
 package io.github.future0923.debug.power.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBLabel;
@@ -8,6 +9,8 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
+import io.github.future0923.debug.power.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.power.idea.listener.data.impl.ConvertDataListener;
@@ -21,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,6 +36,11 @@ public class MainPanel extends JBPanel<MainPanel> {
     private final Project project;
 
     private final MethodDataContext methodDataContext;
+
+    @Getter
+    private final ComboBox<AllClassLoaderRes> classLoaderComboBox = new ComboBox<>(600);
+
+    private final JButton refreshButton = new JButton("Refresh");
 
     private final JBTextField classNameField = new JBTextField();
 
@@ -74,9 +83,34 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     private void initLayout() {
+        JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        classLoaderComboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                AllClassLoaderRes classLoaderRes = (AllClassLoaderRes) value;
+                if (classLoaderRes == null) {
+                    return new JLabel();
+                }
+                String classLoader = classLoaderRes.getName();
+                JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, classLoader, index, isSelected, cellHasFocus);
+                jLabel.setText(classLoader + "@" + classLoaderRes.getIdentity());
+                return jLabel;
+            }
+        });
+        getAllClassLoader(true);
+        refreshButton.addActionListener( e -> {
+            classLoaderComboBox.removeAllItems();
+            getAllClassLoader(false);
+        });
+        classLoaderJPanel.add(classLoaderComboBox);
+        classLoaderJPanel.add(refreshButton);
         JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
+                .addLabeledComponent(
+                        new JBLabel("Class loader:"),
+                        classLoaderJPanel
+                )
                 .addLabeledComponent(
                         new JBLabel("Current class:"),
                         classNameField
@@ -131,6 +165,20 @@ public class MainPanel extends JBPanel<MainPanel> {
         gbc.gridx = 0;
         gbc.gridy = 2;
         this.add(editor, gbc);
+    }
+
+    private void getAllClassLoader(boolean cache) {
+        List<AllClassLoaderRes> allClassLoaderResList = HttpClientUtils.allClassLoader(project, cache);
+        AllClassLoaderRes defaultClassLoader = null;
+        for (AllClassLoaderRes allClassLoaderRes : allClassLoaderResList) {
+            if (allClassLoaderRes.getName().startsWith("sun.misc.Launcher$AppClassLoader")) {
+                defaultClassLoader = allClassLoaderRes;
+            }
+            classLoaderComboBox.addItem(allClassLoaderRes);
+        }
+        if (defaultClassLoader != null) {
+            classLoaderComboBox.setSelectedItem(defaultClassLoader);
+        }
     }
 
     public Map<String, String> getItemHeaderMap() {

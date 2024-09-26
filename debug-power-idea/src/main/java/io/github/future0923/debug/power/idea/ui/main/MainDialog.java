@@ -9,6 +9,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunDTO;
 import io.github.future0923.debug.power.common.exception.SocketCloseException;
+import io.github.future0923.debug.power.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
@@ -64,6 +65,7 @@ public class MainDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
+        AllClassLoaderRes classLoaderRes = (AllClassLoaderRes) mainPanel.getClassLoaderComboBox().getSelectedItem();
         MainJsonEditor editor = mainPanel.getEditor();
         String text = DebugPowerJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
@@ -79,6 +81,7 @@ public class MainDialog extends DialogWrapper {
                 ));
         RunDTO runDTO = new RunDTO();
         runDTO.setHeaders(headers);
+        runDTO.setClassLoader(classLoaderRes);
         runDTO.setTargetClassName(methodDataContext.getPsiClass().getQualifiedName());
         runDTO.setTargetMethodName(methodDataContext.getPsiMethod().getName());
         runDTO.setTargetMethodParameterTypes(DebugPowerActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));

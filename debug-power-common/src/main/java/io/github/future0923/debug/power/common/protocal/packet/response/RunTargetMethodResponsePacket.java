@@ -26,6 +26,8 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     private String applicationName;
 
+    private String classLoaderIdentity;
+
     private String className;
 
     private String methodName;
@@ -63,6 +65,7 @@ public class RunTargetMethodResponsePacket extends Packet {
         }
         RunTargetMethodResponsePacket packet = DebugPowerJsonUtils.toBean(jsonString, RunTargetMethodResponsePacket.class);
         this.setApplicationName(packet.getApplicationName());
+        this.setClassLoaderIdentity(packet.getClassLoaderIdentity());
         this.setClassName(packet.getClassName());
         this.setMethodName(packet.getMethodName());
         this.setMethodParameterTypes(packet.getMethodParameterTypes());
@@ -87,6 +90,7 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     public void setRunInfo(RunDTO runDTO, String applicationName) {
         this.setApplicationName(applicationName);
+        this.setClassLoaderIdentity(runDTO.getClassLoader() == null ? null : runDTO.getClassLoader().getName() + "@" + runDTO.getClassLoader().getIdentity());
         this.setClassName(runDTO.getTargetClassName());
         this.setMethodName(runDTO.getTargetMethodName());
         this.setMethodParameterTypes(runDTO.getTargetMethodParameterTypes());

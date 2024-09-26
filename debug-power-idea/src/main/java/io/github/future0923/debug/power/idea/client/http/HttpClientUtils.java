@@ -3,6 +3,7 @@ package io.github.future0923.debug.power.idea.client.http;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
+import io.github.future0923.debug.power.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.power.common.protocal.http.RunResultDetailReq;
 import io.github.future0923.debug.power.common.protocal.http.RunResultTypeReq;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
@@ -27,6 +28,10 @@ public class HttpClientUtils {
     private static final String RESULT_TYPE_URI = "/result/type";
 
     private static final String RESULT_DETAIL_URI = "/result/detail";
+
+    private static final String ALL_CLASS_LOADER_URI = "/allClassLoader";
+
+    private static List<AllClassLoaderRes> allClassLoaderResCache;
 
     static {
         httpClient = HttpClient.newBuilder()
@@ -65,6 +70,17 @@ public class HttpClientUtils {
         } catch (IOException | InterruptedException e) {
             return Collections.emptyList();
         }
+    }
+
+    public static List<AllClassLoaderRes> allClassLoader(Project project, boolean cache) {
+        if (allClassLoaderResCache == null || !cache) {
+            try {
+                String body = post(project, ALL_CLASS_LOADER_URI, "{}");
+                allClassLoaderResCache = DebugPowerJsonUtils.toAllClassLoaderRes(body);
+            } catch (IOException | InterruptedException ignored) {
+            }
+        }
+        return allClassLoaderResCache;
     }
 
     public static String post(Project project, String uri, String jsonBody) throws IOException, InterruptedException {

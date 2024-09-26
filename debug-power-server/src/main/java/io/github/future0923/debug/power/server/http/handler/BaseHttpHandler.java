@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.server.http.headler;
+package io.github.future0923.debug.power.server.http.handler;
 
 import cn.hutool.core.util.ClassUtil;
 import com.sun.net.httpserver.Headers;
@@ -28,7 +28,12 @@ public abstract class BaseHttpHandler<Req, Res> implements HttpHandler {
     public void handle(HttpExchange httpExchange) throws IOException {
         InputStream inputStream = httpExchange.getRequestBody();
         String requestBody = new String(DebugPowerIOUtils.readAllBytes(inputStream), StandardCharsets.UTF_8);
-        Req req = DebugPowerJsonUtils.toBean(requestBody, reqClass);
+        Req req;
+        if (reqClass.isAssignableFrom(Void.class)) {
+            req = null;
+        } else {
+            req = DebugPowerJsonUtils.toBean(requestBody, reqClass);
+        }
         Headers responseHeaders = httpExchange.getResponseHeaders();
         Res res = doHandle(req, responseHeaders);
         String responseBody = "";

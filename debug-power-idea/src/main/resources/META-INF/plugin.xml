@@ -37,7 +37,7 @@
 
     <change-notes>
         <![CDATA[
-        <strong>2.3.0</strong>
+        <strong>2.4.0</strong>
         <ul>
             <li>Add groovy console to quickly executable code through target application.</li>
             <li>Debug method to quickly copy names and values.</li>

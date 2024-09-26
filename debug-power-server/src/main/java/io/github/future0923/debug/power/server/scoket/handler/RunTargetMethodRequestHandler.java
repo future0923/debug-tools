@@ -14,6 +14,7 @@ import io.github.future0923.debug.power.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.server.DebugPowerBootstrap;
+import io.github.future0923.debug.power.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 import io.github.future0923.debug.power.server.utils.DebugPowerResultUtils;
@@ -35,6 +36,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
     @Override
     public void handle(OutputStream outputStream, RunTargetMethodRequestPacket packet) throws Exception {
         RunDTO runDTO = packet.getRunDTO();
+        ClassLoader orgClassLoader = Thread.currentThread().getContextClassLoader();
         String targetClassName = runDTO.getTargetClassName();
         if (DebugPowerStringUtils.isBlank(targetClassName)) {
             ArgsParseException exception = new ArgsParseException("目标类为空");
@@ -42,6 +44,17 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             DebugPowerResultUtils.putCache(offsetPath, exception);
             writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
             return;
+        }
+        if (runDTO.getClassLoader() != null && DebugPowerStringUtils.isNotBlank(runDTO.getClassLoader().getIdentity())) {
+            ClassLoader classLoader = AllClassLoaderHttpHandler.classLoaderMap.get(runDTO.getClassLoader().getIdentity());
+            if (classLoader == null) {
+                ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() +"]类加载器");
+                String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
+                DebugPowerResultUtils.putCache(offsetPath, exception);
+                writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));
+                return;
+            }
+            Thread.currentThread().setContextClassLoader(classLoader);
         }
         Class<?> targetClass;
         try {
@@ -69,6 +82,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugPowerEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO, outputStream);
+        Thread.currentThread().setContextClassLoader(orgClassLoader);
     }
 
     private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
