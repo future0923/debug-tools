@@ -1,6 +1,5 @@
-package io.github.future0923.debug.power.server.http.headler;
+package io.github.future0923.debug.power.server.http.handler;
 
-import cn.hutool.json.JSONUtil;
 import com.sun.net.httpserver.Headers;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.PrintResultType;
@@ -14,6 +13,8 @@ import io.github.future0923.debug.power.server.utils.DebugPowerResultUtils;
 public class RunResultTypeHttpHandler extends BaseHttpHandler<RunResultTypeReq, Object> {
 
     public static final RunResultTypeHttpHandler INSTANCE = new RunResultTypeHttpHandler();
+
+    public static final String PATH = "/result/type";
 
     private RunResultTypeHttpHandler() {
 

@@ -7,6 +7,7 @@ import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.http.DebugPowerHttpServer;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.scoket.DebugPowerSocketServer;
+import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
 
@@ -17,11 +18,14 @@ public class DebugPowerBootstrap {
 
     private static final Logger logger = Logger.getLogger(DebugPowerBootstrap.class);
 
-    public static volatile DebugPowerBootstrap debugBootstrap;
+    public static volatile DebugPowerBootstrap INSTANCE;
 
     public static volatile boolean started = false;
 
     private DebugPowerSocketServer socketServer;
+
+    @Getter
+    private final Instrumentation instrumentation;
 
     public static final ServerConfig serverConfig = new ServerConfig();
 
@@ -30,15 +34,16 @@ public class DebugPowerBootstrap {
     public static Integer httpPort;
 
     private DebugPowerBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
+        this.instrumentation = instrumentation;
         DebugPowerClassUtils.setClassLoader(classloader);
         VmToolsUtils.init();
     }
 
     public static synchronized DebugPowerBootstrap getInstance(Instrumentation instrumentation, ClassLoader classloader) {
-        if (debugBootstrap == null) {
-            debugBootstrap = new DebugPowerBootstrap(instrumentation, classloader);
+        if (INSTANCE == null) {
+            INSTANCE = new DebugPowerBootstrap(instrumentation, classloader);
         }
-        return debugBootstrap;
+        return INSTANCE;
     }
 
     public void start(String agentArgs) {

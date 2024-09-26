@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.future0923"
-version = "2.3.0"
+version = "2.4.0"
 
 repositories {
     mavenLocal()
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.future0923:debug-power-common:2.3.0")
-    implementation("io.github.future0923:debug-power-client:2.3.0")
+    implementation("io.github.future0923:debug-power-common:2.4.0")
+    implementation("io.github.future0923:debug-power-client:2.4.0")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
 }

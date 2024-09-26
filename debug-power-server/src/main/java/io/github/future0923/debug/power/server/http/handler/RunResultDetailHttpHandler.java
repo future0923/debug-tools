@@ -1,4 +1,4 @@
-package io.github.future0923.debug.power.server.http.headler;
+package io.github.future0923.debug.power.server.http.handler;
 
 import com.sun.net.httpserver.Headers;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
@@ -13,6 +13,8 @@ import java.util.List;
 public class RunResultDetailHttpHandler extends BaseHttpHandler<RunResultDetailReq, List<RunResultDTO>> {
 
     public static final RunResultDetailHttpHandler INSTANCE = new RunResultDetailHttpHandler();
+
+    public static final String PATH = "/result/detail";
 
     private RunResultDetailHttpHandler() {
 
