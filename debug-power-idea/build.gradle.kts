@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.future0923"
-version = "2.4.0"
+version = "3.0.0"
 
 repositories {
     mavenLocal()
@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.future0923:debug-power-common:2.4.0")
-    implementation("io.github.future0923:debug-power-client:2.4.0")
+    implementation("io.github.future0923:debug-power-common:3.0.0")
+    implementation("io.github.future0923:debug-power-client:3.0.0")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
@@ -24,7 +24,7 @@ dependencies {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    pluginName.set("DebugPower")
+    pluginName.set("DebugTools")
     version.set("2024.2")
 //    version.set("2024.1")
 //    version.set("2023.3")

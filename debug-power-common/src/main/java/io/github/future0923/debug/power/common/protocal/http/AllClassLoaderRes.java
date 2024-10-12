@@ -3,7 +3,7 @@ package io.github.future0923.debug.power.common.protocal.http;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author future0923
@@ -11,28 +11,27 @@ import java.util.Objects;
 @Data
 public class AllClassLoaderRes implements Serializable {
 
-    private String name;
+    private String defaultIdentity;
 
-    private String identity;
+    private Set<Item> itemList;
 
-    public AllClassLoaderRes() {
+    @Data
+    public static class Item {
+
+        private String name;
+
+        private String identity;
+
+        public Item() {
+        }
+
+        public Item(ClassLoader classLoader) {
+            this.name = classLoader.getClass().getName();
+            this.identity = Integer.toHexString(System.identityHashCode(classLoader));
+        }
     }
 
-    public AllClassLoaderRes(ClassLoader classLoader) {
-        this.name = classLoader.getClass().getName();
-        this.identity = Integer.toHexString(System.identityHashCode(classLoader));
-    }
 
-    @Override
-    public final boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof AllClassLoaderRes)) return false;
-        AllClassLoaderRes that = (AllClassLoaderRes) object;
-        return Objects.equals(name, that.name);
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name);
-    }
+
 }

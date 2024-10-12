@@ -15,8 +15,6 @@ public interface Command {
 
     Byte SERVER_CLOSE_REQUEST = 5;
 
-    Byte CONNECT_SUCCESS_RESPONSE = 6;
-
     Byte CLEAR_RUN_RESULT = 7;
 
     Byte RUN_GROOVY_SCRIPT_REQUEST = 8;

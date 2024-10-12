@@ -3,7 +3,9 @@ package io.github.future0923.debug.power.core;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.power.base.config.AgentArgs;
+import io.github.future0923.debug.power.base.enums.ArgType;
 import io.github.future0923.debug.power.base.logging.AnsiLog;
+import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerJavaVersionUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -24,7 +26,8 @@ public class DebugPower {
         Options options = new Options();
         options.addOption("p", "pid", true, "java pid");
         options.addOption("a", "agent", true, "java agent path");
-        options.addOption("lp", "listen-port", true, "target application server listen port");
+        options.addOption(ArgType.TCP_PORT.getOpt(), ArgType.TCP_PORT.getLongOpt(), ArgType.TCP_PORT.isHasArg(), ArgType.TCP_PORT.getDescription());
+        options.addOption(ArgType.HTTP_PORT.getOpt(), ArgType.HTTP_PORT.getLongOpt(), ArgType.HTTP_PORT.isHasArg(), ArgType.HTTP_PORT.getDescription());
         CommandLine cmd;
         try {
             cmd = parser.parse(options, args);
@@ -67,9 +70,8 @@ public class DebugPower {
             }
             try {
                 AgentArgs agentArgs = new AgentArgs();
-                if (cmd.hasOption("listen-port")) {
-                    agentArgs.setListenPort(cmd.getOptionValue("listen-port"));
-                }
+                agentArgs.setTcpPort(cmd.getOptionValue(ArgType.TCP_PORT.getLongOpt(), String.valueOf(DebugPowerIOUtils.getAvailablePort(12345))));
+                agentArgs.setHttpPort(cmd.getOptionValue(ArgType.HTTP_PORT.getLongOpt(), String.valueOf(DebugPowerIOUtils.getAvailablePort(22222))));
                 virtualMachine.loadAgent(debugPowerAgentPath, agentArgs.format());
             } catch (IOException e) {
                 if (e.getMessage() != null && e.getMessage().contains("Non-numeric value found")) {

@@ -8,7 +8,6 @@ import io.github.future0923.debug.power.common.protocal.packet.request.HeartBeat
 import io.github.future0923.debug.power.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.power.common.protocal.packet.request.ServerCloseRequestPacket;
-import io.github.future0923.debug.power.common.protocal.packet.response.ConnectSuccessResponsePacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.HeartBeatResponsePacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunGroovyScriptResponsePacket;
 import io.github.future0923.debug.power.common.protocal.packet.response.RunTargetMethodResponsePacket;
@@ -59,7 +58,6 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.RUN_TARGET_METHOD_REQUEST, RunTargetMethodRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_TARGET_METHOD_RESPONSE, RunTargetMethodResponsePacket.class);
         this.packetTypeMap.put(Command.SERVER_CLOSE_REQUEST, ServerCloseRequestPacket.class);
-        this.packetTypeMap.put(Command.CONNECT_SUCCESS_RESPONSE, ConnectSuccessResponsePacket.class);
         this.packetTypeMap.put(Command.CLEAR_RUN_RESULT, ClearRunResultRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_REQUEST, RunGroovyScriptRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_RESPONSE, RunGroovyScriptResponsePacket.class);

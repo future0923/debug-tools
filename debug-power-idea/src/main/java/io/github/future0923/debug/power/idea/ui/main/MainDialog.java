@@ -65,7 +65,7 @@ public class MainDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
-        AllClassLoaderRes classLoaderRes = (AllClassLoaderRes) mainPanel.getClassLoaderComboBox().getSelectedItem();
+        AllClassLoaderRes.Item classLoaderRes = (AllClassLoaderRes.Item) mainPanel.getClassLoaderComboBox().getSelectedItem();
         MainJsonEditor editor = mainPanel.getEditor();
         String text = DebugPowerJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();

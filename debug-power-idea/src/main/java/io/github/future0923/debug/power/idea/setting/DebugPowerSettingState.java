@@ -47,7 +47,15 @@ public class DebugPowerSettingState implements PersistentStateComponent<DebugPow
 
     private Boolean printSql = false;
 
-    private Integer httpPort = 22222;
+    private boolean local;
+
+    private Integer localHttpPort;
+
+    private String remoteHost;
+
+    private Integer remoteTcpPort;
+
+    private Integer remoteHttpPort;
 
     @Override
     public @Nullable DebugPowerSettingState getState() {

@@ -14,5 +14,7 @@ public class ServerConfig {
 
     private String applicationName;
 
-    private int port;
+    private int tcpPort;
+
+    private int httpPort;
 }

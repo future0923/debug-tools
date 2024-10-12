@@ -26,17 +26,32 @@ public class ApplicationProjectHolder {
 
     private static final Map<Project, Info> PROJECT_MAPPING = new ConcurrentHashMap<>();
 
-    private static final int INIT_PORT = 12345;
+    private static final int INIT_TCP_PORT = 12345;
 
-    private static final SortedSet<Integer> USE_PORT = new TreeSet<>();
+    private static final SortedSet<Integer> USE_TCP_PORT = new TreeSet<>();
 
-    private static final Map<String, Integer> APPLICATION_PORT_MAPPING = new HashMap<>();
+    private static final Map<String, Integer> APPLICATION_TCP_PORT_MAPPING = new HashMap<>();
 
-    public static synchronized int getPort(String applicationName) {
-        return APPLICATION_PORT_MAPPING.computeIfAbsent(applicationName, (key) -> {
-            Integer maxPort = ObjectUtil.defaultIfNull(USE_PORT.isEmpty() ? null : USE_PORT.last(), INIT_PORT);
+    private static final int INIT_HTTP_PORT = 22222;
+
+    private static final SortedSet<Integer> USE_HTTP_PORT = new TreeSet<>();
+
+    private static final Map<String, Integer> APPLICATION_HTTP_PORT_MAPPING = new HashMap<>();
+
+    public static synchronized int getTcpPort(String applicationName) {
+        return APPLICATION_TCP_PORT_MAPPING.computeIfAbsent(applicationName, (key) -> {
+            Integer maxPort = ObjectUtil.defaultIfNull(USE_TCP_PORT.isEmpty() ? null : USE_TCP_PORT.last(), INIT_TCP_PORT);
             int availablePort = DebugPowerIOUtils.getAvailablePort(maxPort, 10);
-            USE_PORT.add(availablePort);
+            USE_TCP_PORT.add(availablePort);
+            return availablePort;
+        });
+    }
+
+    public static synchronized Integer getHttpPort(String applicationName) {
+        return APPLICATION_HTTP_PORT_MAPPING.computeIfAbsent(applicationName, (key) -> {
+            Integer maxPort = ObjectUtil.defaultIfNull(USE_HTTP_PORT.isEmpty() ? null : USE_HTTP_PORT.last(), INIT_HTTP_PORT);
+            int availablePort = DebugPowerIOUtils.getAvailablePort(maxPort, 10);
+            USE_HTTP_PORT.add(availablePort);
             return availablePort;
         });
     }
