@@ -11,7 +11,9 @@ import java.lang.reflect.Field;
 @Data
 public class AgentArgs {
 
-    private String listenPort;
+    private String tcpPort;
+
+    private String httpPort;
 
     private String applicationName;
 

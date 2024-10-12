@@ -68,7 +68,7 @@ class DebugPowerResultUtilsTest {
 
     @Test
     public void test() throws InterruptedException {
-        DebugPowerHttpServer httpServer = DebugPowerHttpServer.getInstance();
+        DebugPowerHttpServer httpServer = new DebugPowerHttpServer(8888);
         httpServer.start();
 
         RunDTO runDTO = new RunDTO();

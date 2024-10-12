@@ -42,16 +42,15 @@ public class AttachServerMenu extends JBPopupMenu {
         });
         buttonPane.add(refresh);
         JButton attach = new JButton("Attach");
-        attach.addActionListener(e -> {
-            radioButtonList.stream().filter(AbstractButton::isSelected).findFirst().ifPresent(button -> {
-                ServerDisplayValue serverDisplayValue = ServerDisplayValue.of(button.getText());
-                if (serverDisplayValue != null) {
-                    DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
-                    DebugPowerAttachUtils.attachLocal(project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), settingState.loadAgentPath());
-                }
-                this.setVisible(false);
-            });
-        });
+        attach.addActionListener(e -> radioButtonList.stream().filter(AbstractButton::isSelected).findFirst().ifPresent(button -> {
+            ServerDisplayValue serverDisplayValue = ServerDisplayValue.of(button.getText());
+            if (serverDisplayValue != null) {
+                DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
+                settingState.setLocal(true);
+                DebugPowerAttachUtils.attachLocal(project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), settingState.loadAgentPath());
+            }
+            this.setVisible(false);
+        }));
         buttonPane.add(attach);
         this.add(radioPanel, BorderLayout.CENTER);
         this.add(buttonPane, BorderLayout.SOUTH);

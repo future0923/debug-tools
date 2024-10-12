@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
@@ -11,6 +12,8 @@ import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.utils.DebugPowerExecUtils;
 import io.github.future0923.debug.power.client.DebugPowerSocketClient;
 import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.power.idea.client.http.HttpClientUtils;
+import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -53,9 +56,39 @@ public class DebugPowerAttachUtils {
         }
     }
 
+    public static void attachRemote(Project project, String host, int tcpPort) {
+        HttpClientUtils.removeAllClassLoaderCache(project);
+        String applicationName;
+        try {
+            applicationName = HttpClientUtils.getApplicationName(project);
+        } catch (Exception e) {
+            Messages.showErrorDialog(project, "Connect remote server error", "Connection Error");
+            return;
+        }
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort);
+        DebugPowerSocketClient client = info.getClient();
+        if (!client.isClosed()) {
+            return;
+        }
+        try {
+            client.disconnect();
+        } catch (Exception ignored) {
+        }
+        try {
+            client.start();
+        } catch (Exception ex) {
+            ApplicationProjectHolder.close(project);
+            Messages.showErrorDialog(project, ex.getMessage(), "Connection Error");
+        }
+    }
+
     public static void attachLocal(Project project, String pid, String applicationName, String agentPath) {
-        int port = ApplicationProjectHolder.getPort(applicationName);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", port);
+        HttpClientUtils.removeAllClassLoaderCache(project);
+        int tcpPort = ApplicationProjectHolder.getTcpPort(applicationName);
+        Integer httpPort = ApplicationProjectHolder.getHttpPort(applicationName);
+        DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
+        settingState.setLocalHttpPort(httpPort);
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", tcpPort);
         DebugPowerSocketClient client = info.getClient();
         if (!client.isClosed()) {
             return;
@@ -66,7 +99,8 @@ public class DebugPowerAttachUtils {
             // attach;
             AgentArgs agentArgs = new AgentArgs();
             agentArgs.setApplicationName(applicationName);
-            agentArgs.setListenPort(String.valueOf(port));
+            agentArgs.setTcpPort(String.valueOf(tcpPort));
+            agentArgs.setHttpPort(String.valueOf(httpPort));
             attach(() -> {
                 try {
                     client.start();

@@ -12,7 +12,6 @@ import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.dto.RunContentDTO;
 import io.github.future0923.debug.power.common.dto.RunResultDTO;
 import io.github.future0923.debug.power.common.enums.RunContentType;
-import io.github.future0923.debug.power.common.protocal.http.AllClassLoaderRes;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -45,11 +44,6 @@ public class DebugPowerJsonUtils extends JSONUtil {
 
     public static List<RunResultDTO> toRunResultDTOList(String jsonInput) {
         return toBean(jsonInput, new TypeReference<List<RunResultDTO>>() {
-        }, true);
-    }
-
-    public static List<AllClassLoaderRes> toAllClassLoaderRes(String jsonInput) {
-        return toBean(jsonInput, new TypeReference<List<AllClassLoaderRes>>() {
         }, true);
     }
 

@@ -8,6 +8,7 @@ import io.github.future0923.debug.power.common.enums.RunContentType;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerJsonUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerLambdaUtils;
+import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.mock.spring.request.MockMultipartFile;
 import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -65,7 +66,7 @@ public class SpringParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return DebugPowerEnvUtils.getFirstBean(parameter.getParameterType());
+            return VmToolsUtils.getSpringInstance(parameter.getParameterType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getParameterType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugPowerLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());

@@ -86,11 +86,6 @@ public class VmToolsUtils {
     public static Object getSpringInstance(Class<?> clazz) {
         try {
             return DebugPowerEnvUtils.getFirstBean(clazz);
-            // 这里用的是被调用项目的ApplicationContext
-            //DebugPowerSpringUtils.initApplicationContexts(() -> instance.getInstances(ApplicationContext.class), () -> instance.getInstances(BeanFactory.class));
-            //if (DebugPowerSpringUtils.containsBean(clazz)) {
-            //    return DebugPowerSpringUtils.getBean(clazz);
-            //}
         } catch (Throwable ignored) {
             // 加载不到从JVM中获取
         }

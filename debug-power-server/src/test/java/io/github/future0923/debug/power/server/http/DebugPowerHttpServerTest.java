@@ -12,7 +12,7 @@ class DebugPowerHttpServerTest {
 
     @BeforeAll
     public static void before() {
-        debugPowerHttpServer = DebugPowerHttpServer.getInstance();
+        debugPowerHttpServer = new DebugPowerHttpServer(8888);
     }
 
     @Test

@@ -2,7 +2,6 @@ package io.github.future0923.debug.power.server.thread;
 
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.common.handler.PacketHandleService;
-import io.github.future0923.debug.power.common.protocal.packet.response.ConnectSuccessResponsePacket;
 import io.github.future0923.debug.power.server.DebugPowerBootstrap;
 import io.github.future0923.debug.power.server.scoket.handler.ServerPacketHandleService;
 import lombok.Getter;
@@ -39,7 +38,7 @@ public class ClientAcceptThread extends Thread {
     @Override
     public void run() {
         try {
-            serverSocket = new ServerSocket(DebugPowerBootstrap.serverConfig.getPort());
+            serverSocket = new ServerSocket(DebugPowerBootstrap.serverConfig.getTcpPort());
             int bindPort = serverSocket.getLocalPort();
             logger.info("start server trans and bind port in {}", bindPort);
             countDownLatch.countDown();
@@ -52,7 +51,6 @@ public class ClientAcceptThread extends Thread {
                     return;
                 }
                 logger.info("get client conn start handle thread socket: {}", socket);
-                ConnectSuccessResponsePacket.of(DebugPowerBootstrap.serverConfig.getApplicationName(), DebugPowerBootstrap.httpPort).writeAndFlush(socket.getOutputStream());
                 ClientHandleThread socketHandleThread = new ClientHandleThread(socket, lastUpdateTime2Thread, packetHandleService);
                 socketHandleThread.start();
                 lastUpdateTime2Thread.put(socketHandleThread, System.currentTimeMillis());

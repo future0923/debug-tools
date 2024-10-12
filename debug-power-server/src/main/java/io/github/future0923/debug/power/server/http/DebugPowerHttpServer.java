@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.future0923.debug.power.base.logging.Logger;
 import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
 import io.github.future0923.debug.power.server.http.handler.AllClassLoaderHttpHandler;
+import io.github.future0923.debug.power.server.http.handler.GetApplicationNameHttpHandler;
 import io.github.future0923.debug.power.server.http.handler.IndexHttpHandler;
 import io.github.future0923.debug.power.server.http.handler.RunResultDetailHttpHandler;
 import io.github.future0923.debug.power.server.http.handler.RunResultTypeHttpHandler;
@@ -24,37 +25,30 @@ public class DebugPowerHttpServer {
     private HttpServer httpServer;
 
     @Getter
-    private final int listenPort;
+    private final int port;
 
     private volatile boolean started = false;
 
-    public static synchronized DebugPowerHttpServer getInstance() {
-        if (debugPowerHttpServer == null) {
-            debugPowerHttpServer = new DebugPowerHttpServer();
-        }
-        return debugPowerHttpServer;
-    }
-
-    private DebugPowerHttpServer() {
-        int availablePort = DebugPowerIOUtils.getAvailablePort(22222);
-        this.listenPort = availablePort;
+    public DebugPowerHttpServer(int port) {
+        this.port = port;
         try {
-            this.httpServer = HttpServer.create(new InetSocketAddress(availablePort), 0);
+            this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
         } catch (IOException e) {
-            logger.error("start http server bind port in {} error", e, listenPort);
+            logger.error("start http server bind port in {} error", e, port);
             return;
         }
         httpServer.createContext(IndexHttpHandler.PATH, IndexHttpHandler.INSTANCE);
         httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
+        httpServer.createContext(GetApplicationNameHttpHandler.PATH, GetApplicationNameHttpHandler.INSTANCE);
     }
 
     public void start() {
         if (!started && httpServer != null) {
             httpServer.start();
             started = true;
-            logger.info("start http server trans and bind port in {}", listenPort);
+            logger.info("start http server trans and bind port in {}", port);
         }
     }
 
