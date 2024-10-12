@@ -14,7 +14,7 @@ public class RunDTO {
 
     private Map<String, String> headers;
 
-    private AllClassLoaderRes classLoader;
+    private AllClassLoaderRes.Item classLoader;
 
     private String targetClassName;
 

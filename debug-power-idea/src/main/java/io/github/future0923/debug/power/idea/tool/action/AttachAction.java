@@ -10,8 +10,6 @@ import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
  */
 public class AttachAction extends BaseToolAction {
 
-    private DebugPowerToolWindow toolWindow;
-
     public AttachAction() {
         getTemplatePresentation().setText("Attach");
         getTemplatePresentation().setIcon(DebugPowerIcons.add_icon);

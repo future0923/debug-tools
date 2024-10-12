@@ -2,11 +2,15 @@ package io.github.future0923.debug.power.server;
 
 import io.github.future0923.debug.power.base.config.AgentArgs;
 import io.github.future0923.debug.power.base.logging.Logger;
+import io.github.future0923.debug.power.base.utils.DebugPowerIOUtils;
+import io.github.future0923.debug.power.base.utils.DebugPowerStringUtils;
 import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
+import io.github.future0923.debug.power.common.utils.DebugPowerJvmUtils;
 import io.github.future0923.debug.power.server.config.ServerConfig;
 import io.github.future0923.debug.power.server.http.DebugPowerHttpServer;
 import io.github.future0923.debug.power.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.power.server.scoket.DebugPowerSocketServer;
+import io.github.future0923.debug.power.server.utils.DebugPowerEnvUtils;
 import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
@@ -24,14 +28,16 @@ public class DebugPowerBootstrap {
 
     private DebugPowerSocketServer socketServer;
 
+    private DebugPowerHttpServer httpServer;
+
     @Getter
     private final Instrumentation instrumentation;
 
     public static final ServerConfig serverConfig = new ServerConfig();
 
-    private Integer port;
+    private Integer tcpPort;
 
-    public static Integer httpPort;
+    public Integer httpPort;
 
     private DebugPowerBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
         this.instrumentation = instrumentation;
@@ -48,29 +54,64 @@ public class DebugPowerBootstrap {
 
     public void start(String agentArgs) {
         AgentArgs parse = AgentArgs.parse(agentArgs);
-        int listenPort = Integer.parseInt(parse.getListenPort());
-        serverConfig.setApplicationName(parse.getApplicationName());
-        serverConfig.setPort(listenPort);
+        int tcpPort = Integer.parseInt(parse.getTcpPort());
+        int httpPort = parse.getHttpPort() == null ? DebugPowerIOUtils.getAvailablePort(22222) : Integer.parseInt(parse.getHttpPort());
+        serverConfig.setApplicationName(getApplicationName(parse));
+        serverConfig.setTcpPort(tcpPort);
+        serverConfig.setHttpPort(httpPort);
+        startTcpServer(tcpPort);
+        startHttpServer(httpPort);
+        started = true;
+    }
+
+    private String getApplicationName(AgentArgs parse) {
+        if (DebugPowerStringUtils.isNotBlank(parse.getApplicationName())) {
+            return parse.getApplicationName();
+        }
+        try {
+            String applicationName = (String) DebugPowerEnvUtils.getSpringConfig("spring.application.name");
+            if (applicationName != null) {
+                return applicationName;
+            }
+        } catch (Exception ignored) {
+        }
+        return DebugPowerJvmUtils.getApplicationName();
+    }
+
+    private void startTcpServer(int tcpPort) {
         if (!started || socketServer == null) {
             socketServer = new DebugPowerSocketServer();
             socketServer.start();
-        } else if (port != null && listenPort != port) {
-            logger.error("The two ports are inconsistent. Stopping port {}, preparing to start port {}", port, listenPort);
+        } else if (this.tcpPort != null && tcpPort != this.tcpPort) {
+            logger.error("The tcp two ports are inconsistent. Stopping port {}, preparing to start port {}", this.tcpPort, tcpPort);
             socketServer.close();
             socketServer = new DebugPowerSocketServer();
             socketServer.start();
         }
-        this.port = listenPort;
-        DebugPowerHttpServer httpServer = DebugPowerHttpServer.getInstance();
-        httpServer.start();
-        httpPort = httpServer.getListenPort();
-        started = true;
+        this.tcpPort = tcpPort;
+    }
+
+    private void startHttpServer(int httpPort) {
+        if (!started || httpServer == null) {
+            httpServer = new DebugPowerHttpServer(httpPort);
+            httpServer.start();
+        } else if (this.httpPort != null && httpPort != this.httpPort) {
+            logger.error("The http two ports are inconsistent. Stopping port {}, preparing to start port {}", this.httpPort, httpPort);
+            httpServer.close();
+            httpServer = new DebugPowerHttpServer(httpPort);
+            httpServer.start();
+        }
+        this.httpPort = httpPort;
     }
 
     public void stop() {
         if (socketServer != null) {
             socketServer.close();
             socketServer = null;
+        }
+        if(httpServer != null) {
+            httpServer.close();
+            httpServer = null;
         }
         started = false;
         logger.info("stop successful");

@@ -102,6 +102,9 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
             Throwable cause = throwable.getCause();
+            if (cause == null) {
+                cause = throwable;
+            }
             String offsetPath = RunResultDTO.genOffsetPathRandom(cause);
             DebugPowerResultUtils.putCache(offsetPath, cause);
             writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, cause, offsetPath, DebugPowerBootstrap.serverConfig.getApplicationName()));

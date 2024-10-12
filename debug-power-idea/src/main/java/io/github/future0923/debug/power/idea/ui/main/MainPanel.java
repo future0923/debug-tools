@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,7 +37,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     private final MethodDataContext methodDataContext;
 
     @Getter
-    private final ComboBox<AllClassLoaderRes> classLoaderComboBox = new ComboBox<>(600);
+    private final ComboBox<AllClassLoaderRes.Item> classLoaderComboBox = new ComboBox<>(600);
 
     private final JButton refreshButton = new JButton("Refresh");
 
@@ -87,13 +86,13 @@ public class MainPanel extends JBPanel<MainPanel> {
         classLoaderComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                AllClassLoaderRes classLoaderRes = (AllClassLoaderRes) value;
-                if (classLoaderRes == null) {
+                AllClassLoaderRes.Item item = (AllClassLoaderRes.Item) value;
+                if (item == null) {
                     return new JLabel();
                 }
-                String classLoader = classLoaderRes.getName();
+                String classLoader = item.getName();
                 JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, classLoader, index, isSelected, cellHasFocus);
-                jLabel.setText(classLoader + "@" + classLoaderRes.getIdentity());
+                jLabel.setText(classLoader + "@" + item.getIdentity());
                 return jLabel;
             }
         });
@@ -168,13 +167,13 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     private void getAllClassLoader(boolean cache) {
-        List<AllClassLoaderRes> allClassLoaderResList = HttpClientUtils.allClassLoader(project, cache);
-        AllClassLoaderRes defaultClassLoader = null;
-        for (AllClassLoaderRes allClassLoaderRes : allClassLoaderResList) {
-            if (allClassLoaderRes.getName().startsWith("sun.misc.Launcher$AppClassLoader")) {
-                defaultClassLoader = allClassLoaderRes;
+        AllClassLoaderRes allClassLoaderRes = HttpClientUtils.allClassLoader(project, cache);
+        AllClassLoaderRes.Item defaultClassLoader = null;
+        for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
+            if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
+                defaultClassLoader = item;
             }
-            classLoaderComboBox.addItem(allClassLoaderRes);
+            classLoaderComboBox.addItem(item);
         }
         if (defaultClassLoader != null) {
             classLoaderComboBox.setSelectedItem(defaultClassLoader);

@@ -9,7 +9,7 @@ public interface ProjectConstants {
 
     String NAME = "DebugPower";
 
-    String VERSION = "2.4.0";
+    String VERSION = "3.0.0";
 
     String SERVER_CORE_JAR_PATH = "lib/debug-power-server.jar";
 

@@ -10,6 +10,7 @@ import com.intellij.ui.JBSplitter;
 import io.github.future0923.debug.power.idea.action.GroovyConsoleAction;
 import io.github.future0923.debug.power.idea.tool.action.AttachAction;
 import io.github.future0923.debug.power.idea.tool.action.ClearCacheAction;
+import io.github.future0923.debug.power.idea.tool.action.ConnectAction;
 import io.github.future0923.debug.power.idea.tool.ui.GlobalParamPanel;
 
 /**
@@ -32,6 +33,7 @@ public class DebugPowerToolWindow extends SimpleToolWindowPanel {
     private void initToolBar() {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new AttachAction());
+        actionGroup.add(new ConnectAction());
         actionGroup.add(new ClearCacheAction());
         actionGroup.add(new GroovyConsoleAction());
         actionGroup.addSeparator();

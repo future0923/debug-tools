@@ -7,7 +7,6 @@ import io.github.future0923.debug.power.common.utils.DebugPowerClassUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,103 +28,55 @@ public class DebugPowerEnvUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFirstBean(String beanName) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method getFirstBean = springEnvUtil.getMethod("getFirstBean", String.class);
-            return (T) getFirstBean.invoke(null, beanName);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return null;
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> T getFirstBean(String beanName) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method getFirstBean = springEnvUtil.getMethod("getFirstBean", String.class);
+        return (T) getFirstBean.invoke(null, beanName);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> getBeans(String beanName) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method getBeans = springEnvUtil.getMethod("getBeans", String.class);
-            return (List<T>) getBeans.invoke(null, beanName);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return Collections.emptyList();
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> List<T> getBeans(String beanName) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method getBeans = springEnvUtil.getMethod("getBeans", String.class);
+        return (List<T>) getBeans.invoke(null, beanName);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFirstBean(Class<T> requiredType) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method getFirstBean = springEnvUtil.getMethod("getFirstBean", Class.class);
-            return (T) getFirstBean.invoke(null, requiredType);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return null;
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> T getFirstBean(Class<T> requiredType) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method getFirstBean = springEnvUtil.getMethod("getFirstBean", Class.class);
+        return (T) getFirstBean.invoke(null, requiredType);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> getBeans(Class<T> requiredType) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method getBean = springEnvUtil.getMethod("getBeans", Class.class);
-            return (List<T>) getBean.invoke(null, requiredType);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return Collections.emptyList();
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> List<T> getBeans(Class<T> requiredType) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method getBean = springEnvUtil.getMethod("getBeans", Class.class);
+        return (List<T>) getBean.invoke(null, requiredType);
     }
 
-    public static <T> void registerBean(T bean) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method registerBean = springEnvUtil.getMethod("registerBean", Object.class);
-            registerBean.invoke(null, bean);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> void registerBean(T bean) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method registerBean = springEnvUtil.getMethod("registerBean", Object.class);
+        registerBean.invoke(null, bean);
     }
 
-    public static <T> void registerBean(String beanName, T bean) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method registerBean = springEnvUtil.getMethod("registerBean", String.class, Object.class);
-            registerBean.invoke(null, beanName, bean);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> void registerBean(String beanName, T bean) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method registerBean = springEnvUtil.getMethod("registerBean", String.class, Object.class);
+        registerBean.invoke(null, beanName, bean);
     }
 
-    public static void unregisterBean(String beanName) {
-        try {
-            Class.forName("org.springframework.beans.factory.BeanFactory");
-            Method unregisterBean = springEnvUtil.getMethod("unregisterBean", String.class);
-            unregisterBean.invoke(null, beanName);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static void unregisterBean(String beanName) throws Exception {
+        DebugPowerClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        Method unregisterBean = springEnvUtil.getMethod("unregisterBean", String.class);
+        unregisterBean.invoke(null, beanName);
     }
 
-    public static Object getSpringConfig(String value) {
-        try {
-            Class.forName("org.springframework.core.env.Environment");
-            Method getSpringConfig = springEnvUtil.getMethod("getSpringConfig", String.class);
-            return getSpringConfig.invoke(null, value);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return null;
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+    public static Object getSpringConfig(String value) throws Exception {
+        Class.forName("org.springframework.core.env.Environment");
+        Method getSpringConfig = springEnvUtil.getMethod("getSpringConfig", String.class);
+        return getSpringConfig.invoke(null, value);
     }
 
     @SuppressWarnings("unchecked")

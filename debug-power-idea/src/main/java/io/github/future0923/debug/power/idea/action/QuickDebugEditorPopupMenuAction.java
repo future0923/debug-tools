@@ -8,6 +8,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.UserDataHolder;
 import com.intellij.psi.PsiClass;
@@ -15,10 +16,12 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
+import io.github.future0923.debug.power.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.power.idea.context.ClassDataContext;
 import io.github.future0923.debug.power.idea.context.DataContext;
 import io.github.future0923.debug.power.idea.context.MethodDataContext;
 import io.github.future0923.debug.power.idea.setting.DebugPowerSettingState;
+import io.github.future0923.debug.power.idea.tool.DebugPowerToolWindowFactory;
 import io.github.future0923.debug.power.idea.ui.main.MainDialog;
 import io.github.future0923.debug.power.idea.utils.DebugPowerIcons;
 import io.github.future0923.debug.power.idea.utils.DebugPowerNotifierUtil;
@@ -49,6 +52,17 @@ public class QuickDebugEditorPopupMenuAction extends AnAction {
             throw new IllegalArgumentException("idea arg error (project or editor is null)");
         }
 
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
+            Messages.showErrorDialog("Run attach first", "执行失败");
+            DebugPowerToolWindowFactory.showWindow(project, null);
+            return;
+        }
+        if (info.getClient().isClosed()) {
+            Messages.showErrorDialog("Attach socket status error", "执行失败");
+            DebugPowerToolWindowFactory.showWindow(project, null);
+            return;
+        }
         try {
             PsiMethod psiMethod = null;
             if (e.getDataContext() instanceof UserDataHolder) {

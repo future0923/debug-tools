@@ -22,4 +22,5 @@ public class DebugPowerIcons {
     public static final Icon groovy_icon = IconLoader.getIcon("/icon/groovy.svg", DebugPowerIcons.class);
     public static final Icon request_icon = IconLoader.getIcon("/icon/request.svg", DebugPowerIcons.class);
     public static final Icon last_icon = IconLoader.getIcon("/icon/last.svg", DebugPowerIcons.class);
+    public static final Icon connect_icon = IconLoader.getIcon("/icon/connect.svg", DebugPowerIcons.class);
 }

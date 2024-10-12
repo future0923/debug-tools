@@ -17,6 +17,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author future0923
@@ -31,7 +33,9 @@ public class HttpClientUtils {
 
     private static final String ALL_CLASS_LOADER_URI = "/allClassLoader";
 
-    private static List<AllClassLoaderRes> allClassLoaderResCache;
+    private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
+
+    private static final Map<Project, AllClassLoaderRes> allClassLoaderResCache = new ConcurrentHashMap<>();
 
     static {
         httpClient = HttpClient.newBuilder()
@@ -72,21 +76,32 @@ public class HttpClientUtils {
         }
     }
 
-    public static List<AllClassLoaderRes> allClassLoader(Project project, boolean cache) {
-        if (allClassLoaderResCache == null || !cache) {
+    public static AllClassLoaderRes allClassLoader(Project project, boolean cache) {
+        AllClassLoaderRes allClassLoaderRes = allClassLoaderResCache.get(project);
+        if (allClassLoaderRes == null || !cache) {
             try {
                 String body = post(project, ALL_CLASS_LOADER_URI, "{}");
-                allClassLoaderResCache = DebugPowerJsonUtils.toAllClassLoaderRes(body);
+                AllClassLoaderRes res = DebugPowerJsonUtils.toBean(body, AllClassLoaderRes.class);
+                allClassLoaderResCache.put(project, res);
+                return res;
             } catch (IOException | InterruptedException ignored) {
             }
         }
-        return allClassLoaderResCache;
+        return allClassLoaderRes;
+    }
+
+    public static void removeAllClassLoaderCache(Project project) {
+        allClassLoaderResCache.remove(project);
+    }
+
+    public static String getApplicationName(Project project) throws IOException, InterruptedException {
+        return post(project, GET_APPLICATION_NAME_URI, "{}");
     }
 
     public static String post(Project project, String uri, String jsonBody) throws IOException, InterruptedException {
         DebugPowerSettingState settingState = DebugPowerSettingState.getInstance(project);
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://127.0.0.1:" + settingState.getHttpPort() + uri))
+                .uri(URI.create("http://" + (settingState.isLocal() ? "127.0.0.1" : settingState.getRemoteHost()) + ":" + (settingState.isLocal() ? settingState.getLocalHttpPort() : settingState.getRemoteHttpPort()) + uri))
                 .timeout(Duration.ofSeconds(3))
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();

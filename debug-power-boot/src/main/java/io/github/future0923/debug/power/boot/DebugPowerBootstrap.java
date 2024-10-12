@@ -1,6 +1,7 @@
 package io.github.future0923.debug.power.boot;
 
 import io.github.future0923.debug.power.base.constants.ProjectConstants;
+import io.github.future0923.debug.power.base.enums.ArgType;
 import io.github.future0923.debug.power.base.logging.AnsiLog;
 import io.github.future0923.debug.power.base.utils.DebugPowerExecUtils;
 import io.github.future0923.debug.power.base.utils.DebugPowerFileUtils;
@@ -28,7 +29,8 @@ public class DebugPowerBootstrap {
     public static void main(String[] args) {
         DefaultParser parser = new DefaultParser();
         Options options = new Options();
-        options.addOption("lp", "listen-port", true, "target application server listen port");
+        options.addOption(ArgType.TCP_PORT.getOpt(), ArgType.TCP_PORT.getLongOpt(), ArgType.TCP_PORT.isHasArg(), ArgType.TCP_PORT.getDescription());
+        options.addOption(ArgType.HTTP_PORT.getOpt(), ArgType.HTTP_PORT.getLongOpt(), ArgType.HTTP_PORT.isHasArg(), ArgType.HTTP_PORT.getDescription());
         CommandLine cmd;
         try {
             cmd = parser.parse(options, args);
@@ -91,12 +93,12 @@ public class DebugPowerBootstrap {
         command.add(String.valueOf(pid));
         command.add("--agent");
         command.add(agentJarFile.getAbsolutePath());
-        String listenPort = cmd.getOptionValue("listen-port");
-        if (listenPort != null) {
-            command.add("--listen-port");
-            command.add(listenPort);
-        }
-
+        String tcpPort = cmd.getOptionValue(ArgType.TCP_PORT.getLongOpt(), String.valueOf(DebugPowerIOUtils.getAvailablePort(12345)));
+        command.add("--" + ArgType.TCP_PORT.getLongOpt());
+        command.add(tcpPort);
+        String httpPort = cmd.getOptionValue(ArgType.HTTP_PORT.getLongOpt(), String.valueOf(DebugPowerIOUtils.getAvailablePort(22222)));
+        command.add("--" + ArgType.HTTP_PORT.getLongOpt());
+        command.add(httpPort);
         ProcessBuilder pb = new ProcessBuilder(command);
         try {
             final Process proc = pb.start();
@@ -131,7 +133,7 @@ public class DebugPowerBootstrap {
         } catch (Throwable e) {
             // ignore
         }
-        AnsiLog.info("Attach process {} success.", pid);
+        AnsiLog.info("Attach process {} success. tcp port {}, http port {}.", pid, tcpPort, httpPort);
     }
 
 }
