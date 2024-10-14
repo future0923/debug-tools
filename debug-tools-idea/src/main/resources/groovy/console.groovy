@@ -43,7 +43,7 @@ rb(testBean)
 def v2 = gb(TestBean.class)
 result.gb = v2
 // 获取注入的testBean，执行hello方法
-result.helloMethodResult = gb("testBean")[0].hello("debug power")
+result.helloMethodResult = gb("testBean")[0].hello("debug tools")
 gb TestBean.class
 getBean(TestBean.class)
 getBean("testBean")
