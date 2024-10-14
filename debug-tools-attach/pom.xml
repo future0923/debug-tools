@@ -14,8 +14,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <premain.class>io.github.future0923.debug.tools.attach.DebugPowerAttach</premain.class>
-        <agent.class>io.github.future0923.debug.tools.attach.DebugPowerAttach</agent.class>
+        <premain.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</premain.class>
+        <agent.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</agent.class>
         <can.redefine.classes>true</can.redefine.classes>
         <can.retransform.classes>true</can.retransform.classes>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>

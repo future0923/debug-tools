@@ -62,7 +62,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass>io.github.future0923.debug.power.boot.DebugPowerBootstrap</mainClass>
+                                    <mainClass>io.github.future0923.debug.tools.boot.DebugToolsBootstrap</mainClass>
                                 </manifest>
                                 <manifestEntries>
                                     <Created-By>future0923.</Created-By>

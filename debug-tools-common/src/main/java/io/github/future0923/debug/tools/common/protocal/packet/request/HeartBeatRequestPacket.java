@@ -1,0 +1,27 @@
+package io.github.future0923.debug.tools.common.protocal.packet.request;
+
+import io.github.future0923.debug.tools.common.protocal.Command;
+import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+
+/**
+ * @author future0923
+ */
+public class HeartBeatRequestPacket extends Packet {
+
+    public static final HeartBeatRequestPacket INSTANCE = new HeartBeatRequestPacket();
+
+    @Override
+    public Byte getCommand() {
+        return Command.HEARTBEAT_REQUEST;
+    }
+
+    @Override
+    public byte[] binarySerialize() {
+        return new byte[0];
+    }
+
+    @Override
+    public void binaryDeserialization(byte[] bytes) {
+
+    }
+}
