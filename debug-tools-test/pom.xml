@@ -8,7 +8,7 @@
         <artifactId>debug-tools</artifactId>
         <version>${revision}</version>
     </parent>
-
+    <name>debug-tools-test</name>
     <artifactId>debug-tools-test</artifactId>
     <packaging>pom</packaging>
     <modules>

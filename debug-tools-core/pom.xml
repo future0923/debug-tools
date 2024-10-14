@@ -31,7 +31,7 @@
     </dependencies>
 
     <build>
-        <finalName>debug-power-core</finalName>
+        <finalName>debug-tools-core</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -45,13 +45,13 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>io.github.future0923.debug.power.core.DebugPower</mainClass>
+                                    <mainClass>io.github.future0923.debug.tools.core.DebugTools</mainClass>
                                     <manifestEntries>
                                         <Created-By>future0923.</Created-By>
                                         <Implementation-Version>${project.version}</Implementation-Version>
-                                        <Implementation-Vendor-Id>io.github.future0923.debug.power</Implementation-Vendor-Id>
+                                        <Implementation-Vendor-Id>io.github.future0923.debug.tools</Implementation-Vendor-Id>
                                         <Specification-Version>${project.version}</Specification-Version>
-                                        <Specification-Title>debug-power-core</Specification-Title>
+                                        <Specification-Title>debug-tools-core</Specification-Title>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
@@ -72,7 +72,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/../debug-power-boot/src/main/resources/lib"/>
+                                <delete dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
                             </target>
                         </configuration>
                     </execution>
@@ -84,8 +84,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/../debug-power-boot/src/main/resources/lib" />
-                                <copy file="${project.build.directory}/${build.finalName}.jar" tofile="${project.basedir}/../debug-power-boot/src/main/resources/lib/${build.finalName}.jar" overwrite="true" />
+                                <mkdir dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib" />
+                                <copy file="${project.build.directory}/${build.finalName}.jar" tofile="${project.basedir}/../debug-tools-boot/src/main/resources/lib/${build.finalName}.jar" overwrite="true" />
                             </target>
                         </configuration>
                     </execution>

@@ -1,1 +1,1 @@
-rootProject.name = "DebugPower"
+rootProject.name = "DebugTools"
