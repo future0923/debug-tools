@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.idea.client.http;
 
+import cn.hutool.http.HttpUtil;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
@@ -10,12 +11,6 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,8 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HttpClientUtils {
 
-    private static final HttpClient httpClient;
-
     private static final String RESULT_TYPE_URI = "/result/type";
 
     private static final String RESULT_DETAIL_URI = "/result/detail";
@@ -35,27 +28,22 @@ public class HttpClientUtils {
 
     private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
 
-    private static final Map<Project, AllClassLoaderRes> allClassLoaderResCache = new ConcurrentHashMap<>();
+    private static final int TIMEOUT = 1000;
 
-    static {
-        httpClient = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .connectTimeout(Duration.ofSeconds(3))
-                .build();
-    }
+    private static final Map<Project, AllClassLoaderRes> allClassLoaderResCache = new ConcurrentHashMap<>();
 
     public static String resultType(Project project, String offsetPath, String printResultType) {
         RunResultTypeReq req = new RunResultTypeReq();
         req.setPrintResultType(printResultType);
         req.setOffsetPath(offsetPath);
         try {
-            return post(project, RESULT_TYPE_URI, DebugToolsJsonUtils.toJsonStr(req));
-        } catch (IOException | InterruptedException e) {
+            return HttpUtil.post(DebugToolsSettingState.getInstance(project).getUrl(RESULT_TYPE_URI), DebugToolsJsonUtils.toJsonStr(req), TIMEOUT);
+        } catch (Exception e) {
             if (PrintResultType.TOSTRING.getType().equals(printResultType)) {
                 return e.getMessage();
             }
             if (PrintResultType.JSON.getType().equals(printResultType)) {
-                return "{\n    \"result\": \"" + e.getMessage()+"\"\n}";
+                return "{\n    \"result\": \"" + e.getMessage() + "\"\n}";
             }
             if (PrintResultType.DEBUG.getType().equals(printResultType)) {
                 return "";
@@ -68,24 +56,17 @@ public class HttpClientUtils {
     public static List<RunResultDTO> resultDetail(Project project, String fieldOffset) {
         RunResultDetailReq req = new RunResultDetailReq();
         req.setOffsetPath(fieldOffset);
-        try {
-            String body = post(project, RESULT_DETAIL_URI, DebugToolsJsonUtils.toJsonStr(req));
-            return DebugToolsJsonUtils.toRunResultDTOList(body);
-        } catch (IOException | InterruptedException e) {
-            return Collections.emptyList();
-        }
+        String body = HttpUtil.post(DebugToolsSettingState.getInstance(project).getUrl(RESULT_DETAIL_URI), DebugToolsJsonUtils.toJsonStr(req), TIMEOUT);
+        return DebugToolsJsonUtils.toRunResultDTOList(body);
     }
 
-    public static AllClassLoaderRes allClassLoader(Project project, boolean cache) {
+    public static AllClassLoaderRes allClassLoader(Project project, boolean cache) throws IOException, InterruptedException {
         AllClassLoaderRes allClassLoaderRes = allClassLoaderResCache.get(project);
         if (allClassLoaderRes == null || !cache) {
-            try {
-                String body = post(project, ALL_CLASS_LOADER_URI, "{}");
-                AllClassLoaderRes res = DebugToolsJsonUtils.toBean(body, AllClassLoaderRes.class);
-                allClassLoaderResCache.put(project, res);
-                return res;
-            } catch (IOException | InterruptedException ignored) {
-            }
+            String body = HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(ALL_CLASS_LOADER_URI), TIMEOUT);
+            AllClassLoaderRes res = DebugToolsJsonUtils.toBean(body, AllClassLoaderRes.class);
+            allClassLoaderResCache.put(project, res);
+            return res;
         }
         return allClassLoaderRes;
     }
@@ -95,17 +76,6 @@ public class HttpClientUtils {
     }
 
     public static String getApplicationName(Project project) throws IOException, InterruptedException {
-        return post(project, GET_APPLICATION_NAME_URI, "{}");
-    }
-
-    public static String post(Project project, String uri, String jsonBody) throws IOException, InterruptedException {
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://" + (settingState.isLocal() ? "127.0.0.1" : settingState.getRemoteHost()) + ":" + (settingState.isLocal() ? settingState.getLocalHttpPort() : settingState.getRemoteHttpPort()) + uri))
-                .timeout(Duration.ofSeconds(3))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body();
+        return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_APPLICATION_NAME_URI), TIMEOUT);
     }
 }

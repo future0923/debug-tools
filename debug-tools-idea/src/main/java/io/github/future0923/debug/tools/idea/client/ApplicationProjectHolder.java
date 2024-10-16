@@ -13,6 +13,7 @@ import lombok.Data;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,9 +93,15 @@ public class ApplicationProjectHolder {
     }
 
     public static void close(Project project) {
-        getInfo(project).getClient().disconnect();
+        Optional.ofNullable(getInfo(project)).map(Info::getClient).ifPresent(DebugToolsSocketClient::disconnect);
         Info remove = PROJECT_MAPPING.remove(project);
-        APPLICATION_MAPPING.remove(remove.getApplicationName());
+        Optional.ofNullable(remove).map(Info::getApplicationName).ifPresent(APPLICATION_MAPPING::remove);
+    }
+
+    public static void close(String applicationName) {
+        Optional.ofNullable(getInfo(applicationName)).map(Info::getClient).ifPresent(DebugToolsSocketClient::disconnect);
+        Info remove = APPLICATION_MAPPING.remove(applicationName);
+        Optional.ofNullable(remove).map(Info::getProject).ifPresent(PROJECT_MAPPING::remove);
     }
 
     public static void send(Project project, Packet packet) throws SocketCloseException, IOException {

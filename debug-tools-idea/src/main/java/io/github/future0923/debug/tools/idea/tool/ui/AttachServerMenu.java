@@ -47,11 +47,11 @@ public class AttachServerMenu extends JBPopupMenu {
             ServerDisplayValue serverDisplayValue = ServerDisplayValue.of(button.getText());
             if (serverDisplayValue != null) {
                 DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-                settingState.setLocal(true);
                 String agentPath = settingState.loadAgentPath();
                 if (DebugToolsStringUtils.isNotBlank(agentPath)) {
                     DebugToolsAttachUtils.attachLocal(project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), agentPath);
                 }
+                settingState.setLocal(true);
             }
             this.setVisible(false);
         }));

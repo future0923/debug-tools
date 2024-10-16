@@ -39,6 +39,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     @Getter
     private final JTextPane textField = new JTextPane();
 
+    private final JTextPane local = new JTextPane();
+
     @Getter
     private final JTextPane attached = new JTextPane();
 
@@ -61,6 +63,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         attached.setForeground(JBColor.WHITE);
         attached.setOpaque(true);
         attachStatusPanel.add(new JBLabel("Attach status:"));
+        attachStatusPanel.add(local);
         attachStatusPanel.add(attached);
         attachStatusPanel.add(textField);
         JPanel attachButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -139,6 +142,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                     if (info == null || info.getClient() == null) {
                         unAttached(attachButtonPanel);
                     } else {
+                        local.setText(settingState.isLocal() ? "L" : "R");
+                        local.setVisible(true);
                         if (!info.getClient().isClosed()) {
                             textField.setText(DebugToolsClassUtils.getShortClassName(info.getApplicationName()));
                             textField.setVisible(true);
@@ -166,6 +171,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     }
 
     private void unAttached(JPanel attachButtonPanel) {
+        local.setVisible(false);
         attached.setText("UnAttached");
         attached.setBackground(JBColor.RED);
         textField.setVisible(false);
