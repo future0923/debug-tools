@@ -1,3 +1,5 @@
+import org.jetbrains.intellij.tasks.BuildSearchableOptionsTask
+
 fun properties(key: String) = providers.gradleProperty(key)
 
 plugins {
@@ -17,6 +19,7 @@ repositories {
 dependencies {
     implementation("io.github.future0923:debug-tools-common:1.0.0")
     implementation("io.github.future0923:debug-tools-client:1.0.0")
+    implementation("cn.hutool:hutool-http:5.8.29")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
 }
@@ -25,8 +28,8 @@ dependencies {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set("DebugTools")
-    version.set("2024.2")
-//    version.set("2024.1")
+//    version.set("2024.2")
+    version.set("2024.1")
 //    version.set("2023.3")
 //    version.set("2023.2")
 //    version.set("2023.1")
@@ -43,8 +46,37 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    withType<BuildSearchableOptionsTask> {
+        enabled = false
+    }
+
     patchPluginXml {
         sinceBuild.set("231")
         untilBuild.set("242.*")
     }
+
+    register<Copy>("movePluginZip") {
+        from(layout.buildDirectory.dir("distributions"))
+        into(layout.projectDirectory.dir("../dist"))
+        include("*.zip")
+    }
+
+    register<Delete>("cleanPluginZip") {
+        delete(fileTree(layout.projectDirectory.dir("../dist")) {
+            include("*.zip") // 只删除 .zip 文件
+        })
+    }
+
+}
+
+tasks.named("build") {
+    finalizedBy("movePluginZip")
+}
+
+tasks.named("buildPlugin") {
+    finalizedBy("movePluginZip")
+}
+
+tasks.named("clean") {
+    finalizedBy("cleanPluginZip")
 }

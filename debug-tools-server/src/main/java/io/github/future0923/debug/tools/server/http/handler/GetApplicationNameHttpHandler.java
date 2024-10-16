@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.server.http.handler;
 
 import com.sun.net.httpserver.Headers;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJvmUtils;
+import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 
 /**
  * @author future0923
@@ -18,6 +18,6 @@ public class GetApplicationNameHttpHandler extends BaseHttpHandler<Void, String>
 
     @Override
     protected String doHandle(Void req, Headers responseHeaders) {
-        return DebugToolsJvmUtils.getApplicationName();
+        return DebugToolsBootstrap.serverConfig.getApplicationName();
     }
 }

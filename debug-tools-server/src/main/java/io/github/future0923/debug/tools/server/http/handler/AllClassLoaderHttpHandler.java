@@ -23,6 +23,8 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
 
     public static final String PATH = "/allClassLoader";
 
+    public static ClassLoader defaultClassLoader;
+
     public static final Map<String, ClassLoader> classLoaderMap = new ConcurrentHashMap<>();
 
     public static final List<String> baseClassList = new ArrayList<>();
@@ -49,6 +51,7 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
                 if (mainClass != null) {
                     if (mainClass.equals(clazz.getName())) {
                         res.setDefaultIdentity(Integer.toHexString(System.identityHashCode(classLoader)));
+                        defaultClassLoader = classLoader;
                     }
                 } else if (baseClassList.contains(clazz.getName())) {
                     res.setDefaultIdentity(Integer.toHexString(System.identityHashCode(classLoader)));

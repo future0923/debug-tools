@@ -167,7 +167,12 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     private void getAllClassLoader(boolean cache) {
-        AllClassLoaderRes allClassLoaderRes = HttpClientUtils.allClassLoader(project, cache);
+        AllClassLoaderRes allClassLoaderRes;
+        try {
+            allClassLoaderRes = HttpClientUtils.allClassLoader(project, cache);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         AllClassLoaderRes.Item defaultClassLoader = null;
         for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
             if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
