@@ -13,6 +13,7 @@ import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils
 import io.github.future0923.debug.tools.idea.ui.tab.ExceptionTabbedPane;
 import io.github.future0923.debug.tools.idea.ui.tab.GroovyResult;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -32,6 +33,10 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
     @Override
     public void handle(OutputStream outputStream, RunGroovyScriptResponsePacket packet) throws Exception {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
+        if (info == null) {
+            DebugToolsNotifierUtil.notifyError(null, "未找到应用" + packet.getApplicationName() + "的链接信息");
+            return;
+        }
         Project project = info.getProject();
         String consoleTitle = "Groovy Result";
         ToolWindowManager.getInstance(project).invokeLater(() -> {

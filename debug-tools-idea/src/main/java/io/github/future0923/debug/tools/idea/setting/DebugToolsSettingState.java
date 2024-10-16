@@ -151,4 +151,9 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         clearMethodParamCache();
         clearGlobalHeaderCache();
     }
+
+
+    public String getUrl(String uri) {
+        return  "http://" + (isLocal() ? "127.0.0.1" : getRemoteHost()) + ":" + (isLocal() ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
+    }
 }

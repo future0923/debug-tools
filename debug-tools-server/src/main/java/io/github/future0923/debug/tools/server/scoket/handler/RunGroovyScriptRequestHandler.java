@@ -10,6 +10,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovy
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunGroovyScriptResponsePacket;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.groovy.DebugToolsGroovyScript;
+import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
@@ -27,7 +28,7 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
     private RunGroovyScriptRequestHandler() {
         CompilerConfiguration configuration = new CompilerConfiguration();
         configuration.setScriptBaseClass(DebugToolsGroovyScript.class.getName());
-        groovyShell = new GroovyShell(configuration);
+        groovyShell = new GroovyShell(AllClassLoaderHttpHandler.defaultClassLoader, configuration);
     }
 
     @Override

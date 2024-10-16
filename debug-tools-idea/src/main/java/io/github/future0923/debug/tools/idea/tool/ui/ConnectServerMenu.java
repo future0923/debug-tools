@@ -66,16 +66,16 @@ public class ConnectServerMenu extends JBPopupMenu {
         JButton saveConnect = new JButton("Save & Connect");
         button.add(saveConnect);
         saveConnect.addActionListener(e -> {
+            this.setVisible(false);
             settingState.setRemoteHost(hostField.getText());
             settingState.setRemoteTcpPort(tcpPortField.getNumber());
             settingState.setRemoteHttpPort(httpPortField.getNumber());
-            settingState.setLocal(false);
             DebugToolsAttachUtils.attachRemote(
                     project,
                     settingState.getRemoteHost(),
                     settingState.getRemoteTcpPort()
             );
-            this.setVisible(false);
+            settingState.setLocal(false);
         });
         this.add(button, BorderLayout.SOUTH);
     }

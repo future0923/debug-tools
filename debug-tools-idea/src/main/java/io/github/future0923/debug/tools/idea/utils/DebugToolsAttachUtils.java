@@ -62,14 +62,19 @@ public class DebugToolsAttachUtils {
         try {
             applicationName = HttpClientUtils.getApplicationName(project);
         } catch (Exception e) {
-            Messages.showErrorDialog(project, "Connect remote server error", "Connection Error");
-            return;
+            throw new RuntimeException(e);
         }
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort);
-        DebugToolsSocketClient client = info.getClient();
-        if (!client.isClosed()) {
-            return;
+        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
+        if (info != null) {
+            if (!settingState.isLocal() && !info.getClient().isClosed()) {
+                return;
+            }
+            if (settingState.isLocal() && !info.getClient().isClosed()) {
+                ApplicationProjectHolder.close(applicationName);
+            }
         }
+        DebugToolsSocketClient client = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort).getClient();
         try {
             client.disconnect();
         } catch (Exception ignored) {
@@ -88,11 +93,16 @@ public class DebugToolsAttachUtils {
         Integer httpPort = ApplicationProjectHolder.getHttpPort(applicationName);
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         settingState.setLocalHttpPort(httpPort);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", tcpPort);
-        DebugToolsSocketClient client = info.getClient();
-        if (!client.isClosed()) {
-            return;
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
+        if (info != null) {
+            if (settingState.isLocal() && !info.getClient().isClosed()) {
+                return;
+            }
+            if (!settingState.isLocal() && !info.getClient().isClosed()) {
+                ApplicationProjectHolder.close(applicationName);
+            }
         }
+        DebugToolsSocketClient client = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", tcpPort).getClient();
         try {
             client.reconnect();
         } catch (ConnectException e) {
