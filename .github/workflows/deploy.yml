@@ -40,8 +40,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Install dependencies
+        working-directory: ./docs
         run: pnpm install
       - name: Build with VitePress
+        working-directory: ./docs
         run: 
           pnpm docs:build
           touch .nojekyll
