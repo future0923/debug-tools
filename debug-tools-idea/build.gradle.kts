@@ -28,8 +28,8 @@ dependencies {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set("DebugTools")
-//    version.set("2024.2")
-    version.set("2024.1")
+    version.set("2024.2")
+//    version.set("2024.1")
 //    version.set("2023.3")
 //    version.set("2023.2")
 //    version.set("2023.1")

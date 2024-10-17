@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "vitepress": "^1.4.1"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev /Users/weilai/Documents/debug-tools/docs",
+    "docs:build": "vitepress build /Users/weilai/Documents/debug-tools/docs",
+    "docs:preview": "vitepress preview /Users/weilai/Documents/debug-tools/docs"
+  },
+  "dependencies": {
+    "vue": "^3.5.12"
+  }
+}
