@@ -2,10 +2,9 @@ import {defineConfig} from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-    base: '/debug-tools/',
     head: [
         ['meta', {name: 'theme-color', content: '#389BFF'}],
-        ['link', {rel: 'icon', type: 'image/svg+xml', href: '/debug-tools/pluginIcon.svg'}]
+        ['link', {rel: 'icon', type: 'image/svg+xml', href: '/pluginIcon.svg'}]
     ],
     title: "DebugTools",
     description: "快速调用任意Java方法(本地/远程)、打印SQL语句与耗时、执行Groovy脚本",
