@@ -137,3 +137,10 @@
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
 
+.medium-zoom-overlay {
+    z-index: 9999 !important;
+}
+
+.medium-zoom-image {
+    z-index: 10000 !important;
+}

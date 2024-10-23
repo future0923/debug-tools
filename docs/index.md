@@ -23,5 +23,5 @@ features:
   - title: 打印SQL语句与耗时
     details: 格式化打印MySQL、PostgreSQL、SQLServer、ClickHouse、Oracle语句，并输出执行时间。
   - title: 执行Groovy脚本
-    details: 依托目标应用，可以执行编写Groovy脚本及对目标应该调试。
+    details: 依托附着应用，可以执行编写Groovy脚本及对附着应用调试。
 ---
