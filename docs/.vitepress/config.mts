@@ -31,6 +31,9 @@ export default defineConfig({
             gtag('config', 'G-9EPFQSXQ95');`
         ],
     ],
+    sitemap: {
+        hostname: 'https://debugtools.cc',
+    },
     title: 'DebugTools | Java调试工具',
     titleTemplate: 'DebugTools',
     description: "快速调用任意Java方法(本地/远程)、打印SQL语句与耗时、执行Groovy脚本",
@@ -74,6 +77,9 @@ export default defineConfig({
         search: {
             provider: 'algolia',
             options: {
+                appId: 'Q3PQ9B9Z5C',
+                apiKey: 'c1efd92fbc0ff7c6829d99c17a7f9926',
+                indexName: 'debug-tools',
                 placeholder: '搜索文档',
                 translations: {
                     button: {
