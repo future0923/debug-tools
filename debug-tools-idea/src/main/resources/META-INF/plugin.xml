@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
-    <id>io.github.future0923.DebugTools</id>
+    <id>io.github.future0923.DebugPower</id>
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
@@ -14,39 +14,22 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    Quickly call Java methods:
+    DebugTools is quickly call Java methods (local/remote), print SQL statements and time consuming, execute Groovy scripts:
     <br>
-    Quick Debugging <a href="https://github.com/future0923/debug-tools">github</a> | <a href="https://gitee.com/future94/debug-tools">gitee</a>
+    <a href="https://debug-tools.cc">document</a> | <a href="https://github.com/future0923/debug-tools">github</a> | <a href="https://gitee.com/future94/debug-tools">gitee</a>
     <ul>
-        <li>First, open the ToolWindow of Debug Tools on the right, click + and select the service you want to attach (the service should already be started).</li>
-        <li>Then wake up the right-click menu in the method body to be called and click Quick Debug.</li>
-        <li>Pass in the type and corresponding value corresponding to the parameter, and click Run to quickly call it.</li>
-        <li>If you want to log in to authentication and other functions, you can specify the Authorization Header, which will mock a request and add this request header to the RequestContextHolder in Spring, so that you can obtain it later. Debug Tools ToolWindow is global scope, Quick Debug is the current method, if the same, Quick Debug higher priority.</li>
-        <li>You can view the execution result through toString, json, and debug.</li>
-        <li>If you want to quickly execute the last request, you can right-click the menu and click Execute Last.</li>
-    </ul>
-    <ul>
-        <li>首先，打开右侧的Debug Tools的ToolWindow，点击 + 选择要你要attach的服务（服务要已经是启动完成的状态）</li>
-        <li>然后在要调用方法体中唤醒右键菜单并点击 Quick Debug</li>
-        <li>传入参数对应的类型与对应的值，点击运行即可快速调用</li>
-        <li>如果要登录认证等功能，可以指定AuthorizationHeader，它会模拟一个请求，并将这个请求头添加到Spring中的RequestContextHolder，以便以后获取。Debug Tools ToolWindow中是全局范围，Quick Debug中是当前方法，如果相同，Quick Debug优先级更高。</li>
-        <li>你可以通过toString、json、debug的方式查看执行结果</li>
-        <li>如果您想快速执行上次的请求，可以右键菜单中点击Execute Last</li>
+        <li>Call any Java method. Quickly call any Java methods, such as static methods, instance methods, methods of Spring-managed beans (Dubbo, XxlJob, MQ, etc.), Mybatis Mapper methods, etc., support passing header parameter information for authentication, support passing XxlJob parameters for task execution.</li>
+        <li>Printing SQL statements and time consuming. Format print MySQL, PostgreSQL, SQLServer, ClickHouse, Oracle statements and output execution time.</li>
+        <li>Execute Groovy script. Depending on the attachment application, you can execute Groovy scripting and debug the attachment application.</li>
     </ul>
   ]]></description>
 
     <change-notes>
         <![CDATA[
-        <strong>1.0.0</strong>
+        <strong>3.0.0</strong>
         <ul>
-            <li>Add groovy console to quickly executable code through target application.</li>
-            <li>Debug method to quickly copy names and values.</li>
-            <li>Additional services can be disconnected and stopped.</li>
-        </ul>
-        <ul>
-            <li>增加groovy控制台，通过目标应用快捷执行代码</li>
-            <li>debug的方式可以快捷复制name和value</li>
-            <li>attach的服务可以断开链接和停止服务</li>
+            <li>You can choose classloader.</li>
+            <li>Remote application methods can be invoked.</li>
         </ul>
         ]]>
     </change-notes>

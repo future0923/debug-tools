@@ -17,7 +17,19 @@ export default defineConfig({
               var s = document.getElementsByTagName("script")[0]; 
               s.parentNode.insertBefore(hm, s);
             })();`
-        ]
+        ],
+        [
+            'script',
+            { async: true, src: 'https://www.googletagmanager.com/gtag/js?id=G-9EPFQSXQ95' }
+        ],
+        [
+            'script',
+            {},
+            `window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-9EPFQSXQ95');`
+        ],
     ],
     title: 'DebugTools | Java调试工具',
     titleTemplate: 'DebugTools',
@@ -39,6 +51,10 @@ export default defineConfig({
             prev: '上一页',
             next: '下一页'
         },
+        returnToTopLabel: '回到顶部',
+        darkModeSwitchLabel: '主题',
+        lightModeSwitchTitle: '切换到浅色模式',
+        darkModeSwitchTitle: '切换到深色模式',
         lastUpdated: {
             text: '最后更新于',
         },
@@ -52,8 +68,8 @@ export default defineConfig({
             {icon: 'github', link: 'https://github.com/future0923/debug-tools'}
         ],
         footer: {
-            message: '基于 Apache 许可发布',
-            copyright: `版权所有 © 2024-${new Date().getFullYear()} Future0923`
+            message: `基于 Apache 许可发布 | 版权所有 © 2024-${new Date().getFullYear()} <a href="https://github.com/future0923/" target="_blank">Future0923</a>`,
+            copyright: '<a href="https://beian.miit.gov.cn/" target="_blank">吉ICP备2024021764号-1</a> | <img src="/icon/beian.png" alt="" style="display: inline-block; width: 18px; height: 18px; vertical-align: middle;" /> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=22010302000528" rel="noreferrer" target="_blank">吉公网安备22010302000528</a>'
         },
         search: {
             provider: 'algolia',
@@ -139,11 +155,11 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
             text: '快速调用Java方法',
             collapsed: false,
             items: [
-                {text: '本地方法', link: 'local-method'},
-                {text: '远程方法', link: 'remote-method'},
+                {text: '附着本地', link: 'attach-local'},
+                {text: '附着远程', link: 'attach-remote'},
+                {text: '调试面板', link: 'quick-debug'},
+                {text: '运行结果', link: 'run-result'},
                 {text: '类加载器', link: 'classloader'},
-                {text: '参数数据格式', link: 'debug-tools-json'},
-                {text: '参数导入导出', link: 'param-operation'},
                 {text: 'header参数', link: 'header'},
                 {text: 'xxl-job参数', link: 'xxl-job'},
                 {text: '快捷调用上一次', link: 'execute-last'},

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
@@ -81,6 +82,9 @@ public class SpringParamConvertUtils {
                     }
                     if (parameter.getParameterType().isAssignableFrom(LocalDate.class)) {
                         return LocalDate.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    }
+                    if (parameter.getParameterType().isAssignableFrom(LocalTime.class)) {
+                        return LocalTime.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("HH:mm:ss"));
                     }
                     if (parameter.getParameterType().isAssignableFrom(Date.class)) {
                         return DateUtils.parseDate(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
