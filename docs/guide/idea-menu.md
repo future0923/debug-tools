@@ -20,7 +20,7 @@
 
 ## Groovy Console
 
-开启 [Groovy控制台](./groovy-console)。
+开启 [Groovy控制台](./groovy-execute)。
 
 ## Run `console.groovy` With Debug Tools
 
