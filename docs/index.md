@@ -12,7 +12,7 @@ hero:
       link: /guide/introduction
     - theme: alt
       text: 快速开始
-      link: /quick-start
+      link: /guide/quick-start
     - theme: alt
       text: GitHub
       link: https://github.com/future0923/debug-tools

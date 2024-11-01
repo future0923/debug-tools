@@ -246,7 +246,7 @@ getSpringConfig("spring.application.name")
 getSpringConfig "spring.application.name"
 ```
 
-## 完整示例
+## 完整示例 {#complete-example}
 
 ```groovy
 import org.springframework.context.ApplicationContext
@@ -318,6 +318,6 @@ getSpringConfig "spring.application.name"
 return result
 ```
 
-通过 `debug` 方式查看到返回结果。
+通过 [debug](./run-result#debug) 方式查看到返回结果。
 
 ![groovy_example_debug](/images/groovy_example_debug.png){v-zoom}
