@@ -73,7 +73,7 @@ public class VmToolsUtils {
         }
     }
 
-    public static<T> T[] getInstances(Class<T> targetClass) {
+    public static <T> T[] getInstances(Class<T> targetClass) {
         return instance.getInstances(targetClass);
     }
 

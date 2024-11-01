@@ -102,6 +102,7 @@
                             <target>
                                 <delete dir="${project.basedir}/../debug-tools-idea/src/main/resources/lib"/>
                                 <delete dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
+                                <delete file="${project.basedir}/../dist/debug-tools-agent.jar"/>
                             </target>
                         </configuration>
                     </execution>
@@ -121,6 +122,11 @@
                                 <mkdir dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
                                 <copy file="${project.build.directory}/${build.finalName}.jar"
                                       tofile="${project.basedir}/../debug-tools-boot/src/main/resources/lib/${build.finalName}.jar"
+                                      overwrite="true"/>
+
+                                <mkdir dir="${project.basedir}/../dist"/>
+                                <copy file="${project.build.directory}/${build.finalName}.jar"
+                                      tofile="${project.basedir}/../dist/debug-tools-agent.jar"
                                       overwrite="true"/>
                             </target>
                         </configuration>
