@@ -1,36 +1,136 @@
-# debug-tools
+[English](README.md) | [中文](README-zh.md)
 
-[idea商店地址](https://plugins.jetbrains.com/plugin/24463-debugtools)
+# DebugTools
 
-- 快速调用任意java方法（静态方法、实例方法、Spring Bean、Mybatis Mapper等），支持权限验证等header传参。
-- 打印SQL执行语句与耗时时间(mysql、postgresql、sqlserver、clickhouse、oracle)
+- Quickly call Java methods (local/remote)
+- Print SQL statements and time consuming
+- Execute Groovy scripts
 
+## Documentation
 
-# Quick Start
+To check out docs, visit [debug-tools.cc](https://debug-tools.cc).
 
-- 启动项目
-- 项目启动成功后点击工具窗口的加号选择对应应用，可以配置全家Header信息
-![tool_window](images/tool_window.jpg)
-- 在对应的方法体上右键唤醒菜单（也可以自己设置快捷键），
-  - `Quick Debug` 调用方法
-  - `Execute Last` 快速调用上一次执行的方法
-![right_menu](images/right_menu.jpg)
-- 点击 `Run` 调用目标应用方法，可以设置当前方法要传递的Header信息
-![quick_debug](images/quick_debug.jpg)
-- 调用成功后返回执行的对应结果
-  - 调用成功返回方法执行结果
-    - `toString` 
-  ![result_to_string](images/result_to_string.jpg)
-    - `json`
-  ![result_json](images/result_json.jpg)
-    - `debug`
-  ![result_debug](images/result_debug.jpg)
-  - 调用失败返回错误信息
-    - `console` 
-  ![exception_console](images/exception_console.jpg)
-    - `debug`
-  ![exception_debug](images/exception_debug.jpg)
-- 修改配置
-  - `Entity class default param` 打开当前方法的实体类默认值：没有默认、当前类、所有父类（最多5层）
-  - `Print pretty sql` 打印执行的SQL语句：不打印、打印
-![config](images/config.jpg)
+## Changelog
+
+Detailed changes for each release are documented in the [CHANGELOG](https://github.com/future0923/debug-tools/blob/main/CHANGELOG.md).
+
+## Contribution
+
+Please make sure to read the [Contributing Guide](https://github.com/future0923/debug-tools/blob/main/.github/contributing.md) before making a pull request.
+
+## Quickstart
+
+### Install
+
+#### Marketplace
+
+1. Open `IDE Settings` and select `Plugins`.
+2. Search for `DebugTools` in the `Marketplace` and click `install`.
+3. Restart.
+
+![marketplace](/docs/public/images/marketplace.png)
+
+#### Url
+
+```text
+https://plugins.jetbrains.com/plugin/24463-debugtools
+```
+
+#### Download
+
+```text
+https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip
+```
+
+#### Build
+
+```sh 
+git clone https://github.com/future0923/debug-tools.git
+cd debug-tools
+mvn clean install -T 2C -Dmaven.test.skip=true
+# dist dir
+# debug-tools-boot.jar remote agent jar
+cd debug-tools-idea
+./gradlew clean buildPlugin
+# dist dir
+# DebugTools-{version}.zip IDEA plugin
+```
+
+#### github
+
+```text
+https://github.com/future0923/debug-tools/releases
+```
+
+#### gitee
+
+```text
+https://gitee.com/future94/debug-tools/releases
+```
+
+### Start Application
+
+DebugTools uses the `Java Agent` technology to implement debugging, so you must ensure that the project has been started and completed when debugging.
+
+### Attach Application
+
+Click on the <img src="/docs/public/pluginIcon.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> toolbar on the right side of Idea to wake up the DebugTools window. Click <img src="/docs/public/icon/add.svg" alt="加号" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> to get a list of applications that can be attached locally.
+
+![tools_window](/docs/public/images/tools_window.png)
+
+Select the application you want to debug and click the `Attach` button to attach the application.
+
+![application_list.png](/docs/public/images/application_list.png)
+
+After successfully attaching the app, DebugTools displays the attachment state.
+- `L`: The logo is attached to the local application, `R` for remote application.
+- `Connected`: The application has been successfully attached and the service has been successfully connected.
+- `i.g.f.d.t.t.a.DebugToolsTestApplication`: application name.
+  - Attach when specifying the application name is the specified `application name`.
+  - If the application name is not specified, the Spring application `spring.application.name` configuration item.
+  - When not specified, take the `Main-Class` in the startup jar.
+  - Fetch `sun.java.command` in the startup command when not found.
+
+![attach_status](/docs/public/images/attach_status.png)
+
+### Invoke Method
+
+Wake up the context menu on the method to be invoked, click `Quick Debug` to wake up the debug panel.
+
+![idea_menu.png](/docs/public/images/idea_menu.png)
+
+If we want to quickly call the `test` method of `TestService`
+
+```java
+package io.github.future0923.debug.tools.test.application.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class TestService {
+
+    public String test(String name, Integer age) {
+        return "name = " + name + ", age = " + age;
+    }
+}
+```
+
+Enter the value of the parameter when calling the method
+
+For example, `name = DebugTools`, `age = 18`, the DebugJson format will be automatically generated, Here we can pass the corresponding value in `content`.
+
+![quick_debug](/docs/public/images/quick_debug.png)
+
+Click the `Run` button to call the method.
+
+### Show Result
+
+After the call is successful, the run result (the return value of the method) will be displayed in the DebugTools window.
+
+- **toString**: Shows the return value of the method after calling the ToString method.
+- **json**: The return value of the method is displayed by Json.
+- **debug**: Displays the method return value in the style of type Idea Debug.
+
+![run_result](/docs/public/images/run_result.png)
+![json_result](/docs/public/images/json_result.png)
+![debug_result](/docs/public/images/debug_result.png)
