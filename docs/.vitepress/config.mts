@@ -40,6 +40,7 @@ export default defineConfig({
     rewrites: {
         'en/:rest*': ':rest*'
     },
+    lastUpdated: true,
     locales: {
         root: {
             label: 'English',
