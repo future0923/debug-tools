@@ -53,7 +53,7 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     {
       text: '文档',
-      link: '/zh/introduction',
+      link: '/zh/guide/introduction',
       activeMatch: '/zh/'
     },
     {
