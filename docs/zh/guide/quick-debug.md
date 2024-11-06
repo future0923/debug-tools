@@ -670,4 +670,4 @@ public class Child extends Parent {
 
 :::
 
-DebugTools 还可以 [快捷调用上一次](./execute-last.md) 方法。 
+DebugTools 还可以 [快捷调用上一次](execute-last.md) 方法。 

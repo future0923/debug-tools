@@ -10,7 +10,7 @@
 
 - 应用：
   - `R`: 标识附着的是远程应用
-  - `N`: 标识附着的是本地应用
+  - `L`: 标识附着的是本地应用
 - 连接情况：
   - `UnAttached`: 未附着应用。
   - `Connected`: 应用已经附着成功并连接服务成功。
@@ -23,7 +23,7 @@
     - 未指定时取启动时jar中的 `Main-Class`。
     - 未找到时取启动命令中的 `sun.java.command`。
 - 操作按钮：
-  - `Colse`: 断开与 DebugToolsServer 连接。
+  - `Close`: 断开与 DebugToolsServer 连接。
   - `Stop`: 附着应用停止运行 DebugToolsServer。
 
 ![remote_attach_status](/images/remote_attach_status.png){v-zoom}

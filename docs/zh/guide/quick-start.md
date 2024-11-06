@@ -65,6 +65,8 @@ DebugTools 通过 `Java Agent` 技术来实现调试，所以调试时必须保�
 
 在要调用的方法上唤醒右键菜单，点击 `Quick Debug` 唤醒 [调试面板](./quick-debug)。
 
+![idea_menu.png](/images/idea_menu.png){v-zoom}
+
 ::: details 如我们要快速调用 `TestService` 的 `test` 方法
 
 ```java
@@ -84,7 +86,7 @@ public class TestService {
 :::
 
 ::: details 输入调用方法时参数的值
-如 `name=DebugTools`、`age=18`，DebugJson 格式会自动生成，详细点击了解。这里我们在 `content`中传入对应的值即可。
+如 `name=DebugTools`、`age=18`，DebugJson 格式会自动生成，详细[点击了解](./quick-debug#debugtools-json)。这里我们在 `content`中传入对应的值即可。
 :::
 
 ![quick_debug](/images/quick_debug.png){v-zoom}
