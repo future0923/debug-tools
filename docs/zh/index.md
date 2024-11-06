@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 什么是 DebugTools?
-      link: /guide/introduction
+      link: /zh/guide/introduction
     - theme: alt
       text: 快速开始
-      link: /guide/quick-start
+      link: /zh/guide/quick-start
     - theme: alt
       text: GitHub
       link: https://github.com/future0923/debug-tools
