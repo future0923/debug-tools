@@ -1,4 +1,5 @@
 * text=auto eol=lf
 *.ts linguist-language=TypeScript
 *.mts linguist-language=TypeScript
+*.md linguist-language=TypeScript
 *.css linguist-language=CSS
