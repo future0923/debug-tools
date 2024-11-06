@@ -24,9 +24,9 @@
 
 #### 商店
 
-1. Open `IDE Settings` and select `Plugins`.
-2. Search for `DebugTools` in the `Marketplace` and click `install`.
-3. Restart.
+1. 打开 `IDE Settings` 并选择 `Plugins`
+2. 在 `Marketplace` 搜索 `DebugTools` 并点击 `install`
+3. 重启应用
 
 ![marketplace](/docs/public/images/marketplace.png)
 
