@@ -101,8 +101,7 @@ public class DebugToolsResultUtils {
                     .filter(h -> System.identityHashCode(h.getKey()) == offset)
                     .findFirst()
                     .orElse(null);
-        } else if (object instanceof Map.Entry<?, ?>) {
-            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
+        } else if (object instanceof Map.Entry<?, ?> entry) {
             return offset == 0 ? entry.getKey() : entry.getValue();
         } else if (object instanceof Collection<?>) {
             return CollUtil.get((Collection<?>) object, Math.toIntExact(offset));

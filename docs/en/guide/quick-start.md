@@ -46,7 +46,7 @@ https://gitee.com/future94/debug-tools/releases
 
 ::: details The manual build encountered a packaging failure problem
 
-At present, the maven packaging needs to be built with the `java1.8` version, and the grade packaging Idea plugins needs to be built with the `java17 +` version.
+At present, the maven packaging needs to be built with the `java17+` version, and the grade packaging Idea plugins needs to be built with the `java17+` version.
 
 :::
 

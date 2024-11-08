@@ -45,7 +45,7 @@ https://gitee.com/future94/debug-tools/releases
 
 ::: details 手动构建遇到了打包失败问题
 
-目前maven打包需要使用 `java1.8` 版本构建，grade打包Idea插件时需要使用`java17+`版本构建。
+目前maven打包需要使用 `java17+` 版本构建，grade打包Idea插件时需要使用`java17+`版本构建。
 
 :::
 
