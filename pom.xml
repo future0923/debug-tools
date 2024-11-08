@@ -43,10 +43,11 @@
 
     <properties>
         <revision>3.0.0</revision>
-        <compiler.version>8</compiler.version>
-        <target.version>8</target.version>
+        <compiler.version>17</compiler.version>
+        <target.version>17</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shade.package>io.github.future0923.debug.tools.dependencies</shade.package>
+        <lombok.version>1.18.24</lombok.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
@@ -201,6 +202,13 @@
                     <source>${compiler.version}</source>
                     <target>${compiler.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>

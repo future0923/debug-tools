@@ -108,13 +108,13 @@ public class VmToolsUtils {
         try {
             if (noArgConstructorOpt.isPresent()) {
                 Constructor<?> constructor = noArgConstructorOpt.get();
-                if (!constructor.isAccessible()) {
+                if (!constructor.canAccess(null)) {
                     constructor.setAccessible(true);
                 }
                 obj = constructor.newInstance();
             } else {
                 Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
-                if (!constructor.isAccessible()) {
+                if (!constructor.canAccess(null)) {
                     constructor.setAccessible(true);
                 }
                 Object[] objects = IntStream.range(0, constructor.getParameterCount()).mapToObj(i -> null).toArray();
