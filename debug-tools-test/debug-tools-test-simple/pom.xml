@@ -12,4 +12,12 @@
     <name>debug-tools-test-simple</name>
     <artifactId>debug-tools-test-simple</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.47.0.0</version> <!-- 使用最新版本 -->
+        </dependency>
+
+    </dependencies>
 </project>
