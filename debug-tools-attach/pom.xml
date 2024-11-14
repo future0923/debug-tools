@@ -13,7 +13,6 @@
     <artifactId>debug-tools-attach</artifactId>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <premain.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</premain.class>
         <agent.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</agent.class>
         <can.redefine.classes>true</can.redefine.classes>
@@ -26,6 +25,11 @@
         <dependency>
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-base</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-core</artifactId>
             <version>${revision}</version>
         </dependency>
         <!--没蛋用，就要个打包顺序-->
@@ -45,6 +49,15 @@
     <build>
         <finalName>debug-tools-agent</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>1.8</source>  <!-- 设置源码版本为 Java 8 -->
+                    <target>1.8</target>  <!-- 设置目标字节码版本为 Java 8 -->
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

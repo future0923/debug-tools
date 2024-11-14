@@ -21,7 +21,7 @@ public class TestController {
     @GetMapping("/test")
     public String test(String name) {
         testInterface.test(name);
-        return "success:" + name;
+        return "success: " + name;
     }
 
     @GetMapping("/insertBatchSomeColumn")
