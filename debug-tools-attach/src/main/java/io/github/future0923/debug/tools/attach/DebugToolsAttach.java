@@ -5,6 +5,7 @@ import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -27,7 +28,8 @@ public class DebugToolsAttach {
     private static Object bootstrap;
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
-        SqlPrintByteCodeEnhance.enhance(inst);
+        //SqlPrintByteCodeEnhance.enhance(inst);
+        HotswapAgent.premain(agentArgs, inst);
     }
 
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {

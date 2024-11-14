@@ -43,8 +43,8 @@
 
     <properties>
         <revision>3.0.0</revision>
-        <compiler.version>17</compiler.version>
-        <target.version>17</target.version>
+        <compiler.version>8</compiler.version>
+        <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shade.package>io.github.future0923.debug.tools.dependencies</shade.package>
         <lombok.version>1.18.24</lombok.version>
@@ -74,7 +74,63 @@
         <module>debug-tools-client</module>
         <module>debug-tools-boot</module>
         <module>debug-tools-core</module>
+        <module>debug-tools-hotswap</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>mac-tools</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+                <jdk>(,1.11)</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>${java.version}</version>
+                    <scope>system</scope>
+                    <optional>true</optional>
+                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>surefire-java-lt21</id>
+            <activation>
+                <jdk>(,21)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!--This is to override argLine from surefire config in parent pom-->
+                            <!-- HotswapAgent=external serves to open modules -->
+                            <argLine>
+                                -XX:+AllowEnhancedClassRedefinition
+                                -XX:HotswapAgent=external
+                                -Xlog:redefine+class*=info
+                                -Dblank
+                                --add-opens java.base/java.lang=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+                                --add-opens java.base/java.io=ALL-UNNAMED
+                                --add-opens java.desktop/java.beans=ALL-UNNAMED
+                                --add-opens java.desktop/com.sun.beans=ALL-UNNAMED
+                                --add-opens java.desktop/com.sun.beans.introspect=ALL-UNNAMED
+                                --add-opens java.desktop/com.sun.beans.util=ALL-UNNAMED
+                                --add-opens java.base/sun.security.action=ALL-UNNAMED
+                                --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                            </argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
