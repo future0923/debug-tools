@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.util.classloader;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 /**
- * Interface used to extending class loaders by extra path defined in hotspwap-agent.properties
+ * The interface Spring hotswap agent proxy.
  */
-public interface HotswapAgentClassLoaderExt {
-    public void $$ha$setExtraClassPath(java.net.URL[] extraClassPath);
-    public void $$ha$setWatchResourceLoader(WatchResourcesClassLoader watchResourceLoader);
+public interface SpringHotswapAgentProxy {
+    Object $$ha$getTarget();
+    void $$ha$setTarget(Object object);
 }
