@@ -16,12 +16,24 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.util.classloader;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload;
+
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringEvent;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+
 
 /**
- * Interface used to extending class loaders by extra path defined in hotspwap-agent.properties
+ * The type Bean change event.
  */
-public interface HotswapAgentClassLoaderExt {
-    public void $$ha$setExtraClassPath(java.net.URL[] extraClassPath);
-    public void $$ha$setWatchResourceLoader(WatchResourcesClassLoader watchResourceLoader);
+public class BeanChangeEvent extends SpringEvent<String[]> {
+    /**
+     * Constructs a prototypical Event.
+     *
+     * @param source      the object on which the Event initially occurred
+     * @param beanFactory
+     * @throws IllegalArgumentException if source is null
+     */
+    public BeanChangeEvent(String[] source, ConfigurableListableBeanFactory beanFactory) {
+        super(source, beanFactory);
+    }
 }

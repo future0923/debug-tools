@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+
 /**
  * @author future0923
  */
@@ -23,6 +25,21 @@ public class TestController {
         testInterface.test(name);
         return "success: " + name;
     }
+
+    @GetMapping("/hot")
+    public String ok() {
+        return "1234";
+    }
+
+    //@GetMapping("/hot1")
+    //public String ok1() {
+    //    return "123432121";
+    //}
+    //
+    //@GetMapping("/hot2")
+    //public LocalDate ok2() {
+    //    return LocalDate.now();
+    //}
 
     @GetMapping("/insertBatchSomeColumn")
     public String insertBatchSomeColumn() {
