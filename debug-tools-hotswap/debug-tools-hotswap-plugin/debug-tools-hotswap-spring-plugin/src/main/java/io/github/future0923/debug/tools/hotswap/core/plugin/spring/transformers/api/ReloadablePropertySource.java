@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.util.classloader;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api;
 
-/**
- * Interface used to extending class loaders by extra path defined in hotspwap-agent.properties
- */
-public interface HotswapAgentClassLoaderExt {
-    public void $$ha$setExtraClassPath(java.net.URL[] extraClassPath);
-    public void $$ha$setWatchResourceLoader(WatchResourcesClassLoader watchResourceLoader);
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReloader;
+
+public interface ReloadablePropertySource {
+
+    void setReload(PropertySourceReloader r);
+
+    void reload();
 }

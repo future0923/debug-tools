@@ -24,6 +24,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.Proxy;
 import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.ProxyFactory;
 import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.ProxyObject;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -243,6 +244,12 @@ public class URLClassPathHelper {
     public static class ExtraURLClassPathMethodHandler implements MethodHandler {
 
         private ClassLoader watchResourceLoader;
+
+        /**
+         * Return orig classpath as was set by hotswap agent.
+         * Note: cannot use classLoader.getURLs(), because Tomcat WebappClassLoader does not return modified classPath.
+         */
+        @Getter
         URL[] origClassPath;
 
         public ExtraURLClassPathMethodHandler(URL[] origClassPath) {
@@ -252,14 +259,6 @@ public class URLClassPathHelper {
         public ExtraURLClassPathMethodHandler(URL[] origClassPath, ClassLoader watchResourceLoader) {
             this.origClassPath = origClassPath;
             this.watchResourceLoader = watchResourceLoader;
-        }
-
-        /**
-         * Return orig classpath as was set by hotswap agent.
-         * Note: cannot use classLoader.getURLs(), because Tomcat WebappClassLoader does not return modified classPath.
-         */
-        public URL[] getOrigClassPath() {
-            return origClassPath;
         }
 
         // code here with the implementation of MyCustomInterface
