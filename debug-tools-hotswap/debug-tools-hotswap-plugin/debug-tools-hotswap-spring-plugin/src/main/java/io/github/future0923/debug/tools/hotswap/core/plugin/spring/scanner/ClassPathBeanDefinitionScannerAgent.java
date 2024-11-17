@@ -141,6 +141,8 @@ public class ClassPathBeanDefinitionScannerAgent {
     /**
      * Called by a reflection command from SpringPlugin transformer.
      *
+     * {@link ClassPathBeanRefreshCommand#executeCommand()}调用
+     *
      * @param appClassLoader  the class loader - container or application class loader.
      * @param basePackage     base package on witch the transformer was registered, used to obtain associated scanner.
      * @param classDefinition new class definition
@@ -286,7 +288,7 @@ public class ClassPathBeanDefinitionScannerAgent {
      * @return the definition or null if not a spring bean
      * @throws IOException
      */
-    private BeanDefinition resolveBeanDefinition(ClassLoader appClassLoader, byte[] bytes) throws IOException {
+    public BeanDefinition resolveBeanDefinition(ClassLoader appClassLoader, byte[] bytes) throws IOException {
         Resource resource = new ByteArrayResource(bytes);
         resetCachingMetadataReaderFactoryCache();
         MetadataReader metadataReader = getMetadataReader(appClassLoader, resource);

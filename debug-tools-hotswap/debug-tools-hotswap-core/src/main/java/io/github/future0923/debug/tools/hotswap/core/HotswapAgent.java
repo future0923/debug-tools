@@ -24,7 +24,7 @@ public class HotswapAgent {
     private static final Set<String> disabledPlugins = new HashSet<>();
 
     /**
-     * Default value for autoHotswap property.
+     * 是否自动热重载
      */
     @Getter
     private static boolean autoHotswap = false;
@@ -79,7 +79,7 @@ public class HotswapAgent {
     }
 
     /**
-     * @return the path for the hotswap-agent.properties external file
+     * 获取外部配置文件路径
      */
     public static String getExternalPropertiesFile() {
         return propertiesFilePath;

@@ -19,6 +19,9 @@
 package io.github.future0923.debug.tools.hotswap.core.config;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.InitHandler;
+import io.github.future0923.debug.tools.hotswap.core.command.Command;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.command.impl.SchedulerImpl;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
@@ -50,10 +53,51 @@ public class PluginManager {
      */
     public static final String PLUGIN_PACKAGE = "io.github.future0923.debug.tools.hotswap.core.plugin";
 
-    //////////////////////////   MANAGER SINGLETON /////////////////////////////////////
+    ClassLoaderDefineClassPatcher classLoaderPatcher = new ClassLoaderDefineClassPatcher();
 
-    // 单例
+    /**
+     * ClassLoader中的插件配置信息
+     */
+    private final Map<ClassLoader, PluginConfiguration> classLoaderConfigurations = new HashMap<>();
+
+    /**
+     * ClassLoader初始化监听者
+     */
+    private final Set<ClassLoaderInitListener> classLoaderInitListeners = new HashSet<>();
+
+    @Getter
+    private Instrumentation instrumentation;
+
+    /**
+     * instrumentation的redefineClasses锁
+     */
+    private final Object hotswapLock = new Object();
+
+    /**
+     * 单例
+     */
     private static final PluginManager INSTANCE = new PluginManager();
+
+    @Setter
+    @Getter
+    private PluginRegistry pluginRegistry;
+
+    /**
+     * 热重载转换器
+     */
+    @Getter
+    protected HotswapTransformer hotswapTransformer;
+
+    @Getter
+    protected Watcher watcher;
+
+    @Getter
+    protected Scheduler scheduler;
+
+    private PluginManager() {
+        hotswapTransformer = new HotswapTransformer();
+        pluginRegistry = new PluginRegistry(this, classLoaderPatcher);
+    }
 
     /**
      * 获取插件管理器的单例实例
@@ -62,24 +106,8 @@ public class PluginManager {
         return INSTANCE;
     }
 
-    private PluginManager() {
-        hotswapTransformer = new HotswapTransformer();
-        pluginRegistry = new PluginRegistry(this, classLoaderPatcher);
-    }
-
-    @Getter
-    private Instrumentation instrumentation;
-
-    private final Object hotswapLock = new Object();
-
-    //////////////////////////   PLUGINS /////////////////////////////////////
-
     /**
-     * Returns a plugin instance by its type and classLoader.
-     *
-     * @param clazz       type name of the plugin (IllegalArgumentException class is not known to the classLoader)
-     * @param classLoader classloader of the plugin
-     * @return plugin instance or null if not found
+     * 获取指定类加载器中的插件实例
      */
     public Object getPlugin(String clazz, ClassLoader classLoader) {
         try {
@@ -90,23 +118,14 @@ public class PluginManager {
     }
 
     /**
-     * Returns a plugin instance by its type and classLoader.
-     *
-     * @param clazz       type of the plugin
-     * @param classLoader classloader of the plugin
-     * @param <T>         type of the plugin to return correct instance.
-     * @return the plugin or null if not found.
+     * 获取指定类加载器中的插件实例
      */
     public <T> T getPlugin(Class<T> clazz, ClassLoader classLoader) {
         return pluginRegistry.getPlugin(clazz, classLoader);
     }
 
     /**
-     * Check if plugin is initialized in classLoader.
-     *
-     * @param pluginClassName type of the plugin
-     * @param classLoader classloader of the plugin
-     * @return true/false
+     * 插件是否在指定ClassLoader中已经初始化
      */
     public boolean isPluginInitialized(String pluginClassName, ClassLoader classLoader) {
         Class<Object> pluginClass = pluginRegistry.getPluginClass(pluginClassName);
@@ -114,15 +133,12 @@ public class PluginManager {
     }
 
     /**
-     * Initialize the singleton plugin manager.
-     * <ul>
-     * <li>Create new resource watcher using WatcherFactory and start it in separate thread.</li>
-     * <li>Create new scheduler and start it in separate thread.</li>
-     * <li>Scan for plugins</li>
-     * <li>Register HotswapTransformer with the javaagent instrumentation class</li>
-     * </ul>
+     * 初始化热重载
      *
-     * @param instrumentation javaagent instrumentation.
+     * <p>使用{@link WatcherFactory}创建单独的线程{@link Watcher}资源
+     * <p>创建{@link Scheduler}用来调度{@link Command}的执行
+     * <p>识别{@link Plugin}插件
+     * <p>使用{@link HotswapTransformer}来检查agent instrumentation class
      */
     public void init(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
@@ -141,7 +157,6 @@ public class PluginManager {
         }
         scheduler.run();
 
-        // create default configuration from this classloader
         ClassLoader classLoader = getClass().getClassLoader();
 
         classLoaderConfigurations.put(classLoader, new PluginConfiguration(classLoader));
@@ -153,61 +168,60 @@ public class PluginManager {
         instrumentation.addTransformer(hotswapTransformer);
     }
 
-    ClassLoaderDefineClassPatcher classLoaderPatcher = new ClassLoaderDefineClassPatcher();
-    Map<ClassLoader, PluginConfiguration> classLoaderConfigurations = new HashMap<>();
-    Set<ClassLoaderInitListener> classLoaderInitListeners = new HashSet<>();
-
+    /**
+     * 添加类加载器初始化监听者并立即调用，给{@link InitHandler}使用
+     */
     public void registerClassLoaderInitListener(ClassLoaderInitListener classLoaderInitListener) {
         classLoaderInitListeners.add(classLoaderInitListener);
-
-        // call init on this classloader immediately, because it is already initialized
+        // 因为ClassLoader已经初始化了，所以立即在此类加载器上调用init，
         classLoaderInitListener.onInit(getClass().getClassLoader());
     }
 
+    /**
+     * 初始化类加载器
+     */
     public void initClassLoader(ClassLoader classLoader) {
-        // use default protection domain
         initClassLoader(classLoader, classLoader.getClass().getProtectionDomain());
     }
 
+    /**
+     * 初始化类加载器
+     */
     public void initClassLoader(ClassLoader classLoader, ProtectionDomain protectionDomain) {
         // 存在说明ClassLoader中已经初始化过了，直接退出
         if (classLoaderConfigurations.containsKey(classLoader))
             return;
 
-        // parent of current classloader (system/bootstrap)
+        // system/bootstrap 类加载器不初始化
         if (getClass().getClassLoader() != null &&
-            classLoader != null &&
-            classLoader.equals(getClass().getClassLoader().getParent()))
+                classLoader != null &&
+                classLoader.equals(getClass().getClassLoader().getParent())) {
             return;
-
-        // synchronize ClassLoader patching - multiple classloaders may be patched at the same time
-        // and they may synchronize loading for security reasons and introduce deadlocks
+        }
         synchronized (this) {
+            // 如果已经初始化过了
             if (classLoaderConfigurations.containsKey(classLoader))
                 return;
 
-            // transformation
+            // 从AgentClassLoader复制插件到初始化ClassLoader中
             if (classLoader != null && classLoaderPatcher.isPatchAvailable(classLoader)) {
                 classLoaderPatcher.patch(getClass().getClassLoader(), PLUGIN_PACKAGE.replace(".", "/"),
                         classLoader, protectionDomain);
             }
 
-            // create new configuration for the classloader
+            // 创建这个ClassLoader中的插件配置
             PluginConfiguration pluginConfiguration = new PluginConfiguration(getPluginConfiguration(getClass().getClassLoader()), classLoader, false);
             classLoaderConfigurations.put(classLoader, pluginConfiguration);
             pluginConfiguration.init();
         }
 
-        // call listeners
+        // 调用类初始化监听者
         for (ClassLoaderInitListener classLoaderInitListener : classLoaderInitListeners)
             classLoaderInitListener.onInit(classLoader);
     }
 
     /**
-     * Remove any classloader reference and close all plugin instances associated with classloader.
-     * This method is called typically after webapp undeploy.
-     *
-     * @param classLoader the classloader to cleanup
+     * 从指定类加载器中移除热重载插件
      */
     public void closeClassLoader(ClassLoader classLoader) {
         pluginRegistry.closeClassLoader(classLoader);
@@ -225,34 +239,15 @@ public class PluginManager {
         return classLoaderConfigurations.get(loader);
     }
 
-    //////////////////////////   AGENT SERVICES /////////////////////////////////////
-
-    @Setter
-    @Getter
-    private PluginRegistry pluginRegistry;
-
     /**
-     * 热重载转换器
-     */
-    @Getter
-    protected HotswapTransformer hotswapTransformer;
-
-    @Getter
-    protected Watcher watcher;
-
-    @Getter
-    protected Scheduler scheduler;
-
-    /**
-     * Redefine the supplied set of classes using the supplied bytecode.
+     * 通过传入的字节码进行热重载，
      *
-     * This method operates on a set in order to allow interdependent changes to more than one class at the same time
-     * (a redefinition of class A can require a redefinition of class B).
+     * <p>此方法对集合进行操作，以允许同时对多个类进行相互依赖的更改
      *
-     * @param reloadMap class -> new bytecode
+     * @param reloadMap 要重载的字节码
      * @see Instrumentation#redefineClasses(ClassDefinition...)
      */
-    public void hotswap(Map<Class<?>, byte[]> reloadMap) {
+    public void hotswap(final Map<Class<?>, byte[]> reloadMap) {
         if (instrumentation == null) {
             throw new IllegalStateException("Plugin manager is not correctly initialized - no instrumentation available.");
         }
@@ -266,11 +261,11 @@ public class PluginManager {
                 definitions[i++] = new ClassDefinition(entry.getKey(), entry.getValue());
             }
             try {
-                logger.reload("Reloading classes {} (autoHotswap)", Arrays.toString(classNames));
+                logger.reload("Reloading classes {}", Arrays.toString(classNames));
                 synchronized (hotswapLock) {
                     instrumentation.redefineClasses(definitions);
                 }
-                logger.debug("... reloaded classes {} (autoHotswap)", Arrays.toString(classNames));
+                logger.reload("reloaded classes {}", Arrays.toString(classNames));
             } catch (Exception e) {
                 logger.debug("... Fail to reload classes {} (autoHotswap), msg is {}", Arrays.toString(classNames), e);
                 throw new IllegalStateException("Unable to redefine classes", e);
@@ -280,12 +275,12 @@ public class PluginManager {
     }
 
     /**
-     * Redefine the supplied set of classes using the supplied bytecode in scheduled command. Actual hotswap is postponed by timeout
+     * 通过调度器传入的字节码进行热重载，
      *
-     * This method operates on a set in order to allow interdependent changes to more than one class at the same time
-     * (a redefinition of class A can require a redefinition of class B).
+     * <p>此方法对集合进行操作，以允许同时对多个类进行相互依赖的更改
      *
-     * @param reloadMap class -> new bytecode
+     * @param timeout   延迟运行的时间
+     * @param reloadMap 要重载的字节码
      * @see Instrumentation#redefineClasses(ClassDefinition...)
      */
     public void scheduleHotswap(Map<Class<?>, byte[]> reloadMap, int timeout) {

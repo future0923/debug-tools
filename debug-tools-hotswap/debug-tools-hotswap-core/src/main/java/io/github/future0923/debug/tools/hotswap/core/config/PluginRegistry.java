@@ -210,17 +210,20 @@ public class PluginRegistry {
     }
 
     /**
-     * Check if plugin is initialized in classLoader.
+     * 插件是否已经在指定的ClassLoader中初始化
      *
-     * @param pluginClass type of the plugin
-     * @param classLoader classloader of the plugin
-     * @param checkParent for parent classloaders as well?
-     * @return true/false
+     * @param checkParent 是否检查父类加载器
      */
     public boolean hasPlugin(Class<?> pluginClass, ClassLoader classLoader, boolean checkParent) {
         return doHasPlugin(pluginClass, classLoader, checkParent, false);
     }
 
+    /**
+     * 插件是否已经在指定的ClassLoader中初始化
+     *
+     * @param checkParent 是否检查父类加载器
+     * @param createIfMissing 不存在是否创建
+     */
     public boolean doHasPlugin(Class<?> pluginClass, ClassLoader classLoader, boolean checkParent, boolean createIfMissing) {
         if (!registeredPlugins.containsKey(pluginClass))
             return false;
@@ -235,7 +238,7 @@ public class PluginRegistry {
                 }
             }
             if (createIfMissing) {
-                Object pluginInstance = instantiate((Class<Object>) pluginClass);
+                Object pluginInstance = instantiate(pluginClass);
                 pluginInstances.put(classLoader, pluginInstance);
             }
         }
@@ -289,18 +292,15 @@ public class PluginRegistry {
     }
 
     /**
-     * Create a new instance of the plugin.
-     *
-     * @param plugin plugin class
-     * @return new instance or null if instantiation fail.
+     * 创建插件实例
      */
-    protected Object instantiate(Class<Object> plugin) {
+    protected Object instantiate(Class<?> plugin) {
         try {
             return plugin.newInstance();
         } catch (InstantiationException e) {
-            LOGGER.error("Error instantiating plugin: " + plugin.getClass().getName(), e);
+            LOGGER.error("Error instantiating plugin: " + plugin.getName(), e);
         } catch (IllegalAccessException e) {
-            LOGGER.error("Plugin: " + plugin.getClass().getName()
+            LOGGER.error("Plugin: " + plugin.getName()
                     + " does not contain public no param constructor", e);
         }
         return null;

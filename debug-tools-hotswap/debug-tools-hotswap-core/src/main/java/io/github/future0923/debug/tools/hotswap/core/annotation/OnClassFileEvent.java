@@ -18,55 +18,51 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation;
 
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.net.URI;
+import java.net.URL;
 
 import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent.CREATE;
 import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent.DELETE;
 import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent.MODIFY;
 
 /**
- * OnResourceFileEvent for a change on resource file representing a java class.
- * <p/>
- * Use with a non static method.
- * <p/>
- * Method attribute types:<ul>
- * <li>ClassLoader - the application classloader</li>
- * <li>String - classname - the name of the class in the internal form of fully
- * qualified class and interface names. For example, <code>"java/util/List"</code>.</li>
- * <li>ClassPool - initialized javassist classpool</li>
- * <li>CtClass - javassist CtClass created from target file</li>
- * <li>URI - URI of the watched resource</li>
- * <li>URL - URL of the watched resource</li>
+ * OnClassFileEvent当java class文件改变时的事件（只能加到非静态方法上）
+ * 方法上可以自动注入的参数类型如下，在{@link WatchEventCommand#executeCommand}中解析
+ * <ul>
+ * <li>{@link ClassLoader} - 加载class的类加载器
+ * <li>{@link String} 类名(e.g: {@code java/utils/List})
+ * <li>{@link ClassPool} javassist的ClassPool
+ * <li>{@link CtClass} 通过byte[]与ClassLoader创建的javassist的CtClass
+ * <li>{@link URI} watch resource的 URI
+ * <li>{@link URL} - watch resource的 URL
  * </ul>
- *
- * @author Jiri Bubnik
  */
-
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface OnClassFileEvent {
 
     /**
-     * Regexp of class name.
+     * 感兴趣的类正则表达式
      */
     String classNameRegexp();
 
     /**
-     * Filter watch event types. Default is all events (CREATE, MODIFY, DELETE).
-     *
-     * Be careful about assumptions on events. Some IDEs create on file compilation sequence of
-     * multiple delete/create/modify events.
+     * 感兴趣的文件事件
      */
     FileEvent[] events() default {CREATE, MODIFY, DELETE};
 
-
     /**
-     * Merge multiple same watch events up to this timeout into a single watch event (useful to merge multiple MODIFY events).
+     * 延迟执行命令的时间，{@link WatchEventCommand}可以合并
      */
-    public int timeout() default 50;
+    int timeout() default 50;
 }

@@ -18,6 +18,9 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation;
 
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -29,18 +32,14 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent
 import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent.MODIFY;
 
 /**
- * Event for a resource change (change of a file on the filesystem).
- * <p/>
- * Use with a non static method.
- * <p/>
- * Method attribute types:<ul>
- * <li>URI - URI of the watched resource</li>
- * <li>URL - URL of the watched resource</li>
- * <li>ClassLoader - the application classloader</li>
- * <li>ClassPool - initialized javassist classpool</li>
+ * OnResourceFileEvent当资源文件改变时的事件（只能加到非静态方法上）
+ * 方法上可以自动注入的参数类型如下，在{@link io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand#executeCommand}中解析
+ * <ul>
+ * <li>{@link ClassLoader} - 加载class的类加载器
+ * <li>{@link ClassPool} javassist的ClassPool
+ * <li>{@link java.net.URI} watch resource的 URI
+ * <li>{@link java.net.URL} - watch resource的 URL
  * </ul>
- *
- * @author Jiri Bubnik
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -58,19 +57,17 @@ public @interface OnResourceFileEvent {
     String filter() default "";
 
     /**
-     * Filter watch event types. Default is all events (CREATE, MODIFY, DELETE).
+     * 感兴趣的类加载事件
      */
     FileEvent[] events() default {CREATE, MODIFY, DELETE};
 
     /**
-     * Watch only for regular files. By default all other types (including directories) are filtered out.
-     *
-     * @return true to filter out other types than regular types.
+     * 是否只watch常规文件
      */
-    public boolean onlyRegularFiles() default true;
+    boolean onlyRegularFiles() default true;
 
     /**
-     * Merge multiple same watch events up to this timeout into a single watch event (useful to merge multiple MODIFY events).
+     * 延迟执行命令的时间，{@link WatchEventCommand}可以合并
      */
-    public int timeout() default 50;
+    int timeout() default 50;
 }

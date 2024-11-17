@@ -19,10 +19,12 @@
 package io.github.future0923.debug.tools.hotswap.core.util;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.OnClassLoadedHandler;
+import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.versions.VersionMatcher;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -59,29 +61,60 @@ public class HotswapTransformer implements ClassFileTransformer {
             "sun.reflect.DelegatingClassLoader"
     ));
 
-    // TODO : check if felix class loaders could be skipped
+    /**
+     * 应该被跳过初始化的类加载器
+     */
     private static final Set<String> excludedClassLoaders = new HashSet<>(Arrays.asList(
             "org.apache.felix.framework.BundleWiringImpl$BundleClassLoader", // delegating ClassLoader in GlassFish
             "org.apache.felix.framework.BundleWiringImpl$BundleClassLoaderJava5" // delegating ClassLoader in_GlassFish
     ));
 
-    private static class RegisteredTransformersRecord {
+    /**
+     * 注册Transformer记录，可以使用{@link OnClassLoadEvent}注入，也可以调用{@link #registerTransformer}注入
+     */
+    public static class RegisteredTransformersRecord {
+
+        /**
+         * 匹配Class的正则表达式
+         */
         Pattern pattern;
+
+        /**
+         * 所有关注这个正则的transformer集合
+         */
         List<HaClassFileTransformer> transformerList = new LinkedList<>();
     }
 
+    /**
+     * 只关注{@link LoadEvent#REDEFINE}事件的transformer信息
+     */
     protected Map<String, RegisteredTransformersRecord> redefinitionTransformers = new LinkedHashMap<>();
+
+    /**
+     * 关注非{@link LoadEvent#REDEFINE}事件的transformer信息
+     */
     protected Map<String, RegisteredTransformersRecord> otherTransformers = new LinkedHashMap<>();
 
-    // keep track about which classloader requested which transformer
+    /**
+     * Transformer与ClassLoader之间的映射
+     */
     protected Map<ClassFileTransformer, ClassLoader> classLoaderTransformers = new LinkedHashMap<>();
 
+    /**
+     * 类加载是否已经初始化完成
+     */
     protected Map<ClassLoader, Boolean> seenClassLoaders = new WeakHashMap<>();
 
+    /**
+     * 应该初始化的类加载器正则集合
+     */
     @Getter
     @Setter
     private List<Pattern> includedClassLoaderPatterns;
 
+    /**
+     * 排除初始化的类加载器正则集合
+     */
     @Getter
     @Setter
     private List<Pattern> excludedClassLoaderPatterns;
@@ -99,18 +132,20 @@ public class HotswapTransformer implements ClassFileTransformer {
 
         LOGGER.trace("Transform on class '{}' @{} redefiningClass '{}'.", className, classLoader, redefiningClass);
 
+        // 非插件类文件Transformer的集合
         List<ClassFileTransformer> toApply = new ArrayList<>();
+        // 插件类文件Transformer的集合
         List<PluginClassFileTransformer> pluginTransformers = new ArrayList<>();
         try {
-            // 1. call transform method of defining transformers
-            for (RegisteredTransformersRecord transformerRecord : new ArrayList<RegisteredTransformersRecord>(otherTransformers.values())) {
+            // 调用关注非define类型的transformer
+            for (RegisteredTransformersRecord transformerRecord : new ArrayList<>(otherTransformers.values())) {
                 if ((className != null && transformerRecord.pattern.matcher(className).matches()) ||
                         (redefiningClass != null && transformerRecord.pattern.matcher(redefiningClass.getName()).matches())) {
                     for (ClassFileTransformer transformer : new ArrayList<ClassFileTransformer>(transformerRecord.transformerList)) {
-                        if(transformer instanceof PluginClassFileTransformer) {
-                            PluginClassFileTransformer pcft = PluginClassFileTransformer.class.cast(transformer);
-                            if(!pcft.isPluginDisabled(classLoader)) {
-                                pluginTransformers.add(pcft);
+                        if (transformer instanceof PluginClassFileTransformer) {
+                            PluginClassFileTransformer pluginClassFileTransformer = (PluginClassFileTransformer) transformer;
+                            if (!pluginClassFileTransformer.isPluginDisabled(classLoader)) {
+                                pluginTransformers.add(pluginClassFileTransformer);
                             }
                         } else {
                             toApply.add(transformer);
@@ -118,15 +153,15 @@ public class HotswapTransformer implements ClassFileTransformer {
                     }
                 }
             }
-            // 2. call transform method of redefining transformers
+            // 调用关注redefine类型的transformer
             if (redefiningClass != null && className != null) {
                 for (RegisteredTransformersRecord transformerRecord : new ArrayList<RegisteredTransformersRecord>(redefinitionTransformers.values())) {
                     if (transformerRecord.pattern.matcher(className).matches()) {
                         for (ClassFileTransformer transformer : new ArrayList<ClassFileTransformer>(transformerRecord.transformerList)) {
-                            if(transformer instanceof PluginClassFileTransformer) {
-                                PluginClassFileTransformer pcft = PluginClassFileTransformer.class.cast(transformer);
-                                if(!pcft.isPluginDisabled(classLoader)) {
-                                    pluginTransformers.add(pcft);
+                            if (transformer instanceof PluginClassFileTransformer) {
+                                PluginClassFileTransformer pluginClassFileTransformer = PluginClassFileTransformer.class.cast(transformer);
+                                if (!pluginClassFileTransformer.isPluginDisabled(classLoader)) {
+                                    pluginTransformers.add(pluginClassFileTransformer);
                                 }
                             } else {
                                 toApply.add(transformer);
@@ -139,18 +174,17 @@ public class HotswapTransformer implements ClassFileTransformer {
             LOGGER.error("Error transforming class '" + className + "'.", t);
         }
 
-        if(!pluginTransformers.isEmpty()) {
-            pluginTransformers =  reduce(classLoader, pluginTransformers, className);
+        if (!pluginTransformers.isEmpty()) {
+            pluginTransformers = reduce(classLoader, pluginTransformers, className);
         }
 
-        // ensure classloader initialized
+        // 确保classLoader已经初始化
         if (!ensureClassLoaderInitialized(classLoader, protectionDomain)) {
-            // when classLoader is in excluded list, skip the transform
             LOGGER.trace("Skipping className '{}' classloader '{}' transform", className, classLoader);
             return bytes;
         }
 
-        if(toApply.isEmpty() && pluginTransformers.isEmpty()) {
+        if (toApply.isEmpty() && pluginTransformers.isEmpty()) {
             LOGGER.trace("No transformers define for {} ", className);
             return bytes;
         }
@@ -158,12 +192,14 @@ public class HotswapTransformer implements ClassFileTransformer {
         try {
             byte[] result = bytes;
 
-            for(ClassFileTransformer transformer: pluginTransformers) {
+            // 调用插件的Transformer
+            for (ClassFileTransformer transformer : pluginTransformers) {
                 LOGGER.trace("Transforming class '" + className + "' with transformer '" + transformer + "' " + "@ClassLoader" + classLoader + ".");
                 result = transformer.transform(classLoader, className, redefiningClass, protectionDomain, result);
             }
 
-            for(ClassFileTransformer transformer: toApply) {
+            // 调用非插件的Transformer
+            for (ClassFileTransformer transformer : toApply) {
                 LOGGER.trace("Transforming class '" + className + "' with transformer '" + transformer + "' " + "@ClassLoader" + classLoader + ".");
                 result = transformer.transform(classLoader, className, redefiningClass, protectionDomain, result);
             }
@@ -175,15 +211,7 @@ public class HotswapTransformer implements ClassFileTransformer {
     }
 
     /**
-     * Register a transformer for a regexp matching class names.
-     * Used by {@link OnClassLoadEvent} annotation respective
-     * {@link OnClassLoadedHandler}.
-     *
-     * @param classLoader the classloader to which this transformation is associated
-     * @param classNameRegexp regexp to match fully qualified class name.
-     *                        Because "." is any character in regexp, this will match / in the transform method as well
-     *                        (diffentence between java/lang/String and java.lang.String).
-     * @param transformer     the transformer to be called for each class matching regexp.
+     * 注册 transformer
      */
     public void registerTransformer(ClassLoader classLoader, String classNameRegexp, HaClassFileTransformer transformer) {
         LOGGER.debug("Registering transformer for class regexp '{}'.", classNameRegexp);
@@ -203,7 +231,6 @@ public class HotswapTransformer implements ClassFileTransformer {
             transformerRecord.transformerList.add(transformer);
         }
 
-        // register classloader association to allow classloader unregistration
         if (classLoader != null) {
             classLoaderTransformers.put(transformer, classLoader);
         }
@@ -232,12 +259,11 @@ public class HotswapTransformer implements ClassFileTransformer {
     }
 
     /**
-     * Remove all transformers registered with a classloader
-     * @param classLoader
+     * 移除类加载器中所有的transformer
      */
     public void closeClassLoader(ClassLoader classLoader) {
         for (Iterator<Map.Entry<ClassFileTransformer, ClassLoader>> entryIterator = classLoaderTransformers.entrySet().iterator();
-                entryIterator.hasNext(); ) {
+             entryIterator.hasNext(); ) {
             Map.Entry<ClassFileTransformer, ClassLoader> entry = entryIterator.next();
             if (entry.getValue().equals(classLoader)) {
                 entryIterator.remove();
@@ -253,22 +279,25 @@ public class HotswapTransformer implements ClassFileTransformer {
         LOGGER.debug("All transformers removed for classLoader {}", classLoader);
     }
 
-    LinkedList<PluginClassFileTransformer> reduce(final ClassLoader classLoader, List<PluginClassFileTransformer> pluginCalls, String className) {
+    /**
+     * 匹配插件如果有{@link VersionMatcher}则过滤不满足的，并处理{@link Plugin#fallback()}
+     */
+    private LinkedList<PluginClassFileTransformer> reduce(final ClassLoader classLoader, List<PluginClassFileTransformer> pluginCalls, String className) {
         LinkedList<PluginClassFileTransformer> reduced = new LinkedList<>();
 
         Map<String, PluginClassFileTransformer> fallbackMap = new HashMap<>();
 
-        for (PluginClassFileTransformer pcft : pluginCalls) {
+        for (PluginClassFileTransformer transformer : pluginCalls) {
             try {
-                String pluginGroup = pcft.getPluginGroup();
-                if(pcft.versionMatches(classLoader)){
+                String pluginGroup = transformer.getPluginGroup();
+                if (transformer.versionMatches(classLoader)) {
                     if (pluginGroup != null) {
                         fallbackMap.put(pluginGroup, null);
                     }
-                    reduced.add(pcft);
-                } else if(pcft.isFallbackPlugin()){
+                    reduced.add(transformer);
+                } else if (transformer.isFallbackPlugin()) {
                     if (pluginGroup != null && !fallbackMap.containsKey(pluginGroup)) {
-                        fallbackMap.put(pluginGroup, pcft);
+                        fallbackMap.put(pluginGroup, transformer);
                     }
                 }
             } catch (Exception e) {
@@ -276,33 +305,24 @@ public class HotswapTransformer implements ClassFileTransformer {
             }
         }
 
-        for (PluginClassFileTransformer pcft: fallbackMap.values()) {
-            if (pcft != null) {
-                reduced.add(pcft);
+        for (PluginClassFileTransformer transformer : fallbackMap.values()) {
+            if (transformer != null) {
+                reduced.add(transformer);
             }
         }
 
         return reduced;
     }
+
     /**
-     * Every classloader should be initialized. Usually if anything interesting happens,
-     * it is initialized during plugin initialization process. However, some plugins (e.g. HotSwapper)
-     * are triggered during classloader initialization process itself (@Init on static method). In this case,
-     * the plugin will be never invoked, until the classloader initialization is invoked from here.
-     *
-     * Schedule with some timeout to allow standard plugin initialization process to precede.
-     *
-     * @param classLoader the classloader to which this transformation is associated
-     * @param protectionDomain associated protection domain (if any)
+     * 每个类加载器都应该确定被初始化，热重载需要将插件加载到每一个类加载器中才能重载。
      */
     protected boolean ensureClassLoaderInitialized(final ClassLoader classLoader, final ProtectionDomain protectionDomain) {
         if (!seenClassLoaders.containsKey(classLoader)) {
 
             if (classLoader == null) {
-                // directly init null (bootstrap) classloader
                 PluginManager.getInstance().initClassLoader(null, protectionDomain);
             } else {
-                // ensure the classloader should not be excluded
                 if (shouldScheduleClassLoader(classLoader)) {
                     PluginManager.getInstance().initClassLoader(classLoader, protectionDomain);
                 } else {
@@ -315,6 +335,9 @@ public class HotswapTransformer implements ClassFileTransformer {
         return seenClassLoaders.get(classLoader) != null && seenClassLoaders.get(classLoader);
     }
 
+    /**
+     * 返回类加载器是否应该被初始化
+     */
     private boolean shouldScheduleClassLoader(final ClassLoader classLoader) {
         String name = classLoader.getClass().getName();
         if (excludedClassLoaders.contains(name)) {
@@ -342,17 +365,16 @@ public class HotswapTransformer implements ClassFileTransformer {
 
 
     /**
-     * Transform type to ^regexp$ form - match only whole pattern.
+     * 转换为正规正则
      *
-     * @param registeredType type
-     * @return
+     * @return ^regexp$
      */
     protected String normalizeTypeRegexp(String registeredType) {
         String regexp = registeredType;
-        if (!registeredType.startsWith("^")){
+        if (!registeredType.startsWith("^")) {
             regexp = "^" + regexp;
         }
-        if (!registeredType.endsWith("$")){
+        if (!registeredType.endsWith("$")) {
             regexp = regexp + "$";
         }
 

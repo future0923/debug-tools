@@ -19,73 +19,67 @@
 package io.github.future0923.debug.tools.hotswap.core.util;
 
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderDefineClassPatcher;
 
 import java.lang.reflect.Method;
 
 /**
- * Invoke methods on plugin manager, avoid classloader conflicts.
- * Each method has two variants - direct call or method source code builder.
- * <p/>
- * Note that because methods are invoked accross classloader, only parameters known to both classloaders
- * can be used. This is generally true for basic and java.* types.
- *
- * @author Jiri Bubnik
+ * 提供在其他ClassLoader中调用{@link PluginManager}的能力，避免类加载器冲突。真正的插件在AgentClassLoader中，其他插件通过{@link ClassLoaderDefineClassPatcher#patch}过去的
  */
 public class PluginManagerInvoker {
 
     /**
-     * Initialize plugin for a classloader.
+     * 构建初始化插件javassist字符串
      *
-     * @param pluginClass    identify plugin instance
-     * @param appClassLoader classloader in which the plugin should reside
+     * @param pluginClass 插件类
      */
+    public static String buildInitializePlugin(Class<?> pluginClass) {
+        return buildInitializePlugin(pluginClass, "getClass().getClassLoader()");
+    }
+
+    /**
+     * 构建初始化插件javassist字符串
+     *
+     * @param pluginClass 插件类
+     * @param classLoader 在哪个类加载器中初始化
+     */
+    public static String buildInitializePlugin(Class<?> pluginClass, String classLoader) {
+        return "io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().getPluginRegistry().initializePlugin(" +
+                "\"" + pluginClass.getName() + "\", " + classLoader +
+                ");";
+    }
+
+    /**
+     * 在指定类加载器中初始化插件
+     */
+    @SuppressWarnings("unchecked")
     public static <T> T callInitializePlugin(Class<T> pluginClass, ClassLoader appClassLoader) {
-        // noinspection unchecked
         return (T) PluginManager.getInstance().getPluginRegistry().initializePlugin(
                 pluginClass.getName(), appClassLoader
         );
     }
 
-
-    public static String buildInitializePlugin(Class pluginClass) {
-        return buildInitializePlugin(pluginClass, "getClass().getClassLoader()");
-    }
-
-    public static String buildInitializePlugin(Class pluginClass, String classLoaderVar) {
-        return "io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().getPluginRegistry().initializePlugin(" +
-                "\"" + pluginClass.getName() + "\", " + classLoaderVar +
-                ");";
-    }
-
-
     /**
-     * Free all classloader references and close any associated plugin instance.
-     * Typical use is after webapp undeploy.
-     *
-     * @param appClassLoader clasloade to free
+     * 从指定类加载器中移除热重载插件
      */
-    public static void callCloseClassLoader(ClassLoader appClassLoader) {
-        PluginManager.getInstance().closeClassLoader(appClassLoader);
-    }
-
-    public static String buildCallCloseClassLoader(String classLoaderVar) {
-        return "io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().closeClassLoader(" + classLoaderVar + ");";
+    public static void callCloseClassLoader(ClassLoader classLoader) {
+        PluginManager.getInstance().closeClassLoader(classLoader);
     }
 
     /**
-     * Methods on plugin should be called via reflection, because the real plugin object is in parent classloader,
-     * but plugin class may be defined in app classloader as well introducing ClassCastException on same class name.
-     *
-     * @param pluginClass    class name of the plugin - it is used to resolve plugin instance from plugin manager
-     * @param appClassLoader application classloader (to resolve plugin instance)
-     * @param method         method name
-     * @param paramTypes     param types (as required by reflection)
-     * @param params         actual param values
-     * @return method return value
+     * 构建从指定类加载器中移除热重载插件javassist字符串
      */
-    public static Object callPluginMethod(Class pluginClass, ClassLoader appClassLoader, String method, Class[] paramTypes, Object[] params) {
+    public static String buildCallCloseClassLoader(String classLoader) {
+        return "io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().closeClassLoader(" + classLoader + ");";
+    }
+
+    /**
+     * 反射调用指定ClassLoader中的Plugin方法
+     *
+     * @return 方法的返回值
+     */
+    public static Object callPluginMethod(Class<?> pluginClass, ClassLoader appClassLoader, String method, Class<?>[] paramTypes, Object[] params) {
         Object pluginInstance = PluginManager.getInstance().getPlugin(pluginClass.getName(), appClassLoader);
-
         try {
             Method m = pluginInstance.getClass().getDeclaredMethod(method, paramTypes);
             return m.invoke(pluginInstance, params);
@@ -95,25 +89,16 @@ public class PluginManagerInvoker {
     }
 
     /**
-     * Equivalent to callPluginMethod for insertion into source code.
-     * <p/>
-     * PluginManagerInvoker.buildCallPluginMethod(this, "hibernateInitialized",
-     * "getClass().getClassLoader()", "java.lang.ClassLoader")
-     *
-     * @param pluginClass       plugin to use
-     * @param method            method name
-     * @param paramValueAndType for each param its value AND type must be provided
-     * @return method source code
+     * 构建反射调用的指定ClassLoader中的Plugin方法的javassist字符串
      */
-    public static String buildCallPluginMethod(Class pluginClass, String method, String... paramValueAndType) {
+    public static String buildCallPluginMethod(Class<?> pluginClass, String method, String... paramValueAndType) {
         return buildCallPluginMethod("getClass().getClassLoader()", pluginClass, method, paramValueAndType);
     }
 
     /**
-     * Same as {@link PluginManagerInvoker#buildCallPluginMethod(Class, String, String...)}, but with explicit
-     * appClassLoader variable. Use this method if appClassLoader is different from getClass().getClassLoader().
+     * 构建反射调用的指定ClassLoader中的Plugin方法的javassist字符串
      */
-    public static String buildCallPluginMethod(String appClassLoaderVar, Class pluginClass,
+    public static String buildCallPluginMethod(String appClassLoaderVar, Class<?> pluginClass,
                                                String method, String... paramValueAndType) {
 
         String managerClass = PluginManager.class.getName();
@@ -121,31 +106,30 @@ public class PluginManagerInvoker {
 
         StringBuilder b = new StringBuilder();
 
-        // block to hide variables and catch checked exceptions
         b.append("try {");
 
         b.append("ClassLoader __pluginClassLoader = ");
         b.append(managerClass);
         b.append(".class.getClassLoader();");
 
-        // Object __pluginInstance = io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().getPlugin(org.hotswap.agent.plugin.TestPlugin.class.getName(), __pluginClassLoader);
+        // Object __pluginInstance = io.github.future0923.debug.tools.hotswap.core.config.PluginManager.getInstance().getPlugin(io.github.future0923.debug.tools.hotswap.core.plugin.TestPlugin.class.getName(), __pluginClassLoader);
         b.append("Object __pluginInstance = ");
         b.append(managerClass);
         b.append(".getInstance().getPlugin(");
         b.append(pluginClass.getName());
-        b.append(".class.getName(), " + appClassLoaderVar + ");");
+        b.append(".class.getName(), ").append(appClassLoaderVar).append(");");
 
-        // Class __pluginClass = __pluginClassLoader.loadClass("org.hotswap.agent.plugin.TestPlugin");
+        // Class __pluginClass = __pluginClassLoader.loadClass("io.github.future0923.debug.tools.hotswap.core.plugin.TestPlugin");
         b.append("Class __pluginClass = ");
         b.append("__pluginClassLoader.loadClass(\"");
         b.append(pluginClass.getName());
         b.append("\");");
 
         // param types
-        b.append("Class[] paramTypes = new Class[" + paramCount + "];");
+        b.append("Class[] paramTypes = new Class[").append(paramCount).append("];");
         for (int i = 0; i < paramCount; i++) {
             // paramTypes[i] = = __pluginClassLoader.loadClass("my.test.TestClass").getClass();
-            b.append("paramTypes[" + i + "] = __pluginClassLoader.loadClass(\"" + paramValueAndType[(i * 2) + 1] + "\");");
+            b.append("paramTypes[").append(i).append("] = __pluginClassLoader.loadClass(\"").append(paramValueAndType[(i * 2) + 1]).append("\");");
         }
 
         //   java.lang.reflect.Method __pluginMethod = __pluginClass.getDeclaredMethod("method", paramType1, paramType2);
@@ -154,9 +138,9 @@ public class PluginManagerInvoker {
         b.append("\", paramTypes");
         b.append(");");
 
-        b.append("Object[] params = new Object[" + paramCount + "];");
+        b.append("Object[] params = new Object[").append(paramCount).append("];");
         for (int i = 0; i < paramCount; i = i + 1) {
-            b.append("params[" + i + "] = " + paramValueAndType[i * 2] + ";");
+            b.append("params[").append(i).append("] = ").append(paramValueAndType[i * 2]).append(";");
         }
 
         // __pluginMethod.invoke(__pluginInstance, param1, param2);
