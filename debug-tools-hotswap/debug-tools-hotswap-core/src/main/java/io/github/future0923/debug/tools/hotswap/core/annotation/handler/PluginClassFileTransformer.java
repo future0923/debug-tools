@@ -27,7 +27,6 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
 import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
-import io.github.future0923.debug.tools.hotswap.core.versions.DeploymentInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -78,10 +77,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
         return false;
     }
 
-    public boolean shouldCheckVersion(){
-        return pluginAnnotation.shouldCheckVersion();
-    }
-
     public boolean isFallbackPlugin(){
         return pluginAnnotation.isFallBack();
     }
@@ -91,13 +86,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
     }
 
     public boolean versionMatches(ClassLoader loader){
-        if (pluginAnnotation.shouldCheckVersion()) {
-            DeploymentInfo info = DeploymentInfo.fromClassLoader(loader);
-            if (!pluginAnnotation.matches(info)) {
-                LOGGER.debug("SKIPPING METHOD: {}, Deployment info: {}\n did not match with {}\n or {}", pluginAnnotation.getMethod(), info, pluginAnnotation.methodMatcher, pluginAnnotation.pluginMatcher);
-                return false;
-            }
-        }
         return true;
     }
 

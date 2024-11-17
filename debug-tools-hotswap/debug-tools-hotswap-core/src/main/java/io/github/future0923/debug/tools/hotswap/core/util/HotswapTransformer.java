@@ -24,7 +24,6 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.versions.VersionMatcher;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -280,7 +279,7 @@ public class HotswapTransformer implements ClassFileTransformer {
     }
 
     /**
-     * 匹配插件如果有{@link VersionMatcher}则过滤不满足的，并处理{@link Plugin#fallback()}
+     * 匹配插件如果有不满足的则过滤不满足的，并处理{@link Plugin#fallback()}
      */
     private LinkedList<PluginClassFileTransformer> reduce(final ClassLoader classLoader, List<PluginClassFileTransformer> pluginCalls, String className) {
         LinkedList<PluginClassFileTransformer> reduced = new LinkedList<>();
