@@ -44,8 +44,7 @@ public class AnnotationProcessor {
         init(pluginManager);
     }
 
-    private final Map<Class<? extends Annotation>, PluginHandler> handlers =
-            new HashMap<>();
+    private final Map<Class<? extends Annotation>, PluginHandler> handlers = new HashMap<>();
 
     public void init(PluginManager pluginManager) {
         addAnnotationHandler(Init.class, new InitHandler(pluginManager));

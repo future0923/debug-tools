@@ -22,12 +22,9 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.annotation.Manifest;
-import io.github.future0923.debug.tools.hotswap.core.annotation.Name;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.annotation.Versions;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
@@ -80,8 +77,6 @@ import java.util.List;
                 PostProcessorRegistrationDelegateTransformer.class,
                 BeanFactoryTransformer.class,
                 InitDestroyAnnotationBeanPostProcessorTransformer.class})
-@Versions(manifest = {@Manifest(value = "[3.1.0,)", versionName= Name.ImplementationVersion, names={
-        @Name(key=Name.ImplementationTitle,value="spring-core")})})
 public class SpringPlugin {
 
     private static final Logger LOGGER = Logger.getLogger(SpringPlugin.class);
