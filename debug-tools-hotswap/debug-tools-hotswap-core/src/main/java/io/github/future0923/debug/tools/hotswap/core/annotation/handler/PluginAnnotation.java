@@ -20,16 +20,11 @@ package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.versions.DeploymentInfo;
-import io.github.future0923.debug.tools.hotswap.core.versions.VersionMatchResult;
-import io.github.future0923.debug.tools.hotswap.core.versions.matcher.MethodMatcher;
-import io.github.future0923.debug.tools.hotswap.core.versions.matcher.PluginMatcher;
 import lombok.Getter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * 插件注解信息
@@ -68,12 +63,6 @@ public class PluginAnnotation<T extends Annotation> {
     @Getter
     private Method method;
 
-    // plugin matcher
-    final PluginMatcher pluginMatcher;
-
-    // Method matcher
-    final MethodMatcher methodMatcher;
-
     /**
      * 插件组信息
      */
@@ -88,40 +77,18 @@ public class PluginAnnotation<T extends Annotation> {
         this.plugin = plugin;
         this.annotation = annotation;
         this.method = method;
-
         Plugin pluginAnnotation = pluginClass.getAnnotation(Plugin.class);
         this.group = (pluginAnnotation.group() != null && !pluginAnnotation.group().isEmpty()) ? pluginAnnotation.group() : null;
         this.fallback = pluginAnnotation.fallback();
-
-        if (method != null && (Modifier.isStatic(method.getModifiers()))) {
-            this.pluginMatcher = new PluginMatcher(pluginClass);
-            this.methodMatcher = new MethodMatcher(method);
-        } else {
-            this.pluginMatcher = null;
-            this.methodMatcher = null;
-        }
     }
 
     public PluginAnnotation(Class<?> pluginClass, Object plugin, T annotation, Field field) {
-
         this.pluginClass = pluginClass;
         this.plugin = plugin;
         this.annotation = annotation;
         this.field = field;
-        this.pluginMatcher = null;
-        this.methodMatcher = null;
         this.fallback = false;
         this.group = null;
-    }
-
-    public boolean shouldCheckVersion() {
-        return (this.plugin == null)
-                &&
-                (
-                        (pluginMatcher != null && pluginMatcher.isApply())
-                                ||
-                                (methodMatcher != null && methodMatcher.isApply())
-                );
     }
 
     /**
@@ -129,33 +96,6 @@ public class PluginAnnotation<T extends Annotation> {
      */
     public boolean isFallBack() {
         return fallback;
-    }
-
-    /**
-     * Matches.
-     *
-     * @param deploymentInfo the deployment info
-     * @return true, if successful
-     */
-    public boolean matches(DeploymentInfo deploymentInfo) {
-        if (deploymentInfo == null || (pluginMatcher == null && methodMatcher == null)) {
-            LOGGER.debug("No matchers, apply");
-            return true;
-        }
-
-        if (pluginMatcher != null && pluginMatcher.isApply()) {
-            if (VersionMatchResult.REJECTED.equals(pluginMatcher.matches(deploymentInfo))) {
-                LOGGER.debug("Plugin matcher rejected");
-                return false;
-            }
-        }
-        if (methodMatcher != null && methodMatcher.isApply()) {
-            if (VersionMatchResult.REJECTED.equals(methodMatcher.matches(deploymentInfo))) {
-                LOGGER.debug("Method matcher rejected");
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
