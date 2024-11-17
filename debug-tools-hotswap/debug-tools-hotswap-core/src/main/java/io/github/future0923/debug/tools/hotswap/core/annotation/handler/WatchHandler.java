@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 
 import java.io.File;
@@ -32,7 +33,7 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 
 /**
- * 处理插件方法中的{@link io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent}和{@link io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent}
+ * 处理插件方法中的{@link OnResourceFileEvent}和{@link io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent}
  */
 public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
     private static final Logger LOGGER = Logger.getLogger(WatchHandler.class);
@@ -76,31 +77,26 @@ public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
     private void registerResources(final PluginAnnotation<T> pluginAnnotation, final ClassLoader classLoader) throws IOException {
         final T annot = pluginAnnotation.getAnnotation();
         WatchEventDTO watchEventDTO =  WatchEventDTO.parse(annot);
-
+        // @OnClassFileEvent没有path
         String path = watchEventDTO.getPath();
-
-        // normalize
-        if (path == null || path.equals(".") || path.equals("/"))
+        if (path == null || path.equals(".") || path.equals("/")) {
             path = "";
-        if (path.endsWith("/"))
+        }
+        if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 2);
-
-
-        // classpath resources (already should contain extraClasspath)
+        }
+        // classpath resources 已经包括了extraClasspath
         Enumeration<URL> en = classLoader.getResources(path);
         while (en.hasMoreElements()) {
             try {
                 URI uri = en.nextElement().toURI();
-
-                // check that this is a local accessible file (not vfs inside JAR etc.)
+                // 检查是否本地可以访问，不是vfs（Virtual File System）
                 try {
                     new File(uri);
                 } catch (Exception e) {
                     LOGGER.trace("Skipping uri {}, not a local file.", uri);
                     continue;
                 }
-
-
                 LOGGER.debug("Registering resource listener on classpath URI {}", uri);
                 registerResourceListener(pluginAnnotation, watchEventDTO, classLoader, uri);
             } catch (URISyntaxException e) {

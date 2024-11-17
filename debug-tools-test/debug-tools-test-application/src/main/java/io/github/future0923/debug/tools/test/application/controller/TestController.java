@@ -31,11 +31,11 @@ public class TestController {
         return "1234";
     }
 
-    //@GetMapping("/hot1")
-    //public String ok1() {
-    //    return "123432121";
-    //}
-    //
+    @GetMapping("/hot1")
+    public String ok1() {
+        return "123432121";
+    }
+
     //@GetMapping("/hot2")
     //public LocalDate ok2() {
     //    return LocalDate.now();

@@ -26,12 +26,11 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
 /**
- * Hook into classpath scanner process to register basicPackage of scanned classes.
- *
- * Catch changes on component-scan configuration such as (see tests):
- * <pre>&lt;context:component-scan base-package="org.hotswap.agent.plugin.spring.testBeans"/&gt;</pre>
+ * 如果{@link SpringPlugin#basePackagePrefixes}没有配置，那么就解析Spring的{@link ClassPathScanningCandidateComponentProvider#findCandidateComponents}方法获取到Spring扫描的路径通过{@link ClassPathBeanDefinitionScannerAgent#registerBasePackage}注入
  */
 public class ClassPathBeanDefinitionScannerTransformer {
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerTransformer.class);
@@ -43,6 +42,13 @@ public class ClassPathBeanDefinitionScannerTransformer {
      * It would be better to override a more appropriate method
      * org.springframework.context.annotation.ClassPathBeanDefinitionScanner.scan() directly,
      * however there are issues with javassist and varargs parameters.
+     * <pre>
+     *  if (this instanceof org.springframework.context.annotation.ClassPathBeanDefinitionScanner) {
+     *      if (io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance($1) == null) {
+     *          io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance((org.springframework.context.annotation.ClassPathBeanDefinitionScanner) this).registerBasePackage($1);
+     *      }
+     *  }
+     * </pre>
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
@@ -50,11 +56,11 @@ public class ClassPathBeanDefinitionScannerTransformer {
             CtMethod method = clazz.getDeclaredMethod("findCandidateComponents", new CtClass[]{classPool.get("java.lang.String")});
             method.insertAfter(
                     "if (this instanceof org.springframework.context.annotation.ClassPathBeanDefinitionScanner) {" +
-                    "  if (io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance($1) == null) {" +
-                    "    io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance(" +
+                            "  if (io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance($1) == null) {" +
+                            "    io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance(" +
                             "(org.springframework.context.annotation.ClassPathBeanDefinitionScanner)this).registerBasePackage($1);" +
-                    "  }" +
-                    "}");
+                            "  }" +
+                            "}");
 
             LOGGER.debug("Class 'org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider' " +
                     "patched with basePackage registration.");

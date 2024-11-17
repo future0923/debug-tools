@@ -81,18 +81,18 @@ import static io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelpe
 public class SpringBeanReload {
     private static final Logger LOGGER = Logger.getLogger(SpringBeanReload.class);
 
-    private AtomicBoolean isReloading = new AtomicBoolean(false);
+    private final AtomicBoolean isReloading = new AtomicBoolean(false);
 
     // it is synchronized set because it is used synchronized block
-    private Set<Class<?>> classes = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<Class<?>> classes = Collections.newSetFromMap(new ConcurrentHashMap<>());
     // it is synchronized set because it is used synchronized block
-    private Set<URL> properties = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private Set<URL> yamls = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<URL> properties = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<URL> yamls = Collections.newSetFromMap(new ConcurrentHashMap<>());
     // it is synchronized set because it is used synchronized block
-    private Set<URL> xmls = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<URL> xmls = Collections.newSetFromMap(new ConcurrentHashMap<>());
     // it is synchronized set because it is used synchronized block
-    private Set<BeanDefinitionHolder> newScanBeanDefinitions = new HashSet<>();
-    private Set<String> changedBeanNames = new HashSet<>();
+    private final Set<BeanDefinitionHolder> newScanBeanDefinitions = new HashSet<>();
+    private final Set<String> changedBeanNames = new HashSet<>();
     Set<String> newBeanNames = new HashSet<>();
 
     DefaultListableBeanFactory beanFactory;
@@ -304,27 +304,26 @@ public class SpringBeanReload {
             boolean propertiesChanged = refreshProperties();
             // 3. reload xmls: the beans will be destroyed
             reloadXmlBeanDefinitions(propertiesChanged);
-            // 4. add changed classes and changed beans into recreate beans
+            // 4. 添加变化的 classes 和 beans 到重新创建 bean 中
             refreshChangedClassesAndBeans();
-
-            // 5. load new beans from scanning. The newBeanNames is used to print the suitable log.
+            // 5. 扫描加载新的bean
             refreshNewBean();
-            // 6. destroy bean including factory bean
+            // 6. 销毁bean包括factory bean
             destroyBeans();
-            // rerun the while loop if it has changes
+            // 有变化重新运行
             if (checkHasChange() && printReloadLog()) {
                 continue;
             }
-            //beanDefinition enhanced: BeanFactoryPostProcessor
+            //beanDefinition通过BeanFactoryPostProcessor增强
             ProxyReplacer.clearAllProxies();
 
-            // 7. invoke the Bean lifecycle steps
-            // 7.1 invoke BeanFactoryPostProcessor
+            // 7. 调用Bean生命周期
+            // 7.1 调用BeanFactoryPostProcessor
             invokeBeanFactoryPostProcessors(beanFactory);
             addBeanPostProcessors(beanFactory);
-            // 7.2 process @Value and @Autowired of singleton beans excluding destroyed beans
+            // 7.2 处理单例Bean上的@Value和@Autowired注解（不包括销毁的Bean）
             processAutowiredAnnotationBeans();
-            // 7.3 process @Configuration
+            // 7.3 处理@Configuration注解
             processConfigBeanDefinitions();
             // 8. skip the while loop if no change
             if (!checkHasChange()) {
@@ -332,11 +331,11 @@ public class SpringBeanReload {
             }
         }
 
-        // 9 invoke getBean to instantiate singleton beans
+        // 9 调用getBean实例化单例bean
         preInstantiateSingleton();
-        // 10 reset mvc initialized, it will update the mapping of url and handler
+        // 10 重置mvc初始化，会更新url和handler的映射
         refreshRequestMapping();
-        // 11 clear all process cache
+        // 11 清除缓存
         clearLocalCache();
     }
 

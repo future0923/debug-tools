@@ -24,28 +24,50 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Annotati
 import java.lang.annotation.Annotation;
 
 /**
- * @author Jiri Bubnik
+ * 注解工具
  */
 public class AnnotationHelper {
-    public static boolean hasAnnotation(Class clazz, String annotationClass) {
-        for (Annotation annot : clazz.getDeclaredAnnotations())
-            if (annot.annotationType().getName().equals(annotationClass))
-                return true;
-        return false;
-    }
 
-    public static boolean hasAnnotation(CtClass clazz, String annotationClass) {
-        AnnotationsAttribute ainfo = (AnnotationsAttribute) clazz.getClassFile2().
-                getAttribute(AnnotationsAttribute.visibleTag);
-        if (ainfo != null) {
-            for (io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.annotation.Annotation annot : ainfo.getAnnotations()) {
-                if (annot.getTypeName().equals(annotationClass))
-                    return true;
+    /**
+     * 类中是否有指定注解
+     *
+     * @param clazz           验证的类
+     * @param annotationClass 注解Class全类名
+     */
+    public static boolean hasAnnotation(Class<?> clazz, String annotationClass) {
+        for (Annotation annot : clazz.getDeclaredAnnotations()) {
+            if (annot.annotationType().getName().equals(annotationClass)) {
+                return true;
             }
         }
         return false;
     }
 
+    /**
+     * 类中是否有指定注解
+     *
+     * @param clazz           验证的类
+     * @param annotationClass 注解Class全类名
+     */
+    public static boolean hasAnnotation(CtClass clazz, String annotationClass) {
+        AnnotationsAttribute attribute = (AnnotationsAttribute) clazz.getClassFile2().
+                getAttribute(AnnotationsAttribute.visibleTag);
+        if (attribute != null) {
+            for (io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.annotation.Annotation annot : attribute.getAnnotations()) {
+                if (annot.getTypeName().equals(annotationClass)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 类中是否有指定注解
+     *
+     * @param clazz             验证的类
+     * @param annotationClasses 注解Class全类名集合
+     */
     public static boolean hasAnnotation(Class<?> clazz, Iterable<String> annotationClasses) {
         for (String pathAnnotation : annotationClasses) {
             if (AnnotationHelper.hasAnnotation(clazz, pathAnnotation)) {
@@ -55,6 +77,12 @@ public class AnnotationHelper {
         return false;
     }
 
+    /**
+     * 类中是否有指定注解
+     *
+     * @param clazz             验证的类
+     * @param annotationClasses 注解Class全类名集合
+     */
     public static boolean hasAnnotation(CtClass clazz, Iterable<String> annotationClasses) {
         for (String pathAnnotation : annotationClasses) {
             if (AnnotationHelper.hasAnnotation(clazz, pathAnnotation)) {

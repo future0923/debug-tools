@@ -77,7 +77,7 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
         SpringChangedAgent.appClassLoader = classLoader;
     }
 
-    public static boolean addChangedClass(Class clazz) {
+    public static boolean addChangedClass(Class<?> clazz) {
         boolean result = false;
         for (SpringChangedAgent springChangedAgent : springChangeAgents.values()) {
             result |= springChangedAgent.addClass(clazz);
@@ -85,7 +85,7 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
         return result;
     }
 
-    public static boolean addChangedClass(Class clazz, DefaultListableBeanFactory beanFactory) {
+    public static boolean addChangedClass(Class<?> clazz, DefaultListableBeanFactory beanFactory) {
         boolean result = false;
         for (SpringChangedAgent springChangedAgent : springChangeAgents.values()) {
             if (springChangedAgent.beanFactory() == beanFactory) {

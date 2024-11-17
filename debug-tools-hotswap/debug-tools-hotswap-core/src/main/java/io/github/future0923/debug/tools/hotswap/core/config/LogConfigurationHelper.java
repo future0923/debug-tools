@@ -30,10 +30,10 @@ import java.util.Properties;
 import static java.lang.Boolean.parseBoolean;
 
 /**
- * Configure LOG level and handler according to properties.
+ * 配置package的日志级别（LOGGER.my.package=LEVEL）写入{@link PluginConfiguration#properties}配置
  */
 public class LogConfigurationHelper {
-    private static Logger LOGGER = Logger.getLogger(LogConfigurationHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(LogConfigurationHelper.class);
 
     public static final String LOGGER_PREFIX = "LOGGER";
     public static final String DATETIME_FORMAT = "LOGGER_DATETIME_FORMAT";
@@ -41,10 +41,7 @@ public class LogConfigurationHelper {
     private static final String LOGFILE_APPEND = "LOGFILE.append";
 
     /**
-     * Search properties for prefix LOGGER and set level for package in format:
-     * LOGGER.my.package=LEVEL
-     *
-     * @param properties properties
+     * 配置package的日志级别（LOGGER.my.package=LEVEL）
      */
     public static void configureLog(Properties properties) {
         for (String property : properties.stringPropertyNames()) {

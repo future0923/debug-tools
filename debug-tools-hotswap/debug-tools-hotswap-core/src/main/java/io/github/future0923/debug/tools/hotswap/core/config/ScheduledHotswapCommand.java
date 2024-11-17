@@ -20,13 +20,19 @@ package io.github.future0923.debug.tools.hotswap.core.config;
 
 import io.github.future0923.debug.tools.hotswap.core.command.Command;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
-import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 通过调度器延迟执行热重载
+ */
 public class ScheduledHotswapCommand extends MergeableCommand {
-    private Map<Class<?>, byte[]> reloadMap;
+
+    /**
+     * 要热重载的类
+     */
+    private final Map<Class<?>, byte[]> reloadMap;
 
     public ScheduledHotswapCommand(Map<Class<?>, byte[]> reloadMap) {
         this.reloadMap = new HashMap<>();

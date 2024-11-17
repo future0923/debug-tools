@@ -23,19 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * HotswapAgent Properties implementation.
- * <p/>
- * Scan property values for system variable reference in form of ${sys_var_xy} and replace it with appropriate
- * system variable value
- *
- * example:
- * hotswap-agent.properties:
- *     extraClasspath=${extra.class.path}
- * jvm argument:
- *     -Dextra.class.path=/project_extra_class_path
- * result:
- *     extraClasspath=/project_extra_class_path
- *
+ * 配置下划线会转为小驼峰
  */
 public class HotswapProperties extends Properties {
 
