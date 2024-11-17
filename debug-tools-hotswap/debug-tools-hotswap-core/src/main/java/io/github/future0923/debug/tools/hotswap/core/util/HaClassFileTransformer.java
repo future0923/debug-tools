@@ -1,17 +1,17 @@
 package io.github.future0923.debug.tools.hotswap.core.util;
 
+import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
+
 import java.lang.instrument.ClassFileTransformer;
 
 /**
- * The Interface HaClassFileTransformer.
+ * 热重载类文件Transformer
  */
 public interface HaClassFileTransformer extends ClassFileTransformer {
 
     /**
-     * True if this transformer handle only redefinitions
-     *
-     * @return true, if is for redefinition only
+     * 是否只关注{@link LoadEvent#REDEFINE}事件
      */
-    public boolean isForRedefinitionOnly();
+    boolean isForRedefinitionOnly();
 
 }

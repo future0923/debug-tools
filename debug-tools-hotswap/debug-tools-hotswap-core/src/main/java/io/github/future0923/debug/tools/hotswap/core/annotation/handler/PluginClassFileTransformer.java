@@ -18,19 +18,16 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.util.AppClassLoaderExecutor;
 import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.versions.DeploymentInfo;
-import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,22 +38,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 插件类文件Transformer，当class transform时反射调用加了{@link OnClassLoadEvent}注解的方法
+ */
 public class PluginClassFileTransformer implements HaClassFileTransformer {
-    protected static Logger LOGGER = Logger.getLogger(PluginClassFileTransformer.class);
 
-    private final OnClassLoadEvent onClassLoadAnnotation;
+    protected static final Logger LOGGER = Logger.getLogger(PluginClassFileTransformer.class);
 
+    /**
+     * 插件上的注解信息
+     */
     private final PluginAnnotation<OnClassLoadEvent> pluginAnnotation;
 
+    /**
+     * 插件类感兴趣的事件
+     */
     private final List<LoadEvent> events;
 
+    /**
+     * 插件管理器
+     */
     private final PluginManager pluginManager;
 
     public PluginClassFileTransformer(PluginManager pluginManager, PluginAnnotation<OnClassLoadEvent> pluginAnnotation) {
         this.pluginManager = pluginManager;
         this.pluginAnnotation = pluginAnnotation;
-        this.onClassLoadAnnotation = pluginAnnotation.getAnnotation();
-        this.events = Arrays.asList(onClassLoadAnnotation.events());
+        this.events = Arrays.asList(pluginAnnotation.getAnnotation().events());
     }
 
     @Override
@@ -68,7 +75,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
         if(loader != null && pluginManager != null && pluginManager.getPluginConfiguration(loader) != null) {
             return pluginManager.getPluginConfiguration(loader).isDisabledPlugin(pluginAnnotation.getPluginClass());
         }
-        // can't tell
         return false;
     }
 
@@ -102,8 +108,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
             return classfileBuffer;
         }
 
-        // check disabled plugins
-        // noinspection unchecked
         if (pluginManager.getPluginConfiguration(loader).isDisabledPlugin(pluginAnnotation.getPluginClass())) {
             LOGGER.trace("Plugin NOT enabled! {}", pluginAnnotation);
             return classfileBuffer;
@@ -112,20 +116,8 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
         return transform(pluginManager, pluginAnnotation, loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
     }
 
-
-    @Override
-    public String toString() {
-        return "\n\t\t\tPluginClassFileTransformer [pluginAnnotation=" + pluginAnnotation + "]";
-    }
-
     /**
-     * Creats javaassist CtClass for bytecode manipulation. Add default
-     * classloader.
-     *
-     * @param bytes new class definition
-     * @param classLoader loader
-     * @return created class
-     * @throws NotFoundException
+     * 创建javassist CtClass
      */
     private static CtClass createCtClass(byte[] bytes, ClassLoader classLoader) throws IOException {
         ClassPool cp = new ClassPool();
@@ -136,7 +128,7 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
     }
 
     /**
-     * Skip proxy and javassist synthetic classes.
+     * 判断是否是合成类，跳过 proxy 和 javassist synthetic classes 类
      */
     protected static boolean isSyntheticClass(String className) {
         return className.contains("$$_javassist")
@@ -147,28 +139,23 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
     }
 
     /**
-     * Transformation callback as registered in initMethod:
-     * hotswapTransformer.registerTransformer(). Resolve method parameters to
-     * actual values, provide convenience parameters of javassist to streamline
-     * the transformation.
+     * 反射调用{@link OnClassLoadEvent}
      */
-    private static byte[] transform(PluginManager pluginManager, PluginAnnotation<OnClassLoadEvent> pluginAnnotation, ClassLoader classLoader, String className, Class<?> redefiningClass, ProtectionDomain protectionDomain, byte[] bytes) {
+    public static byte[] transform(PluginManager pluginManager, PluginAnnotation<OnClassLoadEvent> pluginAnnotation, ClassLoader classLoader, String className, Class<?> redefiningClass, ProtectionDomain protectionDomain, byte[] bytes) {
         LOGGER.trace("Transforming.... '{}' using: '{}'", className, pluginAnnotation);
-        // skip synthetic classes
+
         if (pluginAnnotation.getAnnotation().skipSynthetic()) {
             if (isSyntheticClass(className) || (redefiningClass != null && redefiningClass.isSynthetic())) {
                 return bytes;
             }
         }
 
-        // skip anonymous class
         if (pluginAnnotation.getAnnotation().skipAnonymous()) {
             if (className.matches("\\$\\d+$")) {
                 return bytes;
             }
         }
 
-        // ensure classloader initiated
         if (classLoader != null) {
             pluginManager.initClassLoader(classLoader, protectionDomain);
         }
@@ -176,8 +163,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
         // default result
         byte[] result = bytes;
 
-        // we may need to crate CtClass on behalf of the client and close it
-        // after invocation.
         CtClass ctClass = null;
 
         List<Object> args = new ArrayList<>();
@@ -208,42 +193,31 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
                 }
             } else if (type.isAssignableFrom(LoadEvent.class)) {
                 args.add(redefiningClass == null ? LoadEvent.DEFINE : LoadEvent.REDEFINE);
-            } else if (type.isAssignableFrom(AppClassLoaderExecutor.class)) {
-                args.add(new AppClassLoaderExecutor(classLoader, protectionDomain));
             } else {
                 LOGGER.error("Unable to call init method on plugin '" + pluginAnnotation.getPluginClass() + "'." + " Method parameter type '" + type + "' is not recognized for @Init annotation.");
                 return result;
             }
         }
         try {
-            // call method on plugin (or if plugin null -> static method)
             Object resultObject = pluginAnnotation.getMethod().invoke(pluginAnnotation.getPlugin(), args.toArray());
-
             if (resultObject == null) {
-                // Ok, nothing has changed
+
             } else if (resultObject instanceof byte[]) {
                 result = (byte[]) resultObject;
             } else if (resultObject instanceof CtClass) {
                 result = ((CtClass) resultObject).toBytecode();
-
-                // detach on behalf of the clinet - only if this is another
-                // instance than we created (it is closed elsewhere)
                 if (resultObject != ctClass) {
                     ((CtClass) resultObject).detach();
                 }
             } else {
                 LOGGER.error("Unknown result of @OnClassLoadEvent method '" + result.getClass().getName() + "'.");
             }
-
-            // close CtClass if created from here
             if (ctClass != null) {
-                // if result not set from the method, use class
                 if (resultObject == null) {
                     result = ctClass.toBytecode();
                 }
                 ctClass.detach();
             }
-
         } catch (IllegalAccessException e) {
             LOGGER.error("IllegalAccessException in transform method on plugin '{}' class '{}' of classLoader '{}'",
                 e, pluginAnnotation.getPluginClass(), className,
@@ -263,6 +237,11 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
         }
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "\n\t\t\tPluginClassFileTransformer [pluginAnnotation=" + pluginAnnotation + "]";
     }
 
 }

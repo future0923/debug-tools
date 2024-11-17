@@ -18,45 +18,36 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation;
 
-import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.OnClassLoadedHandler;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.security.ProtectionDomain;
 
 import static io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent.DEFINE;
 import static io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent.REDEFINE;
 
 /**
- * Define plugin callback method on class load by classloader (application class is loaded or reloaded by hotswap).
- * <p/>
- * Method attribute types:<ul>
- * <li>byte[] - the input byte buffer in class file format - must not be modified</li>
- * <li>ClassLoader - the defining loader of the class to be transformed,
- * may be <code>null</code> if the bootstrap loader</li>
- * <li>String - classname - the name of the class in the internal form of fully
- * qualified class and interface names. For example, <code>"java/util/List"</code>.</li>
- * <li>Class - classBeingRedefined - if this is triggered by a redefine or retransform,
- * the class being redefined or retransformed; if this is a class load, <code>null</code></li>
- * <li>ProtectionDomain - the protection domain of the class being defined or redefined</li>
- * <li>ClassPool - javassist default ClassPool</li>
- * <li>CtClass - javassist class created from byte[] source. If the method returns null/void,
- * this class is used as transformation result. You can modify this class directly.</li>
- * <li>AppClassLoaderExecutor - executor to run code in app classloader</li>
- * <li>LoadEvent - originating load event. If classBeingRedefined is null, this is DEFINE, otherwise REDEFINE.</li>
- * </ul>
- * <p/>
- * If registered on static method, transformation is invoked even before the plugin is initialized.
- * You need at least one static transformation method for a plugin to trigger plugin initialization.
- * <p/>
- * This event is triggered only AFTER the class is loaded by a classloader. Many frameworks like Spring or
- * Hibernate use custom classpath scanning to discover annotated classes. In this case a change cannot be triggered
- * only by @OnClassLoadEvent method (the class is never loaded) and you need to cover this case using @OnClassFileEvent
- * handler. See HibernatePlugin#newEntity() method annotated with OnClassFileEvent for an example.
- *
- * @author Jiri Bubnik
+ * 当jvm加载类时的回调方法，在define或redefine之后调用
+ * <p>该注解通过{@link OnClassLoadedHandler}来实现，创建{@link PluginClassFileTransformer}类型的Transformer调用{@link HotswapTransformer#registerTransformer}注册
+ * <p>方法上可以自动注入的参数类型如下，通过{@link PluginClassFileTransformer#transform(PluginManager, PluginAnnotation, ClassLoader, String, Class, ProtectionDomain, byte[])})}解析
+ * <li>{@code byte[]} 输入的class字节码byte[]，不可更改
+ * <li>{@link ClassLoader} 加载class的类加载器
+ * <li>{@link String} 类名(e.g: {@code java/utils/List})
+ * <li>{@link Class} 类被重新定义，在redefine或retransform时有值，load时为null
+ * <li>{@link ProtectionDomain} 保护域
+ * <li>{@link ClassPool} javassist的ClassPool
+ * <li>{@link CtClass} 通过byte[]与ClassLoader创建的javassist的CtClass
+ * <li>{@link LoadEvent} 加载的事件类型
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -64,30 +55,22 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent
 public @interface OnClassLoadEvent {
 
     /**
-     * Regexp of class name.
+     * 感兴趣的类正则表达式
      */
     String classNameRegexp();
 
     /**
-     * Specify list of events to watch for (class is loaded by the ClassLoader / redefined by hotswap mechanism).
-     * By default are both DEFINE and REDEFINE events enabled.
-     *
-     * @return list of class load events
+     * 感兴趣的类加载事件
      */
     LoadEvent[] events() default {DEFINE, REDEFINE};
 
     /**
-     * Anonymous classes (e.g. MyClass$1, MyClass$2, ...) are usually reloaded with main class MyClass,
-     * but the transformation should be done only on the main class.
-     *
-     * @return false to include anonymous classes.
+     * 是否跳过主类的匿内部类（e.g:Class$1、Class$2...）
      */
     boolean skipAnonymous() default true;
 
     /**
-     * Classes created at runtime are usually skipped
-     *
-     * @return false to include synthetic classes.
+     * 是否跳过运行时创建的合成类（synthetic class），agent运行时会创建新的类
      */
     boolean skipSynthetic() default true;
 

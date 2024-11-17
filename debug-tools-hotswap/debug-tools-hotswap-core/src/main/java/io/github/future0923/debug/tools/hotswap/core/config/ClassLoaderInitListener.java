@@ -19,7 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.config;
 
 /**
- * 在{@link PluginManager}中注册监听器监听新的ClassLoader实例
+ * 在{@link PluginManager}中注册监听器监听新的ClassLoader实例，
  */
 public interface ClassLoaderInitListener {
 

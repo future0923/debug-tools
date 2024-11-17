@@ -18,20 +18,16 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginClassFileTransformer;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginHandler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
-import io.github.future0923.debug.tools.base.logging.Logger;
 
 /**
- * Transform method handler - handle @OnClassLoadEvent annotation on a method.
- *
- * @author Jiri Bubnik
+ * 注册{@link PluginClassFileTransformer}到{@link HotswapTransformer}中，当class transform时{@link PluginClassFileTransformer}可以调用对应含有{@link OnClassLoadEvent}注解的方法
  */
 public class OnClassLoadedHandler implements PluginHandler<OnClassLoadEvent> {
+
     protected static Logger LOGGER = Logger.getLogger(OnClassLoadedHandler.class);
 
     protected PluginManager pluginManager;

@@ -30,7 +30,7 @@ import java.util.Arrays;
  * Convenience methods on java reflection API.
  */
 public class ReflectionHelper {
-    private static Logger LOGGER = Logger.getLogger(ReflectionHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(ReflectionHelper.class);
 
     /**
      * Convenience wrapper to reflection method invoke API. Invoke the method and hide checked exceptions.

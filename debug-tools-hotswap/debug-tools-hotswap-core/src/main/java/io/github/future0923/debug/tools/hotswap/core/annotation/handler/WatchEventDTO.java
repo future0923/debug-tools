@@ -38,7 +38,7 @@ public class WatchEventDTO {
     private final boolean classFileEvent;
 
     /**
-     * 超时时间
+     * 延迟时间
      */
     private final int timeout;
 

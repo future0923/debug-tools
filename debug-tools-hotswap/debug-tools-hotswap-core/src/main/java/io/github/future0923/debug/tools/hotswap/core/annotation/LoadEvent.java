@@ -28,7 +28,7 @@ public enum LoadEvent {
     DEFINE,
 
     /**
-     * 加载多的Class重新定义
+     * 加载过的Class重新定义
      */
     REDEFINE;
 }

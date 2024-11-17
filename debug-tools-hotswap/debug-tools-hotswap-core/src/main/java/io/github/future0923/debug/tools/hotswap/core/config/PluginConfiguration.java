@@ -19,14 +19,15 @@
 package io.github.future0923.debug.tools.hotswap.core.config;
 
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
+import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.config.LogConfigurationHelper;
-import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.plugin.watchResources.WatchResourcesPlugin;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapProperties;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.HotswapAgentClassLoaderExt;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.URLClassPathHelper;
-import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.util.spring.util.StringUtils;
 import lombok.Getter;
 
 import java.io.File;
@@ -42,38 +43,51 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 /**
- * Plugin configuration.
- * <p/>
- * Single instance exists for each classloader.
- *
- * @author Jiri Bubnik
+ * 插件配置，每个ClassLoader只存在一个实例
  */
 public class PluginConfiguration {
-    private static Logger LOGGER = Logger.getLogger(PluginConfiguration.class);
 
+    private static final Logger LOGGER = Logger.getLogger(PluginConfiguration.class);
+
+    /**
+     * 配置文件
+     */
     private static final String PLUGIN_CONFIGURATION = "hotswap-agent.properties";
 
     /**
-     * The Constant INCLUDED_CLASS_LOADERS_KEY. allowed list
+     * 要初始化的ClassLoader
      */
     private static final String INCLUDED_CLASS_LOADERS_KEY = "includedClassLoaderPatterns";
 
-    /** The Constant EXCLUDED_CLASS_LOADERS_KEY. blocked list */
+    /**
+     * 不初始化的ClassLoader
+     */
     private static final String EXCLUDED_CLASS_LOADERS_KEY = "excludedClassLoaderPatterns";
 
+    /**
+     * 配置（key小驼峰）
+     */
     Properties properties = new HotswapProperties();
 
-    // if the property is not defined in this classloader, look for parent classloader and it's configuration
+    /**
+     * 如果ClassLoader中未定义，从父类加载器中查找
+     */
     PluginConfiguration parent;
 
-    // this configuration adheres to this classloader
+    /**
+     * 配置所在的类加载器
+     */
     @Getter
     final ClassLoader classLoader;
 
-    // the hotswap-agent.properties file (or null if not defined for this classloader)
+    /**
+     * 配置文件URL
+     */
     URL configurationURL;
 
-    // is property file defined directly in this classloader?
+    /**
+     * 配置文件是否在当前类加载器中
+     */
     boolean containsPropertyFileDirectly = false;
 
 
@@ -88,24 +102,25 @@ public class PluginConfiguration {
     public PluginConfiguration(PluginConfiguration parent, ClassLoader classLoader, boolean init) {
         this.parent = parent;
         this.classLoader = classLoader;
-
+        // 载入配置文件
         loadConfigurationFile();
         if (init) {
             init();
         }
     }
 
+    /**
+     * 载入配置文件
+     * 有外部使用外部配置文件
+     */
     private void loadConfigurationFile() {
-
         try {
             String externalPropertiesFile = HotswapAgent.getExternalPropertiesFile();
-
             if (externalPropertiesFile != null) {
                 configurationURL = resourceNameToURL(externalPropertiesFile);
                 properties.load(configurationURL.openStream());
                 return;
             }
-
         } catch (Exception e) {
             LOGGER.error("Error while loading external properties file " + configurationURL, e);
         }
@@ -114,24 +129,18 @@ public class PluginConfiguration {
             configurationURL = classLoader == null
                     ? ClassLoader.getSystemResource(PLUGIN_CONFIGURATION)
                     : classLoader.getResource(PLUGIN_CONFIGURATION);
-
             try {
                 if (configurationURL != null) {
                     containsPropertyFileDirectly = true;
                     properties.load(configurationURL.openStream());
-
                 }
-
-                // Add logging properties defined in jvm argument like -DLOGGER=warning
-                System.getProperties().forEach((key, value) -> properties.put(key, value));
-
+                properties.putAll(System.getProperties());
             } catch (Exception e) {
                 LOGGER.error("Error while loading 'hotswap-agent.properties' from base URL " + configurationURL, e);
             }
 
         } else {
-            // search for resources not known by parent classloader (defined in THIS classloader exclusively)
-            // this is necessary in case of parent classloader precedence
+            // 在父类加载器中找
             try {
                 Enumeration<URL> urls = null;
 
@@ -185,10 +194,6 @@ public class PluginConfiguration {
         }
     }
 
-
-    /**
-     * Initialize the configuration.
-     */
     protected void init() {
         LogConfigurationHelper.configureLog(properties);
         initPluginPackage();
@@ -198,11 +203,12 @@ public class PluginConfiguration {
         initExtraClassPath();
     }
 
+    /**
+     * 扫描其它路径的Plugin
+     */
     private void initPluginPackage() {
-        // only for self property (not parent)
-        if (properties.containsKey("pluginPackages")) {
-            String pluginPackages = properties.getProperty("pluginPackages");
-
+        String pluginPackages = properties.getProperty("pluginPackages");
+        if (StringUtils.hasText(pluginPackages)) {
             for (String pluginPackage : pluginPackages.split(",")) {
                 PluginManager.getInstance().getPluginRegistry().scanPlugins(getClassLoader(), pluginPackage);
             }
@@ -249,7 +255,6 @@ public class PluginConfiguration {
             for (String pattern : properties.getProperty(EXCLUDED_CLASS_LOADERS_KEY).split(",")) {
                 excludedClassLoaderPatterns.add(Pattern.compile(pattern));
             }
-            // FIXME: this is wrong since there is single HotswapTransformer versus multiple PluginConfigurations.
             PluginManager.getInstance().getHotswapTransformer()
                     .setExcludedClassLoaderPatterns(excludedClassLoaderPatterns);
         }
@@ -275,12 +280,6 @@ public class PluginConfiguration {
         return false;
     }
 
-    /**
-     * Get configuration property value
-     *
-     * @param property property name
-     * @return the property value or null if not defined
-     */
     public String getProperty(String property) {
         if (properties.containsKey(property))
             return properties.getProperty(property);
@@ -290,24 +289,11 @@ public class PluginConfiguration {
             return null;
     }
 
-    /**
-     * Get configuration property value
-     *
-     * @param property property name
-     * @param defaultValue value to return if property not defined
-     * @return the property value or null if not defined
-     */
     public String getProperty(String property, String defaultValue) {
         String value = getProperty(property);
         return value != null ? value : defaultValue;
     }
 
-    /**
-     * Convenience method to get property as a boolean value using Boolean.valueOf().
-     *
-     * @param property property name
-     * @return the property value or null if not defined
-     */
     public boolean getPropertyBoolean(String property) {
         if (properties.containsKey(property))
             return Boolean.valueOf(properties.getProperty(property));
@@ -318,23 +304,23 @@ public class PluginConfiguration {
     }
 
     /**
-     * Get extraClasspath property as URL[].
-     *
-     * @return extraClasspath or empty array (never null)
+     * 获取额外的ClassPath
      */
     public URL[] getExtraClasspath() {
         return convertToURL(getProperty("extraClasspath"));
     }
 
     /**
-     * Converts watchResources property to URL array. Invalid URLs will be skipped and logged as error.
+     * 获取需要watch的资源路径
+     * @see WatchResourcesPlugin
+     * @see OnResourceFileEvent
      */
     public URL[] getWatchResources() {
         return convertToURL(getProperty("watchResources"));
     }
 
     /**
-     * Converts watchResources property to URL array. Invalid URLs will be skipped and logged as error.
+     * Spring基础package前缀
      */
     public String[] getBasePackagePrefixes() {
         String basePackagePrefix = getProperty("spring.basePackagePrefix");
@@ -345,14 +331,7 @@ public class PluginConfiguration {
     }
 
     /**
-     * Return configuration property webappDir as URL.
-     */
-    public URL[] getWebappDir() {
-        return convertToURL(getProperty("webappDir"));
-    }
-
-    /**
-     * List of disabled plugin names
+     * 禁用的插件名集合
      */
     public List<String> getDisabledPlugins() {
         List<String> ret = new ArrayList<>();
@@ -363,14 +342,14 @@ public class PluginConfiguration {
     }
 
     /**
-     * Check if the plugin is disabled (in this classloader)
+     * 插件在当前ClassLoader是否被禁用
      */
     public boolean isDisabledPlugin(String pluginName) {
         return HotswapAgent.isPluginDisabled(pluginName) || getDisabledPlugins().contains(pluginName);
     }
 
     /**
-     * Check if the plugin is disabled (in this classloader)
+     * 插件在当前ClassLoader是否被禁用
      */
     public boolean isDisabledPlugin(Class<?> pluginClass) {
         Plugin pluginAnnotation = pluginClass.getAnnotation(Plugin.class);
@@ -398,10 +377,8 @@ public class PluginConfiguration {
 
     private static URL resourceNameToURL(String resource) throws Exception {
         try {
-            // Try to format as a URL?
             return new URL(resource);
         } catch (MalformedURLException e) {
-            // try to locate a file
             if (resource.startsWith("./"))
                 resource = resource.substring(2);
 
@@ -411,9 +388,7 @@ public class PluginConfiguration {
     }
 
     /**
-     * Does this classloader contain the property file directly, or is it acquired through parent classloader.
-     *
-     * @return if this contains directly the property file
+     * 是否存在配置文件
      */
     public boolean containsPropertyFile() {
         return containsPropertyFileDirectly;

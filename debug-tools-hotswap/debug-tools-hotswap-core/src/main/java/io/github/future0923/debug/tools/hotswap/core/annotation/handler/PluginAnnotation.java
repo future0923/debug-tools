@@ -74,7 +74,9 @@ public class PluginAnnotation<T extends Annotation> {
     // Method matcher
     final MethodMatcher methodMatcher;
 
-    // plugin group (elresolver etc..)
+    /**
+     * 插件组信息
+     */
     @Getter
     private final String group;
 
