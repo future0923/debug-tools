@@ -18,41 +18,34 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.jdk;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
-import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.util.Map;
 
 /**
- * JdkPlugin plugin
- * <p>
- * Handle common stuff from jdk rt:
+ * JdkPlugin处理java rt.jar
  * <ul>
- *  <li> flush java.beans.Introspector caches
- *  <li> flush ObjectStream caches
+ *  <li>{@link #flushBeanIntrospectorCaches}刷新java.beans.Introspector缓存
+ *  <li>{@link #flushObjectStreamCaches}刷新ObjectStream缓存
  * </ul>
- *  @author Vladimir Dvorak
  */
 @Plugin(name = "JdkPlugin",
         description = "",
         testedVersions = {"openjdk 1.7.0.95, 1.8.0_74, 1.11.0_5"},
         expectedVersions = {"All between openjdk 1.7 - 1.11"}
-        )
+)
 public class JdkPlugin {
 
     private static final Logger LOGGER = Logger.getLogger(JdkPlugin.class);
 
-    /**
-     * Flag to check reload status. It is necessary (in unit tests)to wait for reload is finished before the test
-     * can continue. Set flag to true in the test class and wait until the flag is false again.
-     */
     public static boolean reloadFlag;
 
-    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE, skipSynthetic=false)
+    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE, skipSynthetic = false)
     public static void flushBeanIntrospectorCaches(ClassLoader classLoader, CtClass ctClass) {
         try {
             LOGGER.debug("Flushing {} from introspector", ctClass.getName());
@@ -66,20 +59,20 @@ public class JdkPlugin {
                 Object table[] = (Object[]) ReflectionHelper.get(contexts, "table");
 
                 if (table != null) {
-                    for (Object o: table) {
+                    for (Object o : table) {
                         if (o != null) {
                             Object threadGroupContext = ReflectionHelper.get(o, "value");
                             if (threadGroupContext != null) {
                                 LOGGER.trace("Removing from threadGroupContext");
                                 ReflectionHelper.invoke(threadGroupContext, threadGroupCtxClass, "removeBeanInfo",
-                                        new Class[] { Class.class }, clazz);
+                                        new Class[]{Class.class}, clazz);
                             }
                         }
                     }
                 }
 
                 ReflectionHelper.invoke(null, introspectorClass, "flushFromCaches",
-                    new Class[] { Class.class }, clazz);
+                        new Class[]{Class.class}, clazz);
             }
         } catch (Exception e) {
             LOGGER.error("flushBeanIntrospectorCaches() exception {}.", e.getMessage());
@@ -88,27 +81,22 @@ public class JdkPlugin {
         }
     }
 
-    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE, skipSynthetic=false)
+    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE, skipSynthetic = false)
     public static void flushObjectStreamCaches(ClassLoader classLoader, CtClass ctClass) {
         Class<?> clazz;
         Object localDescs;
         Object reflectors;
         try {
             LOGGER.debug("Flushing {} from ObjectStreamClass caches", ctClass.getName());
-
             clazz = classLoader.loadClass(ctClass.getName());
             Class<?> objectStreamClassCache = classLoader.loadClass("java.io.ObjectStreamClass$Caches");
-
             localDescs = ReflectionHelper.get(null, objectStreamClassCache, "localDescs");
             reflectors = ReflectionHelper.get(null, objectStreamClassCache, "reflectors");
-
         } catch (Exception e) {
             LOGGER.error("flushObjectStreamCaches() java.io.ObjectStreamClass$Caches not found.", e.getMessage());
             return;
         }
-
         boolean java17;
-
         try {
             ((Map) localDescs).clear();
             ((Map) reflectors).clear();
@@ -116,13 +104,12 @@ public class JdkPlugin {
         } catch (Exception e) {
             java17 = true;
         }
-
         if (java17) {
             try {
                 Object localDescsMap = ReflectionHelper.get(localDescs, "map");
-                ReflectionHelper.invoke(localDescsMap, localDescsMap.getClass(), "remove", new Class[] { Class.class }, clazz);
+                ReflectionHelper.invoke(localDescsMap, localDescsMap.getClass(), "remove", new Class[]{Class.class}, clazz);
                 Object reflectorsMap = ReflectionHelper.get(reflectors, "map");
-                ReflectionHelper.invoke(reflectorsMap, reflectorsMap.getClass(), "remove", new Class[] { Class.class }, clazz);
+                ReflectionHelper.invoke(reflectorsMap, reflectorsMap.getClass(), "remove", new Class[]{Class.class}, clazz);
             } catch (Exception e) {
                 LOGGER.error("flushObjectStreamCaches() exception {}.", e.getMessage());
             }
