@@ -76,15 +76,14 @@ import java.util.WeakHashMap;
         description = "Swap anonymous inner class names to avoid not compatible changes.",
         testedVersions = {"DCEVM"})
 public class AnonymousClassPatchPlugin {
-    private static Logger LOGGER = Logger.getLogger(AnonymousClassPatchPlugin.class);
+    private static final Logger LOGGER = Logger.getLogger(AnonymousClassPatchPlugin.class);
 
     @Init
     static HotswapTransformer hotswapTransformer;
 
     // Map ClassLoader -> (className -> infos about inner/local anonymous classes)
     // This caches information for one hotswap on main class and all anonymous classes
-    private static Map<ClassLoader, Map<String, AnonymousClassInfos>> anonymousClassInfosMap =
-            new WeakHashMap<ClassLoader, Map<String, AnonymousClassInfos>>();
+    private static final Map<ClassLoader, Map<String, AnonymousClassInfos>> anonymousClassInfosMap = new WeakHashMap<ClassLoader, Map<String, AnonymousClassInfos>>();
 
     /**
      * Replace an anonymous class with an compatible change (from another class according to state info).
@@ -118,7 +117,7 @@ public class AnonymousClassPatchPlugin {
             // replace superclass
             ctClass.setSuperclass(classPool.get(original.getSuperclass().getName()));
             // replace interfaces
-            Class[] originalInterfaces = original.getInterfaces();
+            Class<?>[] originalInterfaces = original.getInterfaces();
             CtClass[] interfaces = new CtClass[originalInterfaces.length];
             for (int i = 0; i < originalInterfaces.length; i++)
                 interfaces[i] = classPool.get(originalInterfaces[i].getName());
@@ -136,7 +135,7 @@ public class AnonymousClassPatchPlugin {
     private static boolean isHotswapAgentSyntheticClass(String compatibleName) {
         String anonymousClassIndexString = compatibleName.replaceAll("^.*\\$(\\d+)$", "$1");
         try {
-            long anonymousClassIndex = Long.valueOf(anonymousClassIndexString);
+            long anonymousClassIndex = Long.parseLong(anonymousClassIndexString);
             return anonymousClassIndex >= AnonymousClassInfos.UNIQUE_CLASS_START_INDEX;
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(compatibleName + " is not in a format of className$i");
@@ -179,9 +178,9 @@ public class AnonymousClassPatchPlugin {
         String javaClassName = className.replaceAll("/", ".");
 
         // check if has anonymous classes
-        if (!ClassLoaderHelper.isClassLoaded(classLoader, javaClassName + "$1"))
+        if (!ClassLoaderHelper.isClassLoaded(classLoader, javaClassName + "$1")) {
             return null;
-
+        }
 
         AnonymousClassInfos stateInfo = getStateInfo(classLoader, classPool, javaClassName);
         Map<AnonymousClassInfo, AnonymousClassInfo> transitions = stateInfo.getCompatibleTransitions();

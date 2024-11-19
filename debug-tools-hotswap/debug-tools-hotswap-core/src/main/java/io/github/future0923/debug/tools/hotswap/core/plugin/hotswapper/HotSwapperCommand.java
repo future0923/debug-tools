@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.hotswapper;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,6 +40,9 @@ public class HotSwapperCommand {
     // in the application classloader to avoid NoClassDefFound error on tools.jar classes.
     private static HotSwapperJpda hotSwapper = null;
 
+    /**
+     * {@link HotSwapperPlugin#initHotswapCommand}创建{@link ReflectionCommand}会调用运行这里
+     */
     public static synchronized void hotswap(String port, final HashMap<Class<?>, byte[]> reloadMap) {
         // synchronize on the reloadMap object - do not allow addition while in process
         synchronized (reloadMap) {

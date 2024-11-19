@@ -163,14 +163,7 @@ public class ReflectionHelper {
     }
 
     /**
-     * Convenience wrapper to reflection field access API. Get field value and hide
-     * checked exceptions.
-     *
-     * @param target    object to get field value (or null for static methods)
-     * @param clazz     class name
-     * @param fieldName field name
-     * @return field value
-     * @throws IllegalArgumentException if field not found
+     * 反射获取字段的值
      */
     public static Object get(Object target, Class<?> clazz, String fieldName) {
         try {
