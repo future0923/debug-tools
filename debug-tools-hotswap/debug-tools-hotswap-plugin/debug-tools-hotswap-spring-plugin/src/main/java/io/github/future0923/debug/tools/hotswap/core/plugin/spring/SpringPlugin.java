@@ -117,12 +117,16 @@ public class SpringPlugin {
         PluginConfiguration pluginConfiguration = new PluginConfiguration(this.appClassLoader);
         if (basePackagePrefixes == null || basePackagePrefixes.length == 0) {
             basePackagePrefixes = pluginConfiguration.getBasePackagePrefixes();
+            // TODO test
+            List<String> both = new ArrayList<>();
+            both.add("com.estate.biz.business");
+            basePackagePrefixes = both.toArray(new String[0]);
         } else {
             String[] newBasePackagePrefixes = pluginConfiguration.getBasePackagePrefixes();
             List<String> both = new ArrayList<>(basePackagePrefixes.length + newBasePackagePrefixes.length);
             Collections.addAll(both, basePackagePrefixes);
             Collections.addAll(both, newBasePackagePrefixes);
-            basePackagePrefixes = both.toArray(new String[both.size()]);
+            basePackagePrefixes = both.toArray(new String[0]);
         }
     }
 

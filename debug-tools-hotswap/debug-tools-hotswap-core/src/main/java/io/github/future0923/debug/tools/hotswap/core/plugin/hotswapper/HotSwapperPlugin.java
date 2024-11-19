@@ -61,7 +61,7 @@ public class HotSwapperPlugin {
     PluginManager pluginManager;
 
     // synchronize on this map to wait for previous processing
-    final Map<Class<?>, byte[]> reloadMap = new HashMap<>();
+    private final Map<Class<?>, byte[]> reloadMap = new HashMap<>();
 
     // command to do actual hotswap. Single command to merge possible multiple reload actions.
     Command hotswapCommand;
@@ -79,7 +79,7 @@ public class HotSwapperPlugin {
         LOGGER.debug("Class {} will be reloaded from URL {}", ctClass.getName(), url);
 
         // search for a class to reload
-        Class clazz;
+        Class<?> clazz;
         try {
             clazz  = appClassLoader.loadClass(ctClass.getName());
         } catch (ClassNotFoundException e) {
@@ -92,32 +92,6 @@ public class HotSwapperPlugin {
             reloadMap.put(clazz, ctClass.toBytecode());
         }
         scheduler.scheduleCommand(hotswapCommand, 100, Scheduler.DuplicateSheduleBehaviour.SKIP);
-    }
-
-    /**
-     * Create a hotswap command using hotSwapper.
-     *
-     * @param appClassLoader it can be run in any classloader with tools.jar on classpath. AppClassLoader can
-     *                       be setup by maven dependency (jetty plugin), use this classloader.
-     * @param port           attach the hotSwapper
-     */
-    public void initHotswapCommand(ClassLoader appClassLoader, String port) {
-        if (port != null && !port.isEmpty()) {
-            hotswapCommand = new ReflectionCommand(this, HotSwapperCommand.class.getName(), "hotswap", appClassLoader,
-                    port, reloadMap);
-        } else {
-            hotswapCommand = new Command() {
-                @Override
-                public void executeCommand() {
-                    pluginManager.hotswap(reloadMap);
-                }
-
-                @Override
-                public String toString() {
-                    return "pluginManager.hotswap(" + Arrays.toString(reloadMap.keySet().toArray()) + ")";
-                }
-            };
-        }
     }
 
     /**
@@ -153,6 +127,32 @@ public class HotSwapperPlugin {
             plugin.initHotswapCommand(appClassLoader, port);
         } else {
             LOGGER.debug("Hot swapper is disabled in {}", appClassLoader);
+        }
+    }
+
+    /**
+     * 创建热重载命令
+     *
+     * @param appClassLoader it can be run in any classloader with tools.jar on classpath. AppClassLoader can
+     *                       be setup by maven dependency (jetty plugin), use this classloader.
+     * @param port           attach the hotSwapper
+     */
+    public void initHotswapCommand(ClassLoader appClassLoader, String port) {
+        if (port != null && !port.isEmpty()) {
+            hotswapCommand = new ReflectionCommand(this, HotSwapperCommand.class.getName(), "hotswap", appClassLoader,
+                    port, reloadMap);
+        } else {
+            hotswapCommand = new Command() {
+                @Override
+                public void executeCommand() {
+                    pluginManager.hotswap(reloadMap);
+                }
+
+                @Override
+                public String toString() {
+                    return "pluginManager.hotswap(" + Arrays.toString(reloadMap.keySet().toArray()) + ")";
+                }
+            };
         }
     }
 }

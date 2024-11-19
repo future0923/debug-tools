@@ -39,16 +39,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * ClassInitPlugin initializes static (class) variables after class redefinition. Initializes new enumeration values.
- *
- * @author Vladimir Dvorak
+ * ClassInitPlugin在类重新定义后初始化静态变量的新枚举值
  */
 @Plugin(name = "ClassInitPlugin",
         description = "Initialize empty static fields (left by DCEVM) using code from <clinit> method.",
         testedVersions = {"DCEVM"})
 public class ClassInitPlugin {
 
-    private static Logger LOGGER = Logger.getLogger(ClassInitPlugin.class);
+    private static final Logger LOGGER = Logger.getLogger(ClassInitPlugin.class);
 
     private static final String HOTSWAP_AGENT_CLINIT_METHOD = "$$ha$clinit";
 
@@ -79,7 +77,7 @@ public class ClassInitPlugin {
             haClinit.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
             ctClass.addConstructor(haClinit);
 
-            final boolean reinitializeStatics[] = new boolean[] { false };
+            final boolean[] reinitializeStatics = new boolean[] { false };
 
             haClinit.instrument(
                 new ExprEditor() {
@@ -125,13 +123,9 @@ public class ClassInitPlugin {
                         try {
                             Class<?> clazz = classLoader.loadClass(className);
                             Method m = clazz.getDeclaredMethod(HOTSWAP_AGENT_CLINIT_METHOD, new Class[] {});
-                            if (m != null) {
-                                m.setAccessible(true);
-                                m.invoke(null, new Object[] {});
-                                LOGGER.debug("Initializer {} invoked for class {}", HOTSWAP_AGENT_CLINIT_METHOD, className);
-                            } else {
-                                LOGGER.error("Class initializer {} not found", HOTSWAP_AGENT_CLINIT_METHOD);
-                            }
+                            m.setAccessible(true);
+                            m.invoke(null, new Object[] {});
+                            LOGGER.debug("Initializer {} invoked for class {}", HOTSWAP_AGENT_CLINIT_METHOD, className);
                         } catch (Exception e) {
                             LOGGER.error("Error initializing redefined class {}", e, className);
                         } finally {

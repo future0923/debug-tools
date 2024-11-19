@@ -42,22 +42,32 @@ public class PluginRegistry {
 
     private static final Logger LOGGER = Logger.getLogger(PluginRegistry.class);
 
-    // plugin class -> Map (ClassLoader -> Plugin instance)
+    /**
+     * plugin class -> Map (ClassLoader -> Plugin instance)
+     */
     @Getter
-    protected Map<Class<?>, Map<ClassLoader, Object>> registeredPlugins = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<Class<?>, Map<ClassLoader, Object>> registeredPlugins = Collections.synchronizedMap(new HashMap<>());
 
-    // 插件管理器
+    /**
+     * 插件管理器
+     */
     private final PluginManager pluginManager;
 
-    // ClassPath注解扫描器，用于扫描插件
+    /**
+     * ClassPath注解扫描器，用于扫描插件
+     */
     @Setter
     private ClassPathAnnotationScanner annotationScanner;
 
-    // 解析插件类上的注解
+    /**
+     * 解析插件类上的注解
+     */
     @Setter
     protected AnnotationProcessor annotationProcessor;
 
-    // 如果插件加载类不是 agentClassLoader，则需要通过ClassLoaderDefineClassPatcher将插件的class从classLoader复制到agentClassLoader
+    /**
+     * 如果插件加载类不是 agentClassLoader，则需要通过ClassLoaderDefineClassPatcher将插件的class从classLoader复制到agentClassLoader
+     */
     @Setter
     private ClassLoaderDefineClassPatcher classLoaderPatcher;
 
@@ -127,29 +137,26 @@ public class PluginRegistry {
     }
 
     /**
-     * Init a plugin (create new plugin instance) in a application classloader.
-     * Each classloader may contain only one instance of a plugin.
+     * 在指定的ClassLoader中初始化创建插件实例，一个ClassLoader中只有一个插件实例
      *
-     * @param pluginClass    class of plugin to instantiate
-     * @param appClassLoader target application classloader
-     * @return the new plugin instance or null if plugin is disabled.
+     * @return 新创建的插件实例（可能null）
      */
     public Object initializePlugin(String pluginClass, ClassLoader appClassLoader) {
         if (appClassLoader == null)
             throw new IllegalArgumentException("Cannot initialize plugin '" + pluginClass + "', appClassLoader is null.");
 
-        // ensure classloader initialized
+        // 初始化类加载器
         pluginManager.initClassLoader(appClassLoader);
 
         Class<Object> clazz = getPluginClass(pluginClass);
 
-        // skip if the plugin is disabled
+        // 是否被禁用
         if (pluginManager.getPluginConfiguration(appClassLoader).isDisabledPlugin(clazz)) {
             LOGGER.debug("Plugin {} disabled in classloader {}.", clazz, appClassLoader);
             return null;
         }
 
-        // already initialized in this or parent classloader
+        // 已经在当前类加载器或父类加载器中初始化
         if (doHasPlugin(clazz, appClassLoader, false, true)) {
             LOGGER.debug("Plugin {} already initialized in parent classloader of {}.", clazz, appClassLoader);
             return getPlugin(clazz, appClassLoader);
@@ -177,14 +184,12 @@ public class PluginRegistry {
     }
 
     /**
-     * Returns plugin instance by it's type and classLoader.
+     * 通过插件Class和类加载器获取插件实例
      *
-     * @param pluginClass type of the plugin
-     * @param classLoader classloader of the plugin
-     * @param <T>         type of the plugin to return correct instance.
-     * @return the plugin
-     * @throws IllegalArgumentException if classLoader not initialized or plugin not found
+     * @return 插件实例
+     * @throws IllegalArgumentException ClassLoader未初始化或没找到插件
      */
+    @SuppressWarnings("unchecked")
     public <T> T getPlugin(Class<T> pluginClass, ClassLoader classLoader) {
         if (registeredPlugins.isEmpty()) {
             throw new IllegalStateException("No plugin initialized. " +
@@ -199,13 +204,10 @@ public class PluginRegistry {
         synchronized (pluginInstances) {
             for (Map.Entry<ClassLoader, Object> registeredClassLoaderEntry : pluginInstances.entrySet()) {
                 if (isParentClassLoader(registeredClassLoaderEntry.getKey(), classLoader)) {
-                    //noinspection unchecked
                     return (T) registeredClassLoaderEntry.getValue();
                 }
             }
         }
-
-        // not found
         throw new IllegalArgumentException(String.format("Plugin %s is not initialized in classloader %s.", pluginClass, classLoader));
     }
 
@@ -221,7 +223,7 @@ public class PluginRegistry {
     /**
      * 插件是否已经在指定的ClassLoader中初始化
      *
-     * @param checkParent 是否检查父类加载器
+     * @param checkParent     是否检查父类加载器
      * @param createIfMissing 不存在是否创建
      */
     public boolean doHasPlugin(Class<?> pluginClass, ClassLoader classLoader, boolean checkParent, boolean createIfMissing) {
@@ -247,12 +249,8 @@ public class PluginRegistry {
 
     /**
      * 获取插件的类加载器
-     *
-     * @param plugin existing plugin
-     * @return the classloader this plugin is associated with
      */
     public ClassLoader getAppClassLoader(Object plugin) {
-        // search with for loop. Maybe performance improvement to create reverse map if this is used heavily
         Class<Object> clazz = getPluginClass(plugin.getClass().getName());
         Map<ClassLoader, Object> pluginInstances = registeredPlugins.get(clazz);
         if (pluginInstances != null) {
@@ -267,11 +265,12 @@ public class PluginRegistry {
     }
 
 
-    // resolve class in this classloader - plugin class should be always only in the same classloader
-    // as the plugin manager.
+    /**
+     * 获取插件类Class信息，插件类文件应该与PluginRegistry的Class在一个类加载器中
+     */
+    @SuppressWarnings("unchecked")
     protected Class<Object> getPluginClass(String pluginClass) {
         try {
-            // noinspection unchecked
             if (getClass().getClassLoader() == null) {
                 return (Class<Object>) Class.forName(pluginClass, true, null);
             }
@@ -281,14 +280,17 @@ public class PluginRegistry {
         }
     }
 
-    // check if parentClassLoader is parent of classLoader
+    /**
+     * parentClassLoader是否是classLoader的父类加载器
+     */
     private boolean isParentClassLoader(ClassLoader parentClassLoader, ClassLoader classLoader) {
-        if (parentClassLoader.equals(classLoader))
+        if (parentClassLoader.equals(classLoader)) {
             return true;
-        else if (classLoader.getParent() != null)
+        } else if (classLoader.getParent() != null) {
             return isParentClassLoader(parentClassLoader, classLoader.getParent());
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -307,9 +309,7 @@ public class PluginRegistry {
     }
 
     /**
-     * Remove all registered plugins for a classloader.
-     *
-     * @param classLoader classloader to cleanup
+     * 移除ClassLoader中的所有插件
      */
     public void closeClassLoader(ClassLoader classLoader) {
         LOGGER.debug("Closing classloader {}.", classLoader);

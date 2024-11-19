@@ -44,6 +44,7 @@ public class TestService {
     private UserDao userDao;
 
     public String insertBatchSomeColumn() {
+
         User user1 = new User();
         user1.setName("1");
         user1.setAge(1);

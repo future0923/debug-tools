@@ -63,22 +63,13 @@ class Trigger {
 }
 
 /**
- * Example HotSwapperJpda class from javaassist is copied to the plugin, because it needs to reside
- * in the application classloader to avoid NoClassDefFound error on tools.jar classes. Otherwise
- * it is the same code as in javassist.
- * <p/>
- * A utility class for dynamically reloading a class by
- * the Java Platform Debugger Architecture (JPDA), or <it>HotSwap</code>.
- * It works only with JDK 1.4 and later.
- * <p/>
- * <p><b>Note:</b> The new definition of the reloaded class must declare
- * the same set of methods and fields as the original definition.  The
- * schema change between the original and new definitions is not allowed
- * by the JPDA.
- * <p/>
- * <p>To use this class, the JVM must be launched with the following
- * command line options:
- * <p/>
+ * 将HotSwapperJpda的Class从javassist复制到插件中，如HotSwapperJpda不在应用程序类加载器中tools.jar会NoClassDefFound
+ * <p>
+ * 通过JPDA(Java Platform Debugger Architecture)动态重新加载类
+ * <p>
+ * JPDA重新加载的类必须和原来定义的有相同的fields和methods
+ * <p>
+ * HotSwapperJpda需要启动jvm时增加参数支持
  * <ul>
  * <p>For Java 1.4,<br>
  * <pre>java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</pre>
@@ -114,19 +105,25 @@ class Trigger {
  * @since 3.1
  */
 public class HotSwapperJpda {
-    private VirtualMachine jvm;
-    private MethodEntryRequest request;
-    private Map<ReferenceType,byte[]> newClassFiles;
 
-    private Trigger trigger;
+    private final VirtualMachine jvm;
+
+    private MethodEntryRequest request;
+
+    private Map<ReferenceType, byte[]> newClassFiles;
+
+    private final Trigger trigger;
 
     private static final String HOST_NAME = "localhost";
+
     private static final String TRIGGER_NAME = Trigger.class.getName();
 
+    private static final String CONNECTOR_NAME = "com.sun.jdi.SocketAttach";
+
     /**
-     * Connects to the JVM.
+     * 连接JVM
      *
-     * @param port the port number used for the connection to the JVM.
+     * @param port 连接JVM的端口
      */
     public HotSwapperJpda(int port)
             throws IOException, IllegalConnectorArgumentsException {
@@ -134,44 +131,38 @@ public class HotSwapperJpda {
     }
 
     /**
-     * Connects to the JVM.
+     * 连接JVM
      *
-     * @param port the port number used for the connection to the JVM.
+     * @param port 连接JVM的端口
      */
     public HotSwapperJpda(String port)
             throws IOException, IllegalConnectorArgumentsException {
-        jvm = null;
-        request = null;
         newClassFiles = null;
         trigger = new Trigger();
-        AttachingConnector connector
-            = (AttachingConnector)findConnector("com.sun.jdi.SocketAttach");
-
-        Map<String,Connector.Argument> arguments = connector.defaultArguments();
+        AttachingConnector connector = (AttachingConnector) findConnector();
+        Map<String, Connector.Argument> arguments = connector.defaultArguments();
         arguments.get("hostname").setValue(HOST_NAME);
         arguments.get("port").setValue(port);
         jvm = connector.attach(arguments);
         EventRequestManager manager = jvm.eventRequestManager();
-        request = methodEntryRequests(manager, TRIGGER_NAME);
+        request = methodEntryRequests(manager);
     }
 
-    private Connector findConnector(String connector) throws IOException {
+    private Connector findConnector() throws IOException {
         List<Connector> connectors = Bootstrap.virtualMachineManager().allConnectors();
-
-        for (Connector con:connectors)
-            if (con.name().equals(connector))
+        for (Connector con : connectors) {
+            if (con.name().equals(CONNECTOR_NAME)) {
                 return con;
-
-        throw new IOException("Not found: " + connector);
+            }
+        }
+        throw new IOException("Not found: " + CONNECTOR_NAME);
     }
 
-    private static MethodEntryRequest methodEntryRequests(
-            EventRequestManager manager,
-            String classpattern) {
-        MethodEntryRequest mereq = manager.createMethodEntryRequest();
-        mereq.addClassFilter(classpattern);
-        mereq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-        return mereq;
+    private static MethodEntryRequest methodEntryRequests(EventRequestManager manager) {
+        MethodEntryRequest methodEntryRequest = manager.createMethodEntryRequest();
+        methodEntryRequest.addClassFilter(TRIGGER_NAME);
+        methodEntryRequest.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
+        return methodEntryRequest;
     }
 
     /* Stops triggering a hotswapper when reload() is called.
@@ -189,10 +180,10 @@ public class HotSwapperJpda {
      * @param classFile the contents of the class file.
      */
     public void reload(String className, byte[] classFile) {
-        ReferenceType classtype = toRefType(className);
-        Map<ReferenceType,byte[]> map = new HashMap<ReferenceType,byte[]>();
-        map.put(classtype, classFile);
-        reload2(map, className);
+        ReferenceType refType = toRefType(className);
+        Map<ReferenceType, byte[]> map = new HashMap<>();
+        map.put(refType, classFile);
+        reload(map, className);
     }
 
     /**
@@ -203,33 +194,37 @@ public class HotSwapperJpda {
      *                   is <code>String</code> and the type of the
      *                   class files is <code>byte[]</code>.
      */
-    public void reload(Map<String,byte[]> classFiles) {
-        Map<ReferenceType,byte[]> map = new HashMap<ReferenceType,byte[]>();
+    public void reload(Map<String, byte[]> classFiles) {
+        Map<ReferenceType, byte[]> map = new HashMap<ReferenceType, byte[]>();
         String className = null;
-        for (Map.Entry<String,byte[]> e:classFiles.entrySet()) {
+        for (Map.Entry<String, byte[]> e : classFiles.entrySet()) {
             className = e.getKey();
             map.put(toRefType(className), e.getValue());
         }
 
         if (className != null)
-            reload2(map, className + " etc.");
+            reload(map, className + " etc.");
     }
 
+    /**
+     * 获取Class的ReferenceType
+     */
     private ReferenceType toRefType(String className) {
         List<ReferenceType> list = jvm.classesByName(className);
-        if (list == null || list.isEmpty())
+        if (list == null || list.isEmpty()) {
             throw new RuntimeException("no such class: " + className);
+        }
         return list.get(0);
     }
 
-    private void reload2(Map<ReferenceType,byte[]> map, String msg) {
+    private void reload(Map<ReferenceType, byte[]> map, String msg) {
         synchronized (trigger) {
             startDaemon();
             newClassFiles = map;
             request.enable();
             trigger.doSwap();
             request.disable();
-            Map<ReferenceType,byte[]> ncf = newClassFiles;
+            Map<ReferenceType, byte[]> ncf = newClassFiles;
             if (ncf != null) {
                 newClassFiles = null;
                 throw new RuntimeException("failed to reload: " + msg);
@@ -276,7 +271,7 @@ public class HotSwapperJpda {
     }
 
     void hotswap() {
-        Map<ReferenceType,byte[]> map = newClassFiles;
+        Map<ReferenceType, byte[]> map = newClassFiles;
         jvm.redefineClasses(map);
         newClassFiles = null;
     }
