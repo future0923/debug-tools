@@ -48,7 +48,7 @@ import java.util.Map;
  * @author Jiri Bubnik
  */
 public class AnonymousClassInfos {
-    private static Logger LOGGER = Logger.getLogger(AnonymousClassInfos.class);
+    private static final Logger LOGGER = Logger.getLogger(AnonymousClassInfos.class);
 
     // start indexing hotswap created synthetic anonymous classes from this index to avoid collision with existing
     public static final int UNIQUE_CLASS_START_INDEX = 10000;
@@ -90,11 +90,10 @@ public class AnonymousClassInfos {
 
             int i = 1;
             while (true) {
-
                 Class anonymous = (Class) m.invoke(classLoader, className + "$" + i);
-                if (anonymous == null)
+                if (anonymous == null) {
                     break;
-
+                }
                 anonymousClassInfoList.add(i - 1, new AnonymousClassInfo(anonymous));
                 i++;
             }

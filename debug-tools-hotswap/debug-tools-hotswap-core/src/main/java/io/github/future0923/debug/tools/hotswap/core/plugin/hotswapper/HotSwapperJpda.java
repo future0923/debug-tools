@@ -48,19 +48,11 @@ import com.sun.jdi.event.MethodEntryEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.MethodEntryRequest;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-class Trigger {
-    void doSwap() {
-    }
-}
 
 /**
  * 将HotSwapperJpda的Class从javassist复制到插件中，如HotSwapperJpda不在应用程序类加载器中tools.jar会NoClassDefFound
@@ -69,46 +61,19 @@ class Trigger {
  * <p>
  * JPDA重新加载的类必须和原来定义的有相同的fields和methods
  * <p>
- * HotSwapperJpda需要启动jvm时增加参数支持
+ * HotSwapperJpda需要启动jvm时增加参数支持，idea启动时的重载用的也是这个
  * <ul>
  * <p>For Java 1.4,<br>
  * <pre>java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000</pre>
  * <p>For Java 5,<br>
  * <pre>java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000</pre>
  * </ul>
- * <p/>
- * <p>Note that 8000 is the port number used by <code>HotSwapperJpda</code>.
- * Any port number can be specified.  Since <code>HotSwapperJpda</code> does not
- * launch another JVM for running a target application, this port number
- * is used only for inter-thread communication.
- * <p/>
- * <p>Furthermore, <code>JAVA_HOME/lib/tools.jar</code> must be included
- * in the class path.
- * <p/>
- * <p>Using <code>HotSwapperJpda</code> is easy.  See the following example:
- * <p/>
- * <ul><pre>
- * CtClass clazz = ...
- * byte[] classFile = clazz.toBytecode();
- * HotSwapperJpda hs = new HotSwapperJpda(8000);  // 8000 is a port number.
- * hs.reload("Test", classFile);
- * </pre></ul>
- * <p/>
- * <p><code>reload()</code>
- * first unload the <code>Test</code> class and load a new version of
- * the <code>Test</code> class.
- * <code>classFile</code> is a byte array containing the new contents of
- * the class file for the <code>Test</code> class.  The developers can
- * repatedly call <code>reload()</code> on the same <code>HotSwapperJpda</code>
- * object so that they can reload a number of classes.
- *
- * @since 3.1
  */
 public class HotSwapperJpda {
 
     private final VirtualMachine jvm;
 
-    private MethodEntryRequest request;
+    private final MethodEntryRequest request;
 
     private Map<ReferenceType, byte[]> newClassFiles;
 
@@ -165,19 +130,19 @@ public class HotSwapperJpda {
         return methodEntryRequest;
     }
 
-    /* Stops triggering a hotswapper when reload() is called.
+    /**
+     * 调用{@link #reload}时停止触发
      */
     @SuppressWarnings("unused")
-    private void deleteEventRequest(EventRequestManager manager,
-                                    MethodEntryRequest request) {
+    private void deleteEventRequest(EventRequestManager manager, MethodEntryRequest request) {
         manager.deleteEventRequest(request);
     }
 
     /**
-     * Reloads a class.
+     * 重载class文件
      *
-     * @param className the fully-qualified class name.
-     * @param classFile the contents of the class file.
+     * @param className 类全路径
+     * @param classFile class文件内容
      */
     public void reload(String className, byte[] classFile) {
         ReferenceType refType = toRefType(className);
@@ -187,27 +152,22 @@ public class HotSwapperJpda {
     }
 
     /**
-     * Reloads a class.
-     *
-     * @param classFiles a map between fully-qualified class names
-     *                   and class files.  The type of the class names
-     *                   is <code>String</code> and the type of the
-     *                   class files is <code>byte[]</code>.
+     * 重载class文件
      */
     public void reload(Map<String, byte[]> classFiles) {
-        Map<ReferenceType, byte[]> map = new HashMap<ReferenceType, byte[]>();
+        Map<ReferenceType, byte[]> map = new HashMap<>();
         String className = null;
         for (Map.Entry<String, byte[]> e : classFiles.entrySet()) {
             className = e.getKey();
             map.put(toRefType(className), e.getValue());
         }
-
-        if (className != null)
+        if (className != null) {
             reload(map, className + " etc.");
+        }
     }
 
     /**
-     * 获取Class的ReferenceType
+     * 获取Class的JDI ReferenceType
      */
     private ReferenceType toRefType(String className) {
         List<ReferenceType> list = jvm.classesByName(className);
@@ -217,6 +177,9 @@ public class HotSwapperJpda {
         return list.get(0);
     }
 
+    /**
+     * 启动线程收到MethodEntryEvent时重载Class
+     */
     private void reload(Map<ReferenceType, byte[]> map, String msg) {
         synchronized (trigger) {
             startDaemon();
@@ -270,29 +233,13 @@ public class HotSwapperJpda {
         return queue.remove();
     }
 
+    /**
+     * 调用jvm重载class
+     */
     void hotswap() {
         Map<ReferenceType, byte[]> map = newClassFiles;
         jvm.redefineClasses(map);
         newClassFiles = null;
     }
 
-    /**
-     * Swap class definition from another class file.
-     * <p/>
-     * This is mainly useful for unit testing - declare multiple version of a class and then
-     * hotswap definition and do the tests.
-     *
-     * @param original original class currently in use
-     * @param swap     fully qualified class name of class to swap
-     * @throws Exception swap exception
-     */
-    public void swapClasses(Class original, String swap) throws Exception {
-        // need to recreate classpool on each swap to avoid stale class definition
-        ClassPool classPool = new ClassPool();
-        classPool.appendClassPath(new LoaderClassPath(original.getClassLoader()));
-
-        CtClass ctClass = classPool.getAndRename(swap, original.getName());
-
-        reload(original.getName(), ctClass.toBytecode());
-    }
 }

@@ -181,7 +181,7 @@ public class TestService {
     }
 
     public Object returnObject() {
-        Object obj = null;
+        Object obj = 1;
         return obj;
     }
 

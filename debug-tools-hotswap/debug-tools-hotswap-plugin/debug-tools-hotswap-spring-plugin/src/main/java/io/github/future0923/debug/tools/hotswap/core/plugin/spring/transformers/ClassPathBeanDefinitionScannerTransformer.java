@@ -33,15 +33,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
  * 如果{@link SpringPlugin#basePackagePrefixes}没有配置，那么就解析Spring的{@link ClassPathScanningCandidateComponentProvider#findCandidateComponents}方法获取到Spring扫描的路径通过{@link ClassPathBeanDefinitionScannerAgent#registerBasePackage}注入
  */
 public class ClassPathBeanDefinitionScannerTransformer {
+
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerTransformer.class);
 
     /**
-     * Insert at the beginning of the method:
-     * <pre>public Set<BeanDefinition> findCandidateComponents(String basePackage)</pre>
-     * new code to initialize ClassPathBeanDefinitionScannerAgent for a base class
-     * It would be better to override a more appropriate method
-     * org.springframework.context.annotation.ClassPathBeanDefinitionScanner.scan() directly,
-     * however there are issues with javassist and varargs parameters.
+     * 没配置SpringBasePackagePrefixes的话就识别Spring扫描的路径注册
      * <pre>
      *  if (this instanceof org.springframework.context.annotation.ClassPathBeanDefinitionScanner) {
      *      if (io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.getInstance($1) == null) {

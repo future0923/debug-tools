@@ -20,46 +20,45 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.ProxyReplacerTransformer;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 /**
- * Proxies the beans. The beans inside these proxies can be cleared.
- *
- * @author Erki Ehtla
+ * 代理替换器。代理getBean方法，在{@link ProxyReplacerTransformer#replaceBeanWithProxy(CtClass)}中被初始化
  */
 public class ProxyReplacer {
+
     private static final Logger LOGGER = Logger.getLogger(ProxyReplacer.class);
-    private static Class<?> infrastructureProxyClass;
+
     /**
-     * Name of the Spring beanFactory method, which returns a bean
+     * Spring InfrastructureProxy class
+     */
+    private static Class<?> infrastructureProxyClass;
+
+    /**
+     * 代理getBean方法
      */
     public static final String FACTORY_METHOD_NAME = "getBean";
 
     /**
-     * Clears the bean references inside all the proxies
+     * 清除所有代理中的bean引用
      */
     public static void clearAllProxies() {
         DetachableBeanHolder.detachBeans();
     }
 
     /**
-     * Creates a proxied Spring bean. Called from within WebApp code by modification of Spring classes
-     *
-     * @param beanFactry   Spring beanFactory
-     * @param bean         Spring bean
-     * @param paramClasses Parameter Classes of the Spring beanFactory method which returned the bean. The method is named
-     *                     ProxyReplacer.FACTORY_METHOD_NAME
-     * @param paramValues  Parameter values of the Spring beanFactory method which returned the bean. The method is named
-     *                     ProxyReplacer.FACTORY_METHOD_NAME
-     * @return Proxied bean
+     * 创建SpringBean的代理，主要处理原型Bean。在{@link ProxyReplacerTransformer#replaceBeanWithProxy(CtClass)}中字节码增强到SpringBean方法之后
      */
-    public static Object register(Object beanFactry, Object bean, Class<?>[] paramClasses, Object[] paramValues) {
+    public static Object register(Object beanFactory, Object bean, Class<?>[] paramClasses, Object[] paramValues) {
         if (bean == null) {
             return bean;
         }
+        // 如果不是basePackagePrefixes下的Bean不处理
         String[] basePackagePrefixes;
         try {
             basePackagePrefixes = (String[]) PluginManager.getInstance().getPlugin("io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin",
@@ -86,9 +85,11 @@ public class ProxyReplacer {
             }
         }
 
-        // create proxy for prototype-scope beans and apsect proxied beans
+        // 为原型Bean创建代理并处理Aop逻辑
+
+        // 是 JDK 动态代理对象。
         if (bean.getClass().getName().startsWith("com.sun.proxy.$Proxy")) {
-            InvocationHandler handler = new HotswapSpringInvocationHandler(bean, beanFactry, paramClasses, paramValues);
+            InvocationHandler handler = new HotswapSpringInvocationHandler(bean, beanFactory, paramClasses, paramValues);
             Class<?>[] interfaces = bean.getClass().getInterfaces();
             try {
                 if (!Arrays.asList(interfaces).contains(getInfrastructureProxyClass())) {
@@ -98,22 +99,21 @@ public class ProxyReplacer {
             } catch (ClassNotFoundException e) {
                 LOGGER.error("error adding org.springframework.core.InfrastructureProxy to proxy class", e);
             }
-            // fix: it should be the classloader of the bean,
-            // or org.springframework.beans.factory.support.AbstractBeanFactory.getBeanClassLoader,
-            // but not the classLoader of the beanFactry
             return Proxy.newProxyInstance(bean.getClass().getClassLoader(), interfaces, handler);
         } else if (EnhancerProxyCreater.isSupportedCglibProxy(bean)) {
-            // already a proxy, skip..
-            if (bean.getClass().getName().contains("$HOTSWAPAGENT_")) {
+            if (bean.getClass().getName().contains(EnhancerProxyCreater.CGLIB_NAME_PREFIX)) {
                 return bean;
             }
-
-            return EnhancerProxyCreater.createProxy(beanFactry, bean, paramClasses, paramValues);
+            return EnhancerProxyCreater.createProxy(beanFactory, bean, paramClasses, paramValues);
         }
-
         return bean;
     }
 
+    /**
+     * InfrastructureProxy 是一个 标记接口，表明代理对象是框架基础设施的一部分，而不是用户直接定义的业务逻辑。
+     * <p>
+     * 提供了一个方法 getWrappedObject()，用于返回被代理的原始对象。
+     */
     private static Class<?> getInfrastructureProxyClass() throws ClassNotFoundException {
         if (infrastructureProxyClass == null) {
             infrastructureProxyClass = ProxyReplacer.class.getClassLoader().loadClass("org.springframework.core.InfrastructureProxy");

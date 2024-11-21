@@ -38,37 +38,37 @@ public class DetachableBeanHolder implements Serializable {
 
     private static final long serialVersionUID = -7443802320153815102L;
 
-    private static Logger LOGGER = Logger.getLogger(DetachableBeanHolder.class);
+    private final static Logger LOGGER = Logger.getLogger(DetachableBeanHolder.class);
 
     private Object bean;
-    private Object beanFactory;
-    private Class<?>[] paramClasses;
-    private Object[] paramValues;
-    private static List<WeakReference<DetachableBeanHolder>> beanProxies =
-            Collections.synchronizedList(new ArrayList<WeakReference<DetachableBeanHolder>>());
+
+    private final Object beanFactory;
+
+    private final Class<?>[] paramClasses;
+
+    private final Object[] paramValues;
+
+    private static final List<WeakReference<DetachableBeanHolder>> beanProxies = Collections.synchronizedList(new ArrayList<>());
 
     /**
-     *
-     * @param bean
-     *            Spring Bean this object holds
-     * @param beanFactry
-     *            Spring factory that produced the bean with a ProxyReplacer.FACTORY_METHOD_NAME method
-     * @param paramClasses
-     * @param paramValues
+     * @param bean         调用Spring的getBean返回的bean
+     * @param beanFactory  Spring beanFactory
+     * @param paramClasses {@link ProxyReplacer#FACTORY_METHOD_NAME}的参数Class
+     * @param paramValues  {@link ProxyReplacer#FACTORY_METHOD_NAME}的参数值
      */
-    public DetachableBeanHolder(Object bean, Object beanFactry, Class<?>[] paramClasses, Object[] paramValues) {
+    public DetachableBeanHolder(Object bean, Object beanFactory, Class<?>[] paramClasses, Object[] paramValues) {
         if (bean == null) {
             LOGGER.error("Bean is null. The param value: {}", Arrays.toString(paramValues));
         }
         this.bean = bean;
-        this.beanFactory = beanFactry;
+        this.beanFactory = beanFactory;
         this.paramClasses = paramClasses;
         this.paramValues = paramValues;
-        beanProxies.add(new WeakReference<DetachableBeanHolder>(this));
+        beanProxies.add(new WeakReference<>(this));
     }
 
     /**
-     * Clears the bean references inside all of the proxies
+     * 清除所有代理中的bean引用
      */
     public static void detachBeans() {
         int i = 0;
@@ -91,7 +91,7 @@ public class DetachableBeanHolder implements Serializable {
     }
 
     /**
-     * Clear the bean for this proxy
+     * 清除这个代理的bean
      */
     public void detach() {
         bean = null;
@@ -99,27 +99,21 @@ public class DetachableBeanHolder implements Serializable {
 
 
     /**
-     * Sets current target bean.
-     * @return current target bean.
+     * 设置当前代理的目标Bean
      */
     public void setTarget(Object bean) {
         this.bean = bean;
     }
 
     /**
-     * Returns current target bean.
-     * @return current target bean.
+     * 获取当前代理的目标Bean
      */
     public Object getTarget() {
         return bean;
     }
 
     /**
-     * Returns an existing bean instance or retrieves and stores new bean from the Spring BeanFactory
-     *
-     * @return Bean this instance holds
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * 返回现有bean实例或从Spring BeanFactory获取一个新的Bean
      */
     public Object getBean() throws IllegalAccessException, InvocationTargetException {
         Object beanCopy = bean;
@@ -153,7 +147,7 @@ public class DetachableBeanHolder implements Serializable {
         return beanCopy;
     }
 
-    protected boolean isBeanLoaded(){
+    protected boolean isBeanLoaded() {
         return bean != null;
     }
 }

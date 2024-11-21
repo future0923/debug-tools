@@ -18,7 +18,6 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
-import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import lombok.Getter;
 
@@ -30,8 +29,6 @@ import java.lang.reflect.Method;
  * 插件注解信息
  */
 public class PluginAnnotation<T extends Annotation> {
-
-    private static final Logger LOGGER = Logger.getLogger(PluginAnnotation.class);
 
     /**
      * 插件Class信息
@@ -69,7 +66,6 @@ public class PluginAnnotation<T extends Annotation> {
     @Getter
     private final String group;
 
-    // Fallback plugin - plugin is used if no other plugin in the group version matches
     private final boolean fallback;
 
     public PluginAnnotation(Class<?> pluginClass, Object plugin, T annotation, Method method) {

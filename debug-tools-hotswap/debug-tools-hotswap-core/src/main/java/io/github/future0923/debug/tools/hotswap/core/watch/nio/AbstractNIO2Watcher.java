@@ -240,7 +240,6 @@ public abstract class AbstractNIO2Watcher implements Watcher {
                 LOGGER.warning("WatchKey '{}' overflowed", key);
                 continue;
             }
-            // Context for directory entry event is the file name of entry
             WatchEvent<Path> ev = cast(event);
             Path name = ev.context();
             Path child = dir.resolve(name);
