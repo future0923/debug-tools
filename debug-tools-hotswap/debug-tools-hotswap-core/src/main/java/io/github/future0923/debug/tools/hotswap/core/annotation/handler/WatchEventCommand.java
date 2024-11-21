@@ -18,9 +18,10 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
-import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventDTO;
+import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent;
+import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
@@ -28,7 +29,6 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
-import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -43,10 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Command to schedule after resource change.
- * <p/>
- * Equals is declared on all command params to group same change events to a single onWatchEvent. For event
- * only the URI is compared to group multiple event types.
+ * 通过WatchEventCommand来调用{@link OnClassFileEvent}和{@link OnResourceFileEvent}的所在类
  */
 public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
 
@@ -60,26 +57,18 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
     public static <T extends Annotation> WatchEventCommand<T> createCmdForEvent(PluginAnnotation<T> pluginAnnotation,
             WatchFileEvent event, ClassLoader classLoader) {
         WatchEventDTO watchEventDTO = WatchEventDTO.parse(pluginAnnotation.getAnnotation());
-
-        // Watch event is not supported.
         if (!watchEventDTO.accept(event)) {
             return null;
         }
-
-        // regular files filter
         if (watchEventDTO.isOnlyRegularFiles() && !event.isFile()) {
             LOGGER.trace("Skipping URI {} because it is not a regular file.", event.getURI());
             return null;
         }
-
-        // watch type filter
         if (!Arrays.asList(watchEventDTO.getEvents()).contains(event.getEventType())) {
             LOGGER.trace("Skipping URI {} because it is not a requested event.", event.getURI());
             return null;
         }
-
-        // resource name filter regexp
-        if (watchEventDTO.getFilter() != null && watchEventDTO.getFilter().length() > 0) {
+        if (watchEventDTO.getFilter() != null && !watchEventDTO.getFilter().isEmpty()) {
             if (!event.getURI().toString().matches(watchEventDTO.getFilter())) {
                 LOGGER.trace("Skipping URI {} because it does not match filter.", event.getURI(), watchEventDTO.getFilter());
                 return null;
@@ -102,34 +91,23 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
     }
 
     /**
-     * Run plugin the method.
+     * 反射调用注解所在的方法
      */
     public void onWatchEvent(PluginAnnotation<T> pluginAnnotation, WatchFileEvent event, ClassLoader classLoader) {
-        final T annot = pluginAnnotation.getAnnotation();
         Object plugin = pluginAnnotation.getPlugin();
-
-        //we may need to crate CtClass on behalf of the client and close it after invocation.
         CtClass ctClass = null;
-
-        // class file regexp
         if (watchEventDTO.isClassFileEvent()) {
             try {
-                // TODO creating class only to check name may slow down if lot of handlers is in use.
                 ctClass = createCtClass(event.getURI(), classLoader);
             } catch (Exception e) {
                 LOGGER.error("Unable create CtClass for URI '{}'.", e, event.getURI());
                 return;
             }
-
-            // unable to create CtClass or it's name does not match
-            if (ctClass == null || !ctClass.getName().matches(watchEventDTO.getClassNameRegexp()))
+            if (ctClass == null || !ctClass.getName().matches(watchEventDTO.getClassNameRegexp())) {
                 return;
+            }
         }
-
-        LOGGER.debug("Executing resource changed method {} on class {} for event {}",
-                pluginAnnotation.getMethod().getName(), plugin.getClass().getName(), event);
-
-
+        LOGGER.debug("Executing resource changed method {} on class {} for event {}", pluginAnnotation.getMethod().getName(), plugin.getClass().getName(), event);
         List<Object> args = new ArrayList<>();
         for (Class<?> type : pluginAnnotation.getMethod().getParameterTypes()) {
             if (type.isAssignableFrom(ClassLoader.class)) {

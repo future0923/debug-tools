@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.annotation.handler;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 
@@ -33,7 +34,7 @@ import java.nio.file.Paths;
 import java.util.Enumeration;
 
 /**
- * 处理插件方法中的{@link OnResourceFileEvent}和{@link io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent}
+ * 处理插件方法中的{@link OnResourceFileEvent}和{@link OnClassFileEvent}
  */
 public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
     private static final Logger LOGGER = Logger.getLogger(WatchHandler.class);
@@ -70,11 +71,9 @@ public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
     }
 
     /**
-     * Register resource change listener on URI:
-     * - classpath (already should contain extraClasspath)
-     * - plugin configuration - watchResources property
+     * 获取ClassLoader的resource下path信息，向watcher中path注册监听者
      */
-    private void registerResources(final PluginAnnotation<T> pluginAnnotation, final ClassLoader classLoader) throws IOException {
+    public void registerResources(final PluginAnnotation<T> pluginAnnotation, final ClassLoader classLoader) throws IOException {
         final T annot = pluginAnnotation.getAnnotation();
         WatchEventDTO watchEventDTO =  WatchEventDTO.parse(annot);
         // @OnClassFileEvent没有path
@@ -86,6 +85,7 @@ public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
             path = path.substring(0, path.length() - 2);
         }
         // classpath resources 已经包括了extraClasspath
+        // 当为OnClassFileEvent注解是，path为null，classLoader.getResources("")返回的为启动应用的 **/target/classes
         Enumeration<URL> en = classLoader.getResources(path);
         while (en.hasMoreElements()) {
             try {
@@ -104,7 +104,6 @@ public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
             }
         }
 
-        // add extra directories for watchResources property
         if (!watchEventDTO.isClassFileEvent()) {
             for (URL url : pluginManager.getPluginConfiguration(classLoader).getWatchResources()) {
                 try {
@@ -126,8 +125,10 @@ public class WatchHandler<T extends Annotation> implements PluginHandler<T> {
      * <p>
      * WatchEventCommand是可以合并的，因此可以合并多个事件，减少命令执行次数
      */
-    private void registerResourceListener(final PluginAnnotation<T> pluginAnnotation, final WatchEventDTO watchEventDTO,
-                                          final ClassLoader classLoader, URI uri) throws IOException {
+    private void registerResourceListener(final PluginAnnotation<T> pluginAnnotation,
+                                          final WatchEventDTO watchEventDTO,
+                                          final ClassLoader classLoader,
+                                          URI uri) throws IOException {
         pluginManager.getWatcher().addEventListener(classLoader, uri, event -> {
             WatchEventCommand<T> command = WatchEventCommand.createCmdForEvent(pluginAnnotation, event, classLoader);
             if (command != null) {

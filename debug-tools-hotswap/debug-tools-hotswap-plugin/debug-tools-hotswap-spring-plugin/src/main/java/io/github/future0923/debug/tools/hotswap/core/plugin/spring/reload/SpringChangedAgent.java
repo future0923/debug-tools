@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringEvent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringEventSource;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringListener;
@@ -50,8 +51,11 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
     private static final AtomicInteger waitingReloadCount = new AtomicInteger(0);
 
     private DefaultListableBeanFactory defaultListableBeanFactory;
+    /**
+     * 代理类的ClassLoader，{@link SpringPlugin#init}会设置
+     */
     private static ClassLoader appClassLoader;
-    private static Map<DefaultListableBeanFactory, SpringChangedAgent> springChangeAgents = new ConcurrentHashMap<>(2);
+    private static final Map<DefaultListableBeanFactory, SpringChangedAgent> springChangeAgents = new ConcurrentHashMap<>(2);
     private final SpringBeanReload springReload;
     ReentrantLock reloadLock = new ReentrantLock();
 

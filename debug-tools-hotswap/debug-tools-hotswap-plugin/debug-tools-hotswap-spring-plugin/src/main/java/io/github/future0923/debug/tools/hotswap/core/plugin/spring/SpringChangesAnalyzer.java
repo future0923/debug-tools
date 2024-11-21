@@ -31,13 +31,13 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.ClassSi
  * @author Erki Ehtla
  */
 public class SpringChangesAnalyzer {
+
     private static final Logger LOGGER = Logger.getLogger(SpringPlugin.class);
 
-    private ClassPool cp;
+    private final ClassPool cp;
 
     public SpringChangesAnalyzer(final ClassLoader classLoader) {
         this.cp = new ClassPool() {
-
             @Override
             public ClassLoader getClassLoader() {
                 return classLoader;
@@ -48,8 +48,9 @@ public class SpringChangesAnalyzer {
     }
 
     public boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer) {
-        if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined))
+        if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined)) {
             return false;
+        }
         return classChangeNeedsReload(classBeingRedefined, classfileBuffer);
     }
 

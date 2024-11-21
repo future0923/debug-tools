@@ -30,44 +30,38 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
- * Reset various Spring static caches. It is safe to run multiple times,
- * basically every time any configuration is changed.
- *
- * @author Jiri Bubnik
+ * 清除Spring中静态缓存
  */
+@SuppressWarnings("rawtypes")
 public class ResetSpringStaticCaches {
     private static final Logger LOGGER = Logger.getLogger(ResetSpringStaticCaches.class);
 
     /**
-     * Spring bean by type cache.
-     *
-     * Cache names change between versions, call via reflection and ignore errors.
+     * 清除 DefaultListableBeanFactory 中的缓存
      */
     public static void resetBeanNamesByType(DefaultListableBeanFactory defaultListableBeanFactory) {
+        // 清除按类型查找的单例 Bean 的名称的缓存
         try {
             Field field = DefaultListableBeanFactory.class.getDeclaredField("singletonBeanNamesByType");
             field.setAccessible(true);
-            // noinspection unchecked
             Map singletonBeanNamesByType = (Map) field.get(defaultListableBeanFactory);
             singletonBeanNamesByType.clear();
         } catch (Exception e) {
             LOGGER.trace("Unable to clear DefaultListableBeanFactory.singletonBeanNamesByType cache (is Ok for pre 3.1.2 Spring version)", e);
         }
-
+        // 清除按类型查找的所有类型(单例、原型、等等)的 Bean 名称的缓存
         try {
             Field field = DefaultListableBeanFactory.class.getDeclaredField("allBeanNamesByType");
             field.setAccessible(true);
-            // noinspection unchecked
             Map allBeanNamesByType = (Map) field.get(defaultListableBeanFactory);
             allBeanNamesByType.clear();
         } catch (Exception e) {
             LOGGER.trace("Unable to clear allBeanNamesByType cache (is Ok for pre 3.2 Spring version)");
         }
-
+        // 清除按类型查找的非单例 Bean 名称的缓存
         try {
             Field field = DefaultListableBeanFactory.class.getDeclaredField("nonSingletonBeanNamesByType");
             field.setAccessible(true);
-            // noinspection unchecked
             Map nonSingletonBeanNamesByType = (Map) field.get(defaultListableBeanFactory);
             nonSingletonBeanNamesByType.clear();
         } catch (Exception e) {
@@ -77,7 +71,7 @@ public class ResetSpringStaticCaches {
     }
 
     /**
-     * Reset all caches.
+     * 清除所有缓存
      */
     public static void reset() {
         resetTypeVariableCache();
@@ -89,8 +83,7 @@ public class ResetSpringStaticCaches {
     }
 
     private static void resetResolvableTypeCache() {
-        ReflectionHelper.invokeNoException(null, "org.springframework.core.ResolvableType",
-                ResetSpringStaticCaches.class.getClassLoader(), "clearCache", new Class<?>[] {});
+        ReflectionHelper.invokeNoException(null, "org.springframework.core.ResolvableType", ResetSpringStaticCaches.class.getClassLoader(), "clearCache", new Class<?>[] {});
     }
 
     private static void resetTypeVariableCache() {

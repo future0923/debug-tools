@@ -23,31 +23,28 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * MethodInterceptor for java.lang.reflect bean Proxies. If the bean inside the proxy is cleared, it will be retrieved
- * from the factory on demand.
- *
- * @author Erki Ehtla
- *
+ * 代理JDK动态代理实现的Bean。cglib的实现为{@link EnhancerProxyCreater}。
+ * <p>如果调用的{@code InfrastructureProxy#getWrappedObject}返回原始对象，那么就返回原始对象
+ * <p>否则就调用{@link #getBean()}返回对象
  */
 public class HotswapSpringInvocationHandler extends DetachableBeanHolder implements InvocationHandler {
 
     private static final long serialVersionUID = 8037007940960065166L;
 
     /**
-     * @param beanFactry   Spring beanFactory
-     * @param bean         Spring bean
-     * @param paramClasses Parameter Classes of the Spring beanFactory method which returned the bean. The method is named
-     *                     ProxyReplacer.FACTORY_METHOD_NAME
-     * @param paramValues  Parameter values of the Spring beanFactory method which returned the bean. The method is named
-     *                     ProxyReplacer.FACTORY_METHOD_NAME
+     * @param bean         调用Spring的getBean返回的bean
+     * @param beanFactory  Spring beanFactory
+     * @param paramClasses {@link ProxyReplacer#FACTORY_METHOD_NAME}的参数Class
+     * @param paramValues  {@link ProxyReplacer#FACTORY_METHOD_NAME}的参数Class参数
      */
-    public HotswapSpringInvocationHandler(Object bean, Object beanFactry, Class<?>[] paramClasses, Object[] paramValues) {
-        super(bean, beanFactry, paramClasses, paramValues);
+    public HotswapSpringInvocationHandler(Object bean, Object beanFactory, Class<?>[] paramClasses, Object[] paramValues) {
+        super(bean, beanFactory, paramClasses, paramValues);
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getName().equals("getWrappedObject")
+                // 如果方法声明在 org.springframework.core.InfrastructureProxy 类中
                 && method.getDeclaringClass().getName().equals("org.springframework.core.InfrastructureProxy")) {
             for (Class<?> beanInterface : getBean().getClass().getInterfaces()) {
                 if (beanInterface.getName().equals("org.springframework.core.InfrastructureProxy")) {
@@ -59,6 +56,9 @@ public class HotswapSpringInvocationHandler extends DetachableBeanHolder impleme
         return doInvoke(method, args);
     }
 
+    /**
+     * 执行代理原始方法
+     */
     private Object doInvoke(Method method, Object[] args) throws Throwable {
         try {
             return method.invoke(getBean(), args);

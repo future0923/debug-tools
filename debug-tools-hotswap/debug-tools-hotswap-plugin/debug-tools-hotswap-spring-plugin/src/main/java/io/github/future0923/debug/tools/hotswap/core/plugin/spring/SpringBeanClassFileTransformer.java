@@ -26,9 +26,10 @@ import java.security.ProtectionDomain;
 import java.util.Objects;
 
 public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
-    private ClassLoader appClassLoader;
-    private Scheduler scheduler;
-    private String basePackage;
+
+    private final ClassLoader appClassLoader;
+    private final Scheduler scheduler;
+    private final String basePackage;
 
     public SpringBeanClassFileTransformer(ClassLoader appClassLoader, Scheduler scheduler, String basePackage) {
         this.appClassLoader = appClassLoader;
@@ -43,8 +44,15 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
         if (classBeingRedefined != null) {
             SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
             if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
-                scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(),
-                        basePackage, className, classfileBuffer, scheduler));
+                scheduler.scheduleCommand(
+                        new ClassPathBeanRefreshCommand(
+                                classBeingRedefined.getClassLoader(),
+                                basePackage,
+                                className,
+                                classfileBuffer,
+                                scheduler
+                        )
+                );
             }
         }
         return classfileBuffer;

@@ -25,21 +25,21 @@ public class TestController {
         testInterface.test(name);
         return "success: " + name;
     }
-
-    @GetMapping("/hot")
-    public String ok() {
-        return "1234";
-    }
+    //
+    //@GetMapping("/hot")
+    //public String ok() {
+    //    return "1234";
+    //}
 
     @GetMapping("/hot1")
     public String ok1() {
         return "123432121";
     }
 
-    //@GetMapping("/hot2")
-    //public LocalDate ok2() {
-    //    return LocalDate.now();
-    //}
+    @GetMapping("/hot2")
+    public LocalDate ok2() {
+        return LocalDate.now();
+    }
 
     @GetMapping("/insertBatchSomeColumn")
     public String insertBatchSomeColumn() {

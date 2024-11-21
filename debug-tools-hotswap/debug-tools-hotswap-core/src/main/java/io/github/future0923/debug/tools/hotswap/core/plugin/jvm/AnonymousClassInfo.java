@@ -22,15 +22,15 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import lombok.Getter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Get signature for an anonymous class to compare two versions (before and after reload).
- *
- * @author Jiri Bubnik
+ * 获取匿名类的签名以比较两个版本（重新加载前后）
  */
+@Getter
 public class AnonymousClassInfo {
     // name of the anonymous class
     String className;
@@ -42,16 +42,14 @@ public class AnonymousClassInfo {
     String enclosingMethodSignature;
 
 
-    public AnonymousClassInfo(Class c) {
+    public AnonymousClassInfo(Class<?> c) {
         this.className = c.getName();
-
         StringBuilder classSignature = new StringBuilder(c.getSuperclass().getName());
-        for (Class intef : c.getInterfaces()) {
+        for (Class<?> interfaceClass : c.getInterfaces()) {
             classSignature.append(";");
-            classSignature.append(intef.getName());
+            classSignature.append(interfaceClass.getName());
         }
         this.classSignature = classSignature.toString();
-
         StringBuilder methodsSignature = new StringBuilder();
         for (Method m : c.getDeclaredMethods()) {
             getMethodSignature(methodsSignature, m);
@@ -86,8 +84,9 @@ public class AnonymousClassInfo {
         methodsSignature.append(" ");
         methodsSignature.append(m.getName());
         methodsSignature.append("(");
-        for (Class paramType : m.getParameterTypes())
+        for (Class<?> paramType : m.getParameterTypes()) {
             methodsSignature.append(paramType.getName());
+        }
         methodsSignature.append(")");
         methodsSignature.append(";");
     }
@@ -139,35 +138,13 @@ public class AnonymousClassInfo {
         methodsSignature.append(" ");
         methodsSignature.append(m.getName());
         methodsSignature.append("(");
-        for (CtClass paramType : m.getParameterTypes())
+        for (CtClass paramType : m.getParameterTypes()) {
             methodsSignature.append(paramType.getName());
+        }
         methodsSignature.append(")");
         methodsSignature.append(";");
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public String getClassSignature() {
-        return classSignature;
-    }
-
-    public String getMethodSignature() {
-        return methodSignature;
-    }
-
-    public String getFieldsSignature() {
-        return fieldsSignature;
-    }
-
-    public String getEnclosingMethodSignature() {
-        return enclosingMethodSignature;
-    }
-
-    /**
-     * Exact match including enclosing method.
-     */
     public boolean matchExact(AnonymousClassInfo other) {
         return getClassSignature().equals(other.getClassSignature()) &&
                 getMethodSignature().equals(other.getMethodSignature()) &&
@@ -175,19 +152,12 @@ public class AnonymousClassInfo {
                 getEnclosingMethodSignature().equals(other.getEnclosingMethodSignature());
     }
 
-    /**
-     * Exact match of class, interfaces, declared methods and fields.
-     * May be different enclosing method.
-     */
     public boolean matchSignatures(AnonymousClassInfo other) {
         return getClassSignature().equals(other.getClassSignature()) &&
                 getMethodSignature().equals(other.getMethodSignature()) &&
                 getFieldsSignature().equals(other.getFieldsSignature());
     }
 
-    /**
-     * The least matching variant - same class signature can be still resolved by hotswap.
-     */
     public boolean matchClassSignature(AnonymousClassInfo other) {
         return getClassSignature().equals(other.getClassSignature());
     }

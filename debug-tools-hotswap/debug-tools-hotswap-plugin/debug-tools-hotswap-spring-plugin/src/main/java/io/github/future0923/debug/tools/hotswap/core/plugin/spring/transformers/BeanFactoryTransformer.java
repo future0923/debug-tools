@@ -31,7 +31,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.core.BeanFact
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.support.InitMethodEnhance;
 
 /**
- * Transformer for Spring BeanFactory hierarchy.
+ * Spring BeanFactory Transformer
  */
 public class BeanFactoryTransformer {
 
