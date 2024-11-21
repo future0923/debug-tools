@@ -19,9 +19,18 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 /**
- * The interface Spring hotswap agent proxy.
+ * Spring热重载代理类，标记作用类似于Spring的{@code InfrastructureProxy}，在{@link EnhancerProxyCreater#buildProxyCreaterClass}中使用
+ * <p>
+ * 在{@link EnhancerProxyCreater#buildProxyCallbackClass}中代理了下面两个方法
  */
 public interface SpringHotswapAgentProxy {
+    /**
+     * 实际代理实现为{@link DetachableBeanHolder#getTarget()}
+     */
     Object $$ha$getTarget();
+
+    /**
+     * 实际代理实现为{@link DetachableBeanHolder#setTarget(Object)}
+     */
     void $$ha$setTarget(Object object);
 }

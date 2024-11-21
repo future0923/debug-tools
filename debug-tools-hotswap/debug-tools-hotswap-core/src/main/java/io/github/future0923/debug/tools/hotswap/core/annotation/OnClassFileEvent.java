@@ -19,8 +19,10 @@
 package io.github.future0923.debug.tools.hotswap.core.annotation;
 
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchHandler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -36,6 +38,10 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent
 
 /**
  * OnClassFileEvent当java class文件改变时的事件（只能加到非静态方法上）
+ * <p>
+ * 原理为{@link WatchHandler#registerResources}解析这个注解时会{@link ClassLoader#getResources(String)}传入{@code ""}来获取到程序{@code **\/target\/classes}的路径，
+ * 然后使用{@link Watcher}来监听该目录变化
+ * <p>
  * 方法上可以自动注入的参数类型如下，在{@link WatchEventCommand#executeCommand}中解析
  * <ul>
  * <li>{@link ClassLoader} - 加载class的类加载器

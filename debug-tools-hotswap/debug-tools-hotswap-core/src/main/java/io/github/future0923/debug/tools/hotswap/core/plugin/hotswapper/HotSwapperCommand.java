@@ -27,24 +27,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * HotSwapper command must run in application classloader because tools.jar dependency can be easier added to
- * the application classloader than to java classpath.
- *
- * @author Jiri Bubnik
+ * 热重载命令，依赖tools.jar
  */
 public class HotSwapperCommand {
-    private static Logger LOGGER = Logger.getLogger(HotSwapperCommand.class);
+    private static final Logger LOGGER = Logger.getLogger(HotSwapperCommand.class);
 
-    // HotSwapperJpda will connect to JPDA on first hotswap command and remain connected.
-    // The HotSwapperJpda class from javaassist is copied to the plugin, because it needs to reside
-    // in the application classloader to avoid NoClassDefFound error on tools.jar classes.
+    /**
+     * 通过Jpda热重载类
+     */
     private static HotSwapperJpda hotSwapper = null;
 
     /**
      * {@link HotSwapperPlugin#initHotswapCommand}创建{@link ReflectionCommand}会调用运行这里
      */
     public static synchronized void hotswap(String port, final HashMap<Class<?>, byte[]> reloadMap) {
-        // synchronize on the reloadMap object - do not allow addition while in process
         synchronized (reloadMap) {
             if (hotSwapper == null) {
                 LOGGER.debug("Starting HotSwapperJpda agent on JPDA transport socket - port {}, classloader {}", port, HotSwapperCommand.class.getClassLoader());
@@ -57,19 +53,13 @@ public class HotSwapperCommand {
                     LOGGER.error("Unable to connect to debug session. Please check port property setting '{}'.", e, port);
                 }
             }
-
             if (hotSwapper != null) {
                 LOGGER.debug("Reloading classes {}", Arrays.toString(reloadMap.keySet().toArray()));
-
-                // convert to Map Class name -> bytecode
-                // We loose some information here, reload use always first class name that it finds reference to.
                 Map<String, byte[]> reloadMapClassNames = new HashMap<>();
                 for (Map.Entry<Class<?>, byte[]> entry : reloadMap.entrySet()) {
                     reloadMapClassNames.put(entry.getKey().getName(), entry.getValue());
                 }
-                // actual hotswap via JPDA
                 hotSwapper.reload(reloadMapClassNames);
-
                 reloadMap.clear();
                 LOGGER.debug("HotSwapperJpda agent reload complete.");
             }

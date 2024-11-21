@@ -437,15 +437,15 @@ public class SpringBeanReload {
     }
 
     private void refreshChangedClass(Consumer<List<String>> reloadBeans) {
-        Set<Class> classToProcess;
+        Set<Class<?>> classToProcess;
         synchronized (classes) {
             classToProcess = new HashSet<>(classes);
             classes.clear();
         }
-        for (Class clazz : classToProcess) {
+        for (Class<?> clazz : classToProcess) {
             destroyClasses.add(ClassUtils.getUserClass(clazz).getName());
             String[] names = beanFactory.getBeanNamesForType(clazz);
-            if (names != null && names.length > 0) {
+            if (names.length > 0) {
                 LOGGER.trace("the bean of class {} has the bean names {}", clazz.getName(), Arrays.asList(names));
                 beansToProcess.addAll(Arrays.asList(names));
                 // 3.1 when the bean is @Configuration, it should be recreated.
@@ -648,9 +648,6 @@ public class SpringBeanReload {
 
     private boolean containBeanDependencyAtConstruct(Constructor<?> constructor) {
         Class<?>[] classes = constructor.getParameterTypes();
-        if (classes == null || classes.length == 0) {
-            return false;
-        }
         for (Class<?> clazz : classes) {
             if (clazz.isPrimitive()) {
                 continue;
@@ -659,7 +656,7 @@ public class SpringBeanReload {
                 continue;
             }
             String[] beanNames = beanFactory.getBeanNamesForType(clazz);
-            if (beanNames != null && beanNames.length > 0) {
+            if (beanNames.length > 0) {
                 return true;
             }
         }
@@ -670,10 +667,7 @@ public class SpringBeanReload {
         try {
             LOGGER.debug("try to invoke PostProcessorRegistrationDelegate");
             invokePostProcessorRegistrationDelegate(factory);
-        } catch (ClassNotFoundException t) {
-            LOGGER.debug("Failed to invoke PostProcessorRegistrationDelegate, possibly Spring version is 3.x or less, {}", t.getMessage());
-            invokeBeanFactoryPostProcessors0(factory);
-        } catch (NoSuchMethodException t) {
+        } catch (ClassNotFoundException | NoSuchMethodException t) {
             LOGGER.debug("Failed to invoke PostProcessorRegistrationDelegate, possibly Spring version is 3.x or less, {}", t.getMessage());
             invokeBeanFactoryPostProcessors0(factory);
         } catch (Exception e) {

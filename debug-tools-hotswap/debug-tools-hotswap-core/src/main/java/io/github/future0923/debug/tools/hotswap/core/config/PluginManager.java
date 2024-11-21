@@ -189,9 +189,9 @@ public class PluginManager {
      */
     public void initClassLoader(ClassLoader classLoader, ProtectionDomain protectionDomain) {
         // 存在说明ClassLoader中已经初始化过了，直接退出
-        if (classLoaderConfigurations.containsKey(classLoader))
+        if (classLoaderConfigurations.containsKey(classLoader)) {
             return;
-
+        }
         // system/bootstrap 类加载器不初始化
         if (getClass().getClassLoader() != null &&
                 classLoader != null &&
@@ -200,9 +200,9 @@ public class PluginManager {
         }
         synchronized (this) {
             // 如果已经初始化过了
-            if (classLoaderConfigurations.containsKey(classLoader))
+            if (classLoaderConfigurations.containsKey(classLoader)) {
                 return;
-
+            }
             // 从AgentClassLoader复制插件到初始化ClassLoader中
             if (classLoader != null && classLoaderPatcher.isPatchAvailable(classLoader)) {
                 classLoaderPatcher.patch(getClass().getClassLoader(), PLUGIN_PACKAGE.replace(".", "/"),
@@ -216,8 +216,9 @@ public class PluginManager {
         }
 
         // 调用类初始化监听者
-        for (ClassLoaderInitListener classLoaderInitListener : classLoaderInitListeners)
+        for (ClassLoaderInitListener classLoaderInitListener : classLoaderInitListeners) {
             classLoaderInitListener.onInit(classLoader);
+        }
     }
 
     /**
@@ -231,11 +232,10 @@ public class PluginManager {
 
 
     public PluginConfiguration getPluginConfiguration(ClassLoader classLoader) {
-        // if needed, iterate to first parent loader with a known configuration
         ClassLoader loader = classLoader;
-        while (loader != null && !classLoaderConfigurations.containsKey(loader))
+        while (loader != null && !classLoaderConfigurations.containsKey(loader)) {
             loader = loader.getParent();
-
+        }
         return classLoaderConfigurations.get(loader);
     }
 

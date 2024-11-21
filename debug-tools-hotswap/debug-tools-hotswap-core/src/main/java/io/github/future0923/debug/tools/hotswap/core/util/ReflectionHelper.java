@@ -78,7 +78,6 @@ public class ReflectionHelper {
      *
      * @param target         object to invoke the method on (or null for static
      *                       methods)
-     * @param clazz          className name
      * @param cl             Classloader to load the class
      * @param methodName     method name
      * @param parameterTypes parameter types to resolve method name
