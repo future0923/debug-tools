@@ -43,14 +43,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * The type Spring changed agent.
+ * 重新加载Spring环境
  */
 public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Comparable<SpringChangedAgent> {
     private static final Logger LOGGER = Logger.getLogger(SpringChangedAgent.class);
 
     private static final AtomicInteger waitingReloadCount = new AtomicInteger(0);
 
-    private DefaultListableBeanFactory defaultListableBeanFactory;
+    private final DefaultListableBeanFactory defaultListableBeanFactory;
+
     /**
      * 代理类的ClassLoader，{@link SpringPlugin#init}会设置
      */
@@ -92,7 +93,7 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
     public static boolean addChangedClass(Class<?> clazz, DefaultListableBeanFactory beanFactory) {
         boolean result = false;
         for (SpringChangedAgent springChangedAgent : springChangeAgents.values()) {
-            if (springChangedAgent.beanFactory() == beanFactory) {
+            if (springChangedAgent.beanFactory().equals(beanFactory)) {
                 result |= springChangedAgent.addClass(clazz);
             }
         }
@@ -163,7 +164,10 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
         springChangeAgents.remove(beanFactory);
     }
 
-    boolean addClass(Class clazz) {
+    /**
+     * 添加要reload的class
+     */
+    boolean addClass(Class<?> clazz) {
         if (clazz == null) {
             return false;
         }

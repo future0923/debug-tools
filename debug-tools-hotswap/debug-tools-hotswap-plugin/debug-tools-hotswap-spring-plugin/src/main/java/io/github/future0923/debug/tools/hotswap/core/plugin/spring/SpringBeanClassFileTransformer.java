@@ -25,6 +25,9 @@ import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer
 import java.security.ProtectionDomain;
 import java.util.Objects;
 
+/**
+ * SpringBean类文件Transformer
+ */
 public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
 
     private final ClassLoader appClassLoader;
@@ -41,6 +44,8 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
+        // 如果类redefine
+        // classBeingRedefined为正在被重新定义的Class
         if (classBeingRedefined != null) {
             SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
             if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {

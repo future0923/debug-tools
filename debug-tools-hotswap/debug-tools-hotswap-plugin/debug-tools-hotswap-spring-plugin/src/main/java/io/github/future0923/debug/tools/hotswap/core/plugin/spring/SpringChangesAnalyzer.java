@@ -24,30 +24,34 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.ClassSignatureComparer;
 
+import java.io.ByteArrayInputStream;
+
 /**
- * Determines if a full Spring reload is needed. Changes to synthetic and known generated classes are ignored. For other
- * classes, changes to method bodies are ignored.
- *
- * @author Erki Ehtla
+ * 解析是否需要Spring进行重新加载{@link #isReloadNeeded}
+ * <p>
+ * 合成类或生成类不需要
+ * <p>
+ * 方法体的修改也不需要
  */
 public class SpringChangesAnalyzer {
 
     private static final Logger LOGGER = Logger.getLogger(SpringPlugin.class);
 
-    private final ClassPool cp;
+    private final ClassPool classPool;
 
     public SpringChangesAnalyzer(final ClassLoader classLoader) {
-        this.cp = new ClassPool() {
+        this.classPool = new ClassPool() {
             @Override
             public ClassLoader getClassLoader() {
                 return classLoader;
             }
         };
-        cp.appendSystemPath();
-        cp.appendClassPath(new LoaderClassPath(classLoader));
+        classPool.appendSystemPath();
+        classPool.appendClassPath(new LoaderClassPath(classLoader));
     }
 
     public boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer) {
+        // jvm合成的类不需要
         if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined)) {
             return false;
         }
@@ -57,8 +61,8 @@ public class SpringChangesAnalyzer {
     private boolean classChangeNeedsReload(Class<?> classBeingRedefined, byte[] classfileBuffer) {
         CtClass makeClass = null;
         try {
-            makeClass = cp.makeClass(new java.io.ByteArrayInputStream(classfileBuffer));
-            return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, cp);
+            makeClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
+            return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, classPool);
         } catch (Exception e) {
             LOGGER.error("Error analyzing class {} for reload necessity. Defaulting to yes.", e,
                     classBeingRedefined.getName());

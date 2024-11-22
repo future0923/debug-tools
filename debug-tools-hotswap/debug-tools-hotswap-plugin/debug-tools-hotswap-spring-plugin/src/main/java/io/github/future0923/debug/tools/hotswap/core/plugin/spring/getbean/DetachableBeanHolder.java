@@ -30,9 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Loadable detachable Spring bean holder
- *
- * @author Erki Ehtla
+ * 可加载可拆除Bean
  */
 public class DetachableBeanHolder implements Serializable {
 

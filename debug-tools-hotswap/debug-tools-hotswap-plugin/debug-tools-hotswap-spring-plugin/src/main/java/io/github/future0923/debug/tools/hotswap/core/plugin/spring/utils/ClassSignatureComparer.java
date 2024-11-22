@@ -29,7 +29,7 @@ import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatu
  */
 public class ClassSignatureComparer {
 
-    private static final ClassSignatureElement[] SIGNATURE_ELEMENTS=  {
+    private static final ClassSignatureElement[] SIGNATURE_ELEMENTS = {
             ClassSignatureElement.SUPER_CLASS,
             ClassSignatureElement.INTERFACES,
             ClassSignatureElement.CLASS_ANNOTATION,
@@ -44,7 +44,14 @@ public class ClassSignatureComparer {
             ClassSignatureElement.FIELD_ANNOTATION
     };
 
-    public static boolean isPoolClassDifferent(Class<?> classBeingRedefined, ClassPool cp) {
-        return ClassSignatureComparerHelper.isPoolClassDifferent(classBeingRedefined, cp, SIGNATURE_ELEMENTS);
+    /**
+     * 在ClassPool中是否变化
+     *
+     * @param classBeingRedefined 老Class definition
+     * @param classPool           新的CtClass所在的ClassPool中的definition
+     * @return 是否变化
+     */
+    public static boolean isPoolClassDifferent(Class<?> classBeingRedefined, ClassPool classPool) {
+        return ClassSignatureComparerHelper.isPoolClassDifferent(classBeingRedefined, classPool, SIGNATURE_ELEMENTS);
     }
 }
