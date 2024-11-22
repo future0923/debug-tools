@@ -71,8 +71,7 @@ public class EnhancerProxyCreater {
     }
 
     /**
-     * Creates a Cglib proxy instance along with the neccessary Callback classes, if those have not been created
-     * already. Uses either the repackaged version of Cglib (Spring >= 3.2) or the stand-alone version (Spring < 3.2).
+     * 使用cglib创建Bean代理类
      *
      * @param beanFactory  Spring beanFactory
      * @param bean         Spring bean

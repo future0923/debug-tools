@@ -26,31 +26,36 @@ import io.github.future0923.debug.tools.hotswap.core.util.signature.JavaClassSig
 import io.github.future0923.debug.tools.base.logging.Logger;
 
 /**
- * Checks if a Signature of a Class has changed
- *
- * @author Erki Ehtla, Vladimir Dvorak
- *
+ * 检查类签名是否发生变化
  */
 public class ClassSignatureComparerHelper {
 
-    private static Logger LOGGER = Logger.getLogger(ClassSignatureComparerHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(ClassSignatureComparerHelper.class);
 
+    /**
+     * 获取javassist类签名
+     */
     public static String getCtClassSignature(CtClass ctClass, ClassSignatureElement[] signatureElements) throws Exception {
         CtClassSignature signature = new CtClassSignature(ctClass);
         signature.addSignatureElements(signatureElements);
         return signature.getValue();
     }
 
-    public static String getJavaClassSignature(Class<?> clazz, ClassSignatureElement[] signatureElements) throws Exception  {
+    /**
+     * 获取java类签名
+     */
+    public static String getJavaClassSignature(Class<?> clazz, ClassSignatureElement[] signatureElements) throws Exception {
         JavaClassSignature signature = new JavaClassSignature(clazz);
         signature.addSignatureElements(signatureElements);
         return signature.getValue();
     }
 
     /**
-     * @param ctClass new CtClass definition
-     * @param clazz old Class definition
-     * @return is signature different
+     * 是否有变化
+     *
+     * @param ctClass 新的CtClass definition
+     * @param clazz   老的Class definition
+     * @return 是否不同
      */
     public static boolean isDifferent(CtClass ctClass, Class<?> clazz, ClassSignatureElement[] signatureElements) {
         try {
@@ -75,9 +80,11 @@ public class ClassSignatureComparerHelper {
     }
 
     /**
-     * @param clazz old Class definition
-     * @param cp ClassPool which should contain the new/compared definition
-     * @return is signature different
+     * 在ClassPool中是否变化
+     *
+     * @param clazz 老Class definition
+     * @param cp    新的CtClass所在的ClassPool中的definition
+     * @return 是否变化
      */
     public static boolean isPoolClassDifferent(Class<?> clazz, ClassPool cp, ClassSignatureElement[] signatureElements) {
         try {

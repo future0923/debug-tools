@@ -18,8 +18,6 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
-import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureElement;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,58 +28,51 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * ClassSignatureBase. Base class for class signature evaluation
- *
- * @author Erki Ehtla, Vladimir Dvorak
+ * 类签名
  */
 public abstract class ClassSignatureBase {
 
-    private static final String[] IGNORED_METHODS = new String[] { "annotationType", "equals", "hashCode", "toString" };
+    private static final String[] IGNORED_METHODS = new String[]{"annotationType", "equals", "hashCode", "toString"};
 
     private final Set<ClassSignatureElement> elements = new HashSet<>();
 
     protected static final String SWITCH_TABLE_METHOD_PREFIX = "$SWITCH_TABLE$"; // java stores switch table to class field, signature should ingore it
 
     /**
-     * Evaluate and return signature value
-     *
-     * @return the signature value
-     * @throws Exception
+     * 返回类的签名
      */
     public abstract String getValue() throws Exception;
 
     /**
-     * Adds the signature elements to set of used signature elements
-     *
-     * @param elems
+     * 添加签名元素
      */
-    public void addSignatureElements(ClassSignatureElement elems[]) {
-        for (ClassSignatureElement element : elems) {
-            elements.add(element);
-        }
+    public void addSignatureElements(ClassSignatureElement[] elems) {
+        elements.addAll(Arrays.asList(elems));
     }
 
     /**
-     * Check if given signature element is set.
-     *
-     * @param element
-     * @return true, if has given element
+     * 是否设置了该签名元素
      */
     public boolean hasElement(ClassSignatureElement element) {
         return elements.contains(element);
     }
 
-    protected String annotationToString(Object[] a) {
-        if (a == null)
+    /**
+     * 将注解转为string
+     */
+    protected String annotationToString(Object[] anno) {
+        if (anno == null) {
             return "null";
-        int iMax = a.length - 1;
-        if (iMax == -1)
+        }
+        int iMax = anno.length - 1;
+        if (iMax == -1) {
             return "[]";
-        a = sort(a);
+        }
+        anno = sort(anno);
         StringBuilder b = new StringBuilder();
         b.append('[');
-        for (int i = 0;i < a.length; i++) {
-            Annotation object = (Annotation) a[i];
+        for (int i = 0; i < anno.length; i++) {
+            Annotation object = (Annotation) anno[i];
             Method[] declaredMethods = object.getClass().getDeclaredMethods();
             b.append("(");
             boolean printComma = false;
@@ -94,20 +85,16 @@ public abstract class ClassSignatureBase {
                         } else {
                             printComma = true;
                         }
-
                         if (value.getClass().isArray()) {
                             value = arrayToString(value);
                         }
-
-                        b.append(method.getName() + "=" + value.getClass() + ":" + value);
+                        b.append(method.getName()).append("=").append(value.getClass()).append(":").append(value);
                     }
                 }
             }
             b.append(")");
-            // TODO : sometimes for CtFile object.annotationType() is not known an it fails here
-            // v.d. : uncommented in v1.1 alpha with javassist update (3.21) to check if there is still problem
             b.append(object.annotationType().getName());
-            if (i<a.length-1) {
+            if (i < anno.length - 1) {
                 b.append(",");
             }
         }
@@ -115,12 +102,38 @@ public abstract class ClassSignatureBase {
         return b.toString();
     }
 
+    /**
+     * 注解转string
+     */
+    protected String annotationToString(Object[][] anno) {
+        if (anno == null) {
+            return "null";
+        }
+        int iMax = anno.length - 1;
+        if (iMax == -1) {
+            return "[]";
+        }
+        anno = sort(anno);
+        StringBuilder b = new StringBuilder();
+        b.append('[');
+        for (int i = 0; ; i++) {
+            Object[] object = anno[i];
+            b.append(annotationToString(object));
+            if (i == iMax) {
+                return b.append(']').toString();
+            }
+            b.append(", ");
+        }
+    }
+
+    /**
+     * 数组转为string
+     */
     private Object arrayToString(Object value) {
         Object result = value;
         try {
             try {
                 Method toStringMethod = Arrays.class.getMethod("toString", value.getClass());
-                // maybe because value is a subclass of Object[]
                 result = toStringMethod.invoke(null, value);
             } catch (NoSuchMethodException e) {
                 if (value instanceof Object[]) {
@@ -128,37 +141,23 @@ public abstract class ClassSignatureBase {
                     result = toStringMethod.invoke(null, value);
                 }
             }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e ) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
         }
         return result;
     }
 
-    protected String annotationToString(Object[][] a) {
-        if (a == null)
-            return "null";
-
-        int iMax = a.length - 1;
-        if (iMax == -1)
-            return "[]";
-        a = sort(a);
-
-        StringBuilder b = new StringBuilder();
-        b.append('[');
-        for (int i = 0;; i++) {
-            Object[] object = a[i];
-            b.append(annotationToString(object));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
-    }
-
+    /**
+     * 用ToString排序
+     */
     private <T> T[] sort(T[] a) {
         a = Arrays.copyOf(a, a.length);
         Arrays.sort(a, ToStringComparator.INSTANCE);
         return a;
     }
 
+    /**
+     * 用ToString排序
+     */
     private <T> T[][] sort(T[][] a) {
         a = Arrays.copyOf(a, a.length);
         Arrays.sort(a, ToStringComparator.INSTANCE);
@@ -168,6 +167,13 @@ public abstract class ClassSignatureBase {
         return a;
     }
 
+    /**
+     * 获取注解的值
+     *
+     * @param annotation    注解
+     * @param attributeName 方法
+     * @return 值
+     */
     private Object getAnnotationValue(Annotation annotation, String attributeName) {
         Method method = null;
         boolean acessibleSet = false;
@@ -194,7 +200,9 @@ public abstract class ClassSignatureBase {
     }
 
     protected static class ToStringComparator implements Comparator<Object> {
+
         public static final ToStringComparator INSTANCE = new ToStringComparator();
+
         @Override
         public int compare(Object o1, Object o2) {
             return o1.toString().compareTo(o2.toString());

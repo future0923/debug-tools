@@ -76,7 +76,7 @@ import static io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.
 import static io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper.get;
 
 /**
- * Reload spring beans.
+ * 重载SpringBean
  */
 public class SpringBeanReload {
     private static final Logger LOGGER = Logger.getLogger(SpringBeanReload.class);
@@ -112,7 +112,7 @@ public class SpringBeanReload {
         this.dependentBeanMap = (Map<String, Set<String>>) get(beanFactory, "dependentBeanMap");
     }
 
-    public void addClass(Class clazz) {
+    public void addClass(Class<?> clazz) {
         if (clazz == null) {
             return;
         }

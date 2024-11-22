@@ -24,6 +24,8 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.ClassPathBeanDefinitionScannerTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.RegistryUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
@@ -55,48 +57,49 @@ import java.util.Set;
 
 
 /**
- * Registers
- *
- * @author Jiri Bubnik
+ * 处理Spring{@link ClassPathBeanDefinitionScanner}的Agent类
+ * <p>ClassPathBeanDefinitionScanner 是 Spring 用于扫描类路径并注册 Bean 定义的核心类
  */
 public class ClassPathBeanDefinitionScannerAgent {
+
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerAgent.class);
 
-    private static Map<ClassPathBeanDefinitionScanner, ClassPathBeanDefinitionScannerAgent> instances = new HashMap<>();
-
     /**
-     * Flag to check reload status.
-     * In unit test we need to wait for reload finish before the test can continue. Set flag to true
-     * in the test class and wait until the flag is false again.
+     * Spring的ClassPathBeanDefinitionScanner与热重载处理它的ClassPathBeanDefinitionScannerAgent类的映射
      */
-    public static boolean reloadFlag = false;
-
-    // target scanner this agent shadows
-    ClassPathBeanDefinitionScanner scanner;
-
-    // list of basePackages registered with target scanner
-    Set<String> basePackages = new HashSet<>();
-
-    // registry obtained from the scanner
-    BeanDefinitionRegistry registry;
-
-    // metadata resolver obtained from the scanner
-    ScopeMetadataResolver scopeMetadataResolver;
-
-    // bean name generator obtained from the scanner
-    BeanNameGenerator beanNameGenerator;
-
-    private Set<BeanDefinition> beanDefinitions = new HashSet<>();
+    private static final Map<ClassPathBeanDefinitionScanner, ClassPathBeanDefinitionScannerAgent> instances = new HashMap<>();
 
     /**
-     * Return an agent instance for a scanner. If the instance does not exists yet, it is created.
-     *
-     * @param scanner the scanner
-     * @return agent instance
+     * spring 的 ClassPathBeanDefinitionScanner class path 下要被spring管理的bean的扫描器
+     */
+    private final ClassPathBeanDefinitionScanner scanner;
+
+    /**
+     * 扫描的 base package 集合
+     */
+    private final Set<String> basePackages = new HashSet<>();
+
+    /**
+     * spring 的 BeanDefinition 注册表
+     */
+    private final BeanDefinitionRegistry registry;
+
+    /**
+     * spring 的 bean scope 解析器
+     */
+    private final ScopeMetadataResolver scopeMetadataResolver;
+
+    /**
+     * spring 的 bean name 生成器
+     */
+    private final BeanNameGenerator beanNameGenerator;
+
+    /**
+     * 创建处理ClassPathBeanDefinitionScanner的ClassPathBeanDefinitionScannerAgent
      */
     public static ClassPathBeanDefinitionScannerAgent getInstance(ClassPathBeanDefinitionScanner scanner) {
         ClassPathBeanDefinitionScannerAgent classPathBeanDefinitionScannerAgent = instances.get(scanner);
-        // registry may be different if there is multiple app. (this is just a temporary solution)
+        // 如果有多个应用，注册表可能不同
         if (classPathBeanDefinitionScannerAgent == null || classPathBeanDefinitionScannerAgent.registry != scanner.getRegistry()) {
             instances.put(scanner, new ClassPathBeanDefinitionScannerAgent(scanner));
         }
@@ -104,49 +107,38 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * Find scanner agent by base package.
-     *
-     * @param basePackage the scanner agent or null if no such agent exists
-     * @return the agent
+     * 通过BasePackage获取ClassPathBeanDefinitionScannerAgent
      */
     public static ClassPathBeanDefinitionScannerAgent getInstance(String basePackage) {
         for (ClassPathBeanDefinitionScannerAgent scannerAgent : instances.values()) {
-            if (scannerAgent.basePackages.contains(basePackage))
+            if (scannerAgent.basePackages.contains(basePackage)) {
                 return scannerAgent;
+            }
         }
         return null;
     }
 
-    // Create new instance from getInstance(ClassPathBeanDefinitionScanner scanner) and obtain services from the scanner
     private ClassPathBeanDefinitionScannerAgent(ClassPathBeanDefinitionScanner scanner) {
         this.scanner = scanner;
-
         this.registry = scanner.getRegistry();
         this.scopeMetadataResolver = (ScopeMetadataResolver) ReflectionHelper.get(scanner, "scopeMetadataResolver");
         this.beanNameGenerator = (BeanNameGenerator) ReflectionHelper.get(scanner, "beanNameGenerator");
     }
 
     /**
-     * Initialize base package from ClassPathBeanDefinitionScanner.scan() (hooked by a Transformer)
-     *
-     * @param basePackage package that Spring will scan
+     * 初始化注册Spring扫描的base package，目前{@link ClassPathBeanDefinitionScannerTransformer#transform}方法会调用这里注册
      */
     public void registerBasePackage(String basePackage) {
         this.basePackages.add(basePackage);
-
-        PluginManagerInvoker.callPluginMethod(SpringPlugin.class, getClass().getClassLoader(),
-                "registerComponentScanBasePackage", new Class[]{String.class}, new Object[]{basePackage});
+        PluginManagerInvoker.callPluginMethod(SpringPlugin.class, getClass().getClassLoader(), "registerComponentScanBasePackage", new Class[]{String.class}, new Object[]{basePackage});
     }
 
     /**
-     * Called by a reflection command from SpringPlugin transformer.
+     * {@link ClassPathBeanRefreshCommand#executeCommand()}调用这个方法
+     * <p>通过classDefinition的byte[]为新Bean创建beanDefinition，并添加到新注册中。
+     * <p>当{@link SpringChangedReloadCommand}命令执行刷新Spring环境的时候{@code SpringBeanReload#refreshNewBean()}方法会处理新增的Bean
      *
-     * {@link ClassPathBeanRefreshCommand#executeCommand()}调用
-     *
-     * @param appClassLoader  the class loader - container or application class loader.
-     * @param basePackage     base package on witch the transformer was registered, used to obtain associated scanner.
-     * @param classDefinition new class definition
-     * @throws IOException error working with classDefinition
+     * @return 是否添加成功
      */
     public static boolean refreshClassAndCheckReload(ClassLoader appClassLoader, String basePackage, String clazzName, byte[] classDefinition) throws IOException {
         ClassPathBeanDefinitionScannerAgent scannerAgent = getInstance(basePackage);
@@ -158,19 +150,16 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * create beanDefinition if it is new bean. If it is need refresh, return true;
+     * 通过classDefinition为新Bean创建beanDefinition，并添加到新注册中。
+     * <p>当{@link SpringChangedReloadCommand}命令执行刷新Spring环境的时候{@code SpringBeanReload#refreshNewBean()}方法会处理新增的Bean
      *
-     * @param appClassLoader
-     * @param clazzName
-     * @param classDefinition
-     * @return
-     * @throws IOException
+     * @return 是否添加成功
      */
-    boolean createBeanDefinitionAndCheckReload(ClassLoader appClassLoader, String clazzName, byte[] classDefinition) throws IOException {
+    private boolean createBeanDefinitionAndCheckReload(ClassLoader appClassLoader, String clazzName, byte[] classDefinition) throws IOException {
         DefaultListableBeanFactory defaultListableBeanFactory = RegistryUtils.maybeRegistryToBeanFactory(registry);
+        // 如果bean已经存在，添加到Spring要重载的bean中
         if (doProcessWhenBeanExist(defaultListableBeanFactory, appClassLoader, clazzName, classDefinition)) {
-            LOGGER.debug("the class '{}' is exist at '{}', it will not create new BeanDefinition", clazzName,
-                    ObjectUtils.identityToString(defaultListableBeanFactory));
+            LOGGER.debug("the class '{}' is exist at '{}', it will not create new BeanDefinition", clazzName, ObjectUtils.identityToString(defaultListableBeanFactory));
             return true;
         }
         BeanDefinition beanDefinition = resolveBeanDefinition(appClassLoader, classDefinition);
@@ -178,13 +167,12 @@ public class ClassPathBeanDefinitionScannerAgent {
             return false;
         }
         String beanName = this.beanNameGenerator.generateBeanName(beanDefinition, registry);
-        // check if bean is already registered
+        // BeanName如果存在则不处理
         if (registry.containsBeanDefinition(beanName)) {
             LOGGER.debug("Bean definition '{}' already exists", beanName);
             return false;
         }
-
-        beanDefinitions.add(beanDefinition);
+        // 定义Bean
         BeanDefinitionHolder beanDefinitionHolder = defineBean(beanDefinition);
         if (beanDefinitionHolder != null) {
             LOGGER.reload("Registering Spring bean '{}'", beanName);
@@ -193,18 +181,20 @@ public class ClassPathBeanDefinitionScannerAgent {
                 return true;
             }
         }
-
         return false;
     }
 
-    private boolean doProcessWhenBeanExist(DefaultListableBeanFactory defaultListableBeanFactory, ClassLoader
-            appClassLoader,
+    /**
+     * 如果bean已经存在，添加到Spring要重载的bean中
+     */
+    private boolean doProcessWhenBeanExist(DefaultListableBeanFactory defaultListableBeanFactory,
+                                           ClassLoader appClassLoader,
                                            String clazzName, byte[] classDefinition) {
         try {
             Class<?> clazz = loadClass(appClassLoader, clazzName, classDefinition);
             if (defaultListableBeanFactory != null && clazz != null) {
                 String[] beanNames = defaultListableBeanFactory.getBeanNamesForType(clazz);
-                if (beanNames != null && beanNames.length != 0) {
+                if (beanNames.length != 0) {
                     SpringChangedAgent.addChangedClass(clazz, defaultListableBeanFactory);
                     return true;
                 }
@@ -215,8 +205,15 @@ public class ClassPathBeanDefinitionScannerAgent {
         return false;
     }
 
+    /**
+     * 载入class
+     * <p>先从ClassLoader中加载，
+     * <p>找不到通过javassist解析，从ClassLoader中记载javassist解析的class，
+     * <p>找不到通过javassist生成class加载到jvm中
+     */
     private Class<?> loadClass(ClassLoader appClassLoader,
-                               String clazzName, byte[] classDefinition) {
+                               String clazzName,
+                               byte[] classDefinition) {
         Class<?> clazz = doLoadClass(appClassLoader, clazzName);
         if (clazz != null) {
             return clazz;
@@ -229,16 +226,16 @@ public class ClassPathBeanDefinitionScannerAgent {
                 return clazz;
             }
             return ctClass.toClass(appClassLoader, registry.getClass().getProtectionDomain());
-        } catch (IOException e) {
-            LOGGER.trace("make new class failed, {}", e.getMessage());
-            return null;
-        } catch (CannotCompileException e) {
+        } catch (IOException | CannotCompileException e) {
             LOGGER.trace("make new class failed, {}", e.getMessage());
             return null;
         }
 
     }
 
+    /**
+     * 从ClassLoader中加载class
+     */
     private Class<?> doLoadClass(ClassLoader appClassLoader,
                                  String clazzName) {
         try {
@@ -247,24 +244,20 @@ public class ClassPathBeanDefinitionScannerAgent {
             }
             String realClassName = clazzName.replaceAll("/", ".");
             return appClassLoader.loadClass(realClassName);
-        } catch (ClassNotFoundException e) {
-            // ignore
-        } catch (NoClassDefFoundError e) {
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
             // ignore
         }
         return null;
     }
 
     /**
-     * Resolve candidate to a bean definition and (re)load in Spring.
-     * Synchronize to avoid parallel bean definition - usually on reload the beans are interrelated
-     * and parallel load will cause concurrent modification exception.
+     * 验证BeanDefinition后，处理SpringBean的Scope生成最终要注册到SpringBean中的BeanDefinitionHolder
      *
-     * @param candidate the candidate to reload
+     * @param candidate 要重载的BeanDefinition
+     * @return BeanDefinitionHolder是Bean最终要注册到SpringBean中的BeanDefinition
      */
     public BeanDefinitionHolder defineBean(BeanDefinition candidate) {
-        synchronized (getClass()) { // TODO sychronize on DefaultListableFactory.beanDefinitionMap?
-
+        synchronized (ClassPathBeanDefinitionScannerAgent.class) {
             ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
             candidate.setScope(scopeMetadata.getScopeName());
             String beanName = this.beanNameGenerator.generateBeanName(candidate, registry);
@@ -276,23 +269,17 @@ public class ClassPathBeanDefinitionScannerAgent {
             }
             return null;
         }
-
-
     }
 
     /**
-     * Resolve bean definition from class definition if applicable.
+     * 如果需要被SpringBean管理，那么通过解析byte[]生成BeanDefinition
      *
-     * @param appClassLoader the class loader - container or application class loader.
-     * @param bytes          class definition.
-     * @return the definition or null if not a spring bean
-     * @throws IOException
+     * @return null表示不需要被SpringBean管理
      */
     public BeanDefinition resolveBeanDefinition(ClassLoader appClassLoader, byte[] bytes) throws IOException {
         Resource resource = new ByteArrayResource(bytes);
         resetCachingMetadataReaderFactoryCache();
         MetadataReader metadataReader = getMetadataReader(appClassLoader, resource);
-
         if (isCandidateComponent(metadataReader)) {
             ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
             sbd.setResource(resource);
@@ -310,6 +297,9 @@ public class ClassPathBeanDefinitionScannerAgent {
         }
     }
 
+    /**
+     * 获取MetadataReader
+     */
     private MetadataReader getMetadataReader(ClassLoader appClassLoader, Resource resource) throws IOException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -320,20 +310,24 @@ public class ClassPathBeanDefinitionScannerAgent {
         }
     }
 
+    /**
+     * 调用Spring {@code ClassPathBeanDefinitionScanner#metadataReaderFactory}获取MetadataReader
+     */
     private MetadataReaderFactory getMetadataReaderFactory() {
         return (MetadataReaderFactory) ReflectionHelper.get(scanner, "metadataReaderFactory");
     }
 
-    // metadataReader contains cache of loaded classes, reset this cache before BeanDefinition is resolved
+    /**
+     * MetadataReader包含了载入类的缓存,在解析BeanDefinition之前需要重置这个缓存
+     */
+    @SuppressWarnings("rawtypes")
     private void resetCachingMetadataReaderFactoryCache() {
-        if (getMetadataReaderFactory() instanceof CachingMetadataReaderFactory) {
-            Map metadataReaderCache = (Map) ReflectionHelper.getNoException(getMetadataReaderFactory(),
-                    CachingMetadataReaderFactory.class, "metadataReaderCache");
-
-            if (metadataReaderCache == null)
-                metadataReaderCache = (Map) ReflectionHelper.getNoException(getMetadataReaderFactory(),
-                        CachingMetadataReaderFactory.class, "classReaderCache");
-
+        MetadataReaderFactory metadataReaderFactory = getMetadataReaderFactory();
+        if (metadataReaderFactory instanceof CachingMetadataReaderFactory) {
+            Map metadataReaderCache = (Map) ReflectionHelper.getNoException(metadataReaderFactory, CachingMetadataReaderFactory.class, "metadataReaderCache");
+            if (metadataReaderCache == null) {
+                metadataReaderCache = (Map) ReflectionHelper.getNoException(metadataReaderFactory, CachingMetadataReaderFactory.class, "classReaderCache");
+            }
             if (metadataReaderCache != null) {
                 metadataReaderCache.clear();
                 LOGGER.trace("Cache cleared: CachingMetadataReaderFactory.clearCache()");
@@ -343,36 +337,52 @@ public class ClassPathBeanDefinitionScannerAgent {
         }
     }
 
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    // Access private / protected members
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    private BeanDefinitionHolder applyScopedProxyMode(
-            ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
-        return (BeanDefinitionHolder) ReflectionHelper.invoke(null, AnnotationConfigUtils.class,
-                "applyScopedProxyMode", new Class[]{ScopeMetadata.class, BeanDefinitionHolder.class, BeanDefinitionRegistry.class},
-                metadata, definition, registry);
-
+    /**
+     * SpringBean的Scope生成最终要注册到SpringBean中的BeanDefinitionHolder
+     */
+    private BeanDefinitionHolder applyScopedProxyMode(ScopeMetadata metadata,
+                                                      BeanDefinitionHolder definition,
+                                                      BeanDefinitionRegistry registry) {
+        return (BeanDefinitionHolder) ReflectionHelper.invoke(
+                null,
+                AnnotationConfigUtils.class,
+                "applyScopedProxyMode",
+                new Class[]{ScopeMetadata.class, BeanDefinitionHolder.class, BeanDefinitionRegistry.class},
+                metadata, definition, registry
+        );
     }
 
+    /**
+     * 调用Spring的{@code ClassPathBeanDefinitionScanner#registerBeanDefinition(BeanDefinitionHolder, BeanDefinitionRegistry)} 注册Bean
+     */
     private void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
-        ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class,
-                "registerBeanDefinition", new Class[]{BeanDefinitionHolder.class, BeanDefinitionRegistry.class}, definitionHolder, registry);
+        ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class, "registerBeanDefinition", new Class[]{BeanDefinitionHolder.class, BeanDefinitionRegistry.class}, definitionHolder, registry);
     }
 
+    /**
+     * 调用Spring {@code ClassPathBeanDefinitionScanner#checkCandidate(String, BeanDefinition)} 对BeanName和BeanDefinition进行检查
+     *
+     * @return 返回true表示可以注册
+     */
     private boolean checkCandidate(String beanName, BeanDefinition candidate) {
-        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class,
-                "checkCandidate", new Class[]{String.class, BeanDefinition.class}, beanName, candidate);
+        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class, "checkCandidate", new Class[]{String.class, BeanDefinition.class}, beanName, candidate);
     }
 
+    /**
+     * 调用Spring {@code ClassPathScanningCandidateComponentProvider#isCandidateComponent(AnnotatedBeanDefinition)} 确定这个类是否需要被Spring Bean管理
+     *
+     * @return 返回true表示需要SpringBean管理
+     */
     private boolean isCandidateComponent(AnnotatedBeanDefinition sbd) {
-        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathScanningCandidateComponentProvider.class,
-                "isCandidateComponent", new Class[]{AnnotatedBeanDefinition.class}, sbd);
+        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathScanningCandidateComponentProvider.class, "isCandidateComponent", new Class[]{AnnotatedBeanDefinition.class}, sbd);
     }
 
+    /**
+     * 调用Spring {@code ClassPathScanningCandidateComponentProvider#isCandidateComponent(MetadataReader)} 确定这个类是否需要被Spring Bean管理
+     *
+     * @return 返回true表示需要SpringBean管理
+     */
     private boolean isCandidateComponent(MetadataReader metadataReader) {
-        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathScanningCandidateComponentProvider.class,
-                "isCandidateComponent", new Class[]{MetadataReader.class}, metadataReader);
+        return (Boolean) ReflectionHelper.invoke(scanner, ClassPathScanningCandidateComponentProvider.class, "isCandidateComponent", new Class[]{MetadataReader.class}, metadataReader);
     }
 }

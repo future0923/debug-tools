@@ -1,3 +1,6 @@
+# javassist class for debug
+/debug/
+
 # Compiled class file
 *.class
 

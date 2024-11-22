@@ -158,7 +158,7 @@ public class HotswapTransformer implements ClassFileTransformer {
                     if (transformerRecord.pattern.matcher(className).matches()) {
                         for (ClassFileTransformer transformer : new ArrayList<ClassFileTransformer>(transformerRecord.transformerList)) {
                             if (transformer instanceof PluginClassFileTransformer) {
-                                PluginClassFileTransformer pluginClassFileTransformer = PluginClassFileTransformer.class.cast(transformer);
+                                PluginClassFileTransformer pluginClassFileTransformer = (PluginClassFileTransformer) transformer;
                                 if (!pluginClassFileTransformer.isPluginDisabled(classLoader)) {
                                     pluginTransformers.add(pluginClassFileTransformer);
                                 }

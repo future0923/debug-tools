@@ -19,9 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
 /**
- * element used to signature evaluation
- *
- * @author Erki Ehtla, Vladimir Dvorak
+ * 检查签名元素
  */
 public enum ClassSignatureElement {
     SUPER_CLASS,

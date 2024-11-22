@@ -31,13 +31,11 @@ import java.util.List;
 
 
 /**
- * CtClassSignature. Creates signature for given java class
- *
- * @author Erki Ehtla, Vladimir Dvorak
+ * Java类签名
  */
 public class JavaClassSignature extends ClassSignatureBase {
 
-    private Class<?> clazz;
+    private final Class<?> clazz;
 
     public JavaClassSignature(Class<?> clazz) {
         this.clazz = clazz;
@@ -46,17 +44,19 @@ public class JavaClassSignature extends ClassSignatureBase {
     @Override
     public String getValue() throws Exception {
         List<String> strings = new ArrayList<>();
-
         if (hasElement(ClassSignatureElement.METHOD)) {
             boolean usePrivateMethod = hasElement(ClassSignatureElement.METHOD_PRIVATE);
             boolean useStaticMethod = hasElement(ClassSignatureElement.METHOD_STATIC);
             for (Method method : clazz.getDeclaredMethods()) {
-                if (!usePrivateMethod && Modifier.isPrivate(method.getModifiers()))
+                if (!usePrivateMethod && Modifier.isPrivate(method.getModifiers())) {
                     continue;
-                if (!useStaticMethod && Modifier.isStatic(method.getModifiers()))
+                }
+                if (!useStaticMethod && Modifier.isStatic(method.getModifiers())) {
                     continue;
-                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX))
+                }
+                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)) {
                     continue;
+                }
                 strings.add(getMethodString(method));
             }
         }
@@ -64,8 +64,9 @@ public class JavaClassSignature extends ClassSignatureBase {
         if (hasElement(ClassSignatureElement.CONSTRUCTOR)) {
             boolean usePrivateConstructor = hasElement(ClassSignatureElement.CONSTRUCTOR_PRIVATE);
             for (Constructor<?> method : clazz.getDeclaredConstructors()) {
-                if (!usePrivateConstructor && Modifier.isPrivate(method.getModifiers()))
+                if (!usePrivateConstructor && Modifier.isPrivate(method.getModifiers())) {
                     continue;
+                }
                 strings.add(getConstructorString(method));
             }
         }
@@ -81,23 +82,25 @@ public class JavaClassSignature extends ClassSignatureBase {
         }
 
         if (hasElement(ClassSignatureElement.SUPER_CLASS)) {
-            if (clazz.getSuperclass() != null && !clazz.getSuperclass().getName().equals(Object.class.getName()))
+            if (clazz.getSuperclass() != null && !clazz.getSuperclass().getName().equals(Object.class.getName())) {
                 strings.add(clazz.getSuperclass().getName());
+            }
         }
 
         if (hasElement(ClassSignatureElement.FIELD)) {
             boolean useStaticField = hasElement(ClassSignatureElement.FIELD_STATIC);
             boolean useFieldAnnotation = hasElement(ClassSignatureElement.FIELD_ANNOTATION);
             for (Field field : clazz.getDeclaredFields()) {
-                if (!useStaticField && Modifier.isStatic(field.getModifiers()))
+                if (!useStaticField && Modifier.isStatic(field.getModifiers())) {
                     continue;
-                if (field.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX))
+                }
+                if (field.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)) {
                     continue;
+                }
                 String fieldSignature = field.getType().getName() + " " + field.getName();
                 if (useFieldAnnotation) {
                     fieldSignature += annotationToString(field.getAnnotations());
                 }
-
                 strings.add(fieldSignature + ";");
             }
         }
@@ -113,36 +116,41 @@ public class JavaClassSignature extends ClassSignatureBase {
 
     private String getConstructorString(Constructor<?> method) {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(Modifier.toString(method.getModifiers()) + " ");
+        strBuilder.append(Modifier.toString(method.getModifiers())).append(" ");
         strBuilder.append(method.getName());
         strBuilder.append(getParams(method.getParameterTypes()));
-        if (hasElement(ClassSignatureElement.METHOD_ANNOTATION))
+        if (hasElement(ClassSignatureElement.METHOD_ANNOTATION)) {
             strBuilder.append(annotationToString(method.getDeclaredAnnotations()));
-        if (hasElement(ClassSignatureElement.METHOD_PARAM_ANNOTATION))
+        }
+        if (hasElement(ClassSignatureElement.METHOD_PARAM_ANNOTATION)) {
             strBuilder.append(annotationToString(method.getParameterAnnotations()));
-        if (hasElement(ClassSignatureElement.METHOD_EXCEPTION))
+        }
+        if (hasElement(ClassSignatureElement.METHOD_EXCEPTION)) {
             strBuilder.append(Arrays.toString(sort(method.getExceptionTypes())));
+        }
         strBuilder.append(";");
         return strBuilder.toString();
     }
 
     private String getMethodString(Method method) {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(Modifier.toString(method.getModifiers()) + " ");
-        strBuilder.append(getName(method.getReturnType()) + " " + method.getName());
+        strBuilder.append(Modifier.toString(method.getModifiers())).append(" ");
+        strBuilder.append(getName(method.getReturnType())).append(" ").append(method.getName());
         strBuilder.append(getParams(method.getParameterTypes()));
-        if (hasElement(ClassSignatureElement.METHOD_ANNOTATION))
+        if (hasElement(ClassSignatureElement.METHOD_ANNOTATION)) {
             strBuilder.append(annotationToString(method.getDeclaredAnnotations()));
-        if (hasElement(ClassSignatureElement.METHOD_PARAM_ANNOTATION))
+        }
+        if (hasElement(ClassSignatureElement.METHOD_PARAM_ANNOTATION)) {
             strBuilder.append(annotationToString(method.getParameterAnnotations()));
-        if (hasElement(ClassSignatureElement.METHOD_EXCEPTION))
+        }
+        if (hasElement(ClassSignatureElement.METHOD_EXCEPTION)) {
             strBuilder.append(Arrays.toString(sort(method.getExceptionTypes())));
+        }
         strBuilder.append(";");
         return strBuilder.toString();
     }
 
     private <T> T[] sort(T[] a) {
-
         a = Arrays.copyOf(a, a.length);
         Arrays.sort(a, ToStringComparator.INSTANCE);
         return a;
@@ -152,10 +160,12 @@ public class JavaClassSignature extends ClassSignatureBase {
         StringBuilder strB = new StringBuilder("(");
         boolean first = true;
         for (Class<?> ctClass : parameterTypes) {
-            if (!first)
+            if (!first) {
                 strB.append(",");
-            else
+            }
+            else {
                 first = false;
+            }
             strB.append(getName(ctClass));
         }
         strB.append(")");
@@ -163,10 +173,11 @@ public class JavaClassSignature extends ClassSignatureBase {
     }
 
     private String getName(Class<?> ctClass) {
-        if (ctClass.isArray())
+        if (ctClass.isArray()) {
             return Descriptor.toString(ctClass.getName());
-        else
+        } else {
             return ctClass.getName();
+        }
     }
 
 }

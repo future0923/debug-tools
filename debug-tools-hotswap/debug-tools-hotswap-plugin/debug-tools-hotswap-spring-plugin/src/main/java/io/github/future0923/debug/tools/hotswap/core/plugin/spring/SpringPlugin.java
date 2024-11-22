@@ -103,13 +103,10 @@ public class SpringPlugin {
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.support.DefaultListableBeanFactory")
     public static void register(CtClass clazz) throws NotFoundException, CannotCompileException {
-        StringBuilder src = new StringBuilder("{");
-        src.append("setCacheBeanMetadata(false);");
-        src.append(PluginManagerInvoker.buildInitializePlugin(SpringPlugin.class));
-        src.append(PluginManagerInvoker.buildCallPluginMethod(SpringPlugin.class, "init", "org.springframework.core.SpringVersion.getVersion()", String.class.getName()));
-        src.append("}");
-
-        String string = src.toString();
+        String string = "{" + "setCacheBeanMetadata(false);" +
+                PluginManagerInvoker.buildInitializePlugin(SpringPlugin.class) +
+                PluginManagerInvoker.buildCallPluginMethod(SpringPlugin.class, "init", "org.springframework.core.SpringVersion.getVersion()", String.class.getName()) +
+                "}";
         for (CtConstructor constructor : clazz.getDeclaredConstructors()) {
             constructor.insertBeforeBody(string);
             constructor.insertAfter("io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent.getInstance(this);");
