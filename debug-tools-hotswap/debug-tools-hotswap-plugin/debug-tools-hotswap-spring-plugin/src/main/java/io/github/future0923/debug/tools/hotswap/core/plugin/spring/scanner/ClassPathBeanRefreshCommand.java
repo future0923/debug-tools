@@ -32,11 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Do refresh Spring class (scanned by classpath scanner) based on URI or byte[] definition.
- *
- * This commands merges events of watcher.event(CREATE) and transformer hotswap reload to a single refresh command.
+ * 通过byte[]或者URI刷新SpringBean命令，相同的可以merge
  */
 public class ClassPathBeanRefreshCommand extends MergeableCommand {
+
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
     ClassLoader appClassLoader;
@@ -89,8 +88,7 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
 
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method  = clazz.getDeclaredMethod(
-                    "refreshClassAndCheckReload", new Class[] {ClassLoader.class, String.class, String.class, byte[].class});
+            Method method  = clazz.getDeclaredMethod("refreshClassAndCheckReload", ClassLoader.class, String.class, String.class, byte[].class);
             method.invoke(null, appClassLoader , basePackage, basePackage, classDefinition);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
@@ -109,24 +107,23 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
      * file was deleted.
      */
     private boolean isDeleteEvent() {
-        // for all merged commands including this command
         List<ClassPathBeanRefreshCommand> mergedCommands = new ArrayList<>();
         for (Command command : getMergedCommands()) {
             mergedCommands.add((ClassPathBeanRefreshCommand) command);
         }
         mergedCommands.add(this);
-
         boolean createFound = false;
         boolean deleteFound = false;
         for (ClassPathBeanRefreshCommand command : mergedCommands) {
             if (command.event != null) {
-                if (command.event.getEventType().equals(FileEvent.DELETE))
-                    deleteFound = true;
-                if (command.event.getEventType().equals(FileEvent.CREATE))
+                if (command.event.getEventType().equals(FileEvent.CREATE)) {
                     createFound = true;
+                }
+                if (command.event.getEventType().equals(FileEvent.DELETE)) {
+                    deleteFound = true;
+                }
             }
         }
-
         LOGGER.trace("isDeleteEvent result {}: createFound={}, deleteFound={}", createFound, deleteFound);
         return !createFound && deleteFound;
     }

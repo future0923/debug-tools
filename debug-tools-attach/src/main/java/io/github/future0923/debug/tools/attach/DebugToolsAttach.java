@@ -6,6 +6,7 @@ import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -29,6 +30,10 @@ public class DebugToolsAttach {
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         //SqlPrintByteCodeEnhance.enhance(inst);
+        if (ProjectConstants.DEBUG) {
+            CtClass.debugDump = "debug/javassist";
+            System.setProperty("cglib.debugLocation", "debug/cglib");
+        }
         HotswapAgent.premain(agentArgs, inst);
     }
 

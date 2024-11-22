@@ -16,6 +16,11 @@
 
 package io.github.future0923.debug.tools.hotswap.core.javassist;
 
+import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.ClassFile;
+import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Descriptor;
+import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Opcode;
+import io.github.future0923.debug.tools.hotswap.core.javassist.expr.ExprEditor;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -26,16 +31,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.Collection;
-
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtBehavior;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtPrimitiveType;
-import io.github.future0923.debug.tools.hotswap.core.javassist.Modifier;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.ClassFile;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Descriptor;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Opcode;
-import io.github.future0923.debug.tools.hotswap.core.javassist.expr.ExprEditor;
 
 /* Note:
  *

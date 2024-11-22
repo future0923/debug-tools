@@ -32,22 +32,20 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * The type Spring bean watch event listener.
+ * SpringBean监听者Watch到新增的class新文件，创建{@link ClassPathBeanRefreshCommand}进行解析后创建{@link SpringChangedReloadCommand}进行Spring环境重载
  */
 public class SpringBeanWatchEventListener implements WatchEventListener {
+
     private static final Logger LOGGER = Logger.getLogger(SpringBeanWatchEventListener.class);
 
     /**
-     * If a class is modified in IDE, sequence of multiple events is generated -
-     * class file DELETE, CREATE, MODIFY, than Hotswap transformer is invoked.
-     * ClassPathBeanRefreshCommand tries to merge these events into single command.
-     * Wait this this timeout after class file event.
+     * 合并延迟执行时间
      */
     private static final int WAIT_ON_CREATE = 600;
 
-    private Scheduler scheduler;
-    private ClassLoader appClassLoader;
-    private String basePackage;
+    private final Scheduler scheduler;
+    private final ClassLoader appClassLoader;
+    private final String basePackage;
 
     public SpringBeanWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
         this.scheduler = scheduler;
@@ -57,9 +55,8 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
-        // new File
+        // 创建了class新文件
         if (event.getEventType() == FileEvent.CREATE && event.isFile() && event.getURI().toString().endsWith(".class")) {
-            // check that the class is not loaded by the classloader yet (avoid duplicate reload)
             String className;
             try {
                 className = IOUtils.urlToClassName(event.getURI());
@@ -69,9 +66,8 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
                 return;
             }
             if (!ClassLoaderHelper.isClassLoaded(appClassLoader, className)) {
-                // refresh spring only for new classes
-                scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader,
-                        basePackage, className, event, scheduler), WAIT_ON_CREATE);
+                // 只刷新spring中新产生的classes
+                scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader, basePackage, className, event, scheduler), WAIT_ON_CREATE);
                 LOGGER.trace("Scheduling Spring reload for class '{}' in classLoader {}", className, appClassLoader);
                 scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
             }
