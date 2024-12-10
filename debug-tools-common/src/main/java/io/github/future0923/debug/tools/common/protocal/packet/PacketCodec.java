@@ -5,6 +5,7 @@ import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
@@ -61,6 +62,7 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.CLEAR_RUN_RESULT, ClearRunResultRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_REQUEST, RunGroovyScriptRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_RESPONSE, RunGroovyScriptResponsePacket.class);
+        this.packetTypeMap.put(Command.HOTSWAP_REQUEST, HotSwapRequestPacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 

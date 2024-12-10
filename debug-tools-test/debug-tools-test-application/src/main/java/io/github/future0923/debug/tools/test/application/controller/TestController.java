@@ -1,44 +1,25 @@
 package io.github.future0923.debug.tools.test.application.controller;
 
-import io.github.future0923.debug.tools.test.application.service.TestInterface;
+import io.github.future0923.debug.tools.test.application.service.Test1Service;
 import io.github.future0923.debug.tools.test.application.service.TestService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
 
 /**
  * @author future0923
  */
 @RestController
+@RequiredArgsConstructor
 public class TestController {
 
-    @Autowired
-    private TestService testService;
+    private final TestService testService;
 
-    @Autowired
-    private TestInterface testInterface;
+    private final Test1Service test1Service;
 
-    @GetMapping("/test")
-    public String test(String name) {
-        testInterface.test(name);
-        return "success: " + name;
-    }
-    //
-    //@GetMapping("/hot")
-    //public String ok() {
-    //    return "1234";
-    //}
-
-    @GetMapping("/hot1")
+    @GetMapping("/hot")
     public String ok1() {
-        return "123432121";
-    }
-
-    @GetMapping("/hot2")
-    public LocalDate ok2() {
-        return LocalDate.now();
+        return "asd";
     }
 
     @GetMapping("/insertBatchSomeColumn")

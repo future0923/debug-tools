@@ -16,14 +16,10 @@ public class ByteBuf {
     public ByteBuf() {
     }
 
-    public static ByteBuf wrappedBuffer(byte[] bytes) {
+    public static ByteBuf wrap(byte[] bytes) {
         ByteBuf byteBuf = new ByteBuf();
         byteBuf.inBuffer = new ByteArrayInputStream(bytes);
         return byteBuf;
-    }
-
-    public static ByteBuf wrap(byte[] bytes) {
-        return wrappedBuffer(bytes);
     }
 
     public synchronized void writeInt(int intVal) {

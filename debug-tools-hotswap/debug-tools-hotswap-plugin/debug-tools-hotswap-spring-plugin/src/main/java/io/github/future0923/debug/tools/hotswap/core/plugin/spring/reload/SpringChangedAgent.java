@@ -57,8 +57,16 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
      */
     private static ClassLoader appClassLoader;
     private static final Map<DefaultListableBeanFactory, SpringChangedAgent> springChangeAgents = new ConcurrentHashMap<>(2);
+
+    /**
+     * 重新加载SpringBean环境
+     */
     private final SpringBeanReload springReload;
-    ReentrantLock reloadLock = new ReentrantLock();
+
+    /**
+     * 重载锁
+     */
+    private final ReentrantLock reloadLock = new ReentrantLock();
 
     public SpringChangedAgent(DefaultListableBeanFactory defaultListableBeanFactory) {
         springReload = new SpringBeanReload(defaultListableBeanFactory);
@@ -133,18 +141,17 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
 
     public static void reload(long changeTimeStamps) {
         int reloadCount = waitingReloadCount.incrementAndGet();
-        // avoid reload too much times, allow 2 tasks into waiting queue
+        // 避免多个重载同时生效
         if (reloadCount > 2) {
             LOGGER.trace("Spring reload is already scheduled, skip this time:{}", changeTimeStamps);
             waitingReloadCount.decrementAndGet();
             return;
         }
         try {
-            // sore the list by beanFactory order, make sure the parent beanFactory reload first
+            // 排序保证父类的beanFactory先重新加载
             List<SpringChangedAgent> changedAgentList = new ArrayList<>(springChangeAgents.values());
             Collections.sort(changedAgentList);
             for (SpringChangedAgent springChangedAgent : changedAgentList) {
-                // ensure reload only once, there is one lock.
                 springChangedAgent.reloadAll(changeTimeStamps);
             }
         } finally {
@@ -207,8 +214,7 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
         boolean isLockAcquired = reloadLock.tryLock(1, TimeUnit.SECONDS);
         if (isLockAcquired) {
             try {
-                LOGGER.trace("Spring reload: {} at timestamps '{}'",
-                    ObjectUtils.identityToString(defaultListableBeanFactory), changeTimeStamps);
+                LOGGER.trace("Spring reload: {} at timestamps '{}'", ObjectUtils.identityToString(defaultListableBeanFactory), changeTimeStamps);
                 springReload.reload(changeTimeStamps);
             } finally {
                 reloadLock.unlock();

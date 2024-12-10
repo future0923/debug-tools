@@ -153,14 +153,8 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
         }
     }
 
-
     /**
-     * Creats javaassist CtClass for bytecode manipulation. Add default classloader.
-     *
-     * @param uri         uri
-     * @param classLoader loader
-     * @return created class
-     * @throws NotFoundException
+     * 通过字节码创建javassist的CtClass
      */
     private CtClass createCtClass(URI uri, ClassLoader classLoader) throws NotFoundException, IOException {
         File file = new File(uri);

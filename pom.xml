@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>3.0.0</revision>
+        <revision>3.1.0</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -165,8 +165,6 @@
                 <groupId>com.github.olivergondza</groupId>
                 <artifactId>maven-jdk-tools-wrapper</artifactId>
                 <version>${maven-jdk-tools-wrapper.version}</version>
-                <scope>provided</scope>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.xuxueli</groupId>

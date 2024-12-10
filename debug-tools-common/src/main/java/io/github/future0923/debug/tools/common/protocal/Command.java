@@ -20,4 +20,8 @@ public interface Command {
     Byte RUN_GROOVY_SCRIPT_REQUEST = 8;
 
     Byte RUN_GROOVY_SCRIPT_RESPONSE = 9;
+
+    Byte HOTSWAP_REQUEST = 10;
+
+    Byte HOTSWAP_RESPONSE = 11;
 }
