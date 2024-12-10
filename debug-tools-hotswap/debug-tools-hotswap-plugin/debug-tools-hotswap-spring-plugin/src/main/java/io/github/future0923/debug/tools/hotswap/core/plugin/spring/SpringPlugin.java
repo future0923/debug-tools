@@ -64,7 +64,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * Spring plugin.
+ * Spring热重载插件
  */
 @Plugin(name = "Spring", description = "Reload Spring configuration after class definition/change.",
         testedVersions = {"All between 3.1.0 - 5.3.30"}, expectedVersions = {"3x", "4x", "5x"},
@@ -152,6 +152,13 @@ public class SpringPlugin {
         }
     }
 
+    @OnClassLoadEvent(classNameRegexp = ".*", events = {LoadEvent.REDEFINE})
+    public void redefinedClass(Class<?> clazz) {
+        scheduler.scheduleCommand(new ClassChangedCommand(appClassLoader, clazz, scheduler));
+        LOGGER.trace("Scheduling Spring reload for class '{}' in classLoader {}", clazz, appClassLoader);
+        scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
+    }
+
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
         scheduler.scheduleCommand(new XmlsChangedCommand(appClassLoader, url, scheduler));
@@ -169,21 +176,10 @@ public class SpringPlugin {
     @OnResourceFileEvent(path = "/", filter = ".*.yaml", events = {FileEvent.MODIFY})
     public void registerYamlListeners(URL url) {
         scheduler.scheduleCommand(new YamlChangedCommand(appClassLoader, url, scheduler));
-        // schedule reload after 1000 milliseconds
         LOGGER.trace("Scheduling Spring reload for yaml '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }
 
-    @OnClassLoadEvent(classNameRegexp = ".*", events = {LoadEvent.REDEFINE})
-    public void registerClassListeners(Class<?> clazz) {
-        scheduler.scheduleCommand(new ClassChangedCommand(appClassLoader, clazz, scheduler));
-        LOGGER.trace("Scheduling Spring reload for class '{}' in classLoader {}", clazz, appClassLoader);
-        scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
-    }
-
-    /**
-     * register base package prefix from configuration file
-     */
     public void registerBasePackageFromConfiguration() {
         if (basePackagePrefixes != null) {
             for (String basePackagePrefix : basePackagePrefixes) {
@@ -193,21 +189,13 @@ public class SpringPlugin {
     }
 
     private void registerBasePackage(final String basePackage) {
-        // Force load/initialize the ClassPathBeanRefreshCommand class into the JVM to work around an issue where instances
-        // of this class sometimes remain locked during the agent's transform() call. This behavior suggests a potential
-        // bug in JVMTI or its handling of debugger locks.
         hotswapTransformer.registerTransformer(appClassLoader, getClassNameRegExp(basePackage), new SpringBeanClassFileTransformer(appClassLoader, scheduler, basePackage));
     }
 
     /**
-     * Register both hotswap transformer AND watcher - in case of new file the file is not known
-     * to JVM and hence no hotswap is called. The file may even exist, but until is loaded by Spring
-     * it will not be known by the JVM. File events are processed only if the class is not known to the
-     * classloader yet.
+     * 注册热重载 {@link SpringBeanClassFileTransformer}，并扫描BasePackage是否有新文件，添加 {@link SpringBeanWatchEventListener} 处理新增文件
      * <p>
      * {@link ClassPathBeanDefinitionScannerAgent#registerBasePackage(String)}会反射调用这里注册SpringBasePackage
-     *
-     * @param basePackage only files in a basePackage
      */
     public void registerComponentScanBasePackage(final String basePackage) {
         LOGGER.info("Registering basePackage {}", basePackage);

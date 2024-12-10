@@ -90,7 +90,7 @@ public class HotswapAgent {
      * 插件是否被禁用
      */
     public static boolean isPluginDisabled(String pluginName) {
-        return disabledPlugins.contains(pluginName.toLowerCase());
+        return disabledPlugins.contains(pluginName);
     }
 
     /**

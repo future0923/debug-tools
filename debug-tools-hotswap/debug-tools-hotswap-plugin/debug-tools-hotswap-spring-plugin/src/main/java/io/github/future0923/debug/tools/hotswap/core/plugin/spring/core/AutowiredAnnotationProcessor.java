@@ -24,13 +24,15 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import java.util.Map;
 
+/**
+ * 调用{@link AutowiredAnnotationBeanPostProcessor}处理Spring的@Value和@Autowired注解
+ */
 public class AutowiredAnnotationProcessor {
     private static final Logger LOGGER = Logger.getLogger(AutowiredAnnotationProcessor.class);
 
     public static void processSingletonBeanInjection(DefaultListableBeanFactory beanFactory) {
         try {
-            Map<String, AutowiredAnnotationBeanPostProcessor> postProcessors = beanFactory.getBeansOfType(
-                AutowiredAnnotationBeanPostProcessor.class);
+            Map<String, AutowiredAnnotationBeanPostProcessor> postProcessors = beanFactory.getBeansOfType(AutowiredAnnotationBeanPostProcessor.class);
             if (postProcessors.isEmpty()) {
                 LOGGER.debug("AutowiredAnnotationProcessor not exist");
                 return;

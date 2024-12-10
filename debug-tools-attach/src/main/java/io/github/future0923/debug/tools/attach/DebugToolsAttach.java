@@ -29,7 +29,7 @@ public class DebugToolsAttach {
     private static Object bootstrap;
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
-        //SqlPrintByteCodeEnhance.enhance(inst);
+        SqlPrintByteCodeEnhance.enhance(inst);
         if (ProjectConstants.DEBUG) {
             CtClass.debugDump = "debug/javassist";
             System.setProperty("cglib.debugLocation", "debug/cglib");

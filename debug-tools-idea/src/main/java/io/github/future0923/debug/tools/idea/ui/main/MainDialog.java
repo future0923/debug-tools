@@ -17,6 +17,7 @@ import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants
 import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.apache.commons.io.FileUtils;
@@ -91,6 +92,7 @@ public class MainDialog extends DialogWrapper {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
             Messages.showErrorDialog("Run attach first", "执行失败");
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         try {

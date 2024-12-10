@@ -19,9 +19,11 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.core;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.ConfigurationClassPostProcessorTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.RegistryUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.spring.util.ObjectUtils;
+import lombok.Getter;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -34,15 +36,23 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 对Spring的{@link ConfigurationClassPostProcessor}进行增强，可以热重载@configuration注解
+ */
+@Getter
+@SuppressWarnings("unchecked")
 public class ConfigurationClassPostProcessorEnhance {
+
     private static final Logger LOGGER = Logger.getLogger(ConfigurationClassPostProcessorEnhance.class);
 
-    private static final Map<BeanDefinitionRegistry,ConfigurationClassPostProcessorEnhance> INSTANCES = new ConcurrentHashMap<>(4);
+    private static final Map<BeanDefinitionRegistry, ConfigurationClassPostProcessorEnhance> INSTANCES = new ConcurrentHashMap<>(4);
 
-    private static final String CONFIGURATION_CLASS_ATTRIBUTE =
-            Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "configurationClass");
+    private static final String CONFIGURATION_CLASS_ATTRIBUTE = Conventions.getQualifiedAttributeName(ConfigurationClassPostProcessor.class, "configurationClass");
 
     private volatile ConfigurationClassPostProcessor processor;
+
+    private ConfigurationClassPostProcessorEnhance() {
+    }
 
     public static ConfigurationClassPostProcessorEnhance getInstance(BeanDefinitionRegistry registry) {
         ConfigurationClassPostProcessorEnhance result = INSTANCES.putIfAbsent(registry, new ConfigurationClassPostProcessorEnhance());
@@ -52,16 +62,13 @@ public class ConfigurationClassPostProcessorEnhance {
         return result;
     }
 
-    private ConfigurationClassPostProcessorEnhance() {
-    }
-
+    /**
+     * 设置 Spring ConfigurationClassPostProcessor 实例。
+     * <p>{@link ConfigurationClassPostProcessorTransformer#transform}会设置进去
+     */
     public void setProcessor(ConfigurationClassPostProcessor processor) {
         LOGGER.trace("ConfigurationClassPostProcessorAgent.setProcessor({})", processor);
         this.processor = processor;
-    }
-
-    public ConfigurationClassPostProcessor getProcessor() {
-        return processor;
     }
 
     public void resetConfigurationClassPostProcessor(BeanDefinitionRegistry registry) {
@@ -69,7 +76,6 @@ public class ConfigurationClassPostProcessorEnhance {
         if (processor == null) {
             return;
         }
-
         resetCachingMetadataReaderFactoryCache();
         resetBeanNameCache();
         resetBeanFactoryCache(registry);
@@ -79,31 +85,29 @@ public class ConfigurationClassPostProcessorEnhance {
         if (processor == null) {
             return;
         }
-
         resetCachingMetadataReaderFactoryCache();
         resetBeanNameCache();
         resetBeanFactoryCache(registry);
         removeBeanAttribute(registry, beanName);
-
         processor.processConfigBeanDefinitions(registry);
     }
 
+    /**
+     * 处理@Configuration注解
+     */
     public void postProcess(BeanDefinitionRegistry registry) {
         LOGGER.trace("ConfigurationClassPostProcessorAgent.postProcess({})", ObjectUtils.identityToString(registry));
         if (processor == null) {
             return;
         }
-
         resetCachingMetadataReaderFactoryCache();
         resetBeanNameCache();
         resetBeanFactoryCache(registry);
-
         processor.processConfigBeanDefinitions(registry);
     }
 
     private MetadataReaderFactory getMetadataReaderFactory() {
-        return (MetadataReaderFactory) ReflectionHelper.getNoException(processor, ConfigurationClassPostProcessor.class,
-                "metadataReaderFactory");
+        return (MetadataReaderFactory) ReflectionHelper.getNoException(processor, ConfigurationClassPostProcessor.class, "metadataReaderFactory");
     }
 
     private void resetCachingMetadataReaderFactoryCache() {
@@ -138,8 +142,7 @@ public class ConfigurationClassPostProcessorEnhance {
     }
 
     private void resetFactoryMethodCandidateCache(DefaultListableBeanFactory factory) {
-        Map<Class<?>, Method[]> cache = (Map<Class<?>, Method[]>) ReflectionHelper.getNoException(factory,
-                AbstractAutowireCapableBeanFactory.class, "factoryMethodCandidateCache");
+        Map<Class<?>, Method[]> cache = (Map<Class<?>, Method[]>) ReflectionHelper.getNoException(factory, AbstractAutowireCapableBeanFactory.class, "factoryMethodCandidateCache");
         if (cache != null) {
             LOGGER.trace("Cache cleared: AbstractAutowireCapableBeanFactory.factoryMethodCandidateCache");
             cache.clear();
@@ -147,9 +150,7 @@ public class ConfigurationClassPostProcessorEnhance {
     }
 
     private void resetBeanNameCache() {
-        Map<Method, String> cache = (Map<Method, String>) ReflectionHelper.getNoException(null,
-                "org.springframework.context.annotation.BeanAnnotationHelper",
-                processor.getClass().getClassLoader(), "beanNameCache");
+        Map<Method, String> cache = (Map<Method, String>) ReflectionHelper.getNoException(null, "org.springframework.context.annotation.BeanAnnotationHelper", processor.getClass().getClassLoader(), "beanNameCache");
         if (cache != null) {
             LOGGER.trace("Cache cleared: BeanAnnotationHelper.beanNameCache");
             cache.clear();

@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload;
 
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api.BeanFactoryLifecycle;
+import lombok.Getter;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -31,15 +32,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The type Bean factory assistant.
  */
 public class BeanFactoryAssistant {
-    private ConfigurableListableBeanFactory beanFactory;
-    private AtomicInteger reloadTimes;
+
+    @Getter
+    private final ConfigurableListableBeanFactory beanFactory;
+
+    private final AtomicInteger reloadTimes;
+
+    @Getter
     private long lastReloadTime;
+
+    /**
+     * 是否进行热重载
+     */
     private volatile boolean isReload = false;
 
     // keep the bean name and xml file relation for the beans which are defined in xml file and the bean contains placeholder
     Map<String, String> placeHolderXmlMapping = new ConcurrentHashMap<>();
 
-    private static Map<ConfigurableListableBeanFactory, BeanFactoryAssistant> beanFactoryAssistants = new ConcurrentHashMap<>(4);
+    private static final Map<ConfigurableListableBeanFactory, BeanFactoryAssistant> beanFactoryAssistants = new ConcurrentHashMap<>(4);
 
     public BeanFactoryAssistant(ConfigurableListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
@@ -77,10 +87,6 @@ public class BeanFactoryAssistant {
         this.lastReloadTime = System.currentTimeMillis();
     }
 
-    public ConfigurableListableBeanFactory getBeanFactory() {
-        return beanFactory;
-    }
-
     public void reset() {
         this.reloadTimes.set(0);
         this.lastReloadTime = System.currentTimeMillis();
@@ -88,10 +94,6 @@ public class BeanFactoryAssistant {
 
     public int getReloadTimes() {
         return reloadTimes.get();
-    }
-
-    public long getLastReloadTime() {
-        return lastReloadTime;
     }
 
     public boolean isReload() {

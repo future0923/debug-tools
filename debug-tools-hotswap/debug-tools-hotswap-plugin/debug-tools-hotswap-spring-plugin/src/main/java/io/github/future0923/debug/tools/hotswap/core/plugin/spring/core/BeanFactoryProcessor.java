@@ -136,7 +136,7 @@ public class BeanFactoryProcessor {
 
     private static void resetEmbeddedValueResolvers(DefaultListableBeanFactory beanFactory, String beanName) {
         Object target = beanFactory.getSingleton(beanName);
-        if (target != null && target instanceof PlaceholderConfigurerSupport && target instanceof ValueResolverSupport) {
+        if (target instanceof PlaceholderConfigurerSupport && target instanceof ValueResolverSupport) {
             ValueResolverSupport placeholderConfigurerSupport = (ValueResolverSupport) target;
             Field field = ReflectionUtils.findField(beanFactory.getClass(), "embeddedValueResolvers");
             if (field != null) {
@@ -148,7 +148,6 @@ public class BeanFactoryProcessor {
     }
 
     public static boolean isAllowBeanDefinitionOverriding(DefaultListableBeanFactory beanFactory) {
-        // org.springframework.beans.factory.support.DefaultListableBeanFactory.isAllowBeanDefinitionOverriding is introduced in spring 4.1.2
         Object target = ReflectionHelper.getNoException(beanFactory, beanFactory.getClass(), "allowBeanDefinitionOverriding");
         if (target == null) {
             return false;

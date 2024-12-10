@@ -28,29 +28,53 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 import io.github.future0923.debug.tools.hotswap.core.javassist.expr.ExprEditor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.expr.MethodCall;
 
+/**
+ * 对Spring的ConfigurationClassPostProcessor进行转换。
+ */
 public class ConfigurationClassPostProcessorTransformer {
+
     private static final Logger LOGGER = Logger.getLogger(ConfigurationClassPostProcessorTransformer.class);
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ConfigurationClassPostProcessor")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
         LOGGER.debug("Class 'org.springframework.context.annotation.ConfigurationClassPostProcessor' patched with processor registration.");
-        CtMethod method = clazz.getDeclaredMethod("processConfigBeanDefinitions",
-                new CtClass[]{classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
-        method.insertAfter("io.github.future0923.debug.tools.hotswap.core.plugin.spring.core.ConfigurationClassPostProcessorEnhance.getInstance($1)." +
-                "setProcessor(this);");
+        // processConfigBeanDefinitions 方法获取所有的 BeanDefinition
+        // 检查这些 BeanDefinition 是否符合 @Configuration 类的特性。
+        // 对符合要求的类进行递归解析，生成新的 BeanDefinition，并注册到容器中。
+        CtMethod method = clazz.getDeclaredMethod("processConfigBeanDefinitions", new CtClass[]{classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
+        method.insertAfter("io.github.future0923.debug.tools.hotswap.core.plugin.spring.core.ConfigurationClassPostProcessorEnhance.getInstance($1).setProcessor(this);");
         try {
-            /**
-             * remove warning log in org.springframework.context.annotation.ConfigurationClassPostProcessor.enhanceConfigurationClasses
-             */
+            // 对enhanceConfigurationClasses方法内调用的ConfigurableListableBeanFactory#containsSingleton方法进行增强
+            // enhanceConfigurationClasses功能如下
+            // @Configuration
+            //  public class AppConfig {
+            //
+            //    @Bean
+            //    public ServiceA serviceA() {
+            //        return new ServiceA();
+            //    }
+            //
+            //    @Bean
+            //    public ServiceB serviceB() {
+            //        return new ServiceB(serviceA());
+            //    }
+            //  }
+            // 调用 serviceB() 会导致直接调用 serviceA() 方法，可能返回一个新实例（如果没有容器管理）。
+            // 增强后
+            // 调用 serviceB() 时，serviceA() 会被代理，返回容器中已经管理的单例 ServiceA 实例。
             CtMethod enhanceConfigurationClassesMethod = clazz.getDeclaredMethod("enhanceConfigurationClasses");
             enhanceConfigurationClassesMethod.instrument(new ExprEditor() {
                         @Override
                         public void edit(MethodCall m) throws CannotCompileException {
                             if (m.getClassName().equals("org.springframework.beans.factory.config.ConfigurableListableBeanFactory")
                                     && m.getMethodName().equals("containsSingleton")) {
+                                // $proceed($$) 表示执行原方法
+                                // $_ 原为返回值
+                                // 在进行热重载时阻止正常处理，没热重载时正常处理
                                 m.replace("{$_ = $proceed($$) && " +
                                         "(io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.BeanFactoryAssistant.getBeanFactoryAssistant($0) == null || " +
-                                        "!io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.BeanFactoryAssistant.getBeanFactoryAssistant($0).isReload());}");
+                                        "!io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.BeanFactoryAssistant.getBeanFactoryAssistant($0).isReload());" +
+                                        "}");
                             }
                         }
                     });

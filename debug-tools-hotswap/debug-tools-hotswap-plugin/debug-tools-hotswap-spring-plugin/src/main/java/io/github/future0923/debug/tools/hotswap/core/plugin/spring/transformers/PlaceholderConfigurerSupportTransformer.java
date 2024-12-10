@@ -26,16 +26,15 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 
+/**
+ * 对配置占位符进行转换处理，Spring的{@link PlaceholderConfigurerSupport}会对配置占位符进行解析，如解析{@code ${property.name:defaultValue}}这种字符串
+ */
 public class PlaceholderConfigurerSupportTransformer {
-    private static Logger LOGGER = Logger.getLogger(PlaceholderConfigurerSupportTransformer.class);
 
-    /**
-     * @param clazz
-     * @param classPool
-     * @throws NotFoundException
-     * @throws CannotCompileException
-     */
+    private static final Logger LOGGER = Logger.getLogger(PlaceholderConfigurerSupportTransformer.class);
+
     @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.config.PlaceholderConfigurerSupport")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
         for (CtClass interfaceClazz : clazz.getInterfaces()) {
@@ -46,10 +45,11 @@ public class PlaceholderConfigurerSupportTransformer {
         clazz.addInterface(classPool.get("io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api.ValueResolverSupport"));
         clazz.addField(CtField.make("private java.util.List _resolvers;", clazz), "new java.util.ArrayList(2)");
         clazz.addMethod(CtMethod.make("public java.util.List valueResolvers() { return this._resolvers; }", clazz));
-        CtMethod ctMethod = clazz.getDeclaredMethod("doProcessProperties", new CtClass[]{classPool.get("org.springframework.beans.factory.config.ConfigurableListableBeanFactory"),
-                classPool.get("org.springframework.util.StringValueResolver")});
-        ctMethod.insertBefore("io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent.collectPlaceholderProperties($1); " +
-                "this._resolvers.add($2);");
+        CtMethod ctMethod = clazz.getDeclaredMethod("doProcessProperties", new CtClass[]{classPool.get("org.springframework.beans.factory.config.ConfigurableListableBeanFactory"), classPool.get("org.springframework.util.StringValueResolver")});
+        ctMethod.insertBefore(
+                "io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent.collectPlaceholderProperties($1); " +
+                        "this._resolvers.add($2);"
+        );
         LOGGER.debug("class 'org.springframework.beans.factory.config.PlaceholderConfigurerSupport' patched with placeholder keep.");
     }
 }

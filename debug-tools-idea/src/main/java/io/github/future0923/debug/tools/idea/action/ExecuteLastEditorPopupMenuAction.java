@@ -11,6 +11,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,6 +50,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
             Messages.showErrorDialog("Run attach first", "执行失败");
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         try {

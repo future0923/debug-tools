@@ -29,24 +29,17 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 
 public class InitDestroyAnnotationBeanPostProcessorTransformer {
 
-    private static final Logger LOGGER = Logger.getLogger(
-        InitDestroyAnnotationBeanPostProcessorTransformer.class);
+    private static final Logger LOGGER = Logger.getLogger(InitDestroyAnnotationBeanPostProcessorTransformer.class);
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        LOGGER.debug(
-            "Class 'org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor' patched with"
-                + " catch exception.");
-        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger $$ha$LOGGER = " +
-                "io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.beans.factory.annotation"
-                + ".InitDestroyAnnotationBeanPostProcessor.class);",
-            clazz));
-        CtMethod method = clazz.getDeclaredMethod("postProcessBeforeInitialization",
-            new CtClass[] {classPool.get("java.lang.Object"), classPool.get("java.lang.String")});
+        LOGGER.debug("Class 'org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor' patched with catch exception.");
+        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger $$ha$LOGGER = io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.class);", clazz));
+        CtMethod method = clazz.getDeclaredMethod("postProcessBeforeInitialization", new CtClass[] {classPool.get("java.lang.Object"), classPool.get("java.lang.String")});
         String code = "{"
             + "if (!io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.BeanFactoryAssistant.existReload()) {"
-                + " throw $e ; }"
-            + "else {"
+                + " throw $e; "
+            + "} else {"
                 + "if ($$ha$LOGGER.isDebugEnabled()) {"
                     + "$$ha$LOGGER.debug(\"Failed to invoke init method of {} from @PostConstructor: {}\", $e, "
                         + "new java.lang.Object[]{$1.getClass().getName(),$e.getMessage()});"
