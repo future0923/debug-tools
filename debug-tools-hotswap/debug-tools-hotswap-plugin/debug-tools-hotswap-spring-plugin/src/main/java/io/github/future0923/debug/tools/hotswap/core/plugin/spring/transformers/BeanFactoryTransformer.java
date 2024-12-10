@@ -38,40 +38,39 @@ public class BeanFactoryTransformer {
     private static final Logger LOGGER = Logger.getLogger(BeanFactoryTransformer.class);
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.support.DefaultSingletonBeanRegistry")
-    public static void registerDefaultSingletonBeanRegistry(ClassLoader appClassLoader, CtClass clazz,
-        ClassPool classPool) throws NotFoundException, CannotCompileException {
-        clazz.addField(
-            CtField.make("private java.util.Set hotswapAgent$destroyBean = new java.util.HashSet();", clazz));
+    public static void registerDefaultSingletonBeanRegistry(ClassLoader appClassLoader, CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        clazz.addField(CtField.make("private java.util.Set hotswapAgent$destroyBean = new java.util.HashSet();", clazz));
         clazz.addInterface(classPool.get("io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api.BeanFactoryLifecycle"));
         clazz.addMethod(CtNewMethod.make(
-            "public boolean hotswapAgent$isDestroyedBean(String beanName) { return hotswapAgent$destroyBean.contains"
-                + "(beanName); }",
-            clazz));
-        clazz.addMethod(CtNewMethod.make(
-            "public void hotswapAgent$destroyBean(String beanName) { hotswapAgent$destroyBean.add(beanName); }",
-            clazz));
-        clazz.addMethod(
-            CtNewMethod.make("public void hotswapAgent$clearDestroyBean() { hotswapAgent$destroyBean.clear(); }",
+                "public boolean hotswapAgent$isDestroyedBean(String beanName) { " +
+                        "return hotswapAgent$destroyBean.contains(beanName); " +
+                    "}",
                 clazz));
-
-        CtMethod destroySingletonMethod = clazz.getDeclaredMethod("destroySingleton",
-            new CtClass[] {classPool.get(String.class.getName())});
-        destroySingletonMethod.insertAfter(
-            BeanFactoryProcessor.class.getName() + ".postProcessDestroySingleton($0, $1);");
+        clazz.addMethod(CtNewMethod.make(
+                "public void hotswapAgent$destroyBean(String beanName) { " +
+                        "hotswapAgent$destroyBean.add(beanName); " +
+                    "}",
+                clazz));
+        clazz.addMethod(CtNewMethod.make(
+                "public void hotswapAgent$clearDestroyBean() { " +
+                        "hotswapAgent$destroyBean.clear(); " +
+                    "}",
+                clazz));
+        CtMethod destroySingletonMethod = clazz.getDeclaredMethod("destroySingleton", new CtClass[]{classPool.get(String.class.getName())});
+        destroySingletonMethod.insertAfter(BeanFactoryProcessor.class.getName() + ".postProcessDestroySingleton($0, $1);");
     }
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory")
-    public static void registerAbstractAutowireCapableBeanFactory(ClassLoader appClassLoader, CtClass clazz,
-        ClassPool classPool) throws NotFoundException, CannotCompileException {
-        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger $$ha$LOGGER = " +
-                "io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.beans.factory.annotation"
-                + ".InitDestroyAnnotationBeanPostProcessor.class);",
-            clazz));
-
-        CtMethod createBeanMethod = clazz.getDeclaredMethod("createBean", new CtClass[] {
-            classPool.get(String.class.getName()),
-            classPool.get("org.springframework.beans.factory.support.RootBeanDefinition"),
-            classPool.get(Object[].class.getName())});
+    public static void registerAbstractAutowireCapableBeanFactory(ClassLoader appClassLoader, CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger $$ha$LOGGER = io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.class);", clazz));
+        CtMethod createBeanMethod = clazz.getDeclaredMethod(
+                "createBean",
+                new CtClass[]{
+                    classPool.get(String.class.getName()),
+                    classPool.get("org.springframework.beans.factory.support.RootBeanDefinition"),
+                    classPool.get(Object[].class.getName())
+                }
+        );
         createBeanMethod.insertAfter(BeanFactoryProcessor.class.getName() + ".postProcessCreateBean($0, $1, $2);");
 
         // try catch for custom init method
@@ -80,15 +79,15 @@ public class BeanFactoryTransformer {
             LOGGER.error("Unexpected number of 'invokeCustomInitMethod' methods found. Expected: 1, Found: " + invokeCustomInitMethods.length);
         }
         invokeCustomInitMethods[0].addCatch(
-            InitMethodEnhance.catchException("$2", "$$ha$LOGGER", "$e", "invokeCustomInitMethod", false),
-            classPool.get("java.lang.Throwable"));
+                InitMethodEnhance.catchException("$2", "$$ha$LOGGER", "$e", "invokeCustomInitMethod", false),
+                classPool.get("java.lang.Throwable"));
 
         // try catch for afterPropertiesSet
         CtMethod invokeInitMethod = clazz.getDeclaredMethod("invokeInitMethods",
-            new CtClass[] {classPool.get(String.class.getName()), classPool.get("java.lang.Object"),
-                classPool.get("org.springframework.beans.factory.support.RootBeanDefinition")});
+                new CtClass[]{classPool.get(String.class.getName()), classPool.get("java.lang.Object"),
+                        classPool.get("org.springframework.beans.factory.support.RootBeanDefinition")});
         invokeInitMethod.addCatch(
-            InitMethodEnhance.catchException("$2", "$$ha$LOGGER", "$e", "invokeInitMethods", false),
-            classPool.get("java.lang.Throwable"));
+                InitMethodEnhance.catchException("$2", "$$ha$LOGGER", "$e", "invokeInitMethods", false),
+                classPool.get("java.lang.Throwable"));
     }
 }

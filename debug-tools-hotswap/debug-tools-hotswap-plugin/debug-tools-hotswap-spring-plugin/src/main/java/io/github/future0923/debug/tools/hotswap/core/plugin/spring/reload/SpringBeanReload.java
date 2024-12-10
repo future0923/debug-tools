@@ -83,7 +83,9 @@ public class SpringBeanReload {
 
     private final AtomicBoolean isReloading = new AtomicBoolean(false);
 
-    // it is synchronized set because it is used synchronized block
+    /**
+     * 需要重新载入的class
+     */
     private final Set<Class<?>> classes = Collections.newSetFromMap(new ConcurrentHashMap<>());
     // it is synchronized set because it is used synchronized block
     private final Set<URL> properties = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -343,7 +345,7 @@ public class SpringBeanReload {
         if (!checkHasChange()) {
             return false;
         }
-        // check the classes is bean of spring, if not remove it
+        // 变化的 classes 是否是 Spring Bean，不是就删除这个class
         synchronized (classes) {
             if (!classes.isEmpty()) {
                 Iterator<Class<?>> iterator = classes.iterator();
@@ -351,7 +353,7 @@ public class SpringBeanReload {
                     Class<?> clazz = iterator.next();
                     String[] names = beanFactory.getBeanNamesForType(clazz);
                     // if the class is not spring bean or Factory Class, remove it
-                    if ((names == null || names.length == 0) && !isFactoryMethod(clazz)) {
+                    if (names.length == 0 && !isFactoryMethod(clazz)) {
                         LOGGER.trace("the class '{}' is not spring bean or factory class", clazz.getName());
                         iterator.remove();
                     } else {
@@ -379,6 +381,11 @@ public class SpringBeanReload {
         return true;
     }
 
+    /**
+     * 检查是否有改变
+     *
+     * @return true 才会真的加载
+     */
     private boolean checkHasChange() {
         if (properties.isEmpty() && classes.isEmpty() && xmls.isEmpty() && newScanBeanDefinitions.isEmpty()
                 && yamls.isEmpty() && changedBeanNames.isEmpty()) {
@@ -525,17 +532,25 @@ public class SpringBeanReload {
         }
     }
 
+    /**
+     * 刷新请求Mapping，变换的controller层代码可以生成
+     */
     private void refreshRequestMapping() {
-        // reset mvc initialized, it will update the mapping of url and handler
         LOGGER.debug("refreshRequestMapping of {}", ObjectUtils.identityToString(beanFactory));
         ResetRequestMappingCaches.reset(beanFactory);
     }
 
+    /**
+     * 处理@Value和@Autowired注解的BeanDefinition
+     */
     private void processAutowiredAnnotationBeans() {
         LOGGER.debug("process @Value and @Autowired of singleton beans of {}", ObjectUtils.identityToString(beanFactory));
         AutowiredAnnotationProcessor.processSingletonBeanInjection(beanFactory);
     }
 
+    /**
+     * 处理@Configuration注解的BeanDefinition
+     */
     private void processConfigBeanDefinitions() {
         LOGGER.debug("process @Configuration of {}", ObjectUtils.identityToString(beanFactory));
         ConfigurationClassPostProcessorEnhance.getInstance(beanFactory).postProcess(beanFactory);
@@ -563,9 +578,9 @@ public class SpringBeanReload {
         }
     }
 
-    private List<String> reloadAnnotatedBeanDefinitions(Class clazz, String[] beanNames) {
+    private List<String> reloadAnnotatedBeanDefinitions(Class<?> clazz, String[] beanNames) {
         List<String> configurationBeansToReload = new ArrayList<>();
-        Class realClass = ClassUtils.getUserClass(clazz);
+        Class<?> realClass = ClassUtils.getUserClass(clazz);
         for (String beanName : beanNames) {
             if (beanName.startsWith("&")) {
                 beanName = beanName.substring(1);

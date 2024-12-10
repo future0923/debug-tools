@@ -129,8 +129,6 @@ public class HotswapTransformer implements ClassFileTransformer {
             return bytes;
         }
 
-        LOGGER.trace("Transform on class '{}' @{} redefiningClass '{}'.", className, classLoader, redefiningClass);
-
         // 非插件类文件Transformer的集合
         List<ClassFileTransformer> toApply = new ArrayList<>();
         // 插件类文件Transformer的集合
@@ -184,7 +182,6 @@ public class HotswapTransformer implements ClassFileTransformer {
         }
 
         if (toApply.isEmpty() && pluginTransformers.isEmpty()) {
-            LOGGER.trace("No transformers define for {} ", className);
             return bytes;
         }
 

@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * @author future0923
+ * @deprecated {@link io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher}
  */
+@Deprecated
 public class DebugToolsExecutionListener implements ExecutionListener {
 
     @Override

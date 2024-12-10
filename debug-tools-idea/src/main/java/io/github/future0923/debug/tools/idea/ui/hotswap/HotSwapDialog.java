@@ -1,6 +1,7 @@
 package io.github.future0923.debug.tools.idea.ui.hotswap;
 
 import cn.hutool.core.io.FileUtil;
+import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -9,6 +10,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
@@ -16,6 +18,9 @@ import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
+import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
 import io.github.future0923.debug.tools.idea.utils.VirtualFileUtil;
 import lombok.Data;
@@ -163,8 +168,7 @@ public class HotSwapDialog extends DialogWrapper {
                                     log.error("解析package失败");
                                     return;
                                 }
-                                String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1)
-                                        .replace(".java", "");
+                                String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");
                                 // 构建源文件的基本名称
                                 String sourceFileBaseName = packageName.replace(".", "/") + "/" + className;
                                 // 收集编译后的类文件
@@ -177,9 +181,22 @@ public class HotSwapDialog extends DialogWrapper {
                                 allOutputClasses.addAll(outputClasses);
                             }
                         });
-                        // 记录输出文件日志
-                        log.info("Output files: " + allOutputClasses);
-                        // 批量上传修改后的类文件
+                        HotSwapRequestPacket hotSwapRequestPacket = new HotSwapRequestPacket();
+                        for (ClassFilePath allOutputClass : allOutputClasses) {
+                            hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
+                        }
+                        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+                        if (info == null) {
+                            Messages.showErrorDialog("Run attach first", "执行失败");
+                            DebugToolsToolWindowFactory.showWindow(project, null);
+                            return;
+                        }
+                        try {
+                            info.getClient().getHolder().send(hotSwapRequestPacket);
+                        } catch (Exception ex) {
+                            log.error("execute last request error", ex);
+                            Messages.showErrorDialog(ex.getMessage(), "执行失败");
+                        }
                     });
                 }
             });

@@ -88,27 +88,15 @@ public class WatchResourcesPlugin {
             return;
         }
 
-        // create new plugin instance
-        WatchResourcesPlugin plugin = (WatchResourcesPlugin) pluginManager.getPluginRegistry()
-                .initializePlugin(WatchResourcesPlugin.class.getName(), appClassLoader);
-
-        // and init it with watchResources path
+        WatchResourcesPlugin plugin = (WatchResourcesPlugin) pluginManager.getPluginRegistry().initializePlugin(WatchResourcesPlugin.class.getName(), appClassLoader);
         plugin.init(watchResources);
     }
 
-    /**
-     * Init the plugin instance for resources.
-     *
-     * @param watchResources resources to watch
-     */
     private void init(URL[] watchResources) {
-        // configure the classloader to return only changed resources on watchResources path
         watchResourcesClassLoader.initWatchResources(watchResources, watcher);
-
         if (appClassLoader instanceof HotswapAgentClassLoaderExt) {
             ((HotswapAgentClassLoaderExt) appClassLoader).$$ha$setWatchResourceLoader(watchResourcesClassLoader);
         } else if (URLClassPathHelper.isApplicable(appClassLoader)) {
-            // modify the application classloader to look for resources first in watchResourcesClassLoader
             URLClassPathHelper.setWatchResourceLoader(appClassLoader, watchResourcesClassLoader);
         }
     }
