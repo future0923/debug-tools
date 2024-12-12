@@ -1,6 +1,7 @@
 package io.github.future0923.debug.tools.server.http.handler;
 
 import com.sun.net.httpserver.Headers;
+import io.github.future0923.debug.tools.base.SpyAPI;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
@@ -23,7 +24,7 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
 
     public static final String PATH = "/allClassLoader";
 
-    public static ClassLoader defaultClassLoader;
+    private static volatile ClassLoader defaultClassLoader;
 
     public static final Map<String, ClassLoader> classLoaderMap = new ConcurrentHashMap<>();
 
@@ -37,6 +38,39 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
 
     private AllClassLoaderHttpHandler() {
 
+    }
+
+    public static ClassLoader getDefaultClassLoader() {
+        if (defaultClassLoader == null) {
+            synchronized (AllClassLoaderHttpHandler.class) {
+                if (defaultClassLoader == null) {
+                    String mainClass = DebugToolsJvmUtils.getMainClass();
+                    Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
+                    for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
+                        ClassLoader classLoader = clazz.getClassLoader();
+                        if (defaultClassLoader == null) {
+                            if (mainClass != null) {
+                                if (mainClass.equals(clazz.getName())) {
+                                    defaultClassLoader = classLoader;
+                                    break;
+                                }
+                            } else if (baseClassList.contains(clazz.getName())) {
+                                defaultClassLoader = classLoader;
+                                break;
+                            }
+                        }
+                    }
+                    if (defaultClassLoader == null) {
+                        defaultClassLoader = SpyAPI.class.getClassLoader();
+                    }
+                }
+            }
+        }
+        return defaultClassLoader;
+    }
+
+    public static ClassLoader getDebugToolsClassLoader() {
+        return AllClassLoaderHttpHandler.class.getClassLoader();
     }
 
     @Override
