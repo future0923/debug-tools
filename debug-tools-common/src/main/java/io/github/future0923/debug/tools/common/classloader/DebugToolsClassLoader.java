@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.attach;
+package io.github.future0923.debug.tools.common.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -9,13 +9,14 @@ import java.util.jar.JarFile;
 /**
  * @author future0923
  */
-public class DebugToolsClassloader extends URLClassLoader {
-    public DebugToolsClassloader(URL[] urls, ClassLoader parent) {
+public class DebugToolsClassLoader extends URLClassLoader {
+
+    public DebugToolsClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
     }
 
     @Override
-    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         final Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass != null) {
             return loadedClass;
