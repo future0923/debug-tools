@@ -1,4 +1,6 @@
-package io.github.future0923.debug.tools.common.classloader;
+package io.github.future0923.debug.tools.base.classloader;
+
+import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -11,8 +13,11 @@ import java.util.jar.JarFile;
  */
 public class DebugToolsClassLoader extends URLClassLoader {
 
+    private static final Logger logger = Logger.getLogger(DebugToolsClassLoader.class);
+
     public DebugToolsClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        logger.debug("DebugToolsClassLoader parent is " + parent);
     }
 
     @Override
