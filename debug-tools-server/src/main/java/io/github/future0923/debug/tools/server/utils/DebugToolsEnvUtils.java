@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.server.utils;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
@@ -15,6 +16,8 @@ import java.util.Map;
  */
 public class DebugToolsEnvUtils {
 
+    private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
+
     private static Class<?> springEnvUtil;
 
     private static Class<?> xxlJobEnvUtil;
@@ -29,52 +32,52 @@ public class DebugToolsEnvUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T getFirstBean(String beanName) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method getFirstBean = springEnvUtil.getMethod("getFirstBean", String.class);
         return (T) getFirstBean.invoke(null, beanName);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> getBeans(String beanName) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method getBeans = springEnvUtil.getMethod("getBeans", String.class);
         return (List<T>) getBeans.invoke(null, beanName);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T getFirstBean(Class<T> requiredType) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method getFirstBean = springEnvUtil.getMethod("getFirstBean", Class.class);
         return (T) getFirstBean.invoke(null, requiredType);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> getBeans(Class<T> requiredType) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method getBean = springEnvUtil.getMethod("getBeans", Class.class);
         return (List<T>) getBean.invoke(null, requiredType);
     }
 
     public static <T> void registerBean(T bean) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method registerBean = springEnvUtil.getMethod("registerBean", Object.class);
         registerBean.invoke(null, bean);
     }
 
     public static <T> void registerBean(String beanName, T bean) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method registerBean = springEnvUtil.getMethod("registerBean", String.class, Object.class);
         registerBean.invoke(null, beanName, bean);
     }
 
     public static void unregisterBean(String beanName) throws Exception {
-        DebugToolsClassUtils.loadClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method unregisterBean = springEnvUtil.getMethod("unregisterBean", String.class);
         unregisterBean.invoke(null, beanName);
     }
 
     public static Object getSpringConfig(String value) throws Exception {
-        Class.forName("org.springframework.core.env.Environment");
+        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.env.Environment");
         Method getSpringConfig = springEnvUtil.getMethod("getSpringConfig", String.class);
         return getSpringConfig.invoke(null, value);
     }
@@ -82,7 +85,7 @@ public class DebugToolsEnvUtils {
     @SuppressWarnings("unchecked")
     public static <T> T getTargetObject(Object candidate) {
         try {
-            Class.forName("org.springframework.aop.SpringProxy");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.SpringProxy");
             Method getTargetObject = springEnvUtil.getMethod("getTargetObject", Object.class);
             return (T) getTargetObject.invoke(null, candidate);
         } catch (Exception ignored) {
@@ -92,7 +95,7 @@ public class DebugToolsEnvUtils {
 
     public static Class<?> getTargetClass(Object candidate) {
         try {
-            Class.forName("org.springframework.aop.SpringProxy");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.SpringProxy");
             Method getTargetClass = springEnvUtil.getMethod("getTargetClass", Object.class);
             return (Class<?>) getTargetClass.invoke(null, candidate);
         } catch (Exception ignored) {
@@ -102,85 +105,89 @@ public class DebugToolsEnvUtils {
 
     public static Method findBridgedMethod(Method targetMethod) {
         try {
-            Class.forName("org.springframework.core.BridgeMethodResolver");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.BridgeMethodResolver");
             Method findBridgedMethod = springEnvUtil.getMethod("findBridgedMethod", Method.class);
             return (Method) findBridgedMethod.invoke(null, targetMethod);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return targetMethod;
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return targetMethod;
         }
     }
 
     public static void setRequest(RunDTO runDTO) {
         try {
-            Class.forName("org.springframework.web.context.request.RequestContextHolder");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.web.context.request.RequestContextHolder");
             Method setRequest = springEnvUtil.getMethod("setRequest", RunDTO.class);
             setRequest.invoke(null, runDTO);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception exception) {
+            logger.error("setRequest error", exception);
         }
     }
 
     public static boolean isAopProxy(InvocationHandler invocationHandler) {
         try {
-            Class.forName("org.springframework.aop.framework.AopProxy");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.framework.AopProxy");
             Method setRequest = springEnvUtil.getMethod("isAopProxy", InvocationHandler.class);
             return (boolean) setRequest.invoke(null, invocationHandler);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return false;
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception exception) {
+            logger.error("isAopProxy error", exception);
+            return false;
         }
     }
 
     public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
         try {
-            Class.forName("org.springframework.core.ResolvableType");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.ResolvableType");
             Method getArgs = springEnvUtil.getMethod("getArgs", Method.class, Map.class);
             return (Object[]) getArgs.invoke(null, bridgedMethod, targetMethodContent);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception exception) {
+            logger.error("getArgs error", exception);
+            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
         }
     }
 
     public static Object getRequest() {
         try {
-            Class.forName("org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
             Method getRequest = springEnvUtil.getMethod("getRequest");
             return getRequest.invoke(null);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            return null;
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error("getArgs error", e);
+            return null;
         }
     }
 
     public static Object getResponse() {
         try {
-            Class.forName("org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
             Method getRequest = springEnvUtil.getMethod("getResponse");
             return getRequest.invoke(null);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            return null;
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error("getResponse error", e);
+            return null;
         }
     }
 
     public static void setXxlJobParam(String jobParam) {
         try {
-            Class.forName("com.xxl.job.core.context.XxlJobContext");
+            DebugToolsClassUtils.loadDebugToolsClass("com.xxl.job.core.context.XxlJobContext");
             Method setXxlJobParam = xxlJobEnvUtil.getMethod("setXxlJobParam", String.class);
             setXxlJobParam.invoke(null, jobParam);
-        } catch (ClassNotFoundException | NoSuchMethodException ignored) {
-
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            logger.error("getResponse error", e);
         }
     }
 }
