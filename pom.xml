@@ -42,9 +42,9 @@
     </developers>
 
     <properties>
-        <revision>3.0.0</revision>
-        <compiler.version>17</compiler.version>
-        <target.version>17</target.version>
+        <revision>3.0.1</revision>
+        <compiler.version>8</compiler.version>
+        <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <shade.package>io.github.future0923.debug.tools.dependencies</shade.package>
         <lombok.version>1.18.24</lombok.version>

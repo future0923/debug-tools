@@ -5,6 +5,7 @@ import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.common.classloader.DebugToolsClassLoader;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
@@ -64,7 +65,7 @@ public class DebugToolsAttach {
         }
         agentConfig.store();
         try {
-            DebugToolsClassloader debugToolsClassloader = new DebugToolsClassloader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DebugToolsAttach.class.getClassLoader());
+            DebugToolsClassLoader debugToolsClassloader = new DebugToolsClassLoader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DebugToolsAttach.class.getClassLoader());
             debugToolsClassloader.loadAllClasses();
             bootstrapClass = debugToolsClassloader.loadClass(ProjectConstants.DEBUG_TOOLS_BOOTSTRAP);
             bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class, ClassLoader.class).invoke(null, inst, debugToolsClassloader);
