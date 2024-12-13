@@ -26,10 +26,10 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.0.0</strong>
+        <strong>3.0.1</strong>
         <ul>
-            <li>You can choose classloader.</li>
-            <li>Remote application methods can be invoked.</li>
+            <li>Support intellij idea 2024.3 version.</li>
+            <li>Fixed bug where the default ClassLoader could not be obtained when remotely executing Groovy.</li>
         </ul>
         ]]>
     </change-notes>
