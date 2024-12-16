@@ -53,12 +53,12 @@ public class ConvertPanel extends JBPanel<ConvertPanel> {
             editor.setHorizontalScrollbarVisible(true);
         });
         toolBar = new ToolBar();
-        toolBar.genButton("Pretty Json", DebugToolsIcons.pretty_icon, DebugToolsIcons.pretty_icon, actionEvent -> {
+        toolBar.genButton("Pretty Json", DebugToolsIcons.Pretty, DebugToolsIcons.Pretty, actionEvent -> {
             if (json.isSelected()) {
                 editorTextField.setText(DebugToolsJsonUtils.pretty(editorTextField.getText()));
             }
         });
-        toolBar.genButton("Compress Json", DebugToolsIcons.compress_icon, DebugToolsIcons.compress_icon, actionEvent -> {
+        toolBar.genButton("Compress Json", DebugToolsIcons.Compress, DebugToolsIcons.Compress, actionEvent -> {
             if (json.isSelected()) {
                 editorTextField.setText(DebugToolsJsonUtils.compress(editorTextField.getText()));
             }

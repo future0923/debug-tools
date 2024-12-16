@@ -26,7 +26,7 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.0.1</strong>
+        <strong>3.1.0</strong>
         <ul>
             <li>Support intellij idea 2024.3 version.</li>
             <li>Fixed bug where the default ClassLoader could not be obtained when remotely executing Groovy.</li>
@@ -113,6 +113,11 @@
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <separator/>
         </group>
+        <action id="DebugTools.GotoApi" class="io.github.future0923.debug.tools.idea.action.GotoApiSearchAction"
+                text="Search Api" description="Search api and goto api">
+            <add-to-group group-id="GoToTargetEx" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
+        </action>
     </actions>
 
     <applicationListeners>

@@ -28,7 +28,7 @@ public class GroovyConsoleAction extends AnAction {
 
     public GroovyConsoleAction() {
         getTemplatePresentation().setText("Groovy Console");
-        getTemplatePresentation().setIcon(DebugToolsIcons.groovy_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Groovy);
     }
 
     @Override

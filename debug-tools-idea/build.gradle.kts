@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.future0923"
-version = "3.0.1"
+version = "3.1.0"
 
 repositories {
     mavenLocal()
@@ -17,8 +17,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.future0923:debug-tools-common:3.0.1")
-    implementation("io.github.future0923:debug-tools-client:3.0.1")
+    implementation("io.github.future0923:debug-tools-common:3.1.0")
+    implementation("io.github.future0923:debug-tools-client:3.1.0")
     implementation("cn.hutool:hutool-http:5.8.29")
     compileOnly("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
