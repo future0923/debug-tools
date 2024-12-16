@@ -39,5 +39,8 @@ After selecting the corresponding loader, DebugTools will find the method of the
 ::: tip
 - The [xxl-job parameter](./xxl-job) settings attempt to be set by the `xxl-job` class object loaded by the attached application. Currently, the `2.4.1` version is used.
 - The [header parameter](./header) is set using a custom `MockHttpServletRequest` class that implements the `javax.servlet.http.HttpServletRequest` interface of tomcat, which is attempted to be obtained by the attached application.
-- The Groovy parent class loader for [groovy script execution](./groovy-execute) is [the default class loader for the attached application](#default-classloader)
 :::
+
+## Groovy class loader {#groovy-classloader}
+
+First try to load it through the `DebugToolsClassLoader` class loader. If it fails, try to load it through the [Attached Application Default Class Loader](#default-classloader)
