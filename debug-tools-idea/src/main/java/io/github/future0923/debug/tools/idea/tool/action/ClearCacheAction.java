@@ -12,7 +12,7 @@ public class ClearCacheAction extends BaseToolAction {
 
     public ClearCacheAction() {
         getTemplatePresentation().setText("Clear Cache");
-        getTemplatePresentation().setIcon(DebugToolsIcons.clear_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Clear);
     }
 
     @Override
