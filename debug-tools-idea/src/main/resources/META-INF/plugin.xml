@@ -79,7 +79,7 @@
     </extensions>
 
     <actions>
-        <group id="DebugToolsTool">
+        <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <action id="DebugToolsTool.QuickDebug"
@@ -102,7 +102,7 @@
             </action>
             <separator/>
         </group>
-        <group id="DebugToolsRun">
+        <group id="DebugTools.Run">
             <separator/>
             <add-to-group group-id="RunContextGroup" anchor="last"/>
             <action id="DebugTools.RunGroovy"
@@ -115,9 +115,18 @@
         <action id="DebugTools.HttpMethod"
                 class="io.github.future0923.debug.tools.idea.action.HttpMethodSearchGotoAction"
                 text="Search Http Method" description="Search http method and goto it">
-            <add-to-group group-id="GoToTargetEx" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
         </action>
+        <group id="DebugTools.Toolbar">
+            <action class="io.github.future0923.debug.tools.idea.tool.action.AttachAction"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.ConnectAction"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction"/>
+            <separator text="Separator"/>
+            <reference ref="DebugToolsTool.EvaluateGroovy"/>
+            <separator text="Separator"/>
+            <reference ref="DebugTools.HttpMethod"/>
+            <separator text="Separator"/>
+        </group>
     </actions>
 
     <applicationListeners>

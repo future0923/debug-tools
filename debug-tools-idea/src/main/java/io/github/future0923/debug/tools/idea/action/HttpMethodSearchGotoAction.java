@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.idea.action;
 
+import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.ide.actions.GotoActionBase;
 import com.intellij.ide.util.gotoByName.ChooseByNameItemProvider;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
@@ -39,6 +40,7 @@ public class HttpMethodSearchGotoAction extends GotoActionBase {
         if (project == null) {
             return;
         }
+        FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.service");
         ChooseByNameContributor[] contributors = {new HttpMethodContributor(e.getData(LangDataKeys.MODULE))};
         HttpMethodFilteringGotoByModel model = new HttpMethodFilteringGotoByModel(project, contributors);
         GotoActionCallback<HttpMethod> callback = new GotoActionCallback<>() {
