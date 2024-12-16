@@ -39,5 +39,8 @@ DebugTools 需要调用附着应用的方法，但是自身运行与附着应用
 ::: tip 注意
 - [xxl-job参数](./xxl-job) 设置尝试通过附着应用加载的 `xxl-job` 类对象设置的，目前采用的是`2.4.1`版本。
 - [header参数](./header) 设置通过自定义的 `MockHttpServletRequest` 类实现，该类实现了 `tomcat` 的 `javax.servlet.http.HttpServletRequest` 接口，该相关类尝试通过附着应用获取。
-- [groovy脚本执行](./groovy-execute) 的 Groovy 父类加载器为[附着应用默认类加载器](#default-classloader)
 :::
+
+## Groovy类加载器 {#groovy-classloader}
+
+先尝试通过 `DebugToolsClassLoader` 类加载加载，加载不到通过[附着应用默认类加载器](#default-classloader)加载
