@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api.utils;
+package io.github.future0923.debug.tools.idea.httpmethod.utils;
 
 import cn.hutool.core.util.StrUtil;
 import com.intellij.ide.util.PropertiesComponent;
@@ -12,10 +12,10 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import io.github.future0923.debug.tools.idea.api.CustomRefAnnotation;
-import io.github.future0923.debug.tools.idea.api.beans.ApiInfo;
-import io.github.future0923.debug.tools.idea.api.enums.HttpMethod;
-import io.github.future0923.debug.tools.idea.api.enums.SpringHttpMethodAnnotation;
+import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodCustomRefAnnotation;
+import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodInfo;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethodSpringAnnotation;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,8 +39,8 @@ public class SpringUtils {
      * @param module  模块
      * @return 请求集合
      */
-    public static List<ApiInfo> getSpringRequestByModule(Project project, Module module) {
-        List<ApiInfo> moduleList = new ArrayList<>(0);
+    public static List<HttpMethodInfo> getSpringRequestByModule(Project project, Module module) {
+        List<HttpMethodInfo> moduleList = new ArrayList<>(0);
         List<PsiClass> controllers = getAllControllerClass(project, module);
         if (controllers.isEmpty()) {
             return moduleList;
@@ -88,19 +88,19 @@ public class SpringUtils {
      * @param controllerPsiClass 控制器PsiClass
      * @return 请求集合
      */
-    public static List<ApiInfo> getRequests(@NotNull PsiClass controllerPsiClass) {
+    public static List<HttpMethodInfo> getRequests(@NotNull PsiClass controllerPsiClass) {
         // 请求集合
-        List<ApiInfo> requestInfos = new ArrayList<>();
+        List<HttpMethodInfo> requestInfos = new ArrayList<>();
         // 类上的父请求
-        List<ApiInfo> parentRequestInfos = new ArrayList<>();
+        List<HttpMethodInfo> parentRequestInfos = new ArrayList<>();
         // 方法上的子请求
-        List<ApiInfo> childrenRequestInfos = new ArrayList<>();
+        List<HttpMethodInfo> childrenRequestInfos = new ArrayList<>();
         PsiAnnotation requestMappingPsiAnnotation = AttributeUtil.getClassAnnotation(
                 controllerPsiClass,
                 // 类上为长名字
-                SpringHttpMethodAnnotation.REQUEST_MAPPING.getQualifiedName(),
+                HttpMethodSpringAnnotation.REQUEST_MAPPING.getQualifiedName(),
                 // 方法上为短名字
-                SpringHttpMethodAnnotation.REQUEST_MAPPING.getShortName()
+                HttpMethodSpringAnnotation.REQUEST_MAPPING.getShortName()
         );
         if (requestMappingPsiAnnotation != null) {
             parentRequestInfos = getRequests(requestMappingPsiAnnotation, null);
@@ -112,9 +112,9 @@ public class SpringUtils {
         if (parentRequestInfos.isEmpty()) {
             requestInfos.addAll(childrenRequestInfos);
         } else {
-            for (ApiInfo parentRequestInfo : parentRequestInfos) {
-                for (ApiInfo childrenRequestInfo : childrenRequestInfos) {
-                    ApiInfo requestInfo = childrenRequestInfo.copyWithParent(parentRequestInfo);
+            for (HttpMethodInfo parentRequestInfo : parentRequestInfos) {
+                for (HttpMethodInfo childrenRequestInfo : childrenRequestInfos) {
+                    HttpMethodInfo requestInfo = childrenRequestInfo.copyWithParent(parentRequestInfo);
                     requestInfos.add(requestInfo);
                 }
             }
@@ -130,18 +130,18 @@ public class SpringUtils {
      * @return 请求集合
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static List<ApiInfo> getRequests(@NotNull PsiAnnotation psiAnnotation, @Nullable PsiMethod psiMethod) {
-        SpringHttpMethodAnnotation spring = SpringHttpMethodAnnotation.getByQualifiedName(
+    private static List<HttpMethodInfo> getRequests(@NotNull PsiAnnotation psiAnnotation, @Nullable PsiMethod psiMethod) {
+        HttpMethodSpringAnnotation spring = HttpMethodSpringAnnotation.getByQualifiedName(
                 psiAnnotation.getQualifiedName()
         );
         if (spring == null && psiAnnotation.getResolveScope().isSearchInLibraries()) {
-            spring = SpringHttpMethodAnnotation.getByShortName(psiAnnotation.getQualifiedName());
+            spring = HttpMethodSpringAnnotation.getByShortName(psiAnnotation.getQualifiedName());
         }
         Set<HttpMethod> methods = new HashSet<>();
         List<String> paths = new ArrayList<>();
-        CustomRefAnnotation refAnnotation = null;
+        HttpMethodCustomRefAnnotation refAnnotation = null;
         if (spring == null) {
-            refAnnotation = CustomRefAnnotation.findCustomAnnotation(psiAnnotation);
+            refAnnotation = HttpMethodCustomRefAnnotation.findCustomAnnotation(psiAnnotation);
             if (refAnnotation == null) {
                 return Collections.emptyList();
             }
@@ -210,14 +210,14 @@ public class SpringUtils {
             }
         }
 
-        List<ApiInfo> requestInfos = new ArrayList<>(paths.size());
+        List<HttpMethodInfo> requestInfos = new ArrayList<>(paths.size());
 
         paths.forEach(path -> {
             for (HttpMethod method : methods) {
                 if (method.equals(HttpMethod.REQUEST) && methods.size() > 1) {
                     continue;
                 }
-                requestInfos.add(new ApiInfo(
+                requestInfos.add(new HttpMethodInfo(
                         method,
                         path,
                         psiMethod
@@ -251,8 +251,8 @@ public class SpringUtils {
         return StrUtil.SLASH + currPath;
     }
 
-    private static List<ApiInfo> getRequests(@NotNull PsiMethod method) {
-        List<ApiInfo> requestInfos = new ArrayList<>();
+    private static List<HttpMethodInfo> getRequests(@NotNull PsiMethod method) {
+        List<HttpMethodInfo> requestInfos = new ArrayList<>();
         for (PsiAnnotation annotation : AttributeUtil.getMethodAnnotations(method)) {
             requestInfos.addAll(getRequests(annotation, method));
         }

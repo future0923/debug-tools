@@ -12,24 +12,24 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import io.github.future0923.debug.tools.idea.api.GotoApiContributor;
-import io.github.future0923.debug.tools.idea.api.HttpMethodChooseByNamePopup;
-import io.github.future0923.debug.tools.idea.api.RequestFilteringGotoByModel;
-import io.github.future0923.debug.tools.idea.api.beans.ApiItem;
-import io.github.future0923.debug.tools.idea.api.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodContributor;
+import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodChooseByNamePopup;
+import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodFilteringGotoByModel;
+import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodItem;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 搜索Api
+ * 搜索http请求
  *
  * @author future0923
  */
-public class GotoApiSearchAction extends GotoActionBase {
+public class HttpMethodSearchGotoAction extends GotoActionBase {
 
-    public GotoApiSearchAction() {
-        getTemplatePresentation().setText("Search Api");
+    public HttpMethodSearchGotoAction() {
+        getTemplatePresentation().setText("Search Http Method");
         getTemplatePresentation().setIcon(DebugToolsIcons.Search);
     }
 
@@ -39,13 +39,13 @@ public class GotoApiSearchAction extends GotoActionBase {
         if (project == null) {
             return;
         }
-        ChooseByNameContributor[] contributors = {new GotoApiContributor(e.getData(LangDataKeys.MODULE))};
-        RequestFilteringGotoByModel model = new RequestFilteringGotoByModel(project, contributors);
+        ChooseByNameContributor[] contributors = {new HttpMethodContributor(e.getData(LangDataKeys.MODULE))};
+        HttpMethodFilteringGotoByModel model = new HttpMethodFilteringGotoByModel(project, contributors);
         GotoActionCallback<HttpMethod> callback = new GotoActionCallback<>() {
 
             @Override
             public void elementChosen(ChooseByNamePopup popup, Object element) {
-                if (element instanceof ApiItem apiItem) {
+                if (element instanceof HttpMethodItem apiItem) {
                     if (apiItem.canNavigate()) {
                         apiItem.navigate(true);
                     }

@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api.enums;
+package io.github.future0923.debug.tools.idea.httpmethod.enums;
 
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ import javax.swing.*;
 public enum HttpMethod {
 
     /**
-     * ApiInfo
+     * REQUEST
      */
     REQUEST,
 

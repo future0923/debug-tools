@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api.enums;
+package io.github.future0923.debug.tools.idea.httpmethod.enums;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
  * Spring方法注解
  */
 @Getter
-public enum SpringHttpMethodAnnotation {
+public enum HttpMethodSpringAnnotation {
 
     /**
      * RequestMapping
@@ -63,14 +63,14 @@ public enum SpringHttpMethodAnnotation {
     private final String qualifiedName;
     private final HttpMethod method;
 
-    SpringHttpMethodAnnotation(String qualifiedName, HttpMethod method) {
+    HttpMethodSpringAnnotation(String qualifiedName, HttpMethod method) {
         this.qualifiedName = qualifiedName;
         this.method = method;
     }
 
     @Nullable
-    public static SpringHttpMethodAnnotation getByQualifiedName(String qualifiedName) {
-        for (SpringHttpMethodAnnotation springRequestAnnotation : SpringHttpMethodAnnotation.values()) {
+    public static HttpMethodSpringAnnotation getByQualifiedName(String qualifiedName) {
+        for (HttpMethodSpringAnnotation springRequestAnnotation : HttpMethodSpringAnnotation.values()) {
             if (springRequestAnnotation.getQualifiedName().equals(qualifiedName)) {
                 return springRequestAnnotation;
             }
@@ -79,8 +79,8 @@ public enum SpringHttpMethodAnnotation {
     }
 
     @Nullable
-    public static SpringHttpMethodAnnotation getByShortName(String requestMapping) {
-        for (SpringHttpMethodAnnotation springRequestAnnotation : SpringHttpMethodAnnotation.values()) {
+    public static HttpMethodSpringAnnotation getByShortName(String requestMapping) {
+        for (HttpMethodSpringAnnotation springRequestAnnotation : HttpMethodSpringAnnotation.values()) {
             if (springRequestAnnotation.getQualifiedName().endsWith(requestMapping)) {
                 return springRequestAnnotation;
             }

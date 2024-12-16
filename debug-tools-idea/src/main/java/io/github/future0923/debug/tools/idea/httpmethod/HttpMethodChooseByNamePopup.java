@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api;
+package io.github.future0923.debug.tools.idea.httpmethod;
 
 import com.intellij.ide.util.gotoByName.ChooseByNameItemProvider;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ *
+ *
  * @author future0923
  */
 public class HttpMethodChooseByNamePopup extends ChooseByNamePopup {
@@ -59,7 +61,7 @@ public class HttpMethodChooseByNamePopup extends ChooseByNamePopup {
 
     @NotNull
     public static String getTransformedPattern(@NotNull String pattern, @NotNull ChooseByNameModel model) {
-        if (!(model instanceof RequestFilteringGotoByModel)) {
+        if (!(model instanceof HttpMethodFilteringGotoByModel)) {
             return pattern;
         }
         pattern = removeRedundancyMarkup(pattern);
