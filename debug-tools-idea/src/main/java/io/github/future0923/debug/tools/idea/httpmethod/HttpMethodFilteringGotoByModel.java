@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api;
+package io.github.future0923.debug.tools.idea.httpmethod;
 
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.gotoByName.CustomMatcherModel;
@@ -8,8 +8,8 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
-import io.github.future0923.debug.tools.idea.api.beans.ApiItem;
-import io.github.future0923.debug.tools.idea.api.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodItem;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,23 +17,23 @@ import org.jetbrains.annotations.Nullable;
 /**
  * @author future0923
  */
-public class RequestFilteringGotoByModel extends FilteringGotoByModel<HttpMethod> implements DumbAware, CustomMatcherModel {
+public class HttpMethodFilteringGotoByModel extends FilteringGotoByModel<HttpMethod> implements DumbAware, CustomMatcherModel {
 
-    public RequestFilteringGotoByModel(@NotNull Project project, ChooseByNameContributor @NotNull [] contributors) {
+    public HttpMethodFilteringGotoByModel(@NotNull Project project, ChooseByNameContributor @NotNull [] contributors) {
         super(project, contributors);
     }
 
     @Override
     protected @Nullable HttpMethod filterValueFor(NavigationItem item) {
-        if (item instanceof ApiItem apiItem) {
-            return apiItem.getMethod();
+        if (item instanceof HttpMethodItem httpMethodItem) {
+            return httpMethodItem.getMethod();
         }
         return null;
     }
 
     @Override
     public @Nls(capitalization = Nls.Capitalization.Sentence) String getPromptText() {
-        return "Enter api";
+        return "Enter http method";
     }
 
     @Override

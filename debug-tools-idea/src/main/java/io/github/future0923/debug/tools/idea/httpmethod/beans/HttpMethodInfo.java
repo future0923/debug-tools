@@ -1,7 +1,7 @@
-package io.github.future0923.debug.tools.idea.api.beans;
+package io.github.future0923.debug.tools.idea.httpmethod.beans;
 
 import com.intellij.psi.NavigatablePsiElement;
-import io.github.future0923.debug.tools.idea.api.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author future0923
  */
-public class ApiInfo {
+public class HttpMethodInfo {
 
     @Getter
     private final NavigatablePsiElement psiElement;
@@ -29,7 +29,7 @@ public class ApiInfo {
     @NotNull
     private Icon icon = DebugToolsIcons.HttpMethod.Request;
 
-    public ApiInfo(HttpMethod method, @Nullable String path, @Nullable NavigatablePsiElement psiElement) {
+    public HttpMethodInfo(HttpMethod method, @Nullable String path, @Nullable NavigatablePsiElement psiElement) {
         this.setMethod(method);
         if (path != null) {
             this.setPath(path);
@@ -72,7 +72,7 @@ public class ApiInfo {
         this.path = path;
     }
 
-    public void setParent(@NotNull ApiInfo parent) {
+    public void setParent(@NotNull HttpMethodInfo parent) {
         if ((this.method == null || this.method == HttpMethod.REQUEST) && parent.getMethod() != null) {
             this.setMethod(parent.getMethod());
         }
@@ -85,8 +85,8 @@ public class ApiInfo {
     }
 
     @NotNull
-    public ApiInfo copyWithParent(@Nullable ApiInfo parent) {
-        ApiInfo requestInfo = new ApiInfo(this.method, this.path, this.psiElement);
+    public HttpMethodInfo copyWithParent(@Nullable HttpMethodInfo parent) {
+        HttpMethodInfo requestInfo = new HttpMethodInfo(this.method, this.path, this.psiElement);
         if (parent != null) {
             requestInfo.setParent(parent);
         }
@@ -126,7 +126,7 @@ public class ApiInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ApiInfo requestInfo = (ApiInfo) o;
+        HttpMethodInfo requestInfo = (HttpMethodInfo) o;
         if (method != requestInfo.method) {
             return false;
         }
