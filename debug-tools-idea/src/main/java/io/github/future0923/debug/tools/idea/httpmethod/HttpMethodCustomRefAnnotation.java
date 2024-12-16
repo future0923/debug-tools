@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.api;
+package io.github.future0923.debug.tools.idea.httpmethod;
 
 import com.intellij.lang.jvm.annotation.JvmAnnotationArrayValue;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
@@ -6,9 +6,9 @@ import com.intellij.lang.jvm.annotation.JvmAnnotationAttributeValue;
 import com.intellij.lang.jvm.annotation.JvmAnnotationConstantValue;
 import com.intellij.lang.jvm.annotation.JvmAnnotationEnumFieldValue;
 import com.intellij.psi.PsiAnnotation;
-import io.github.future0923.debug.tools.idea.api.enums.HttpMethod;
-import io.github.future0923.debug.tools.idea.api.enums.SpringHttpMethodAnnotation;
-import io.github.future0923.debug.tools.idea.api.utils.AttributeUtil;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethodSpringAnnotation;
+import io.github.future0923.debug.tools.idea.httpmethod.utils.AttributeUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,12 +22,12 @@ import java.util.List;
  * @author future0923
  */
 @Getter
-public class CustomRefAnnotation {
+public class HttpMethodCustomRefAnnotation {
 
     private final List<String> paths;
     private final List<HttpMethod> methods;
 
-    public CustomRefAnnotation() {
+    public HttpMethodCustomRefAnnotation() {
         this.paths = new ArrayList<>();
         this.methods = new ArrayList<>();
     }
@@ -47,15 +47,15 @@ public class CustomRefAnnotation {
     }
 
     @Nullable
-    public static CustomRefAnnotation findCustomAnnotation(@NotNull PsiAnnotation psiAnnotation) {
+    public static HttpMethodCustomRefAnnotation findCustomAnnotation(@NotNull PsiAnnotation psiAnnotation) {
         PsiAnnotation qualifiedAnnotation = AttributeUtil.getQualifiedAnnotation(
                 psiAnnotation,
-                SpringHttpMethodAnnotation.REQUEST_MAPPING.getQualifiedName()
+                HttpMethodSpringAnnotation.REQUEST_MAPPING.getQualifiedName()
         );
         if (qualifiedAnnotation == null) {
             return null;
         }
-        CustomRefAnnotation otherAnnotation = new CustomRefAnnotation();
+        HttpMethodCustomRefAnnotation otherAnnotation = new HttpMethodCustomRefAnnotation();
 
         for (JvmAnnotationAttribute attribute : qualifiedAnnotation.getAttributes()) {
             Object methodValues = getAnnotationValue(attribute, "method");

@@ -46,8 +46,7 @@
         <!--定义自己的Extensions文件格式与目录-->
         <scratch.rootType implementation="io.github.future0923.debug.tools.idea.extensions.ScratchDebugToolsRootType"/>
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
-        <nonProjectFileWritingAccessExtension
-                implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
+        <nonProjectFileWritingAccessExtension implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
 
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
@@ -113,8 +112,9 @@
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <separator/>
         </group>
-        <action id="DebugTools.GotoApi" class="io.github.future0923.debug.tools.idea.action.GotoApiSearchAction"
-                text="Search Api" description="Search api and goto api">
+        <action id="DebugTools.HttpMethod"
+                class="io.github.future0923.debug.tools.idea.action.HttpMethodSearchGotoAction"
+                text="Search Http Method" description="Search http method and goto it">
             <add-to-group group-id="GoToTargetEx" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
         </action>
