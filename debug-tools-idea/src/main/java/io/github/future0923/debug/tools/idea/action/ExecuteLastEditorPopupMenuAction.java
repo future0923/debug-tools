@@ -27,7 +27,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
 
     public ExecuteLastEditorPopupMenuAction() {
         getTemplatePresentation().setText("Execute Last");
-        getTemplatePresentation().setIcon(DebugToolsIcons.last_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Last);
     }
 
     @Override

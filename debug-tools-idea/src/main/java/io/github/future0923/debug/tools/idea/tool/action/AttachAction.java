@@ -12,7 +12,7 @@ public class AttachAction extends BaseToolAction {
 
     public AttachAction() {
         getTemplatePresentation().setText("Attach");
-        getTemplatePresentation().setIcon(DebugToolsIcons.add_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Add);
     }
 
     @Override
