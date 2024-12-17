@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.httpmethod.utils;
+package io.github.future0923.debug.tools.idea.search.utils;
 
 import com.intellij.lang.jvm.annotation.JvmAnnotationArrayValue;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttributeValue;

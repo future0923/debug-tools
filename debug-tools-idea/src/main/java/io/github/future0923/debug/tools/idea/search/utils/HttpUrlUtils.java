@@ -1,9 +1,9 @@
-package io.github.future0923.debug.tools.idea.httpmethod.utils;
+package io.github.future0923.debug.tools.idea.search.utils;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodInfo;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,18 +13,18 @@ import java.util.Map;
 /**
  * @author future0923
  */
-public class HttpMethodUtils {
+public class HttpUrlUtils {
 
     /**
      * 获取项目中所有的请求信息
      *
      * @param project 项目
      */
-    public static Map<String, List<HttpMethodInfo>> getAllRequest(Project project) {
-        Map<String, List<HttpMethodInfo>> map = new HashMap<>();
+    public static Map<String, List<HttpUrlInfo>> getAllRequest(Project project) {
+        Map<String, List<HttpUrlInfo>> map = new HashMap<>();
         Module[] modules = ModuleManager.getInstance(project).getModules();
         for (Module module : modules) {
-            List<HttpMethodInfo> requestInfos = getModuleAllRequests(project, module);
+            List<HttpUrlInfo> requestInfos = getModuleAllRequests(project, module);
             if (requestInfos.isEmpty()) {
                 continue;
             }
@@ -40,12 +40,12 @@ public class HttpMethodUtils {
      * @param module  模块
      * @return 请求集合
      */
-    public static List<HttpMethodInfo> getModuleAllRequests(Project project, Module module) {
-        List<HttpMethodInfo> requestInfos = new ArrayList<>();
-        List<HttpMethodInfo> springRequestInfoByModule = SpringUtils.getSpringRequestByModule(project, module);
+    public static List<HttpUrlInfo> getModuleAllRequests(Project project, Module module) {
+        List<HttpUrlInfo> httpUrlInfos = new ArrayList<>();
+        List<HttpUrlInfo> springRequestInfoByModule = SpringUtils.getSpringRequestByModule(project, module);
         if (!springRequestInfoByModule.isEmpty()) {
-            requestInfos.addAll(springRequestInfoByModule);
+            httpUrlInfos.addAll(springRequestInfoByModule);
         }
-        return requestInfos;
+        return httpUrlInfos;
     }
 }
