@@ -3,6 +3,7 @@
 # DebugTools
 
 - Quickly call Java methods (local/remote)
+- Search http url to jump directly to the corresponding method definition.
 - Print SQL statements and time consuming
 - Execute Groovy scripts
 
