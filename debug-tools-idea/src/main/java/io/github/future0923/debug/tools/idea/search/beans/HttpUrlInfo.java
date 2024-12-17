@@ -1,7 +1,7 @@
-package io.github.future0923.debug.tools.idea.httpmethod.beans;
+package io.github.future0923.debug.tools.idea.search.beans;
 
 import com.intellij.psi.NavigatablePsiElement;
-import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author future0923
  */
-public class HttpMethodInfo {
+public class HttpUrlInfo {
 
     @Getter
     private final NavigatablePsiElement psiElement;
@@ -29,7 +29,7 @@ public class HttpMethodInfo {
     @NotNull
     private Icon icon = DebugToolsIcons.HttpMethod.Request;
 
-    public HttpMethodInfo(HttpMethod method, @Nullable String path, @Nullable NavigatablePsiElement psiElement) {
+    public HttpUrlInfo(HttpMethod method, @Nullable String path, @Nullable NavigatablePsiElement psiElement) {
         this.setMethod(method);
         if (path != null) {
             this.setPath(path);
@@ -72,7 +72,7 @@ public class HttpMethodInfo {
         this.path = path;
     }
 
-    public void setParent(@NotNull HttpMethodInfo parent) {
+    public void setParent(@NotNull HttpUrlInfo parent) {
         if ((this.method == null || this.method == HttpMethod.REQUEST) && parent.getMethod() != null) {
             this.setMethod(parent.getMethod());
         }
@@ -85,8 +85,8 @@ public class HttpMethodInfo {
     }
 
     @NotNull
-    public HttpMethodInfo copyWithParent(@Nullable HttpMethodInfo parent) {
-        HttpMethodInfo requestInfo = new HttpMethodInfo(this.method, this.path, this.psiElement);
+    public HttpUrlInfo copyWithParent(@Nullable HttpUrlInfo parent) {
+        HttpUrlInfo requestInfo = new HttpUrlInfo(this.method, this.path, this.psiElement);
         if (parent != null) {
             requestInfo.setParent(parent);
         }
@@ -126,11 +126,11 @@ public class HttpMethodInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        HttpMethodInfo requestInfo = (HttpMethodInfo) o;
-        if (method != requestInfo.method) {
+        HttpUrlInfo httpUrlInfo = (HttpUrlInfo) o;
+        if (method != httpUrlInfo.method) {
             return false;
         }
-        return Objects.equals(path, requestInfo.path);
+        return Objects.equals(path, httpUrlInfo.path);
     }
 
     @Override

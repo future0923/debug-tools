@@ -19,6 +19,7 @@
     <a href="https://debug-tools.cc">document</a> | <a href="https://github.com/future0923/debug-tools">github</a> | <a href="https://gitee.com/future94/debug-tools">gitee</a>
     <ul>
         <li>Call any Java method. Quickly call any Java methods, such as static methods, instance methods, methods of Spring-managed beans (Dubbo, XxlJob, MQ, etc.), Mybatis Mapper methods, etc., support passing header parameter information for authentication, support passing XxlJob parameters for task execution.</li>
+        <li>Search http url to jump directly to the corresponding method definition.</li>
         <li>Printing SQL statements and time consuming. Format print MySQL, PostgreSQL, SQLServer, ClickHouse, Oracle statements and output execution time.</li>
         <li>Execute Groovy script. Depending on the attachment application, you can execute Groovy scripting and debug the attachment application.</li>
     </ul>
@@ -28,8 +29,7 @@
         <![CDATA[
         <strong>3.1.0</strong>
         <ul>
-            <li>Support intellij idea 2024.3 version.</li>
-            <li>Fixed bug where the default ClassLoader could not be obtained when remotely executing Groovy.</li>
+            <li>Search http url to jump directly to the corresponding method definition.</li>
         </ul>
         ]]>
     </change-notes>
@@ -112,9 +112,9 @@
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <separator/>
         </group>
-        <action id="DebugTools.HttpMethod"
-                class="io.github.future0923.debug.tools.idea.action.HttpMethodSearchGotoAction"
-                text="Search Http Method" description="Search http method and goto it">
+        <action id="DebugTools.HttpUrl"
+                class="io.github.future0923.debug.tools.idea.action.HttpUrlSearchGotoAction"
+                text="Search Http Url" description="Search http url and goto it">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
         </action>
         <group id="DebugTools.Toolbar">
@@ -124,7 +124,7 @@
             <separator text="Separator"/>
             <reference ref="DebugToolsTool.EvaluateGroovy"/>
             <separator text="Separator"/>
-            <reference ref="DebugTools.HttpMethod"/>
+            <reference ref="DebugTools.HttpUrl"/>
             <separator text="Separator"/>
         </group>
     </actions>

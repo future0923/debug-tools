@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.httpmethod.beans;
+package io.github.future0923.debug.tools.idea.search.beans;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
@@ -6,7 +6,7 @@ import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-public class HttpMethodItem implements NavigationItem {
+public class HttpUrlItem implements NavigationItem {
 
     private final PsiElement psiElement;
 
@@ -29,7 +29,7 @@ public class HttpMethodItem implements NavigationItem {
 
     private Navigatable navigationElement;
 
-    public HttpMethodItem(PsiElement psiElement, HttpMethod method, String urlPath) {
+    public HttpUrlItem(PsiElement psiElement, HttpMethod method, String urlPath) {
         this.psiElement = psiElement;
         if (psiElement instanceof PsiMethod) {
             this.psiMethod = (PsiMethod) psiElement;

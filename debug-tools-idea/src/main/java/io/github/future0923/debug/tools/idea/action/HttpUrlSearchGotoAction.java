@@ -13,11 +13,11 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodContributor;
-import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodChooseByNamePopup;
-import io.github.future0923.debug.tools.idea.httpmethod.HttpMethodFilteringGotoByModel;
-import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodItem;
-import io.github.future0923.debug.tools.idea.httpmethod.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.search.HttpUrlContributor;
+import io.github.future0923.debug.tools.idea.search.HttpUrlChooseByNamePopup;
+import io.github.future0923.debug.tools.idea.search.HttpUrlFilteringGotoByModel;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
+import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,10 +27,10 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author future0923
  */
-public class HttpMethodSearchGotoAction extends GotoActionBase {
+public class HttpUrlSearchGotoAction extends GotoActionBase {
 
-    public HttpMethodSearchGotoAction() {
-        getTemplatePresentation().setText("Search Http Method");
+    public HttpUrlSearchGotoAction() {
+        getTemplatePresentation().setText("Search Http Url");
         getTemplatePresentation().setIcon(DebugToolsIcons.Search);
     }
 
@@ -40,16 +40,15 @@ public class HttpMethodSearchGotoAction extends GotoActionBase {
         if (project == null) {
             return;
         }
-        FeatureUsageTracker.getInstance().triggerFeatureUsed("navigation.popup.service");
-        ChooseByNameContributor[] contributors = {new HttpMethodContributor(e.getData(LangDataKeys.MODULE))};
-        HttpMethodFilteringGotoByModel model = new HttpMethodFilteringGotoByModel(project, contributors);
+        ChooseByNameContributor[] contributors = {new HttpUrlContributor(e.getData(LangDataKeys.MODULE))};
+        HttpUrlFilteringGotoByModel model = new HttpUrlFilteringGotoByModel(project, contributors);
         GotoActionCallback<HttpMethod> callback = new GotoActionCallback<>() {
 
             @Override
             public void elementChosen(ChooseByNamePopup popup, Object element) {
-                if (element instanceof HttpMethodItem apiItem) {
-                    if (apiItem.canNavigate()) {
-                        apiItem.navigate(true);
+                if (element instanceof HttpUrlItem httpUrlItem) {
+                    if (httpUrlItem.canNavigate()) {
+                        httpUrlItem.navigate(true);
                     }
                 }
             }
@@ -78,7 +77,7 @@ public class HttpMethodSearchGotoAction extends GotoActionBase {
         showNavigationPopup(
                 callback,
                 findUsagesTitle,
-                HttpMethodChooseByNamePopup.createPopup(
+                HttpUrlChooseByNamePopup.createPopup(
                         project,
                         model,
                         itemProvider,
