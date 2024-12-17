@@ -34,7 +34,10 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
     @Override
     protected AllClassLoaderRes doHandle(Void req, Headers responseHeaders) {
         AllClassLoaderRes res = new AllClassLoaderRes();
-        res.setDefaultIdentity(Integer.toHexString(System.identityHashCode(DefaultClassLoader.getDefaultClassLoader())));
+        ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader();
+        if (defaultClassLoader != null) {
+            res.setDefaultIdentity(Integer.toHexString(System.identityHashCode(defaultClassLoader)));
+        }
         Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
         Set<AllClassLoaderRes.Item> allClassLoaderResSet = new HashSet<>();
         for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {

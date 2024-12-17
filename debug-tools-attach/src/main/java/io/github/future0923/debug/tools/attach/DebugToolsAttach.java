@@ -66,7 +66,7 @@ public class DebugToolsAttach {
         }
         agentConfig.store();
         try {
-            DebugToolsClassLoader debugToolsClassloader = new DebugToolsClassLoader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DefaultClassLoader.getDefaultClassLoader(inst));
+            DebugToolsClassLoader debugToolsClassloader = new DebugToolsClassLoader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DefaultClassLoader.getDefaultClassLoader(inst), DebugToolsAttach.class.getClassLoader());
             debugToolsClassloader.loadAllClasses();
             bootstrapClass = debugToolsClassloader.loadClass(ProjectConstants.DEBUG_TOOLS_BOOTSTRAP);
             bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class, ClassLoader.class).invoke(null, inst, debugToolsClassloader);
