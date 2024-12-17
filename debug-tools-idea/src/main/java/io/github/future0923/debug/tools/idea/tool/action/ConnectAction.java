@@ -12,7 +12,7 @@ public class ConnectAction extends BaseToolAction {
 
     public ConnectAction() {
         getTemplatePresentation().setText("Connect");
-        getTemplatePresentation().setIcon(DebugToolsIcons.connect_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Connect);
     }
 
     @Override

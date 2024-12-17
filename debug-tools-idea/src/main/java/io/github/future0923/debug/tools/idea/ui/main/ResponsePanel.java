@@ -25,7 +25,7 @@ import java.util.List;
 @Getter
 public class ResponsePanel extends JBPanel<ResponsePanel> {
 
-    public ResponsePanel(RunTargetMethodResponsePacket packet) {
+    public ResponsePanel(Project project, RunTargetMethodResponsePacket packet) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 600));
         JBTextField classNameField = new JBTextField(packet.getClassName());
@@ -33,13 +33,6 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
         List<String> methodParameterTypes = packet.getMethodParameterTypes();
         JTextArea parameterTypesField = new JTextArea(methodParameterTypes.size(), 1);
         parameterTypesField.setText(" " + String.join("\n ", methodParameterTypes));
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
-        Project project;
-        if (info != null && info.getProject() != null) {
-            project = info.getProject();
-        } else {
-            project = ProjectUtil.getActiveProject();
-        }
         Component resultComponent;
         if (project == null) {
             String runResult;

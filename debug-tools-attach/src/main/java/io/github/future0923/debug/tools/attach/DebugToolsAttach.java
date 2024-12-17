@@ -1,6 +1,8 @@
 package io.github.future0923.debug.tools.attach;
 
 import io.github.future0923.debug.tools.attach.sqlprint.SqlPrintByteCodeEnhance;
+import io.github.future0923.debug.tools.base.classloader.DebugToolsClassLoader;
+import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
@@ -71,7 +73,7 @@ public class DebugToolsAttach {
         }
         agentConfig.store();
         try {
-            DebugToolsClassloader debugToolsClassloader = new DebugToolsClassloader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DebugToolsAttach.class.getClassLoader());
+            DebugToolsClassLoader debugToolsClassloader = new DebugToolsClassLoader(new URL[]{debugToolsCoreJarFile.toURI().toURL()}, DefaultClassLoader.getDefaultClassLoader(inst));
             debugToolsClassloader.loadAllClasses();
             bootstrapClass = debugToolsClassloader.loadClass(ProjectConstants.DEBUG_TOOLS_BOOTSTRAP);
             bootstrap = bootstrapClass.getMethod(ProjectConstants.GET_INSTANCE, Instrumentation.class, ClassLoader.class).invoke(null, inst, debugToolsClassloader);
@@ -96,5 +98,4 @@ public class DebugToolsAttach {
         agentConfig.setCorePath(debugToolsCoreJarFile.getAbsolutePath());
         return debugToolsCoreJarFile;
     }
-
 }

@@ -3,6 +3,8 @@ package io.github.future0923.debug.tools.server.scoket.handler;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import groovy.lang.GroovyShell;
+import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
+import io.github.future0923.debug.tools.base.classloader.GroovyScriptClassLoader;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
@@ -28,7 +30,9 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
     private RunGroovyScriptRequestHandler() {
         CompilerConfiguration configuration = new CompilerConfiguration();
         configuration.setScriptBaseClass(DebugToolsGroovyScript.class.getName());
-        groovyShell = new GroovyShell(AllClassLoaderHttpHandler.defaultClassLoader, configuration);
+        GroovyScriptClassLoader groovyScriptClassLoader = GroovyScriptClassLoader.init(AllClassLoaderHttpHandler.getDebugToolsClassLoader());
+        groovyScriptClassLoader.setDefaultClassLoader(DefaultClassLoader.getDefaultClassLoader());
+        groovyShell = new GroovyShell(groovyScriptClassLoader, configuration);
     }
 
     @Override

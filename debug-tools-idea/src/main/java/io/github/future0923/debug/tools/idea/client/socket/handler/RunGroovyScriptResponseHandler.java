@@ -63,7 +63,7 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
 
             @Override
             public Icon getIcon() {
-                return DebugToolsIcons.debug_tools_icon;
+                return DebugToolsIcons.DebugTools;
             }
 
             @Override
