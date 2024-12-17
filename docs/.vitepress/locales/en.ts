@@ -85,6 +85,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       ]
     },
     {
+      text: 'Search http url',
+      collapsed: false,
+      items: [
+        {text: 'Search http url', link: 'search-http'},
+      ]
+    },
+    {
       text: 'Printing SQL statements and execution time',
       collapsed: false,
       items: [

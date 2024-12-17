@@ -24,6 +24,9 @@ features:
   - icon: 🚀
     title: Call any Java method
     details: Quickly call any Java methods, such as static methods, instance methods, methods of Spring-managed beans (Dubbo, XxlJob, MQ, etc.), Mybatis Mapper methods, etc., support passing header parameter information for authentication, support passing XxlJob parameters for task execution.
+  - icon: 🔍
+    title: Search Http Url
+    details: Search http url to jump directly to the corresponding method definition.
   - icon: 👀
     title: Printing SQL statements and time consuming
     details: Format print MySQL, PostgreSQL, SQLServer, ClickHouse, Oracle statements and output execution time.

@@ -97,6 +97,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       ]
     },
     {
+      text: '搜索Http地址',
+      collapsed: false,
+      items: [
+        {text: '搜索Http地址', link: 'search-http'},
+      ]
+    },
+    {
       text: '打印SQL语句与执行耗时',
       collapsed: false,
       items: [
