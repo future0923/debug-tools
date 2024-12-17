@@ -38,3 +38,5 @@ Click the <img src="/pluginIcon.svg" style="display: inline-block; width: 20px; 
 - `192.31.1.3:31/test`
 - `http://192.31.1.3:31/test`
 :::
+  
+![url-extract.png](/images/url-extract.png){v-zoom}
