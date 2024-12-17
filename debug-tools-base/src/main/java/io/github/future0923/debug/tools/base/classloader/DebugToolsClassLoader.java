@@ -1,4 +1,6 @@
-package io.github.future0923.debug.tools.attach;
+package io.github.future0923.debug.tools.base.classloader;
+
+import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -9,13 +11,17 @@ import java.util.jar.JarFile;
 /**
  * @author future0923
  */
-public class DebugToolsClassloader extends URLClassLoader {
-    public DebugToolsClassloader(URL[] urls, ClassLoader parent) {
+public class DebugToolsClassLoader extends URLClassLoader {
+
+    private static final Logger logger = Logger.getLogger(DebugToolsClassLoader.class);
+
+    public DebugToolsClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
+        logger.debug("DebugToolsClassLoader parent is " + parent);
     }
 
     @Override
-    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    public synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         final Class<?> loadedClass = findLoadedClass(name);
         if (loadedClass != null) {
             return loadedClass;
