@@ -24,6 +24,9 @@ features:
   - icon: 🚀
     title: 调用任意Java方法
     details: 快捷调用任意Java方法，如静态方法、实例方法、通过Spring管理的Bean的方法(Dubbo、XxlJob、MQ等)、Mybatis Mapper方法等，支持传递header参数信息进行鉴权，支持传递XxlJob参数进行任务执行。
+  - icon: 🔍
+    title: 搜索HttpUrl
+    details: 搜索 http 地址以直接跳转到相应的方法定义。
   - icon: 👀
     title: 打印SQL语句与耗时
     details: 格式化打印MySQL、PostgreSQL、SQLServer、ClickHouse、Oracle语句，并输出执行时间。
