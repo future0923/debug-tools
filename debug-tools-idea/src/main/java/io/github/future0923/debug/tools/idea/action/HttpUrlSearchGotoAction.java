@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.idea.action;
 
-import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.ide.actions.GotoActionBase;
 import com.intellij.ide.util.gotoByName.ChooseByNameItemProvider;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
@@ -9,12 +8,11 @@ import com.intellij.ide.util.gotoByName.DefaultChooseByNameItemProvider;
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
-import io.github.future0923.debug.tools.idea.search.HttpUrlContributor;
 import io.github.future0923.debug.tools.idea.search.HttpUrlChooseByNamePopup;
+import io.github.future0923.debug.tools.idea.search.HttpUrlContributor;
 import io.github.future0923.debug.tools.idea.search.HttpUrlFilteringGotoByModel;
 import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
@@ -40,7 +38,7 @@ public class HttpUrlSearchGotoAction extends GotoActionBase {
         if (project == null) {
             return;
         }
-        ChooseByNameContributor[] contributors = {new HttpUrlContributor(e.getData(LangDataKeys.MODULE))};
+        ChooseByNameContributor[] contributors = {new HttpUrlContributor()};
         HttpUrlFilteringGotoByModel model = new HttpUrlFilteringGotoByModel(project, contributors);
         GotoActionCallback<HttpMethod> callback = new GotoActionCallback<>() {
 
