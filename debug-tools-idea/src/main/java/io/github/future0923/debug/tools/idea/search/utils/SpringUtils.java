@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.idea.search.utils;
 
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
@@ -62,8 +61,8 @@ public class SpringUtils {
     private static List<PsiClass> getAllControllerClass(Project project, Module module) {
         List<PsiClass> allControllerClass = new ArrayList<>();
         GlobalSearchScope moduleScope = getModuleScope(module);
-        Collection<PsiAnnotation> pathList = reflectInvokeGetAnnotations("Controller", project, moduleScope);
-        pathList.addAll(reflectInvokeGetAnnotations("RestController", project, moduleScope));
+        Collection<PsiAnnotation> pathList = JavaAnnotationIndex.getInstance().get("Controller", project, moduleScope);
+        pathList.addAll(JavaAnnotationIndex.getInstance().get("RestController", project, moduleScope));
         for (PsiAnnotation psiAnnotation : pathList) {
             PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
             PsiElement psiElement = psiModifierList.getParent();
@@ -73,15 +72,6 @@ public class SpringUtils {
             allControllerClass.add(psiClass);
         }
         return allControllerClass;
-    }
-
-    private static Collection<PsiAnnotation> reflectInvokeGetAnnotations(@NotNull final String s, @NotNull final Project project, @NotNull final GlobalSearchScope scope) {
-        JavaAnnotationIndex javaAnnotationIndex = JavaAnnotationIndex.getInstance();
-        try {
-            return ReflectUtil.invoke(javaAnnotationIndex, "getAnnotations", s, project, scope);
-        } catch (Exception e) {
-            return ReflectUtil.invoke(javaAnnotationIndex, "get", s, project, scope);
-        }
     }
 
     /**
