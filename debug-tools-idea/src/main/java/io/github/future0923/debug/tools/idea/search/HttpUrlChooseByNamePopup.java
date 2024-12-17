@@ -26,7 +26,7 @@ public class HttpUrlChooseByNamePopup extends ChooseByNamePopup {
     /**
      * 远程
      */
-    private static final String hostAndPortRegex = "(http(s?)://)?(([a-zA-Z0-9]([a-zA-Z0-9\\\\-]{0,61}[a-zA-Z0-9])?\\\\.)+[a-zA-Z]{2,6} | ((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?))";
+    private static final String hostAndPortRegex = "^((http|https)://)?(([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,6}|((25[0-5]|2[0-4]\\d|[0-1]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[0-1]?\\d\\d?))(:\\d{1,5})?";;
 
     protected HttpUrlChooseByNamePopup(@Nullable Project project, @NotNull ChooseByNameModel model, @NotNull ChooseByNameItemProvider provider, @Nullable ChooseByNamePopup oldPopup, @Nullable String predefinedText, boolean mayRequestOpenInCurrentWindow, int initialIndex) {
         super(project, model, provider, oldPopup, predefinedText, mayRequestOpenInCurrentWindow, initialIndex);
@@ -72,8 +72,7 @@ public class HttpUrlChooseByNamePopup extends ChooseByNamePopup {
      */
     @NotNull
     public static String removeRedundancyMarkup(@NotNull String pattern) {
-        String localhost = "localhost";
-        if (pattern.contains(localhost)) {
+        if (pattern.contains("localhost")) {
             pattern = pattern.replaceFirst(localhostRegex, "");
         }
         if (pattern.contains("http:") || pattern.contains("https:")) {
