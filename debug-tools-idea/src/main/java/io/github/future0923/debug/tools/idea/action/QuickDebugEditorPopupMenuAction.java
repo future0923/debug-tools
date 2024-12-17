@@ -41,7 +41,7 @@ public class QuickDebugEditorPopupMenuAction extends AnAction {
 
     public QuickDebugEditorPopupMenuAction() {
         getTemplatePresentation().setText("Quick Debug");
-        getTemplatePresentation().setIcon(DebugToolsIcons.request_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.Request);
     }
 
     @Override

@@ -28,22 +28,22 @@ public class MainToolBar extends ToolBar {
     }
 
     private void initButtons() {
-        genButton(ConvertType.IMPORT.getDescription(), DebugToolsIcons.import_icon, DebugToolsIcons.import_icon, actionEvent -> {
+        genButton(ConvertType.IMPORT.getDescription(), DebugToolsIcons.Import, DebugToolsIcons.Import, actionEvent -> {
             publisher.multicastEvent(new ConvertDataEvent(ConvertType.IMPORT));
         });
-        genButton(ConvertType.EXPORT.getDescription(), DebugToolsIcons.export_icon, DebugToolsIcons.export_icon, actionEvent -> {
+        genButton(ConvertType.EXPORT.getDescription(), DebugToolsIcons.Export, DebugToolsIcons.Export, actionEvent -> {
             publisher.multicastEvent(new ConvertDataEvent(ConvertType.EXPORT));
         });
-        genButton("Pretty Json", DebugToolsIcons.pretty_icon, DebugToolsIcons.pretty_icon, actionEvent -> {
+        genButton("Pretty Json", DebugToolsIcons.Pretty, DebugToolsIcons.Pretty, actionEvent -> {
             publisher.multicastEvent(new PrettyDataEvent());
         });
-        genButton("Gen Param", DebugToolsIcons.example_simple_icon, DebugToolsIcons.example_simple_icon, actionEvent -> {
+        genButton("Gen Param", DebugToolsIcons.ExampleSimple, DebugToolsIcons.ExampleSimple, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.SIMPLE));
         });
-        genButton("Gen Param With Default Current Entity Class", DebugToolsIcons.example_current_icon, DebugToolsIcons.example_current_icon, actionEvent -> {
+        genButton("Gen Param With Default Current Entity Class", DebugToolsIcons.ExampleCurrent, DebugToolsIcons.ExampleCurrent, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.CURRENT));
         });
-        genButton("Gen Param With Default All", DebugToolsIcons.example_all_icon, DebugToolsIcons.example_all_icon, actionEvent -> {
+        genButton("Gen Param With Default All", DebugToolsIcons.ExampleAll, DebugToolsIcons.ExampleAll, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
         });
     }

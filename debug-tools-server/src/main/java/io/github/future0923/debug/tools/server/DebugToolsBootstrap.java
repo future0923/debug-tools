@@ -5,7 +5,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJvmUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.server.config.ServerConfig;
 import io.github.future0923.debug.tools.server.http.DebugToolsHttpServer;
 import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;

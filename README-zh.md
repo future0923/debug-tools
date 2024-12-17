@@ -3,6 +3,7 @@
 # DebugTools
 
 - 快速调用Java方法(本地/远程)
+- 搜索 http 地址以直接跳转到相应的方法定义。
 - 打印SQL语句与耗时
 - 执行Groovy脚本
 

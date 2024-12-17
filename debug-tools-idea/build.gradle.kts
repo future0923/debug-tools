@@ -28,13 +28,15 @@ dependencies {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set("DebugTools")
-    version.set("2024.2")
+    version.set("2024.3")
+//    version.set("2024.2")
 //    version.set("2024.1")
 //    version.set("2023.3")
 //    version.set("2023.2")
 //    version.set("2023.1")
     type.set("IU")
-    plugins.set(listOf("com.intellij.java"))
+    plugins.set(listOf("com.intellij.java", "com.intellij.modules.json"))
+//    plugins.set(listOf("com.intellij.java"))
 //    plugins = ["java"]
 }
 
@@ -52,7 +54,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("231")
-        untilBuild.set("242.*")
+        untilBuild.set("243.*")
     }
 
     register<Copy>("movePluginZip") {

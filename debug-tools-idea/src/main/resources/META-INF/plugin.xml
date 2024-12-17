@@ -19,6 +19,7 @@
     <a href="https://debug-tools.cc">document</a> | <a href="https://github.com/future0923/debug-tools">github</a> | <a href="https://gitee.com/future94/debug-tools">gitee</a>
     <ul>
         <li>Call any Java method. Quickly call any Java methods, such as static methods, instance methods, methods of Spring-managed beans (Dubbo, XxlJob, MQ, etc.), Mybatis Mapper methods, etc., support passing header parameter information for authentication, support passing XxlJob parameters for task execution.</li>
+        <li>Search http url to jump directly to the corresponding method definition.</li>
         <li>Printing SQL statements and time consuming. Format print MySQL, PostgreSQL, SQLServer, ClickHouse, Oracle statements and output execution time.</li>
         <li>Execute Groovy script. Depending on the attachment application, you can execute Groovy scripting and debug the attachment application.</li>
     </ul>
@@ -26,10 +27,9 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.0.0</strong>
+        <strong>3.1.0</strong>
         <ul>
-            <li>You can choose classloader.</li>
-            <li>Remote application methods can be invoked.</li>
+            <li>Search http url to jump directly to the corresponding method definition.</li>
         </ul>
         ]]>
     </change-notes>
@@ -38,6 +38,7 @@
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>com.intellij.modules.json</depends>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
@@ -45,13 +46,10 @@
         <!--定义自己的Extensions文件格式与目录-->
         <scratch.rootType implementation="io.github.future0923.debug.tools.idea.extensions.ScratchDebugToolsRootType"/>
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
-        <nonProjectFileWritingAccessExtension
-                implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
+        <nonProjectFileWritingAccessExtension implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
 
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
-
-        <projectService serviceImplementation="io.github.future0923.debug.tools.idea.utils.FileChangedService"/>
 
         <!--设置-->
         <projectConfigurable instance="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable"
@@ -78,15 +76,10 @@
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider
                 implementation="io.github.future0923.debug.tools.idea.navigation.DebugToolsJsonEditorDirectNavigationProvider"/>
-
-        <postStartupActivity implementation="io.github.future0923.debug.tools.idea.startup.HotSwapStartupActivity"/>
-
-        <java.programPatcher implementation="io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher" order="last" />
-
     </extensions>
 
     <actions>
-        <group id="DebugToolsTool">
+        <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <action id="DebugToolsTool.QuickDebug"
@@ -109,7 +102,7 @@
             </action>
             <separator/>
         </group>
-        <group id="DebugToolsRun">
+        <group id="DebugTools.Run">
             <separator/>
             <add-to-group group-id="RunContextGroup" anchor="last"/>
             <action id="DebugTools.RunGroovy"
@@ -119,22 +112,25 @@
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <separator/>
         </group>
-        <group id="DebugToolsHotSwap">
-            <add-to-group group-id="ToolbarRunGroup" anchor="after"
-                          relative-to-action="MoreRunToolbarActions"/>
-            <add-to-group group-id="RunToolbarMainActionGroup" anchor="after"
-                          relative-to-action="MoreRunToolbarActions"/>
-            <action id="HotSwapAction"
-                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"
-                    text="File Changed"
-                    description="File changed">
-            </action>
+        <action id="DebugTools.HttpUrl"
+                class="io.github.future0923.debug.tools.idea.action.HttpUrlSearchGotoAction"
+                text="Search Http Url" description="Search http url and goto it">
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
+        </action>
+        <group id="DebugTools.Toolbar">
+            <action class="io.github.future0923.debug.tools.idea.tool.action.AttachAction"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.ConnectAction"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction"/>
+            <separator text="Separator"/>
+            <reference ref="DebugToolsTool.EvaluateGroovy"/>
+            <separator text="Separator"/>
+            <reference ref="DebugTools.HttpUrl"/>
+            <separator text="Separator"/>
         </group>
-
     </actions>
 
-<!--    <applicationListeners>-->
-<!--        <listener class="io.github.future0923.debug.tools.idea.listener.idea.DebugToolsExecutionListener"-->
-<!--                  topic="com.intellij.execution.ExecutionListener"/>-->
-<!--    </applicationListeners>-->
+    <applicationListeners>
+        <listener class="io.github.future0923.debug.tools.idea.listener.idea.DebugToolsExecutionListener"
+                  topic="com.intellij.execution.ExecutionListener"/>
+    </applicationListeners>
 </idea-plugin>
