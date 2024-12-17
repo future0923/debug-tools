@@ -1,12 +1,12 @@
-package io.github.future0923.debug.tools.idea.httpmethod;
+package io.github.future0923.debug.tools.idea.search;
 
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodInfo;
-import io.github.future0923.debug.tools.idea.httpmethod.beans.HttpMethodItem;
-import io.github.future0923.debug.tools.idea.httpmethod.utils.HttpMethodUtils;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlInfo;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
+import io.github.future0923.debug.tools.idea.search.utils.HttpUrlUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,17 +16,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 提供HttpMethod搜索的数据
+ * 提供HttpUrl搜索的数据
  *
  * @author future0923
  */
-public class HttpMethodContributor implements ChooseByNameContributor {
+public class HttpUrlContributor implements ChooseByNameContributor {
 
     private final Module module;
 
-    private List<HttpMethodItem> itemList;
+    private List<HttpUrlItem> itemList;
 
-    public HttpMethodContributor(Module module) {
+    public HttpUrlContributor(Module module) {
         this.module = module;
     }
 
@@ -35,19 +35,19 @@ public class HttpMethodContributor implements ChooseByNameContributor {
      */
     @Override
     public String @NotNull [] getNames(Project project, boolean includeNonProjectItems) {
-        List<HttpMethodInfo> requestInfos;
+        List<HttpUrlInfo> requestInfos;
         if (includeNonProjectItems && module != null) {
-            requestInfos = HttpMethodUtils.getModuleAllRequests(project, module);
+            requestInfos = HttpUrlUtils.getModuleAllRequests(project, module);
         } else {
-            Map<String, List<HttpMethodInfo>> allRequest = HttpMethodUtils.getAllRequest(project);
+            Map<String, List<HttpUrlInfo>> allRequest = HttpUrlUtils.getAllRequest(project);
             requestInfos = allRequest.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
         }
         List<String> names = new ArrayList<>(requestInfos.size());
         itemList = new ArrayList<>(requestInfos.size());
-        for (HttpMethodInfo requestInfo : requestInfos) {
-            HttpMethodItem httpMethodItem = new HttpMethodItem(requestInfo.getPsiElement(), requestInfo.getMethod(), requestInfo.getPath());
-            names.add(httpMethodItem.getName());
-            itemList.add(httpMethodItem);
+        for (HttpUrlInfo requestInfo : requestInfos) {
+            HttpUrlItem httpUrlItem = new HttpUrlItem(requestInfo.getPsiElement(), requestInfo.getMethod(), requestInfo.getPath());
+            names.add(httpUrlItem.getName());
+            itemList.add(httpUrlItem);
         }
         return names.toArray(new String[0]);
     }

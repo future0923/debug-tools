@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.idea.httpmethod.enums;
+package io.github.future0923.debug.tools.idea.search.enums;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
