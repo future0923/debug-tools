@@ -1,3 +1,8 @@
+# [3.1.1](https://github.com/future0923/debug-tools/compare/v3.1.0...v3.1.1) (2024-12-18)
+
+- Search http url can remove ContextPath information. 
+- Fixed the bug that domain name cannot be matched without http(s).
+
 # [3.1.0](https://github.com/future0923/debug-tools/compare/v3.0.1...v3.1.0) (2024-12-17)
 
 - Search http url to jump directly to the corresponding method definition.
