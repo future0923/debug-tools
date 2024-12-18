@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 
 /**
  * @author future0923
@@ -59,6 +60,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (!settingState.getPrintSql() && settingPanel.getPrintSqlYes().isSelected()) {
             return true;
         }
+        if (!Objects.equals(settingState.getRemoveContextPath(), settingPanel.getRemoveContextPath().getText())) {
+            return true;
+        }
         return false;
     }
 
@@ -79,6 +83,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         } else {
             settingPanel.getPrintSqlNo().setSelected(true);
         }
+        settingPanel.getRemoveContextPath().setText(settingState.getRemoveContextPath());
     }
 
     @Override
@@ -102,6 +107,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (settingPanel.getPrintSqlNo().isSelected()) {
             settingState.setPrintSql(false);
         }
+        settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
     }
 
     @Override
