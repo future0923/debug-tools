@@ -86,6 +86,10 @@ public class HttpUrlChooseByNamePopup extends ChooseByNamePopup {
             DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
             String removeContextPath = settingState.getRemoveContextPath();
             if (StrUtil.isNotBlank(removeContextPath)) {
+                removeContextPath = StrUtil.replace(removeContextPath, "，", ",");
+                removeContextPath = StrUtil.replace(removeContextPath, StrUtil.CRLF, ",");
+                removeContextPath = StrUtil.replace(removeContextPath, StrUtil.CR, ",");
+                removeContextPath = StrUtil.replace(removeContextPath, StrUtil.LF, ",");
                 for (String contextPath : StrUtil.split(removeContextPath, ",")) {
                     if(StrUtil.isNotBlank(contextPath)) {
                         // 输入有 / 而 contextPath 没有
