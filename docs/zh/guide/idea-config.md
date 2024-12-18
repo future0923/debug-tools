@@ -1,6 +1,6 @@
 # Idea配置
 
-![idea_config.png](/images/idea_config.png)
+![config_context_path.png](/images/config_context_path.png)
 
 ## Entity class default param
 
@@ -9,3 +9,7 @@
 ## Print pretty sql
 
 启动应用时是否[打印SQL语句与耗时](./sql)。
+
+## Remove context path
+
+匹配http url时会[移除context path](./search-http#match-path)后进行匹配。
