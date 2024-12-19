@@ -1,6 +1,6 @@
 # Idea Configuration
 
-![idea_config.png](/images/idea_config.png)
+![config_context_path.png](/images/config_context_path.png)
 
 ## Entity class default param
 
@@ -9,3 +9,7 @@ When not running before, DebugTools will automatically generate DebugToolsJson f
 ## Print pretty sql
 
 Whether to [print SQL statements and time consumption](./sql) when starting the application.
+
+## Remove context path
+
+When matching http urls, the context path will be removed (./search-http#match-path) before matching.

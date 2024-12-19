@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.server.utils;
 
-import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
@@ -15,8 +14,6 @@ import java.util.Map;
  * @author future0923
  */
 public class DebugToolsEnvUtils {
-
-    private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
     private static Class<?> springEnvUtil;
 
@@ -122,8 +119,7 @@ public class DebugToolsEnvUtils {
             setRequest.invoke(null, runDTO);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception exception) {
-            logger.error("setRequest error", exception);
+        } catch (Exception ignored) {
         }
     }
 
@@ -134,8 +130,7 @@ public class DebugToolsEnvUtils {
             return (boolean) setRequest.invoke(null, invocationHandler);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception exception) {
-            logger.error("isAopProxy error", exception);
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -147,8 +142,7 @@ public class DebugToolsEnvUtils {
             return (Object[]) getArgs.invoke(null, bridgedMethod, targetMethodContent);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception exception) {
-            logger.error("getArgs error", exception);
+        } catch (Exception ignored) {
             return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
         }
     }
@@ -160,8 +154,7 @@ public class DebugToolsEnvUtils {
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            logger.error("getArgs error", e);
+        } catch (Exception ignored) {
             return null;
         }
     }
@@ -173,8 +166,7 @@ public class DebugToolsEnvUtils {
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            logger.error("getResponse error", e);
+        } catch (Exception ignored) {
             return null;
         }
     }
@@ -186,8 +178,7 @@ public class DebugToolsEnvUtils {
             setXxlJobParam.invoke(null, jobParam);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            logger.error("getResponse error", e);
+        } catch (Exception ignored) {
         }
     }
 }
