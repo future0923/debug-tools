@@ -15,8 +15,11 @@ public class DebugToolsClassLoader extends URLClassLoader {
 
     private static final Logger logger = Logger.getLogger(DebugToolsClassLoader.class);
 
-    public DebugToolsClassLoader(URL[] urls, ClassLoader parent) {
+    private final ClassLoader appClassLoader;
+
+    public DebugToolsClassLoader(URL[] urls, ClassLoader parent, ClassLoader appClassLoader) {
         super(urls, parent);
+        this.appClassLoader = appClassLoader;
         logger.debug("DebugToolsClassLoader parent is " + parent);
     }
 
@@ -30,6 +33,9 @@ public class DebugToolsClassLoader extends URLClassLoader {
         // 优先从parent（SystemClassLoader）里加载系统类，避免抛出ClassNotFoundException
         if (name != null && (name.startsWith("sun.") || name.startsWith("java."))) {
             return super.loadClass(name, resolve);
+        }
+        if (name != null && name.startsWith("io.github.future0923.debug.tools.base")) {
+            return appClassLoader.loadClass(name);
         }
         try {
             Class<?> aClass = findClass(name);
@@ -52,10 +58,11 @@ public class DebugToolsClassLoader extends URLClassLoader {
                     String jarEntryName = jarEntry.getName();
                     if (jarEntryName.endsWith(".class")
                             && jarEntryName.startsWith("io/github/future0923/debug/tools/")
+                            && !jarEntryName.startsWith("io/github/future0923/debug/tools/base/")
                             && !jarEntryName.startsWith("io/github/future0923/debug/tools/server/mock/")) {
                         String className = jarEntryName.replace("/", ".").substring(0, jarEntryName.length() - 6);
                         try {
-                            loadClass(className);
+                            loadClass(className, true);
                         } catch (ClassNotFoundException ignored) {
 
                         }

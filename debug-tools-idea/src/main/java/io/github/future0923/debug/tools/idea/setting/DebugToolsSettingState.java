@@ -57,6 +57,8 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     private Integer remoteHttpPort;
 
+    private String removeContextPath;
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;
