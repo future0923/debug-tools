@@ -3,12 +3,14 @@ package io.github.future0923.debug.tools.idea.ui.setting;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
+import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import lombok.Getter;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 
 /**
@@ -31,6 +33,9 @@ public class SettingPanel {
     private final JBRadioButton printSqlYes = new JBRadioButton("Yes");
     @Getter
     private final JBRadioButton printSqlNo = new JBRadioButton("No");
+
+    @Getter
+    private final JBTextArea removeContextPath = new JBTextArea();
 
     public SettingPanel(Project project) {
         this.settingState = DebugToolsSettingState.getInstance(project);
@@ -65,7 +70,14 @@ public class SettingPanel {
         } else {
             printSqlNo.setSelected(true);
         }
-
+        removeContextPath.setText(settingState.getRemoveContextPath());
+        // 添加边框
+        Border border = BorderFactory.createLineBorder(Color.GRAY); // 创建灰色线条边框
+        removeContextPath.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(5, 5, 5, 5))); // 内外边框组合
+        // 自动换行
+        removeContextPath.setLineWrap(true);
+        // 按单词边界换行
+        removeContextPath.setWrapStyleWord(true);
         settingPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
                         new JBLabel("Entity class default param:"),
@@ -74,6 +86,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Print pretty sql:"),
                         printSqlPanel
+                )
+                .addLabeledComponent(
+                        new JBLabel("Remove context path:"),
+                        removeContextPath
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

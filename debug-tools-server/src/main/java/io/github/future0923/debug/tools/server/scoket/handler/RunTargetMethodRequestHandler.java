@@ -76,7 +76,9 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             return;
         }
         DebugToolsEnvUtils.setRequest(runDTO);
-        DebugToolsEnvUtils.setXxlJobParam(runDTO.getXxlJobParam());
+        if (DebugToolsStringUtils.isNotBlank(runDTO.getXxlJobParam())) {
+            DebugToolsEnvUtils.setXxlJobParam(runDTO.getXxlJobParam());
+        }
         Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
