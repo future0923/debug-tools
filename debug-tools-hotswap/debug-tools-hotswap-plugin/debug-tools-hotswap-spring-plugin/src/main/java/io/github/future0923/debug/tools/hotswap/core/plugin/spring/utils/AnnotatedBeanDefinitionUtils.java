@@ -34,15 +34,13 @@ public class AnnotatedBeanDefinitionUtils {
         }
         /** earlier than spring 4.1 */
         if (beanDefinition.getSource() != null && beanDefinition.getSource() instanceof StandardMethodMetadata) {
-            StandardMethodMetadata standardMethodMetadata = (StandardMethodMetadata) beanDefinition.getSource();
-            return standardMethodMetadata;
+            return (StandardMethodMetadata) beanDefinition.getSource();
         }
         return null;
     }
 
     public static boolean containValueAnnotation(Annotation[][] annotations) {
-        for (int i = 0; i < annotations.length; i++) {
-            Annotation[] annotationArray = annotations[i];
+        for (Annotation[] annotationArray : annotations) {
             for (Annotation annotation : annotationArray) {
                 if (annotation.annotationType().getName().equals("org.springframework.beans.factory.annotation.Value")) {
                     return true;

@@ -12,11 +12,12 @@ import java.util.Map;
  */
 public class ResetAnnotationCache {
 
-    private static Logger LOGGER = Logger.getLogger(ResetAnnotationCache.class);
+    private static final Logger LOGGER = Logger.getLogger(ResetAnnotationCache.class);
     /**
      * Reset Spring annotation scanner.
      * @since 5.x
      */
+    @SuppressWarnings("unchecked")
     public static void resetAnnotationScanner(DefaultListableBeanFactory defaultListableBeanFactory) {
         Map<Method, String> declaredAnnotationCache = (Map<Method, String>) ReflectionHelper.getNoException(null,
                 "org.springframework.core.annotation.AnnotationsScanner",

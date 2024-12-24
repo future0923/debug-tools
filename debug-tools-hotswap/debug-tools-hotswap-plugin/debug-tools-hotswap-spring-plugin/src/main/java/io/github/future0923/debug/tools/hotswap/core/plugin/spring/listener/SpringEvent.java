@@ -18,37 +18,35 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener;
 
+import lombok.Getter;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import java.util.EventObject;
 
 /**
- * Spring event.
- * It is used to notify the plugin that a bean definition has changed.
- * Spring boot and Spring should send some events each other, the event and listener are used to satisfy this requirement.
+ * Spring相关的事件。用于通知插件，bean definition发生了变化。Spring boot 和 Spring 之间需要互相发送一些事件，事件和监听器就是用来满足这个需求的。
  *
- * @param <T> the event type
+ * @param <T> 事件类型
  */
+@Getter
 public abstract class SpringEvent<T> extends EventObject {
 
-    private ConfigurableListableBeanFactory beanFactory;
+    private final ConfigurableListableBeanFactory beanFactory;
 
     /**
-     * Constructs a prototypical Event.
+     * 创建事件
      *
-     * @param source the object on which the Event initially occurred
-     * @throws IllegalArgumentException if source is null
+     * @param source      事件对象
+     * @param beanFactory ioc容器
+     * @throws IllegalArgumentException source为null
      */
     public SpringEvent(T source, ConfigurableListableBeanFactory beanFactory) {
         super(source);
         this.beanFactory = beanFactory;
     }
 
+    @SuppressWarnings("unchecked")
     public T getSource() {
         return (T) super.getSource();
-    }
-
-    public ConfigurableListableBeanFactory getBeanFactory() {
-        return beanFactory;
     }
 }

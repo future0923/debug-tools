@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.idea.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class HotSwapAction extends AnAction {
 
     public HotSwapAction() {
-        getTemplatePresentation().setIcon(DebugToolsIcons.debug_tools_icon);
+        getTemplatePresentation().setIcon(DebugToolsIcons.DebugTools);
     }
 
     @Override

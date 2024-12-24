@@ -18,13 +18,13 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.boot.env;
 
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReloader;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReload;
 
 /**
  * BasePropertiesPropertySourceLoader: load properties/yaml or List, it should reuse the code of spring boot.
  * @param <T>
  */
-public abstract class BasePropertiesPropertySourceLoader<T> implements PropertySourceReloader<T> {
+public abstract class BasePropertiesPropertySourceLoader<T> implements PropertySourceReload<T> {
 
     protected HotswapSpringPropertiesReloader<T> properties;
 
