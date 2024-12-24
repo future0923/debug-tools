@@ -79,7 +79,7 @@ public class EnhancerProxyCreater {
      *                     ProxyReplacer.FACTORY_METHOD_NAME
      * @param paramValues  Parameter values of the Spring beanFactory method which returned the bean. The method is named
      *                     ProxyReplacer.FACTORY_METHOD_NAME
-     * @return
+     * @return Bean Object
      */
     public static Object createProxy(Object beanFactory, Object bean, Class<?>[] paramClasses, Object[] paramValues) {
         if (INSTANCE == null) {
@@ -102,14 +102,9 @@ public class EnhancerProxyCreater {
                 beanProxies.put(bean, proxyBean);
             }
         }
-
-        // in case of HA proxy set the target. It might be cleared by clearProxies
-        //   but the underlying bean did not change. We need this to resolve target bean
-        //   in org.hotswap.agent.plugin.spring.getbean.DetachableBeanHolder.getBean()
         if (proxyBean instanceof SpringHotswapAgentProxy) {
             ((SpringHotswapAgentProxy) proxyBean).$$ha$setTarget(bean);
         }
-
         return proxyBean;
     }
 
