@@ -45,9 +45,9 @@ public class PropertySourceTransformer {
 
     private static void transformPropertySource(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
         clazz.addInterface(classPool.get("io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api.ReloadablePropertySource"));
-        clazz.addField(CtField.make("private io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReloader reload;", clazz));
+        clazz.addField(CtField.make("private io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReload reload;", clazz));
 
-        clazz.addMethod(CtMethod.make("public void setReload(io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReloader r) { this.reload = r; }", clazz));
+        clazz.addMethod(CtMethod.make("public void setReload(io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReload r) { this.reload = r; }", clazz));
         clazz.addMethod(CtMethod.make("public void reload() { if (this.reload != null) {this.reload.reload();} }", clazz));
     }
 }

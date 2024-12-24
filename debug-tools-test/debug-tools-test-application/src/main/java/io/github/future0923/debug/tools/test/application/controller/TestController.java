@@ -22,6 +22,12 @@ public class TestController {
         return "asd";
     }
 
+    //
+    //@GetMapping("/hot1")
+    //public String ok2() {
+    //    return "asd";
+    //}
+
     @GetMapping("/insertBatchSomeColumn")
     public String insertBatchSomeColumn() {
         return testService.insertBatchSomeColumn();

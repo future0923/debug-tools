@@ -18,11 +18,11 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformers.api;
 
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReloader;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.api.PropertySourceReload;
 
 public interface ReloadablePropertySource {
 
-    void setReload(PropertySourceReloader r);
+    void setReload(PropertySourceReload r);
 
     void reload();
 }

@@ -23,9 +23,7 @@ import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatu
 import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureElement;
 
 /**
- * Checks if a Signature of a Class has changed enough to necessitate a Spring reload.
- *
- * @author Erki Ehtla, Vladimir Dvorak
+ * 插件类签名是否发生变化，变化了Spring需要重新加载类
  */
 public class ClassSignatureComparer {
 

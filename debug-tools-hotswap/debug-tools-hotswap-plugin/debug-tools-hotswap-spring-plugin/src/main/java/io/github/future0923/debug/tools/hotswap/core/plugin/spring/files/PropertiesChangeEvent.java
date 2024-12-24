@@ -27,12 +27,7 @@ import java.util.List;
  * Properties change event, it will be used to notify spring boot to reload the related Bean.
  */
 public class PropertiesChangeEvent extends SpringEvent<List<PropertiesChangeEvent.PropertyChangeItem>> {
-    /**
-     * Constructs a prototypical Event.
-     *
-     * @param source the object on which the Event initially occurred
-     * @throws IllegalArgumentException if source is null
-     */
+
     public PropertiesChangeEvent(List<PropertyChangeItem> source, ConfigurableListableBeanFactory beanFactory) {
         super(source, beanFactory);
     }

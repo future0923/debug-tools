@@ -23,6 +23,10 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.GenericApplicationContext;
 
 public class RegistryUtils {
+
+    /**
+     * 获取BeanDefinitionRegistry对应的BeanFactory
+     */
     public static DefaultListableBeanFactory maybeRegistryToBeanFactory(BeanDefinitionRegistry registry) {
         if (registry instanceof DefaultListableBeanFactory) {
             return (DefaultListableBeanFactory) registry;

@@ -18,11 +18,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.api;
 
-/**
- * @author cvictory
- * @param <T>
- */
-public interface PropertySourceReloader<T> {
+public interface PropertySourceReload<T> {
 
     void reload();
 

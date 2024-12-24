@@ -20,35 +20,31 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
-import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 
 /**
- * Add changed xmls to SpringChangedAgent.
+ * 将修改的 *.xml 文件加入到{@link SpringChangedAgent}中稍后重载
  */
-public class XmlsChangedCommand extends MergeableCommand {
-    private static final Logger LOGGER = Logger.getLogger(XmlsChangedCommand.class);
+public class XmlChangedCommand extends MergeableCommand {
+    private static final Logger LOGGER = Logger.getLogger(XmlChangedCommand.class);
 
-    ClassLoader appClassLoader;
+    private final ClassLoader appClassLoader;
 
-    URL url;
-    Scheduler scheduler;
+    private final URL url;
 
-    public XmlsChangedCommand(ClassLoader appClassLoader, URL url, Scheduler scheduler) {
+    public XmlChangedCommand(ClassLoader appClassLoader, URL url) {
         this.appClassLoader = appClassLoader;
         this.url = url;
-        this.scheduler = scheduler;
     }
 
     @Override
     public void executeCommand() {
         try {
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent", true, appClassLoader);
-            Method method = clazz.getDeclaredMethod(
-                    "addChangedXml", new Class[]{URL.class});
+            Method method = clazz.getDeclaredMethod("addChangedXml", URL.class);
             method.invoke(null, url);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);

@@ -25,13 +25,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- *
+ * 重新载入Spring环境，调用{@link SpringChangedAgent#reload(long)}方法
  */
 public class SpringChangedReloadCommand extends MergeableCommand {
-    private static final Logger LOGGER = Logger.getLogger(XmlsChangedCommand.class);
 
-    ClassLoader appClassLoader;
-    long timestamps;
+    private static final Logger LOGGER = Logger.getLogger(SpringChangedReloadCommand.class);
+
+    private final ClassLoader appClassLoader;
+
+    private final long timestamps;
 
     public SpringChangedReloadCommand(ClassLoader appClassLoader) {
         this.appClassLoader = appClassLoader;
