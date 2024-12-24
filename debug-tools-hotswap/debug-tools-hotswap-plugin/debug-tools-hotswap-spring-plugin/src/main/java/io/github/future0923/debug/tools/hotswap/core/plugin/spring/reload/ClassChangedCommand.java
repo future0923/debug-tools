@@ -20,35 +20,24 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
-import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
- * Add changed Class to SpringChangedAgent.
+ * 将redefine的class 加入到{@link SpringChangedAgent}中稍后重载
  */
 public class ClassChangedCommand extends MergeableCommand {
+
     private static final Logger LOGGER = Logger.getLogger(ClassChangedCommand.class);
-    private static final Set<String> IGNORE_PACKAGES = new HashSet<>();
 
-    ClassLoader appClassLoader;
+    private final ClassLoader appClassLoader;
 
-    Class clazz;
+    private final Class<?> clazz;
 
-    Scheduler scheduler;
-
-    static {
-        IGNORE_PACKAGES.add("io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload");
-        IGNORE_PACKAGES.add("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner");
-    }
-
-    public ClassChangedCommand(ClassLoader appClassLoader, Class clazz, Scheduler scheduler) {
+    public ClassChangedCommand(ClassLoader appClassLoader, Class<?> clazz) {
         this.appClassLoader = appClassLoader;
         this.clazz = clazz;
-        this.scheduler = scheduler;
     }
 
     @Override

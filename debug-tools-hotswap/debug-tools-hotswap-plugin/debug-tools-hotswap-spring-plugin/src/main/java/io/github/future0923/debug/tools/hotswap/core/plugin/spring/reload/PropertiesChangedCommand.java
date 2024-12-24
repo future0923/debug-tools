@@ -27,28 +27,25 @@ import java.lang.reflect.Method;
 import java.net.URL;
 
 /**
- * Add changed property to SpringChangedAgent.
+ * 将修改的 *.properties 文件加入到{@link SpringChangedAgent}中稍后重载
  */
 public class PropertiesChangedCommand extends MergeableCommand {
     private static final Logger LOGGER = Logger.getLogger(PropertiesChangedCommand.class);
 
-    ClassLoader appClassLoader;
+    private final ClassLoader appClassLoader;
 
-    URL url;
-    Scheduler scheduler;
+    private final URL url;
 
-    public PropertiesChangedCommand(ClassLoader appClassLoader, URL url, Scheduler scheduler) {
+    public PropertiesChangedCommand(ClassLoader appClassLoader, URL url) {
         this.appClassLoader = appClassLoader;
         this.url = url;
-        this.scheduler = scheduler;
     }
 
     @Override
     public void executeCommand() {
         try {
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedAgent", true, appClassLoader);
-            Method method = clazz.getDeclaredMethod(
-                    "addChangedProperty", new Class[]{URL.class});
+            Method method = clazz.getDeclaredMethod("addChangedProperty", URL.class);
             method.invoke(null, url);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);

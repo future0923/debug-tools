@@ -19,6 +19,9 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.boot.listener;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.boot.SpringBootPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.files.PropertiesChangeEvent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringEvent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.listener.SpringEventSource;
@@ -35,8 +38,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.Objects;
 
 /**
- * PropertySourceChangeBootListener: refresh configuration properties when property source changed.
- * (Not refresh directly but send a BeanChangeEvent to refresh ConfigurationProperties bean)
+ * 当property source改变时刷新配置。
+ * 不会直接刷新，通过发送{@link BeanChangeEvent}事件来刷新
  */
 public class PropertySourceChangeListener implements SpringListener<SpringEvent<?>> {
 
@@ -44,19 +47,18 @@ public class PropertySourceChangeListener implements SpringListener<SpringEvent<
 
     private final DefaultListableBeanFactory beanFactory;
 
+    /**
+     * {@link SpringBootPlugin#register(ClassLoader, CtClass, ClassPool)}注册这个listener
+     */
     public static void register(ConfigurableApplicationContext context) {
         ConfigurableListableBeanFactory configurableListableBeanFactory = context.getBeanFactory();
         if (!(configurableListableBeanFactory instanceof DefaultListableBeanFactory)) {
-            LOGGER.debug(
-                "beanFactory is not DefaultListableBeanFactory, skip register PropertySourceChangeBootListener, {}",
-                ObjectUtils.identityToString(configurableListableBeanFactory));
+            LOGGER.debug("beanFactory is not DefaultListableBeanFactory, skip register PropertySourceChangeBootListener, {}", ObjectUtils.identityToString(configurableListableBeanFactory));
             return;
         }
-        LOGGER.debug("register PropertySourceChangeBootListener, {}",
-            ObjectUtils.identityToString(configurableListableBeanFactory));
-        PropertySourceChangeListener propertySourceChangeListener = new PropertySourceChangeListener(
-            (DefaultListableBeanFactory)configurableListableBeanFactory);
-        // add instance to map and instance
+        LOGGER.debug("register PropertySourceChangeBootListener, {}", ObjectUtils.identityToString(configurableListableBeanFactory));
+        PropertySourceChangeListener propertySourceChangeListener = new PropertySourceChangeListener((DefaultListableBeanFactory)configurableListableBeanFactory);
+        // 将实例添加到映射和实例中
         SpringEventSource.INSTANCE.addListener(propertySourceChangeListener);
     }
 
@@ -84,7 +86,7 @@ public class PropertySourceChangeListener implements SpringListener<SpringEvent<
             if (AnnotationHelper.hasAnnotation(beanClass, ConfigurationProperties.class.getName())) {
                 LOGGER.debug("refresh configuration properties: {}", beanClass);
                 String[] beanNames = beanFactory.getBeanNamesForType(beanClass);
-                if (beanNames != null && beanNames.length > 0) {
+                if (beanNames.length > 0) {
                     SpringEventSource.INSTANCE.fireEvent(new BeanChangeEvent(beanNames, eventBeanFactory));
                 }
             }

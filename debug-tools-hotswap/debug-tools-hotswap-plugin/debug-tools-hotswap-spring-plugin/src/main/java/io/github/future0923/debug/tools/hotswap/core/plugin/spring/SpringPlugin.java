@@ -37,7 +37,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.ClassC
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.PropertiesChangedCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringChangedReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.SpringReloadConfig;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.XmlsChangedCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.XmlChangedCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.reload.YamlChangedCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.SpringBeanWatchEventListener;
@@ -154,28 +154,28 @@ public class SpringPlugin {
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = {LoadEvent.REDEFINE})
     public void redefinedClass(Class<?> clazz) {
-        scheduler.scheduleCommand(new ClassChangedCommand(appClassLoader, clazz, scheduler));
+        scheduler.scheduleCommand(new ClassChangedCommand(appClassLoader, clazz));
         LOGGER.trace("Scheduling Spring reload for class '{}' in classLoader {}", clazz, appClassLoader);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }
 
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
-        scheduler.scheduleCommand(new XmlsChangedCommand(appClassLoader, url, scheduler));
+        scheduler.scheduleCommand(new XmlChangedCommand(appClassLoader, url));
         LOGGER.trace("Scheduling Spring reload for XML '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }
 
     @OnResourceFileEvent(path = "/", filter = ".*.properties", events = {FileEvent.MODIFY})
     public void registerPropertiesListeners(URL url) {
-        scheduler.scheduleCommand(new PropertiesChangedCommand(appClassLoader, url, scheduler));
+        scheduler.scheduleCommand(new PropertiesChangedCommand(appClassLoader, url));
         LOGGER.trace("Scheduling Spring reload for properties '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }
 
     @OnResourceFileEvent(path = "/", filter = ".*.yaml", events = {FileEvent.MODIFY})
     public void registerYamlListeners(URL url) {
-        scheduler.scheduleCommand(new YamlChangedCommand(appClassLoader, url, scheduler));
+        scheduler.scheduleCommand(new YamlChangedCommand(appClassLoader, url));
         LOGGER.trace("Scheduling Spring reload for yaml '{}'", url);
         scheduler.scheduleCommand(new SpringChangedReloadCommand(appClassLoader), SpringReloadConfig.reloadDelayMillis);
     }

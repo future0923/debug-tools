@@ -44,6 +44,7 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
+        <java.programPatcher implementation="io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher" order="last"/>
         <!--定义自己的Extensions文件格式与目录-->
         <scratch.rootType implementation="io.github.future0923.debug.tools.idea.extensions.ScratchDebugToolsRootType"/>
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
@@ -51,6 +52,8 @@
 
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
+        <!--文件变更-->
+        <projectService serviceImplementation="io.github.future0923.debug.tools.idea.utils.FileChangedService"/>
 
         <!--设置-->
         <projectConfigurable instance="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable"
@@ -128,10 +131,16 @@
             <reference ref="DebugTools.HttpUrl"/>
             <separator text="Separator"/>
         </group>
+        <group id="DebugToolsHotSwap">
+            <add-to-group group-id="ToolbarRunGroup" anchor="after"
+                          relative-to-action="MoreRunToolbarActions"/>
+            <add-to-group group-id="RunToolbarMainActionGroup" anchor="after"
+                          relative-to-action="MoreRunToolbarActions"/>
+            <action id="HotSwapAction"
+                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"
+                    text="File Changed"
+                    description="File changed">
+            </action>
+        </group>
     </actions>
-
-    <applicationListeners>
-        <listener class="io.github.future0923.debug.tools.idea.listener.idea.DebugToolsExecutionListener"
-                  topic="com.intellij.execution.ExecutionListener"/>
-    </applicationListeners>
 </idea-plugin>

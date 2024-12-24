@@ -46,6 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 重新加载Spring环境
  */
 public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Comparable<SpringChangedAgent> {
+
     private static final Logger LOGGER = Logger.getLogger(SpringChangedAgent.class);
 
     private static final AtomicInteger waitingReloadCount = new AtomicInteger(0);
@@ -56,6 +57,7 @@ public class SpringChangedAgent implements SpringListener<SpringEvent<?>>, Compa
      * 代理类的ClassLoader，{@link SpringPlugin#init}会设置
      */
     private static ClassLoader appClassLoader;
+
     private static final Map<DefaultListableBeanFactory, SpringChangedAgent> springChangeAgents = new ConcurrentHashMap<>(2);
 
     /**

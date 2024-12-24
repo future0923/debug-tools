@@ -40,11 +40,8 @@ public class PostProcessorRegistrationDelegateTransformer {
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.context.support.PostProcessorRegistrationDelegate")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger LOGGER = " +
-                "io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.context.support.PostProcessorRegistrationDelegate.class);", clazz));
-
-        CtMethod ctMethod = clazz.getDeclaredMethod("invokeBeanFactoryPostProcessors", new CtClass[]{classPool.get("java.util.Collection"),
-                classPool.get("org.springframework.beans.factory.config.ConfigurableListableBeanFactory")});
+        clazz.addField(CtField.make("private static final io.github.future0923.debug.tools.base.logging.Logger LOGGER = io.github.future0923.debug.tools.base.logging.Logger.getLogger(org.springframework.context.support.PostProcessorRegistrationDelegate.class);", clazz));
+        CtMethod ctMethod = clazz.getDeclaredMethod("invokeBeanFactoryPostProcessors", new CtClass[]{classPool.get("java.util.Collection"), classPool.get("org.springframework.beans.factory.config.ConfigurableListableBeanFactory")});
         ctMethod.instrument(new ExprEditor() {
             @Override
             public void edit(MethodCall m) throws CannotCompileException {
