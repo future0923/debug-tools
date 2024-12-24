@@ -12,7 +12,6 @@
     <artifactId>debug-tools-hotswap-plugin</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>debug-tools-hotswap-spring-boot-plugin</module>
         <module>debug-tools-hotswap-spring-plugin</module>
     </modules>
 

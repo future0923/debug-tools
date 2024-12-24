@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the HotswapAgent authors.
+ * Copyright 2013-2019 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -18,11 +18,11 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
+
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Command;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
-import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
@@ -32,11 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 通过byte[]或者URI刷新SpringBean命令，相同的可以merge
+ * Do refresh Spring class (scanned by classpath scanner) based on URI or byte[] definition.
+ *
+ * This commands merges events of watcher.event(CREATE) and transformer hotswap reload to a single refresh command.
  */
 public class ClassPathBeanRefreshCommand extends MergeableCommand {
-
-    private static final Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
+    private static Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
     ClassLoader appClassLoader;
 
@@ -48,24 +49,22 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
     WatchFileEvent event;
     byte[] classDefinition;
 
-    Scheduler scheduler;
+    public ClassPathBeanRefreshCommand() {
 
-    public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className,
-                                       byte[] classDefinition, Scheduler scheduler) {
+    }
+
+    public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, byte[] classDefinition) {
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
         this.className = className;
         this.classDefinition = classDefinition;
-        this.scheduler = scheduler;
     }
 
-    public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className,
-                                       WatchFileEvent event, Scheduler scheduler) {
+    public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, WatchFileEvent event) {
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
         this.event = event;
         this.className = className;
-        this.scheduler = scheduler;
     }
 
     @Override
@@ -88,8 +87,9 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
 
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method  = clazz.getDeclaredMethod("refreshClassAndCheckReload", ClassLoader.class, String.class, String.class, byte[].class);
-            method.invoke(null, appClassLoader , basePackage, basePackage, classDefinition);
+            Method method  = clazz.getDeclaredMethod(
+                    "refreshClass", new Class[] {String.class, byte[].class});
+            method.invoke(null, basePackage, classDefinition);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
         } catch (InvocationTargetException e) {
@@ -107,23 +107,24 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
      * file was deleted.
      */
     private boolean isDeleteEvent() {
+        // for all merged commands including this command
         List<ClassPathBeanRefreshCommand> mergedCommands = new ArrayList<>();
         for (Command command : getMergedCommands()) {
             mergedCommands.add((ClassPathBeanRefreshCommand) command);
         }
         mergedCommands.add(this);
+
         boolean createFound = false;
         boolean deleteFound = false;
         for (ClassPathBeanRefreshCommand command : mergedCommands) {
             if (command.event != null) {
-                if (command.event.getEventType().equals(FileEvent.CREATE)) {
-                    createFound = true;
-                }
-                if (command.event.getEventType().equals(FileEvent.DELETE)) {
+                if (command.event.getEventType().equals(FileEvent.DELETE))
                     deleteFound = true;
-                }
+                if (command.event.getEventType().equals(FileEvent.CREATE))
+                    createFound = true;
             }
         }
+
         LOGGER.trace("isDeleteEvent result {}: createFound={}, deleteFound={}", createFound, deleteFound);
         return !createFound && deleteFound;
     }
