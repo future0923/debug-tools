@@ -120,24 +120,13 @@ public class DetachableBeanHolder implements Serializable {
             for (Method factoryMethod : methods) {
                 if (ProxyReplacer.FACTORY_METHOD_NAME.equals(factoryMethod.getName())
                         && Arrays.equals(factoryMethod.getParameterTypes(), paramClasses)) {
-
                     Object freshBean = factoryMethod.invoke(beanFactory, paramValues);
-
-                    // Factory returns HA proxy, but current method is invoked from HA proxy!
-                    // It might be the same object (if factory returns same object - meaning
-                    // that although clearAllProxies() was called, this bean did not change)
-                    // Unwrap the target bean, it is always available
-                    // see org.hotswap.agent.plugin.spring.getbean.EnhancerProxyCreater.create()
                     if (freshBean instanceof SpringHotswapAgentProxy) {
                         freshBean = ((SpringHotswapAgentProxy) freshBean).$$ha$getTarget();
                     }
                     bean = freshBean;
                     beanCopy = bean;
-                    if (beanCopy == null) {
-                        LOGGER.debug("Bean of '{}' not loaded, {} ", bean.getClass().getName(), paramValues);
-                        break;
-                    }
-                    LOGGER.debug("Bean '{}' loaded", bean.getClass().getName());
+                    LOGGER.reload("Bean '{}' loaded", bean.getClass().getName());
                     break;
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2024 the HotswapAgent authors.
+ * Copyright 2013-2019 the HotswapAgent authors.
  *
  * This file is part of HotswapAgent.
  *
@@ -18,58 +18,56 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring;
 
+
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.utils.ClassSignatureComparer;
-
-import java.io.ByteArrayInputStream;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.signature.ClassSignatureComparer;
 
 /**
- * 解析是否需要Spring进行重新加载{@link #isReloadNeeded}
- * <p>
- * 合成类或生成类不需要
- * <p>
- * 方法体的修改也不需要
+ * Determines if a full Spring reload is needed. Changes to synthetic and known generated classes are ignored. For other
+ * classes, changes to method bodies are ignored.
+ *
+ * @author Erki Ehtla
+ *
  */
 public class SpringChangesAnalyzer {
+    private static Logger LOGGER = Logger.getLogger(SpringPlugin.class);
 
-    private static final Logger LOGGER = Logger.getLogger(SpringPlugin.class);
-
-    private final ClassPool classPool;
+    private ClassPool cp;
 
     public SpringChangesAnalyzer(final ClassLoader classLoader) {
-        this.classPool = new ClassPool() {
+        this.cp = new ClassPool() {
+
             @Override
             public ClassLoader getClassLoader() {
                 return classLoader;
             }
         };
-        classPool.appendSystemPath();
-        classPool.appendClassPath(new LoaderClassPath(classLoader));
+        cp.appendSystemPath();
+        cp.appendClassPath(new LoaderClassPath(classLoader));
     }
 
     public boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer) {
-        // jvm合成的类不需要
-        if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined)) {
+        if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined))
             return false;
-        }
-        return classChangeNeedsReload(classBeingRedefined, classfileBuffer);
+
+        return true;
+        //return classChangeNeedsReload(classBeingRedefined, classfileBuffer);
     }
 
     private boolean classChangeNeedsReload(Class<?> classBeingRedefined, byte[] classfileBuffer) {
         CtClass makeClass = null;
         try {
-            makeClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, classPool);
+            makeClass = cp.makeClass(new java.io.ByteArrayInputStream(classfileBuffer));
+            return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, cp);
         } catch (Exception e) {
             LOGGER.error("Error analyzing class {} for reload necessity. Defaulting to yes.", e,
                     classBeingRedefined.getName());
         } finally {
-            if (makeClass != null) {
+            if (makeClass != null)
                 makeClass.detach();
-            }
         }
         return true;
     }
@@ -79,7 +77,7 @@ public class SpringChangesAnalyzer {
                 || classBeingRedefined.getName().startsWith("com.sun.proxy.$Proxy")
                 || classBeingRedefined.getSimpleName().contains("$$Enhancer")
                 || classBeingRedefined.getSimpleName().contains("$$_jvst") // javassist proxy
-                || classBeingRedefined.getSimpleName().contains("$HibernateProxy$")
                 ;
     }
+
 }
