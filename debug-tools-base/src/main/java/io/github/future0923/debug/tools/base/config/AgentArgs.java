@@ -17,6 +17,10 @@ public class AgentArgs {
 
     private String applicationName;
 
+    private String printSql;
+
+    private String hotswap;
+
     public static AgentArgs parse(String agentArgs) {
         AgentArgs config = new AgentArgs();
         if (DebugToolsStringUtils.isNotBlank(agentArgs)) {

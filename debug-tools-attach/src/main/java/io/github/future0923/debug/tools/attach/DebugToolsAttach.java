@@ -3,6 +3,7 @@ package io.github.future0923.debug.tools.attach;
 import io.github.future0923.debug.tools.attach.sqlprint.SqlPrintByteCodeEnhance;
 import io.github.future0923.debug.tools.base.classloader.DebugToolsClassLoader;
 import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
+import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
@@ -13,6 +14,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,12 +33,17 @@ public class DebugToolsAttach {
     private static Object bootstrap;
 
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
-        SqlPrintByteCodeEnhance.enhance(inst);
         if (ProjectConstants.DEBUG) {
             CtClass.debugDump = "debug/javassist";
             System.setProperty("cglib.debugLocation", "debug/cglib");
         }
-        HotswapAgent.premain(agentArgs, inst);
+        AgentArgs parse = AgentArgs.parse(agentArgs);
+        if (Objects.equals(parse.getPrintSql(), "true")) {
+            SqlPrintByteCodeEnhance.enhance(inst);
+        }
+        if (Objects.equals(parse.getHotswap(), "true")) {
+            HotswapAgent.premain(agentArgs, inst);
+        }
     }
 
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
