@@ -8,6 +8,7 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -27,21 +28,29 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         if (project == null) {
             return;
         }
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        applyForConfiguration(settingState.loadAgentPath(project), configuration, javaParameters, project);
+        applyForConfiguration(configuration, javaParameters, project);
     }
 
-    private void applyForConfiguration(String agentPath, RunProfile configuration, JavaParameters javaParameters, Project project) {
+    private void applyForConfiguration(RunProfile configuration, JavaParameters javaParameters, Project project) {
         log.debug("Applying HotSwapAgent to configuration " + (configuration != null ? configuration.getName() : ""));
-        ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
-        if (rootManager.getProjectSdk() != null) {
-            if (DcevmUtils.isDcevmInstalledLikeAltJvm(rootManager.getProjectSdk())) {
-                javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
+        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        String agentPath = settingState.loadAgentPath(project);
+        if (settingState.getPrintSql() || settingState.getHotswap()) {
+            AgentArgs agentArgs = new AgentArgs();
+            if (settingState.getHotswap()) {
+                ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+                if (rootManager.getProjectSdk() != null) {
+                    if (DcevmUtils.isDcevmInstalledLikeAltJvm(rootManager.getProjectSdk())) {
+                        javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
+                        agentArgs.setHotswap(Boolean.TRUE.toString());
+                    }
+                    if (!DcevmUtils.isDCEVMPresent(rootManager.getProjectSdk())) {
+                        DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
+                    }
+                }
             }
-            if (!DcevmUtils.isDCEVMPresent(rootManager.getProjectSdk())) {
-                DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
-            }
+            agentArgs.setPrintSql(settingState.getPrintSql().toString());
+            javaParameters.getVMParametersList().add("-javaagent:" + agentPath + "=" + agentArgs.format());
         }
-        javaParameters.getVMParametersList().add("-javaagent:" + agentPath);
     }
 }

@@ -36,4 +36,9 @@ public class DebugToolsIcons {
         public static final Icon Request = IconLoader.getIcon("/icon/request/request.png", DebugToolsIcons.class);
         public static final Icon Trace = IconLoader.getIcon("/icon/request/trace.png", DebugToolsIcons.class);
     }
+
+    public static final class Hotswap {
+        public static final Icon Off = IconLoader.getIcon("/icon/hotswap/hotswap.svg", DebugToolsIcons.class);
+        public static final Icon On = IconLoader.getIcon("/icon/hotswap/hotswap_on.svg", DebugToolsIcons.class);
+    }
 }
