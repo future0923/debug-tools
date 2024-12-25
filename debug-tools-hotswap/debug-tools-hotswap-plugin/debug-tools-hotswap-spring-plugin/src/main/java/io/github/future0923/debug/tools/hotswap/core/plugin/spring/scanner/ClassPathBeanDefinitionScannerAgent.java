@@ -199,7 +199,7 @@ public class ClassPathBeanDefinitionScannerAgent {
             if (checkCandidate(beanName, candidate)) {
                 BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
                 definitionHolder = applyScopedProxyMode(scopeMetadata, definitionHolder, registry);
-                LOGGER.reload("Registering Spring bean '{}'", beanName);
+                LOGGER.debug("Registering Spring bean '{}'", beanName);
                 LOGGER.debug("Bean definition '{}'", beanName, candidate);
                 registerBeanDefinition(definitionHolder, registry);
                 DefaultListableBeanFactory bf = maybeRegistryToBeanFactory();
@@ -208,6 +208,7 @@ public class ClassPathBeanDefinitionScannerAgent {
                 }
                 ProxyReplacer.clearAllProxies();
                 freezeConfiguration();
+                LOGGER.reload("Registered Spring bean '{}'", beanName);
             }
         }
 
@@ -244,7 +245,7 @@ public class ClassPathBeanDefinitionScannerAgent {
         return null;
     }
 
-    // rerun freez configuration - this method is enhanced with cache reset
+    // rerun freeze configuration - this method is enhanced with cache reset
     private void freezeConfiguration() {
         if (registry instanceof DefaultListableBeanFactory) {
             ((DefaultListableBeanFactory) registry).freezeConfiguration();

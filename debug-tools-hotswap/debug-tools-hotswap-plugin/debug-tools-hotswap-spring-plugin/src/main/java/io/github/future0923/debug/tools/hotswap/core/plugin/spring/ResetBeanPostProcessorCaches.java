@@ -31,16 +31,14 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * Spring Bean post processors contain various caches for performance reasons. Clear the caches on reload.
- *
- * @author Jiri Bubnik
+ * 重载时清除Spring Bean post processors缓存.
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ResetBeanPostProcessorCaches {
-    private static Logger LOGGER = Logger.getLogger(ResetBeanPostProcessorCaches.class);
+    private static final Logger LOGGER = Logger.getLogger(ResetBeanPostProcessorCaches.class);
 
     private static Class<?> getReflectionUtilsClassOrNull() {
         try {
-            //This is probably a bad idea as Class.forName has lots of issues but this was easiest for now.
             return Class.forName("org.springframework.util.ReflectionUtils");
         } catch (ClassNotFoundException e) {
             LOGGER.trace("Spring 4.1.x or below - ReflectionUtils class not found");
@@ -49,9 +47,7 @@ public class ResetBeanPostProcessorCaches {
     }
 
     /**
-     * Reset all post processors associated with a bean factory.
-     *
-     * @param beanFactory beanFactory to use
+     * 重置与bean factory关联的所有post processors
      */
     public static void reset(DefaultListableBeanFactory beanFactory) {
         Class<?> c = getReflectionUtilsClassOrNull();
@@ -97,30 +93,27 @@ public class ResetBeanPostProcessorCaches {
         }
     }
 
-    // @Autowired cache
+    /**
+     * 重置 @Autowired cache
+     */
     public static void resetAutowiredAnnotationBeanPostProcessorCache(AutowiredAnnotationBeanPostProcessor bpp) {
         try {
             Field field = AutowiredAnnotationBeanPostProcessor.class.getDeclaredField("candidateConstructorsCache");
             field.setAccessible(true);
-            // noinspection unchecked
             Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = (Map<Class<?>, Constructor<?>[]>) field.get(bpp);
             candidateConstructorsCache.clear();
             LOGGER.debug("Cache cleared: AutowiredAnnotationBeanPostProcessor.candidateConstructorsCache");
         } catch (Exception e) {
             throw new IllegalStateException("Unable to clear AutowiredAnnotationBeanPostProcessor.candidateConstructorsCache", e);
         }
-
         try {
             Field field = AutowiredAnnotationBeanPostProcessor.class.getDeclaredField("injectionMetadataCache");
             field.setAccessible(true);
-            //noinspection unchecked
             Map<Class<?>, InjectionMetadata> injectionMetadataCache = (Map<Class<?>, InjectionMetadata>) field.get(bpp);
             injectionMetadataCache.clear();
-            // noinspection unchecked
             LOGGER.debug("Cache cleared: AutowiredAnnotationBeanPostProcessor.injectionMetadataCache");
         } catch (Exception e) {
             throw new IllegalStateException("Unable to clear AutowiredAnnotationBeanPostProcessor.injectionMetadataCache", e);
         }
-
     }
 }

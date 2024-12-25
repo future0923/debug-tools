@@ -136,10 +136,10 @@
                           relative-to-action="MoreRunToolbarActions"/>
             <add-to-group group-id="RunToolbarMainActionGroup" anchor="after"
                           relative-to-action="MoreRunToolbarActions"/>
-            <action id="HotSwapAction"
-                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"
-                    text="File Changed"
-                    description="File changed">
+            <action id="HotSwapSwitchAction"
+                    class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"
+                    text="hotswap switch"
+                    description="hotswap switch">
             </action>
         </group>
     </actions>

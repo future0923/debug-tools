@@ -35,29 +35,70 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     private static final Logger log = Logger.getInstance(DebugToolsSettingState.class);
 
+    /**
+     * agent包版本
+     */
     private String agentVersion;
 
-    private Map<String, String> methodParamCache = new ConcurrentHashMap<>();
-
-    private Map<String, String> globalHeader = new ConcurrentHashMap<>();
-
+    /**
+     * agent包路径
+     */
     private String agentPath;
 
+    /**
+     * 调用方法参数缓存
+     */
+    private Map<String, String> methodParamCache = new ConcurrentHashMap<>();
+
+    /**
+     * 全局请求头信息
+     */
+    private Map<String, String> globalHeader = new ConcurrentHashMap<>();
+
+    /**
+     * 默认参数生成模式
+     */
     private GenParamType defaultGenParamType = GenParamType.ALL;
 
+    /**
+     * 是否打印SQL
+     */
     private Boolean printSql = false;
 
+    /**
+     * 是否附着的本地应用
+     */
     private boolean local;
 
+    /**
+     * 本地的http端口
+     */
     private Integer localHttpPort;
 
+    /**
+     * 远程应用地址
+     */
     private String remoteHost;
 
+    /**
+     * 远程应用TCP端口
+     */
     private Integer remoteTcpPort;
 
+    /**
+     * 远程应用HTTP端口
+     */
     private Integer remoteHttpPort;
 
+    /**
+     * 匹配URL时移除ContextPath信息
+     */
     private String removeContextPath;
+
+    /**
+     * 是否开启本地热重载
+     */
+    private Boolean hotswap = false;
 
     @Override
     public @Nullable DebugToolsSettingState getState() {
