@@ -19,9 +19,9 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.ResetBeanPostProcessorCaches;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.ResetRequestMappingCaches;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.ResetSpringStaticCaches;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetBeanPostProcessorCaches;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetRequestMappingCaches;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetSpringStaticCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacer;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
@@ -155,7 +155,7 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * Called by a reflection command from SpringPlugin transformer.
+     * {@link ClassPathBeanRefreshCommand}执行时会调用这里刷新class文件
      *
      * @param basePackage     base package on witch the transformer was registered, used to obtain associated scanner.
      * @param classDefinition new class definition

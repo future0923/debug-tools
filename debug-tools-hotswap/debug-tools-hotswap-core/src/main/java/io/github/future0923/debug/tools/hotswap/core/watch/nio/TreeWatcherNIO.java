@@ -34,9 +34,7 @@ public class TreeWatcherNIO extends AbstractNIO2Watcher {
     private final static WatchEvent.Modifier[] MODIFIERS;
 
     static {
-        // try to set high sensitivity
         HIGH =  getWatchEventModifier("com.sun.nio.file.SensitivityWatchEventModifier","HIGH");
-        // try to set file tree modifier
         FILE_TREE = getWatchEventModifier("com.sun.nio.file.ExtendedWatchEventModifier", "FILE_TREE");
 
         if(FILE_TREE != null) {
@@ -51,15 +49,11 @@ public class TreeWatcherNIO extends AbstractNIO2Watcher {
     }
 
     /**
-     * Register the given directory with the WatchService.
-     *
-     * @param dir the directory to register watch on
-     * @throws IOException Signals that an I/O exception has occurred.
+     * 向WatchService中注册路径
      */
     private void register(Path dir) throws IOException {
 
         for(Path p: keys.values()) {
-            // This may NOT be correct for all cases (ensure resolve will work!)
             if(dir.startsWith(p)) {
                 LOGGER.debug("Path {} watched via {}", dir, p);
                 return;
@@ -77,14 +71,6 @@ public class TreeWatcherNIO extends AbstractNIO2Watcher {
         keys.put(key, dir);
     }
 
-    /**
-     * Register the given directory,  with the
-     * WatchService. Sub-directories are automatically watched (filesystem supported)
-     *
-     * @param dir the dir
-     * @param fromCreateEvent the true is called from event CREATE
-     * @throws IOException Signals that an I/O exception has occurred.
-     */
     @Override
     protected void registerAll(Path dir, boolean fromCreateEvent) throws IOException {
         LOGGER.info("Registering directory {} ", dir);

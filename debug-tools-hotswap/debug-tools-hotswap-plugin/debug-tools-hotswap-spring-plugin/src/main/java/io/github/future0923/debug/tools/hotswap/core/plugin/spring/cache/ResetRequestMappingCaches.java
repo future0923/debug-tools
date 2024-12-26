@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import org.springframework.beans.factory.BeanFactoryUtils;
