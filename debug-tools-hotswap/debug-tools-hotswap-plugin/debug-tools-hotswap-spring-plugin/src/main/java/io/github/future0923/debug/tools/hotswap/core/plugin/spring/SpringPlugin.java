@@ -30,22 +30,18 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacerTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanRefreshCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.XmlBeanDefinitionScannerTransformer;
-import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
-import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
-import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
-import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 
 import java.io.IOException;
-import java.lang.instrument.IllegalClassFormatException;
 import java.net.URL;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -68,14 +64,6 @@ public class SpringPlugin {
 
     private static final Logger logger = Logger.getLogger(SpringPlugin.class);
 
-    /**
-     * If a class is modified in IDE, sequence of multiple events is generated -
-     * class file DELETE, CREATE, MODIFY, than Hotswap transformer is invoked.
-     * ClassPathBeanRefreshCommand tries to merge these events into single command.
-     * Wait this this timeout after class file event.
-     */
-    private static final int WAIT_ON_CREATE = 600;
-
     public static String[] basePackagePrefixes;
 
     @Init
@@ -90,17 +78,43 @@ public class SpringPlugin {
     @Init
     ClassLoader appClassLoader;
 
-    public void init() {
-        logger.info("Spring plugin initialized");
-        this.registerBasePackageFromConfiguration();
-        this.initBasePackagePrefixes();
-    }
-    public void init(String version) {
-        logger.info("Spring plugin initialized - Spring core version '{}'", version);
-        this.registerBasePackageFromConfiguration();
-        this.initBasePackagePrefixes();
+    /**
+     * 当DefaultListableBeanFactory加载时初始化SpringPlugin插件并调用freezeConfiguration方法
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.support.DefaultListableBeanFactory")
+    public static void register(CtClass clazz) throws NotFoundException, CannotCompileException {
+        StringBuilder src = new StringBuilder("{");
+        src.append("setCacheBeanMetadata(false);");
+        // 为每个ClassLoader注册Spring Bean插件
+        src.append(PluginManagerInvoker.buildInitializePlugin(SpringPlugin.class));
+        src.append(PluginManagerInvoker.buildCallPluginMethod(SpringPlugin.class, "init", "org.springframework.core.SpringVersion.getVersion()", String.class.getName()));
+        src.append("}");
+        for (CtConstructor constructor : clazz.getDeclaredConstructors()) {
+            constructor.insertBeforeBody(src.toString());
+        }
+        // freezeConfiguration() 的作用是将当前的 Bean 定义注册状态标记为不可修改。执行该方法后，任何对 Bean 定义的添加、删除或修改操作都会抛出异常。这一操作主要用于确保容器的配置在应用运行时保持稳定，从而提高应用的健壮性。
+        CtMethod method = clazz.getDeclaredMethod("freezeConfiguration");
+        method.insertBefore(
+                // 清除SpringBean的name缓存
+                "io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetSpringStaticCaches.resetBeanNamesByType(this); " +
+                        // 允许原始 Bean 注入到其他 Bean 中
+                        // Spring 容器中的 Bean 通常会被某些机制代理（如 AOP 代理、事务代理等）。在这些情况下，Spring 会用一个代理对象来代替原始 Bean，从而实现额外的功能（例如，方法拦截）。默认情况下，Spring 在注入依赖时会注入代理对象，而不是原始 Bean。
+                        //然而，有时我们可能需要绕过代理对象，直接注入原始的 Bean 实例。setAllowRawInjectionDespiteWrapping 就是用来控制是否允许这种行为的。
+                        "setAllowRawInjectionDespiteWrapping(true); ");
     }
 
+    /**
+     * 初始化Spring插件
+     */
+    public void init(String version) {
+        logger.info("Spring plugin initialized - Spring core version '{}'", getClass().getClassLoader(), version);
+        this.initBasePackagePrefixes();
+        this.registerBasePackageFromConfiguration();
+    }
+
+    /**
+     * 初始化包路径前缀
+     */
     private void initBasePackagePrefixes() {
         PluginConfiguration pluginConfiguration = new PluginConfiguration(this.appClassLoader);
         if (basePackagePrefixes == null || basePackagePrefixes.length == 0) {
@@ -115,7 +129,7 @@ public class SpringPlugin {
     }
 
     /**
-     * register base package prefix from configuration file
+     * 注册包前缀处理
      */
     public void registerBasePackageFromConfiguration() {
         if (basePackagePrefixes != null) {
@@ -125,84 +139,42 @@ public class SpringPlugin {
         }
     }
 
+    /**
+     * 创建对应包下变动的{@link SpringBeanClassFileTransformer}，可以处理class的redefine事件
+     */
     private void registerBasePackage(final String basePackage) {
-        final SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
-        // v.d.: Force load/Initialize ClassPathBeanRefreshCommand classe in JVM. This is hack, in whatever reason sometimes new ClassPathBeanRefreshCommand()
-        //       stays locked inside agent's transform() call. It looks like some bug in JVMTI or JVMTI-debugger() locks handling.
-        ClassPathBeanRefreshCommand fooCmd = new ClassPathBeanRefreshCommand();
-        hotswapTransformer.registerTransformer(appClassLoader, getClassNameRegExp(basePackage), new HaClassFileTransformer() {
-            @Override
-            public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-                if (classBeingRedefined != null) {
-                    if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
-                        scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(),
-                                basePackage, className, classfileBuffer));
-                    }
-                }
-                return classfileBuffer;
-            }
-
-            @Override
-            public boolean isForRedefinitionOnly() {
-                return true;
-            }
-        });
+        hotswapTransformer.registerTransformer(appClassLoader, getClassNameRegExp(basePackage), new SpringBeanClassFileTransformer(appClassLoader, scheduler, basePackage));
     }
 
     /**
-     * Register both hotswap transformer AND watcher - in case of new file the file is not known
-     * to JVM and hence no hotswap is called. The file may even exist, but until is loaded by Spring
-     * it will not be known by the JVM. File events are processed only if the class is not known to the
-     * classloader yet.
-     *
-     * @param basePackage only files in a basePackage
+     * 注册热重载 {@link SpringBeanClassFileTransformer}处理class修改，并扫描BasePackage添加 {@link SpringBeanWatchEventListener} 处理新增文件
+     * <p>
+     * {@link ClassPathBeanDefinitionScannerAgent#registerBasePackage(String)}会反射调用这里注册SpringBasePackage
      */
     public void registerComponentScanBasePackage(final String basePackage) {
         logger.info("Registering basePackage {}", basePackage);
-
         this.registerBasePackage(basePackage);
-
-        Enumeration<URL> resourceUrls = null;
+        Enumeration<URL> resourceUrls;
         try {
             resourceUrls = getResources(basePackage);
         } catch (IOException e) {
             logger.error("Unable to resolve base package {} in classloader {}.", basePackage, appClassLoader);
             return;
         }
-
-        // for all application resources watch for changes
+        // watch所有应用程序资源的变化。
         while (resourceUrls.hasMoreElements()) {
             URL basePackageURL = resourceUrls.nextElement();
-
             if (!IOUtils.isFileURL(basePackageURL)) {
-                logger.debug("Spring basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. " +
-                        "Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
-                continue;
+                logger.debug("Spring basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackageURL, new WatchEventListener() {
-                    @Override
-                    public void onEvent(WatchFileEvent event) {
-                        if (event.isFile() && event.getURI().toString().endsWith(".class")) {
-                            // check that the class is not loaded by the classloader yet (avoid duplicate reload)
-                            String className;
-                            try {
-                                className = IOUtils.urlToClassName(event.getURI());
-                            } catch (IOException e) {
-                                logger.trace("Watch event on resource '{}' skipped, probably Ok because of delete/create event sequence (compilation not finished yet).", e, event.getURI());
-                                return;
-                            }
-                            if (!ClassLoaderHelper.isClassLoaded(appClassLoader, className)) {
-                                // refresh spring only for new classes
-                                scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader,
-                                        basePackage, className, event), WAIT_ON_CREATE);
-                            }
-                        }
-                    }
-                });
+                watcher.addEventListener(appClassLoader, basePackageURL, new SpringBeanWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
     }
 
+    /**
+     * 改包名匹配为正则表达式
+     */
     private String getClassNameRegExp(String basePackage) {
         String regexp = basePackage;
         while (regexp.contains("**")) {
@@ -214,6 +186,9 @@ public class SpringPlugin {
         return regexp;
     }
 
+    /**
+     * 通过ClassLoader获取Package的资源信息
+     */
     private Enumeration<URL> getResources(String basePackage) throws IOException {
         String resourceName = basePackage;
         int index = resourceName.indexOf('*');
@@ -229,42 +204,8 @@ public class SpringPlugin {
     }
 
     /**
-     * Plugin initialization is after Spring has finished its startup and freezeConfiguration is called.
-     *
-     * This will override freeze method to init plugin - plugin will be initialized and the configuration
-     * remains unfrozen, so bean (re)definition may be done by the plugin.
+     * 禁用Cglib缓存
      */
-    @OnClassLoadEvent(classNameRegexp = "org.springframework.beans.factory.support.DefaultListableBeanFactory")
-    public static void register(CtClass clazz) throws NotFoundException, CannotCompileException {
-        StringBuilder src = new StringBuilder("{");
-        src.append("setCacheBeanMetadata(false);");
-        // init a spring plugin with every appclassloader
-        src.append(PluginManagerInvoker.buildInitializePlugin(SpringPlugin.class));
-        src.append(PluginManagerInvoker.buildCallPluginMethod(SpringPlugin.class, "init",
-                "org.springframework.core.SpringVersion.getVersion()", String.class.getName()));
-        src.append("}");
-
-        for (CtConstructor constructor : clazz.getDeclaredConstructors()) {
-            constructor.insertBeforeBody(src.toString());
-        }
-
-        // freezeConfiguration cannot be disabled because of performance degradation
-        // instead call freezeConfiguration after each bean (re)definition and clear all caches.
-
-        // WARNING - allowRawInjectionDespiteWrapping is not safe, however without this
-        //   spring was not able to resolve circular references correctly.
-        //   However, the code in AbstractAutowireCapableBeanFactory.doCreateBean() in debugger always
-        //   showed that exposedObject == earlySingletonReference and hence everything is Ok.
-        // 				if (exposedObject == bean) {
-        //                  exposedObject = earlySingletonReference;
-        //   The waring is because I am not sure what is going on here.
-
-        CtMethod method = clazz.getDeclaredMethod("freezeConfiguration");
-        method.insertBefore(
-                "io.github.future0923.debug.tools.hotswap.core.plugin.spring.ResetSpringStaticCaches.resetBeanNamesByType(this); " +
-                        "setAllowRawInjectionDespiteWrapping(true); ");
-    }
-
     @OnClassLoadEvent(classNameRegexp = "org.springframework.aop.framework.CglibAopProxy")
     public static void cglibAopProxyDisableCache(CtClass ctClass) throws NotFoundException, CannotCompileException {
         CtMethod method = ctClass.getDeclaredMethod("createEnhancer");

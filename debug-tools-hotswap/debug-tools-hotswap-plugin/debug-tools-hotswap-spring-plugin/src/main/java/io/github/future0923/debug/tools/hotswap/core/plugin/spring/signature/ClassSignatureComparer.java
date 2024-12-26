@@ -23,10 +23,7 @@ import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatu
 import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureElement;
 
 /**
- * Checks if a Signature of a Class has changed enough to necessitate a Spring reload.
- *
- * @author Erki Ehtla, Vladimir Dvorak
- *
+ * 插件类签名是否发生变化，变化了Spring需要重新加载类
  */
 public class ClassSignatureComparer {
 
@@ -45,7 +42,14 @@ public class ClassSignatureComparer {
             ClassSignatureElement.FIELD_ANNOTATION
     };
 
-    public static boolean isPoolClassDifferent(Class<?> classBeingRedefined, ClassPool cp) {
-        return ClassSignatureComparerHelper.isPoolClassDifferent(classBeingRedefined, cp, SIGNATURE_ELEMENTS);
+    /**
+     * 在ClassPool中是否变化
+     *
+     * @param classBeingRedefined 老Class definition
+     * @param classPool           新的CtClass所在的ClassPool中的definition
+     * @return 是否变化
+     */
+    public static boolean isPoolClassDifferent(Class<?> classBeingRedefined, ClassPool classPool) {
+        return ClassSignatureComparerHelper.isPoolClassDifferent(classBeingRedefined, classPool, SIGNATURE_ELEMENTS);
     }
 }

@@ -160,21 +160,15 @@ public class EnhancerProxyCreater {
     }
 
     /**
-     * Builds a class that has a single public static method create(Object beanFactry, Object bean, Class[] classes,
-     * Object[] params). The method of the created class returns a Cglib Enhancer created proxy of the parameter bean.
-     * The proxy has single callback, whish is a subclass of DetachableBeanHolder. Classname prefix for created proxies
-     * will be HOTSWAPAGENT_
+     * 构建一个具有单个公共静态方法 create(Object beanFactory, Object bean, Class[] classes, Object[] params) 的类。所创建类的方法返回 Cglib Enhancer 创建的参数 bean 代理。该代理具有单个回调，它是 DetachableBeanHolder 的子类。所创建代理的类名前缀将为 HOTSWAPAGENT_
      *
-     * @param cglibPackage Cglib Package name
-     * @param callback     Callback class used for Enhancer
-     * @param namingPolicy NamingPolicy class used for Enhancer
-     * @param cp
-     * @return Class that creates proxies via method "public static Object create(Object beanFactry, Object bean,
-     * Class[] classes, Object[] params)"
-     * @throws CannotCompileException
+     * @param cglibPackage Cglib包名
+     * @param callback     用于 Enhancer 的回调类
+     * @param namingPolicy 用于 Enhancer 的 NamingPolicy 类
+     * @param cp           javassist的ClassPool
+     * @return 通过方法“public static Object create(Object beanFactory, Object bean,Class[] classes, Object[] params)”创建代理的类
      */
-    public Class<?> buildProxyCreaterClass(String cglibPackage, Class<?> callback, Class<?> namingPolicy, ClassPool cp)
-            throws CannotCompileException {
+    public Class<?> buildProxyCreaterClass(String cglibPackage, Class<?> callback, Class<?> namingPolicy, ClassPool cp) throws CannotCompileException {
         CtClass ct = cp.makeClass("HotswapAgentSpringBeanProxy" + getClassSuffix(cglibPackage));
         String proxy = cglibPackage + "proxy.";
         String body =
@@ -239,10 +233,9 @@ public class EnhancerProxyCreater {
             originalNamingPolicy = core + "DefaultNamingPolicy";
         }
         ct.setSuperclass(classPool.get(originalNamingPolicy));
-        String body =
-                "public String getClassName(String prefix, String source, Object key, " + core + "Predicate names) {" +
-                        "return super.getClassName(prefix + \"" + CGLIB_NAME_PREFIX + "\", source, key, names);" +
-                        "}";
+        String body = "public String getClassName(String prefix, String source, Object key, " + core + "Predicate names) {" +
+                "return super.getClassName(prefix + \"" + CGLIB_NAME_PREFIX + "\", source, key, names);" +
+                "}";
         CtMethod m = CtNewMethod.make(body, ct);
         ct.addMethod(m);
         return ct.toClass(loader, protectionDomain);

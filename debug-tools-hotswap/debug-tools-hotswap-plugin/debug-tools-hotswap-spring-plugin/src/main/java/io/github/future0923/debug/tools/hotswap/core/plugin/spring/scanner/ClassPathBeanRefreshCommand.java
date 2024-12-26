@@ -23,6 +23,8 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Command;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
@@ -32,27 +34,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Do refresh Spring class (scanned by classpath scanner) based on URI or byte[] definition.
- *
- * This commands merges events of watcher.event(CREATE) and transformer hotswap reload to a single refresh command.
+ * 通过byte[]或者URI刷新SpringBean命令，相同的可以merge
+ * <ul>
+ * <li>新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
+ * <li>修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
  */
 public class ClassPathBeanRefreshCommand extends MergeableCommand {
-    private static Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
-    ClassLoader appClassLoader;
+    private static final Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
-    String basePackage;
+    private final ClassLoader appClassLoader;
 
-    String className;
+    private final String basePackage;
 
-    // either event or classDefinition is set by constructor (watcher or transformer)
-    WatchFileEvent event;
-    byte[] classDefinition;
+    private final String className;
 
-    public ClassPathBeanRefreshCommand() {
+    private WatchFileEvent event;
 
-    }
+    private byte[] classDefinition;
 
+    /**
+     * 修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
+     */
     public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, byte[] classDefinition) {
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
@@ -60,6 +63,9 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
         this.classDefinition = classDefinition;
     }
 
+    /**
+     * 新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
+     */
     public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, WatchFileEvent event) {
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
@@ -67,13 +73,15 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
         this.className = className;
     }
 
+    /**
+     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[])}刷新spring bean class
+     */
     @Override
     public void executeCommand() {
         if (isDeleteEvent()) {
             LOGGER.trace("Skip Spring reload for delete event on class '{}'", className);
             return;
         }
-
         try {
             if (classDefinition == null) {
                 try {
@@ -83,12 +91,9 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
                     return;
                 }
             }
-
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
-
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method  = clazz.getDeclaredMethod(
-                    "refreshClass", new Class[] {String.class, byte[].class});
+            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class);
             method.invoke(null, basePackage, classDefinition);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
@@ -103,28 +108,26 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
     }
 
     /**
-     * Check all merged events for delete and create events. If delete without create is found, than assume
-     * file was deleted.
+     * 检查所有合并的事件，查看是否有删除和创建事件。如果发现只有删除而没有创建，那么就假设文件被删除了。
      */
     private boolean isDeleteEvent() {
-        // for all merged commands including this command
         List<ClassPathBeanRefreshCommand> mergedCommands = new ArrayList<>();
         for (Command command : getMergedCommands()) {
             mergedCommands.add((ClassPathBeanRefreshCommand) command);
         }
         mergedCommands.add(this);
-
         boolean createFound = false;
         boolean deleteFound = false;
         for (ClassPathBeanRefreshCommand command : mergedCommands) {
             if (command.event != null) {
-                if (command.event.getEventType().equals(FileEvent.DELETE))
+                if (command.event.getEventType().equals(FileEvent.DELETE)) {
                     deleteFound = true;
-                if (command.event.getEventType().equals(FileEvent.CREATE))
+                }
+                if (command.event.getEventType().equals(FileEvent.CREATE)) {
                     createFound = true;
+                }
             }
         }
-
         LOGGER.trace("isDeleteEvent result {}: createFound={}, deleteFound={}", createFound, deleteFound);
         return !createFound && deleteFound;
     }

@@ -44,6 +44,11 @@ public class TestController {
         return test2Service.test();
     }
 
+    @GetMapping("/hot4")
+    public String ok4() {
+        return test2Service.test();
+    }
+
     @GetMapping("/insertBatchSomeColumn")
     public String insertBatchSomeColumn() {
         return testService.insertBatchSomeColumn();

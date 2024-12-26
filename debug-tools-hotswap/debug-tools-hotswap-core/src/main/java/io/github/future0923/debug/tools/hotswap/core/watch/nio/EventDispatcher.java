@@ -30,45 +30,11 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * The EventDispatcher holds a queue of all events collected by the watcher but
- * not yet processed. It runs on its own thread and is responsible for calling
- * all the registered listeners.
- *
- * Since file system events can spawn too fast, this implementation works as
- * buffer for fast spawning events. The watcher is now responsible for
- * collecting and pushing events in this queue.
- *
+ * Event分发器
  */
 public class EventDispatcher implements Runnable {
 
-    /** The logger. */
-    protected Logger LOGGER = Logger.getLogger(this.getClass());
-
-    /**
-     * The Class Event.
-     */
-    static class Event {
-
-        /** The event. */
-        final WatchEvent<Path> event;
-
-        /** The path. */
-        final Path path;
-
-        /**
-         * Instantiates a new event.
-         *
-         * @param event
-         *            the event
-         * @param path
-         *            the path
-         */
-        public Event(WatchEvent<Path> event, Path path) {
-            super();
-            this.event = event;
-            this.path = path;
-        }
-    }
+    private static final Logger LOGGER = Logger.getLogger(EventDispatcher.class);
 
     /**
      * PATH变动的监听者
@@ -81,6 +47,11 @@ public class EventDispatcher implements Runnable {
     private final ArrayList<Event> working = new ArrayList<>();
 
     /**
+     * 待分发的事件
+     */
+    private final ArrayBlockingQueue<Event> eventQueue = new ArrayBlockingQueue<>(500);
+
+    /**
      * 分发线程
      */
     private Thread runnable = null;
@@ -89,11 +60,6 @@ public class EventDispatcher implements Runnable {
         super();
         this.listeners = listeners;
     }
-
-    /**
-     * 待分发的事件
-     */
-    private final ArrayBlockingQueue<Event> eventQueue = new ArrayBlockingQueue<>(500);
 
     @Override
     public void run() {
@@ -178,5 +144,27 @@ public class EventDispatcher implements Runnable {
             runnable.join();
         }
         runnable = null;
+    }
+
+    /**
+     * 要分发的事件对象
+     */
+    static class Event {
+
+        /**
+         * 事件
+         */
+        final WatchEvent<Path> event;
+
+        /**
+         * 路径
+         */
+        final Path path;
+
+        public Event(WatchEvent<Path> event, Path path) {
+            super();
+            this.event = event;
+            this.path = path;
+        }
     }
 }

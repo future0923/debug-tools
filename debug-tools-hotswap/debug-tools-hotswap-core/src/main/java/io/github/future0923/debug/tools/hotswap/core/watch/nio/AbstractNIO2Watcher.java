@@ -217,6 +217,12 @@ public abstract class AbstractNIO2Watcher implements Watcher {
        registerAll(path, false);
     }
 
+    /**
+     * 使用 WatchService 注册给定目录。子目录将自动受到监视（支持文件系统）
+     *
+     * @param dir 目录
+     * @param fromCreateEvent 如果创建了目录，则注册监听下面的child {@code AbstractNIO2Watcher#processEvents()}
+     */
     protected abstract void registerAll(final Path dir, boolean fromCreateEvent) throws IOException;
 
     /**

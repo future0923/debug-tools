@@ -16,13 +16,14 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer;
 
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.signature.ClassSignatureComparer;
 
 /**
@@ -39,7 +40,6 @@ public class SpringChangesAnalyzer {
 
     public SpringChangesAnalyzer(final ClassLoader classLoader) {
         this.classPool = new ClassPool() {
-
             @Override
             public ClassLoader getClassLoader() {
                 return classLoader;
@@ -54,7 +54,6 @@ public class SpringChangesAnalyzer {
         if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined)) {
             return false;
         }
-        //return true;
         return classChangeNeedsReload(classBeingRedefined, classfileBuffer);
     }
 

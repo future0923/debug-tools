@@ -39,8 +39,7 @@ public class ProxyReplacerTransformer {
      * @param ctClass 要添加方法的类
      * @param delegate 父类中的方法
      */
-    private static CtMethod overrideMethod(CtClass ctClass, CtMethod delegate)
-            throws NotFoundException, CannotCompileException {
+    private static CtMethod overrideMethod(CtClass ctClass, CtMethod delegate) throws NotFoundException, CannotCompileException {
         final CtMethod m = CtNewMethod.delegator(delegate, ctClass);
         ctClass.addMethod(m);
         return m;
@@ -81,16 +80,15 @@ public class ProxyReplacerTransformer {
     }
 
     /**
-     * 禁用FastClass.Generator缓存避免"IllegalArgumentException: Protected method"
+     * 禁用 FastClass.Generator 缓存避免 "IllegalArgumentException: Protected method"
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.cglib.reflect.FastClass.Generator")
-    public static void replaceSpringFastClassGenerator(CtClass ctClass) throws NotFoundException,
-            CannotCompileException {
+    public static void replaceSpringFastClassGenerator(CtClass ctClass) throws NotFoundException, CannotCompileException {
         replaceCglibFastClassGenerator(ctClass);
     }
 
     /**
-     * 禁用FastClass.Generator缓存避免"IllegalArgumentException: Protected method"
+     * 禁用 FastClass.Generator 缓存避免 "IllegalArgumentException: Protected method"
      */
     @OnClassLoadEvent(classNameRegexp = "net.sf.cglib.reflect.FastClass.Generator")
     public static void replaceCglibFastClassGenerator(CtClass ctClass) throws NotFoundException, CannotCompileException {
