@@ -19,8 +19,8 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.ResetBeanPostProcessorCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetBeanPostProcessorCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacer;
 import org.springframework.beans.factory.support.BeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -40,8 +40,12 @@ import java.util.Map;
 /**
  * IMPORTANT: DON'T REFER TO THIS CLASS IN OTHER CLASS!!
  */
+/**
+ * 处理Spring{@link ClassPathBeanDefinitionScanner}的Agent类
+ * <p>ClassPathBeanDefinitionScanner 是 Spring 用于扫描类路径并注册 Bean 定义的核心类
+ */
 public class XmlBeanDefinitionScannerAgent {
-    private static Logger LOGGER = Logger.getLogger(XmlBeanDefinitionScannerAgent.class);
+    private static final Logger LOGGER = Logger.getLogger(XmlBeanDefinitionScannerAgent.class);
 
     private static Map<String, XmlBeanDefinitionScannerAgent> instances = new HashMap<>();
 
@@ -67,7 +71,6 @@ public class XmlBeanDefinitionScannerAgent {
             try {
                 path = convertToClasspathURL(resource.getURL().getPath());
             } catch (IOException e) {
-                e.printStackTrace();
                 LOGGER.error("Cannot get url from resource: {}", resource);
                 return;
             }
