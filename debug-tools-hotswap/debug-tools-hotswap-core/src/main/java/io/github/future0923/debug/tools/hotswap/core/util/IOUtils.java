@@ -210,10 +210,7 @@ public class IOUtils {
     }
 
     /**
-     * Extract file name from input source.
-     *
-     * @param inputSource the input source
-     * @return the string
+     * 从InputSource中提取文件名
      */
     public static String extractFileNameFromInputSource(InputSource inputSource) {
         if (inputSource.getByteStream() != null) {
