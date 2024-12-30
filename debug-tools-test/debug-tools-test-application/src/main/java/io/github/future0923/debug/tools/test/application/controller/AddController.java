@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.test.application.controller;
 
+import io.github.future0923.debug.tools.test.application.dao.UserDao;
 import io.github.future0923.debug.tools.test.application.service.AddService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AddController {
 
     private final AddService addService;
+
+    private final UserDao userDao;
 
     @GetMapping("/add2")
     public String add1() {

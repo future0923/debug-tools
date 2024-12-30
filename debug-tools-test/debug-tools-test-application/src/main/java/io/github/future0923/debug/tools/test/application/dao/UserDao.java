@@ -21,4 +21,9 @@ public interface UserDao extends BaseMapperPlus<User> {
         queryWrapper.like(User::getName, name);
         return selectList(queryWrapper);
     }
+
+    @Select("select * from user where name = #{name} and age = #{age}")
+    List<User> sdasd1sa(
+            @Param("name") String name,
+            @Param("age") Integer age);
 }

@@ -11,4 +11,8 @@ public class AddService {
     public String a() {
         return "AddService";
     }
+
+    public String c() {
+        return "AddService";
+    }
 }
