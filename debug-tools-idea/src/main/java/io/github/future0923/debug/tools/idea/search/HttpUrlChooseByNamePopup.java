@@ -87,6 +87,9 @@ public class HttpUrlChooseByNamePopup extends ChooseByNamePopup {
                 removeContextPath = StrUtil.replace(removeContextPath, StrUtil.LF, ",");
                 for (String contextPath : StrUtil.split(removeContextPath, ",")) {
                     if (StrUtil.isNotBlank(contextPath)) {
+                        if (!contextPath.endsWith("/")) {
+                            contextPath = contextPath + "/";
+                        }
                         // 输入有 / 而 contextPath 没有
                         if (pattern.startsWith("/") && !contextPath.startsWith("/")) {
                             pattern = StrUtil.removePrefix(pattern, "/" + contextPath);
