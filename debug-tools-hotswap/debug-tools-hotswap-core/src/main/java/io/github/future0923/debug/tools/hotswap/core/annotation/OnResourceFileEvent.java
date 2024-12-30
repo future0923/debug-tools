@@ -35,10 +35,10 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent
  * OnResourceFileEvent当资源文件改变时的事件（只能加到非静态方法上）
  * 方法上可以自动注入的参数类型如下，在{@link WatchEventCommand#executeCommand}中解析
  * <ul>
- * <li>{@link ClassLoader} - 加载class的类加载器
+ * <li>{@link ClassLoader} 加载class的类加载器
  * <li>{@link ClassPool} javassist的ClassPool
  * <li>{@link java.net.URI} watch resource的 URI
- * <li>{@link java.net.URL} - watch resource的 URL
+ * <li>{@link java.net.URL} watch resource的 URL
  * </ul>
  */
 @Target({ElementType.METHOD})
