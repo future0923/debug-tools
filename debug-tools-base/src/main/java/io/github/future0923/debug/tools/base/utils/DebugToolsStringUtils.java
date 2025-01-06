@@ -247,4 +247,19 @@ public class DebugToolsStringUtils {
         }
         return null;
     }
+
+
+    /**
+     * 改包名匹配为正则表达式
+     */
+    public static String getClassNameRegExp(String basePackage) {
+        String regexp = basePackage;
+        while (regexp.contains("**")) {
+            regexp = regexp.replace("**", ".*");
+        }
+        if (!regexp.endsWith(".*")) {
+            regexp += ".*";
+        }
+        return regexp;
+    }
 }

@@ -261,11 +261,11 @@ public class PluginManager {
                 definitions[i++] = new ClassDefinition(entry.getKey(), entry.getValue());
             }
             try {
-                logger.reload("Reloading classes {}", Arrays.toString(classNames));
+                logger.debug("Reloading classes {} (autoHotswap)", Arrays.toString(classNames));
                 synchronized (hotswapLock) {
                     instrumentation.redefineClasses(definitions);
                 }
-                logger.reload("reloaded classes {}", Arrays.toString(classNames));
+                logger.reload("reloaded classes {} (autoHotswap)", Arrays.toString(classNames));
             } catch (Exception e) {
                 logger.debug("... Fail to reload classes {} (autoHotswap), msg is {}", Arrays.toString(classNames), e);
                 throw new IllegalStateException("Unable to redefine classes", e);

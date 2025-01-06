@@ -143,13 +143,12 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * Initialize base package from ClassPathBeanDefinitionScanner.scan() (hooked by a Transformer)
+     * 初始化basePackage通过ClassPathBeanDefinitionScanner.scan()
      *
      * @param basePackage package that Spring will scan
      */
     public void registerBasePackage(String basePackage) {
         this.basePackages.add(basePackage);
-
         PluginManagerInvoker.callPluginMethod(SpringPlugin.class, getClass().getClassLoader(),
                 "registerComponentScanBasePackage", new Class[]{String.class}, new Object[]{basePackage});
     }
