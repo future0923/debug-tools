@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface UserDao extends BaseMapperPlus<User> {
+public interface User1Dao extends BaseMapperPlus<User> {
 
     @Select("select * from user where name = #{name} and age = #{age}")
     List<User> selectByNameAndAge(
@@ -21,7 +21,8 @@ public interface UserDao extends BaseMapperPlus<User> {
         queryWrapper.like(User::getName, name);
         return selectList(queryWrapper);
     }
-
-    @Select("select * from dp_user limit 10")
-    List<User> bbb();
+    //
+    @Select("select * from user where age = #{age}")
+    List<User> dasda(
+            @Param("name") String name);
 }

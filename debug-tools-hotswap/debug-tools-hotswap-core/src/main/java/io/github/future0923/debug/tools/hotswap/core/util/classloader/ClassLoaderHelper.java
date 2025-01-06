@@ -64,7 +64,7 @@ public class ClassLoaderHelper {
      * @param classLoader the class loader
      * @return true, if is class loader active
      */
-    public static boolean isClassLoderStarted(ClassLoader classLoader) {
+    public static boolean isClassLoaderStarted(ClassLoader classLoader) {
 
         String classLoaderClassName = (classLoader != null) ? classLoader.getClass().getName() : null;
 
