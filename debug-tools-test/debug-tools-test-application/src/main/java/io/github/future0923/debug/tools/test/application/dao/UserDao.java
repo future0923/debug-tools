@@ -23,5 +23,5 @@ public interface UserDao extends BaseMapperPlus<User> {
     }
 
     @Select("select * from dp_user limit 10")
-    List<User> bbb();
+    List<User> aaa();
 }

@@ -34,7 +34,17 @@
         </dependency>
         <dependency>
             <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-proxy-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-hotswap-spring-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-mybatis-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
         <!--没蛋用，就要个打包顺序-->
