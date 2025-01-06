@@ -19,6 +19,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
@@ -32,9 +33,8 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacerTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.XmlBeanDefinitionScannerTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
@@ -56,8 +56,7 @@ import java.util.List;
         testedVersions = {"All between 3.1.0 - 5.3.30"}, expectedVersions = {"3x", "4x", "5x"},
         supportClass = {
                 ClassPathBeanDefinitionScannerTransformer.class,
-                ProxyReplacerTransformer.class,
-                XmlBeanDefinitionScannerTransformer.class
+                ProxyReplacerTransformer.class
         }
 )
 public class SpringPlugin {
@@ -143,7 +142,7 @@ public class SpringPlugin {
      * 创建对应包下变动的{@link SpringBeanClassFileTransformer}，可以处理class的redefine事件
      */
     private void registerBasePackage(final String basePackage) {
-        hotswapTransformer.registerTransformer(appClassLoader, getClassNameRegExp(basePackage), new SpringBeanClassFileTransformer(appClassLoader, scheduler, basePackage));
+        hotswapTransformer.registerTransformer(appClassLoader, DebugToolsStringUtils.getClassNameRegExp(basePackage), new SpringBeanClassFileTransformer(appClassLoader, scheduler, basePackage));
     }
 
     /**
@@ -170,20 +169,6 @@ public class SpringPlugin {
                 watcher.addEventListener(appClassLoader, basePackageURL, new SpringBeanWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
-    }
-
-    /**
-     * 改包名匹配为正则表达式
-     */
-    private String getClassNameRegExp(String basePackage) {
-        String regexp = basePackage;
-        while (regexp.contains("**")) {
-            regexp = regexp.replace("**", ".*");
-        }
-        if (!regexp.endsWith(".*")) {
-            regexp += ".*";
-        }
-        return regexp;
     }
 
     /**
