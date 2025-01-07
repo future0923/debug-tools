@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.base.config;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import lombok.Data;
 
@@ -11,6 +12,8 @@ import java.lang.reflect.Field;
 @Data
 public class AgentArgs {
 
+    private Logger.Level logLevel;
+
     private String tcpPort;
 
     private String httpPort;
@@ -20,6 +23,8 @@ public class AgentArgs {
     private String printSql;
 
     private String hotswap;
+
+    private String disabledPlugins;
 
     public static AgentArgs parse(String agentArgs) {
         AgentArgs config = new AgentArgs();

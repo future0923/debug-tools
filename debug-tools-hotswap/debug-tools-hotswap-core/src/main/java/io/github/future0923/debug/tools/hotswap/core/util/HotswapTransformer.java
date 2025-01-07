@@ -128,7 +128,9 @@ public class HotswapTransformer implements ClassFileTransformer {
         if (skippedClassLoaders.contains(classLoaderClassName)) {
             return bytes;
         }
-
+        if (className != null) {
+            LOGGER.debug("className, {}", className);
+        }
         // 非插件类文件Transformer的集合
         List<ClassFileTransformer> toApply = new ArrayList<>();
         // 插件类文件Transformer的集合
