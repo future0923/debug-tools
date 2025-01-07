@@ -1,14 +1,15 @@
 package io.github.future0923.debug.tools.idea.tool;
 
-import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
+import io.github.future0923.debug.tools.idea.tool.action.AttachAction;
+import io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction;
+import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
 import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
 
 /**
@@ -29,10 +30,17 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     }
 
     private void initToolBar() {
-        AnAction action = ActionManager.getInstance().getAction("DebugTools.Toolbar");
+        DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+        defaultActionGroup.add(new AttachAction());
+        defaultActionGroup.add(new ConnectAction());
+        defaultActionGroup.add(new ClearCacheAction());
+        defaultActionGroup.addSeparator();
+        defaultActionGroup.add(ActionManager.getInstance().getAction("DebugToolsTool.EvaluateGroovy"));
+        defaultActionGroup.addSeparator();
+        defaultActionGroup.add(ActionManager.getInstance().getAction("DebugTools.HttpUrl"));
         ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
                 ActionPlaces.TOOLBAR,
-                action instanceof ActionGroup ? (ActionGroup) action : new DefaultActionGroup(),
+                defaultActionGroup,
                 true
         );
         actionToolbar.setTargetComponent(this);
