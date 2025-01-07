@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * MyBatis Entity 注册者。
  * 获取{@link MapperScan}的mapper路径注册{@link MyBatisMapperClassFileTransformer}进行重载
  *
  * @author future0923

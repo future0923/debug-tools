@@ -24,7 +24,6 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyB
         supportClass = {
                 MyBatisMapperRegister.class,
                 MyBatisEntityRegister.class
-                //MybatisMapperTransformer.class
         }
 )
 public class MyBatisPlugin {
@@ -97,6 +96,7 @@ public class MyBatisPlugin {
         }
     }
 
+    // FIXME 开启这个就不加载 org.apache.ibatis.session.Configuration 类了，不知道为啥
     //@OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.Configuration\\$StrictMap")
     public static void patchStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtMethod method = ctClass.getDeclaredMethod("put", new CtClass[]{classPool.get(String.class.getName()), classPool.get(Object.class.getName())});

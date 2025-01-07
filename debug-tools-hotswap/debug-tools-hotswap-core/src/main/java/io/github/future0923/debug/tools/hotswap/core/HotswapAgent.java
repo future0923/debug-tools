@@ -1,8 +1,11 @@
 package io.github.future0923.debug.tools.hotswap.core;
 
+import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.util.spring.util.StringUtils;
 import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
@@ -36,13 +39,9 @@ public class HotswapAgent {
 
     private static boolean init = false;
 
-    public static void agentmain(String args, Instrumentation inst) {
-        premain(args, inst);
-    }
-
-    public static void premain(String args, Instrumentation inst) {
+    public static void init(AgentArgs args, Instrumentation inst) {
         if (!init) {
-            LOGGER.info("Loading Hotswap agent {{}} - unlimited runtime class redefinition.", ProjectConstants.VERSION);
+            LOGGER.info("Loading Hotswap {{}} - unlimited runtime class redefinition.", ProjectConstants.VERSION);
             parseArgs(args);
             fixJboss7Modules();
             PluginManager.getInstance().init(inst);
@@ -51,31 +50,15 @@ public class HotswapAgent {
         }
     }
 
-    public static void parseArgs(String args) {
-        if (args == null)
+    public static void parseArgs(AgentArgs args) {
+        if (args == null) {
             return;
-
-        for (String arg : args.split(",")) {
-            String[] val = arg.split("=");
-            if (val.length != 2) {
-                LOGGER.warning("Invalid javaagent command line argument '{}'. Argument is ignored.", arg);
-            }
-
-            String option = val[0];
-            String optionValue = val[1];
-
-            if ("disablePlugin".equals(option)) {
-                disabledPlugins.add(optionValue.toLowerCase());
-            } else if ("autoHotswap".equals(option)) {
-                autoHotswap = Boolean.parseBoolean(optionValue);
-            } else if ("propertiesFilePath".equals(option)) {
-                propertiesFilePath = optionValue;
-            } else {
-                if (!"hotconf".equals(option)) {
-                    LOGGER.warning("Invalid javaagent option '{}'. Argument '{}' is ignored.", option, arg);
-                }
-            }
         }
+        if (DebugToolsStringUtils.isNotBlank(args.getDisabledPlugins())) {
+            disabledPlugins.addAll(StringUtils.commaDelimitedListToSet(args.getDisabledPlugins()));
+        }
+        //autoHotswap = Boolean.parseBoolean(optionValue);
+        //propertiesFilePath = optionValue;
     }
 
     /**

@@ -13,6 +13,8 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.transformer.
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 
 /**
+ * MyBatis Entity 注册者
+ *
  * @author future0923
  */
 public class MyBatisEntityRegister {

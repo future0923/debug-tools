@@ -15,7 +15,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 /**
  * 重载 MyBatis Entity 命令 AbstractSqlInjector.inspectInject
- * FIXME 目前不好用
  *
  * @author future0923
  */
@@ -32,8 +31,6 @@ import java.util.stream.Collectors;
 public class MyBatisEntityCommand extends MergeableCommand {
 
     private static final Logger logger = Logger.getLogger(MyBatisEntityCommand.class);
-
-    private static final List<String> method_name = Arrays.asList("updateById", "insert", "selectById");
 
     private final ClassLoader classLoader;
 
@@ -50,12 +47,11 @@ public class MyBatisEntityCommand extends MergeableCommand {
     @Override
     public void executeCommand() {
         try {
-            logger.info("executeCommand");
             Class<? extends Configuration> configurationClass = configuration.getClass();
             if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
                 MapperRegistry mapperRegistry = configuration.getMapperRegistry();
                 Collection<Class<?>> mappers = mapperRegistry.getMappers();
-                Class<?> mapperClass = null;
+                List<Class<?>> mapperClassList = new LinkedList<>();
                 for (Class<?> mapper : mappers) {
                     Type[] genericInterfaces = mapper.getGenericInterfaces();
                     for (Type genericInterface : genericInterfaces) {
@@ -65,14 +61,14 @@ public class MyBatisEntityCommand extends MergeableCommand {
                             if (actualTypeArguments.length > 0) {
                                 Type modelType = Arrays.stream(actualTypeArguments).filter(type -> type.getTypeName().equals(clazz.getTypeName())).findAny().orElse(null);
                                 if (modelType != null) {
-                                    mapperClass = mapper;
+                                    mapperClassList.add(mapper);
                                     break;
                                 }
                             }
                         }
                     }
                 }
-                if (mapperClass != null) {
+                for (Class<?> mapperClass : mapperClassList) {
                     Map<String, MappedStatement> mappedStatements = (Map<String, MappedStatement>) ReflectionHelper.get(configuration, "mappedStatements");
                     // 清空 Mapper 方法 mappedStatement 缓存信息
                     final String typeKey = mapperClass.getName() + ".";
@@ -80,14 +76,8 @@ public class MyBatisEntityCommand extends MergeableCommand {
                             .stream()
                             .filter(mappedStatement -> mappedStatement.startsWith(typeKey))
                             .collect(Collectors.toSet());
-                    Iterator<String> iterator = mapperSet.iterator();
-                    while (iterator.hasNext()) {
-                        String key = iterator.next();
-                        String[] keys = key.split("\\.");
-                        String methodName = keys[keys.length - 1];
-                        if (method_name.contains(methodName)) {
-                            iterator.remove();
-                        }
+                    for (String key : mapperSet) {
+                        mappedStatements.remove(key);
                     }
 
                     //构建MapperBuilderAssistant
@@ -114,8 +104,8 @@ public class MyBatisEntityCommand extends MergeableCommand {
                     //注入自定义方法
                     Object iSqlInjector = ReflectionHelper.invoke(null, classLoader.loadClass("com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils"), "getSqlInjector", new Class[]{Configuration.class}, configuration);
                     ReflectionHelper.invoke(iSqlInjector, iSqlInjector.getClass(), "inspectInject", new Class[]{MapperBuilderAssistant.class, Class.class}, builderAssistant, mapperClass);
-                    logger.reload("reload :{}", clazz.getName());
                 }
+                logger.reload("reload :{}", clazz.getName());
             }
         } catch (Exception e) {
             logger.error("refresh mybatis error", e);
