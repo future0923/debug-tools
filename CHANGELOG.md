@@ -1,3 +1,8 @@
+# [3.1.2](https://github.com/future0923/debug-tools/compare/v3.1.1...v3.1.2) (2024-12-30)
+
+- Fixed the bug of removing ContextPath ([#3](https://github.com/future0923/debug-tools/issues/3)).
+- Fixed the bug that multiple projects share one attach button ([#4](https://github.com/future0923/debug-tools/issues/4)).
+
 # [3.1.1](https://github.com/future0923/debug-tools/compare/v3.1.0...v3.1.1) (2024-12-18)
 
 - Search http url can remove ContextPath information. 
