@@ -5,7 +5,9 @@ import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.bean.MyBatisHolder;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.bean.MyBatisSpringBeanDefinition;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisEntityCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisMapperCommand;
 import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
+import org.mybatis.spring.mapper.ClassPathMapperScanner;
 
 import java.lang.annotation.Annotation;
 import java.lang.instrument.IllegalClassFormatException;
@@ -13,6 +15,14 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 /**
+ * 处理mybatis entity class redefine转换，创建{@link MyBatisMapperCommand}任务。
+ *
+ * <p>目前识别方式</p>
+ * <ul>
+ *     <li>有com.baomidou.mybatisplus.annotation.TableName注解</li>
+ *     <li>继承或父类继承com.baomidou.mybatisplus.extension.activerecord.Model</li>
+ * </ul>
+ *
  * @author future0923
  */
 public class MyBatisEntityClassFileTransformer implements HaClassFileTransformer {
@@ -30,25 +40,26 @@ public class MyBatisEntityClassFileTransformer implements HaClassFileTransformer
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        logger.info("transform class: {}", className);
+        logger.debug("transform class: {}", className);
         if (classBeingRedefined == null) {
-            logger.error("1");
+            logger.debug("classBeingRedefined is null");
             return classfileBuffer;
         }
         if (classBeingRedefined.isInterface()) {
-            logger.error("2");
+            logger.debug("classBeingRedefined is interface");
             return classfileBuffer;
         }
         if (!isMybatisEntity(loader, classBeingRedefined)) {
-            logger.error("3");
+            logger.debug("classBeingRedefined is not mybatis entity");
             return classfileBuffer;
         }
-        if (MyBatisSpringBeanDefinition.getMapperScanner() == null) {
-            logger.error("4");
+        ClassPathMapperScanner mapperScanner = MyBatisSpringBeanDefinition.getMapperScanner();
+        if (mapperScanner == null) {
+            logger.debug("mapperScanner is null");
             return classfileBuffer;
         }
         if (MyBatisHolder.getConfiguration().isEmpty()) {
-            logger.error("5");
+            logger.debug("mybatis configuration is empty");
             return classfileBuffer;
         }
         scheduler.scheduleCommand(new MyBatisEntityCommand(loader, classBeingRedefined, MyBatisHolder.getConfiguration().iterator().next()));
@@ -64,7 +75,6 @@ public class MyBatisEntityClassFileTransformer implements HaClassFileTransformer
         try {
             Arrays.stream(clazz.getAnnotations()).forEach(System.out::println);
             for (Annotation annotation : clazz.getAnnotations()) {
-                System.out.println(annotation.getClass().getName());
                 if (annotation.annotationType().getName().equals("com.baomidou.mybatisplus.annotation.TableName")) {
                     return true;
                 }
@@ -83,7 +93,6 @@ public class MyBatisEntityClassFileTransformer implements HaClassFileTransformer
                 superClass = superClass.getSuperclass();
             }
         } catch (ClassNotFoundException ignored) {
-            logger.error("111", ignored);
         }
         return false;
     }

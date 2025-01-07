@@ -7,12 +7,18 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.bean.MyBatis
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisMapperCommand;
 import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
 import org.apache.ibatis.annotations.Mapper;
+import org.mybatis.spring.mapper.ClassPathMapperScanner;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
  * 处理mybatis mapper class redefine转换，创建{@link MyBatisMapperCommand}任务
+ *
+ * <p>目前识别方式</p>
+ * <ul>
+ *     <li>有{@link Mapper}注解</li>
+ * </ul>
  *
  * @author future0923
  */
@@ -31,14 +37,29 @@ public class MyBatisMapperClassFileTransformer implements HaClassFileTransformer
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (classBeingRedefined != null
-                && classBeingRedefined.isInterface()
-                && classBeingRedefined.getAnnotation(Mapper.class) != null
-                && MyBatisSpringBeanDefinition.getMapperScanner() != null
-                && !MyBatisHolder.getConfiguration().isEmpty()) {
-            logger.debug("transform class: {}", className);
-            scheduler.scheduleCommand(new MyBatisMapperCommand(classBeingRedefined, classfileBuffer, MyBatisSpringBeanDefinition.getMapperScanner(), MyBatisHolder.getConfiguration().iterator().next()));
+        logger.debug("transform class: {}", className);
+        if (classBeingRedefined == null) {
+            logger.debug("classBeingRedefined is null");
+            return classfileBuffer;
         }
+        if (!classBeingRedefined.isInterface()) {
+            logger.debug("classBeingRedefined is not isInterface");
+            return classfileBuffer;
+        }
+        if (classBeingRedefined.getAnnotation(Mapper.class) == null) {
+            logger.debug("classBeingRedefined is not have org.apache.ibatis.annotations.Mapper annotation");
+            return classfileBuffer;
+        }
+        ClassPathMapperScanner mapperScanner = MyBatisSpringBeanDefinition.getMapperScanner();
+        if (mapperScanner == null) {
+            logger.debug("mapperScanner is null");
+            return classfileBuffer;
+        }
+        if (MyBatisHolder.getConfiguration().isEmpty()) {
+            logger.debug("mybatis configuration is empty");
+            return classfileBuffer;
+        }
+        scheduler.scheduleCommand(new MyBatisMapperCommand(classBeingRedefined, classfileBuffer, mapperScanner, MyBatisHolder.getConfiguration().iterator().next()));
         return classfileBuffer;
     }
 

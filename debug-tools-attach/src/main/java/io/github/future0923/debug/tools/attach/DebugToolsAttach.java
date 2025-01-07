@@ -38,11 +38,14 @@ public class DebugToolsAttach {
             System.setProperty("cglib.debugLocation", "debug/cglib");
         }
         AgentArgs parse = AgentArgs.parse(agentArgs);
+        if (parse.getLogLevel() != null) {
+            Logger.setLevel(parse.getLogLevel());
+        }
         if (Objects.equals(parse.getPrintSql(), "true")) {
             SqlPrintByteCodeEnhance.enhance(inst);
         }
         if (Objects.equals(parse.getHotswap(), "true")) {
-            HotswapAgent.premain(agentArgs, inst);
+            HotswapAgent.init(parse, inst);
         }
     }
 
