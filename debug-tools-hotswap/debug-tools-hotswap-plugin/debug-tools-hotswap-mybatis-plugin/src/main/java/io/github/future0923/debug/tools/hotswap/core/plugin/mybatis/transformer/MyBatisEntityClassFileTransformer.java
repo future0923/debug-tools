@@ -73,7 +73,6 @@ public class MyBatisEntityClassFileTransformer implements HaClassFileTransformer
 
     public static boolean isMybatisEntity(ClassLoader loader, Class<?> clazz) {
         try {
-            Arrays.stream(clazz.getAnnotations()).forEach(System.out::println);
             for (Annotation annotation : clazz.getAnnotations()) {
                 if (annotation.annotationType().getName().equals("com.baomidou.mybatisplus.annotation.TableName")) {
                     return true;

@@ -39,6 +39,7 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
+        logger.debug("{}, {}", event.getEventType(), event.getURI().toString());
         // 创建了class新文件
         if (FileEvent.CREATE.equals(event.getEventType()) && event.isFile() && event.getURI().toString().endsWith(".class")) {
             // 检查该类尚未被类加载器加载（避免重复重新加载）。
