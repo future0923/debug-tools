@@ -14,10 +14,11 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    DebugTools is quickly call Java methods (local/remote), print SQL statements and time consuming, execute Groovy scripts:
+    Hot Reload, DebugTools is quickly call Java methods (local/remote), print SQL statements and time consuming, execute Groovy scripts:
     <br>
     <a href="https://debug-tools.cc">document</a> | <a href="https://github.com/future0923/debug-tools">github</a> | <a href="https://gitee.com/future94/debug-tools">gitee</a>
     <ul>
+        <li>The written code can take effect without restarting the application, supporting property and method changes of classes (including proxy classes), SpringBoot, MybatisPlus, etc.</li>
         <li>Call any Java method. Quickly call any Java methods, such as static methods, instance methods, methods of Spring-managed beans (Dubbo, XxlJob, MQ, etc.), Mybatis Mapper methods, etc., support passing header parameter information for authentication, support passing XxlJob parameters for task execution.</li>
         <li>Search http url to jump directly to the corresponding method definition.</li>
         <li>Printing SQL statements and time consuming. Format print MySQL, PostgreSQL, SQLServer, ClickHouse, Oracle statements and output execution time.</li>
@@ -27,10 +28,9 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.1.1</strong>
+        <strong>3.2.0</strong>
         <ul>
-            <li>Search http url can remove ContextPath information.</li>
-            <li>Fixed the bug that domain name cannot be matched without http(s).</li>
+            <li>The written code can take effect without restarting the application, supporting property and method changes of classes (including proxy classes), SpringBoot, MybatisPlus, etc.</li>
         </ul>
         ]]>
     </change-notes>
