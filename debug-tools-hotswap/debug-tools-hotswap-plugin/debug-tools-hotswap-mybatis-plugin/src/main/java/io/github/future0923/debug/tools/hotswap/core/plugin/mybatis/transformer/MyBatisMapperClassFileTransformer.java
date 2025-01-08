@@ -46,8 +46,8 @@ public class MyBatisMapperClassFileTransformer implements HaClassFileTransformer
             logger.debug("classBeingRedefined is not isInterface");
             return classfileBuffer;
         }
-        if (classBeingRedefined.getAnnotation(Mapper.class) == null) {
-            logger.debug("classBeingRedefined is not have org.apache.ibatis.annotations.Mapper annotation");
+        if (!isMybatisMapper(loader, classBeingRedefined)) {
+            logger.debug("classBeingRedefined is not mapper");
             return classfileBuffer;
         }
         ClassPathMapperScanner mapperScanner = MyBatisSpringBeanDefinition.getMapperScanner();
@@ -66,5 +66,27 @@ public class MyBatisMapperClassFileTransformer implements HaClassFileTransformer
     @Override
     public boolean isForRedefinitionOnly() {
         return true;
+    }
+
+    public static boolean isMybatisMapper(ClassLoader loader, Class<?> clazz) {
+        try {
+            if (clazz.getAnnotation(Mapper.class) != null) {
+                return true;
+            }
+            Class<?> baseMapperClass = loader.loadClass("com.baomidou.mybatisplus.core.mapper.BaseMapper");
+            if (baseMapperClass.isAssignableFrom(clazz)) {
+                return true;
+            }
+            // 检查类的父类是否继承 Model
+            Class<?> superClass = clazz.getSuperclass();
+            while (superClass != null && superClass != Object.class) {
+                if (baseMapperClass.isAssignableFrom(superClass)) {
+                    return true;
+                }
+                superClass = superClass.getSuperclass();
+            }
+        } catch (ClassNotFoundException ignored) {
+        }
+        return false;
     }
 }
