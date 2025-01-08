@@ -8,7 +8,7 @@ export const en = defineConfig({
   lang: 'en-US',
   title: 'DebugTools',
   titleTemplate: 'Java Debugging Tools',
-  description: "Quickly call any Java method (local/remote), print SQL statements and time consumption, and execute Groovy scripts",
+  description: "Hot reload, Quickly call any Java method (local/remote), print SQL statements and time consumption, and execute Groovy scripts",
   themeConfig: {
     siteTitle: 'DebugTools',
     logo: '/pluginIcon.svg',
@@ -68,6 +68,17 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       items: [
         {text: 'What is DebugTools？', link: 'introduction'},
         {text: 'Quick start', link: 'quick-start'}
+      ]
+    },
+    {
+      text: 'Hot Reload',
+      collapsed: false,
+      items: [
+        {text: 'Use hot reload', link: 'hot-reload'},
+        {text: 'Class', link: 'hot-reload-class'},
+        {text: 'Proxy', link: 'hot-reload-proxy'},
+        {text: 'SpringBoot', link: 'hot-reload-springboot'},
+        {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
       ]
     },
     {

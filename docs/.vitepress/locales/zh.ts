@@ -8,7 +8,7 @@ export const zh = defineConfig({
   lang: 'zh-Hans',
   title: 'DebugTools',
   titleTemplate: 'Java调试工具',
-  description: "快速调用任意Java方法(本地/远程)、打印SQL语句与耗时、执行Groovy脚本",
+  description: "热重载、快速调用任意Java方法(本地/远程)、搜索HttpUrl跳转代码定义、打印SQL语句与耗时、执行Groovy脚本",
   themeConfig: {
     siteTitle: 'DebugTools',
     logo: '/pluginIcon.svg',
@@ -80,6 +80,17 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       items: [
         {text: '什么是 DebugTools？', link: 'introduction'},
         {text: '快速开始', link: 'quick-start'}
+      ]
+    },
+    {
+      text: '热重载',
+      collapsed: false,
+      items: [
+        {text: '使用热重载', link: 'hot-reload'},
+        {text: 'Class', link: 'hot-reload-class'},
+        {text: 'Proxy', link: 'hot-reload-proxy'},
+        {text: 'SpringBoot', link: 'hot-reload-springboot'},
+        {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
       ]
     },
     {
