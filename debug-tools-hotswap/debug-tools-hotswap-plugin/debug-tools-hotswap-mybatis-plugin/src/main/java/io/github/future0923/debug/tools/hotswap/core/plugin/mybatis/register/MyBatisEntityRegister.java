@@ -27,18 +27,6 @@ public class MyBatisEntityRegister {
 
     @Init
     static Scheduler scheduler;
-    //
-    //@OnClassLoadEvent(classNameRegexp = "io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent")
-    //public static void registerBasePackage(CtClass ctClass, ClassPool classPool) {
-    //    try {
-    //        CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod("registerBasePackage", new CtClass[]{classPool.get("java.lang.String")});
-    //        registerBeanDefinitions.insertAfter("{" +
-    //                "io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyBatisEntityRegister.basePackage($1);" +
-    //                "}");
-    //    } catch (Exception e) {
-    //        throw new RuntimeException(e);
-    //    }
-    //}
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider")
     public static void transform(CtClass clazz, ClassPool classPool) throws NotFoundException, CannotCompileException {

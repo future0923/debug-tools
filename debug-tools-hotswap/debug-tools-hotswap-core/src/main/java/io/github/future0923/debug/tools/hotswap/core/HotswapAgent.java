@@ -41,7 +41,7 @@ public class HotswapAgent {
 
     public static void init(AgentArgs args, Instrumentation inst) {
         if (!init) {
-            LOGGER.info("Loading Hotswap {{}} - unlimited runtime class redefinition.", ProjectConstants.VERSION);
+            LOGGER.info("open hot reload unlimited runtime class redefinition.{{}}", ProjectConstants.VERSION);
             parseArgs(args);
             fixJboss7Modules();
             PluginManager.getInstance().init(inst);

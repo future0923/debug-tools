@@ -179,7 +179,9 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * 验证BeanDefinition后，处理SpringBean的Scope生成最终要注册到SpringBean中的BeanDefinitionHolder
+     * 验证BeanDefinition后，处理SpringBean的Scope生成最终要注册到SpringBean中的BeanDefinitionHolder。
+     *
+     * 根据{@link ClassPathBeanDefinitionScanner}的doScan方法}
      *
      * @param candidate 要重载的BeanDefinition
      */
