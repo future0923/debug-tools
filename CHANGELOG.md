@@ -1,3 +1,7 @@
+# [3.2.0](https://github.com/future0923/debug-tools/compare/v3.1.2...v3.2.0) (2025-01-09)
+
+- Hot reload, the written code can take effect without restarting the application.
+
 # [3.1.2](https://github.com/future0923/debug-tools/compare/v3.1.1...v3.1.2) (2024-12-30)
 
 - Fixed the bug of removing ContextPath ([#3](https://github.com/future0923/debug-tools/issues/3)).
