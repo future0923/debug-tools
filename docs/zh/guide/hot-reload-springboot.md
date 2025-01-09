@@ -138,6 +138,61 @@ public class UserConfig {
 
 - 注入新增的 `UserBean` Bean
 
+### 抽象类
+
+当抽象类修改的时候，所有继承的子类 Bean 都会进行热重载。
+
+```java
+public abstract class User {
+    
+    @Resource // [!code ++]
+    protected UserDao userDao; // [!code ++]
+    
+    public User getUser(Long userId) { // [!code ++]
+        return userDao.getUser(userId); // [!code ++]
+    } // [!code ++]
+    
+}
+
+@Component
+public class DebugUser extends User {
+    
+}
+
+@Component
+public class ToolsUser extends User {
+
+}
+```
+
+当抽象类 `User` 热重载之后，`DebugUser` 和 `ToolsUser` 都会进行热重载并可以使用 `userDao` 属性和 `getUser(Long userId)` 方法。
+
+### 接口
+
+接口默认方法修改，所有的实现类 bean 都会生效。
+
+```java
+public interface User {
+    
+    default User getDefaultUser() { // [!code ++]
+        return new DebugUser(); // [!code ++]
+    } // [!code ++]
+    
+}
+
+@Component
+public class DebugUser implements User {
+    
+}
+
+@Component
+public class ToolsUser implements User {
+
+}
+```
+
+当接口 `User` 热重载之后，`DebugUser` 和 `ToolsUser` 都会进行热重载并可以 `getDefaultUser()` 方法。
+
 ### 等等
 
 理论上被Spring Bean管理的业务所有类都可以进行热重载。

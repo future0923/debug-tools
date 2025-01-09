@@ -86,3 +86,49 @@ public class UserVO {
 - Added `userAuths` attribute.
 - Modified `RoleVO` internal class information for normal use.
 - Added `AuthVO` internal class information for normal use.
+
+## Abstract class
+
+Turn on hot reload, and when the abstract class is modified, all subclasses will take effect.
+
+```java
+public abstract class User {
+
+    public String getUserName() { // [!code ++]
+        return "default"; // [!code ++]
+    } // [!code ++]
+}
+
+public class Debug extends User {
+
+}
+
+public class Tools extends User {
+
+}
+```
+
+After hot reloading `User`, both `Debug` and `Tools` can use the `getUserName()` method.
+
+## Interface
+
+When the default method of an interface is modified, all implementation classes will take effect.
+
+```java
+public interface User {
+
+    default String getUserName() { // [!code ++]
+        return "default"; // [!code ++]
+    } // [!code ++]
+}
+
+public class Debug implements User {
+
+}
+
+public class Tools implements User {
+
+}
+```
+
+After hot reloading `User`, both `Debug` and `Tools` can use the `getUserName()` method.

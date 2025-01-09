@@ -6,6 +6,13 @@
 
 点击 <img src="/icon/hotswap.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> 图标变为 <img src="/icon/hotswap_on.svg" style="display: inline-block; width: 25px; height: 25px; vertical-align: middle;" /> 表示开启热重载，大飞机模式下启动项目热重载即可生效。
 
+- 关闭状态
+
+![hotswap_off](/images/hotswap_off.png){v-zoom}
+
+- 开启状态
+
+![hotswap_on](/images/hotswap_on.png){v-zoom}
 
 启动项目如果提示 `DCEVM is not installed` ，检查命令 `java -XXaltjvm=dcevm -version` 是否能正常输出。如果不能则需要先[安装 DCEVM](#install-dcevm)。
 
