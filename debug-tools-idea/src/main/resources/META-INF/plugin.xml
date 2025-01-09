@@ -140,10 +140,10 @@
                     class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"
                     text="hotswap switch"
                     description="hotswap switch"/>
-            <action id="HotSwapAction"
-                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"
-                    text="hotswap switch"
-                    description="hotswap switch"/>
+<!--            <action id="HotSwapAction"-->
+<!--                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"-->
+<!--                    text="hotswap switch"-->
+<!--                    description="hotswap switch"/>-->
         </group>
     </actions>
 </idea-plugin>
