@@ -6,6 +6,14 @@ The written code can be made effective without restarting the application. It su
 
 Click <img src="/icon/hotswap.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> The icon changes to <img src="/icon/hotswap_on.svg" style="display: inline-block; width: 25px; height: 25px; vertical-align: middle;" /> to turn on hot reload. Start the project in the big airplane mode and hot reload will take effect.
 
+- Off status
+
+![hotswap_off](/images/hotswap_off.png){v-zoom}
+
+- On status
+
+![hotswap_on](/images/hotswap_on.png){v-zoom}
+
 If the prompt `DCEVM is not installed` is prompted when starting the project, check whether the command `java -XXaltjvm=dcevm -version` can be output normally. If not, you need to [install DCEVM](#install-dcevm) first.
 
 ![dcevm_not_install.png](/images/dcevm_not_install.png){v-zoom}
