@@ -86,3 +86,49 @@ public class UserVO {
 - 增加了 `userAuths` 属性。
 - 正常使用修改了 `RoleVO` 内部类信息。
 - 正常使用新增了 `AuthVO` 内部类信息。
+
+## 抽象类
+
+开启热重载，抽象类修改，所有的子类都会生效。
+
+```java
+public abstract class User {
+    
+    public String getUserName() { // [!code ++]
+        return "default"; // [!code ++]
+    } // [!code ++]
+}
+
+public class Debug extends User {
+    
+}
+
+public class Tools extends User {
+
+}
+```
+
+热重载 `User` 之后，`Debug` 和 `Tools` 都可以使用 `getUserName()` 方法。
+
+## 接口
+
+接口默认方法修改，所有的实现类都会生效。
+
+```java
+public interface User {
+    
+    default String getUserName() { // [!code ++]
+        return "default"; // [!code ++]
+    } // [!code ++]
+}
+
+public class Debug implements User {
+    
+}
+
+public class Tools implements User {
+
+}
+```
+
+热重载 `User` 之后，`Debug` 和 `Tools` 都可以使用 `getUserName()` 方法。
