@@ -49,16 +49,24 @@ public class MyBatisMapperRegister {
         }
     }
 
-    public static void basePackage(AnnotationMetadata annoMeta, AnnotationAttributes annoAttrs) {
-        List<String> basePackages = new ArrayList<>();
-        basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
-        basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
-        basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
-        if (basePackages.isEmpty()) {
-            basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
-        }
-        for (String basePackage : basePackages) {
-            registerBasePackage(basePackage);
+    /**
+     * 获取{@link MapperScan}的mapper路径注册{@link MyBatisMapperClassFileTransformer}进行重载
+     */
+    public static void basePackage(Object annoMetaObj, Object annoAttrsObj) {
+        // 插件启动时会扫描 {@link Plugin}相关所有类的属性和方法，参数直接写如果没有对应的类文件会报错，所以这里用 Object接收
+        if (annoMetaObj instanceof AnnotationMetadata && annoAttrsObj instanceof AnnotationAttributes) {
+            AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
+            AnnotationAttributes annoAttrs = (AnnotationAttributes) annoAttrsObj;
+            List<String> basePackages = new ArrayList<>();
+            basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
+            basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
+            basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
+            if (basePackages.isEmpty()) {
+                basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
+            }
+            for (String basePackage : basePackages) {
+                registerBasePackage(basePackage);
+            }
         }
     }
 
