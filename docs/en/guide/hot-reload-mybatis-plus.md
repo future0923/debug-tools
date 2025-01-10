@@ -89,8 +89,25 @@ public interface UserDao extends BaseMapper<User> {
 
 ### Identification method
 
+All files under the package path annotated with `@MapperScan` are read.
+
 - Must be an interface and must contain the `org.apache.ibatis.annotations.Mapper` annotation
 - The class or parent class inherits the `com.baomidou.mybatisplus.core.mapper.BaseMapper` interface.
+
+::: tip
+
+Because the bytecode injection is modified at startup, it currently does not support reading the variable content configured by `@MapperScan`. Please write the real package path.
+
+Effective configurations such as:
+@MapperScan("io.github.future0923.test.dao")
+@MapperScan("io.github.future0923.test.**.dao")
+@MapperScan("io.github.future0923.test.**")
+@MapperScan({"io.github.future0923.test.user.**.dao", "io.github.future0923.test.order.**.dao"})
+
+Unsupported configurations such as:
+@MapperScan("${mybatis-plus.mapperPackage}")
+
+:::
 
 ### Expected Results
 
