@@ -42,7 +42,7 @@ public class MyBatisMapperRegister {
         try {
             CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod("registerBeanDefinitions", new CtClass[]{classPool.get("org.springframework.core.type.AnnotationMetadata"), classPool.get("org.springframework.core.annotation.AnnotationAttributes"), classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"), classPool.get("java.lang.String")});
             registerBeanDefinitions.insertAfter("{" +
-                    "io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyBatisMapperRegister.basePackage($1, $2);" +
+                        MyBatisMapperRegister.class.getName() + ".basePackage($1, $2);" +
                     "}");
         } catch (Exception e) {
             throw new RuntimeException(e);
