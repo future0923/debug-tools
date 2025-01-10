@@ -90,8 +90,25 @@ public interface UserDao extends BaseMapper<User> {
 
 ### 识别方式
 
+读取的是 `@MapperScan` 注解的包路径下的所有文件。
+
 - 必须是接口并且必须含有 `org.apache.ibatis.annotations.Mapper` 注解
 - 类或父类继承 `com.baomidou.mybatisplus.core.mapper.BaseMapper` 接口。
+
+::: tip
+
+因为是启动时修改字节码注入，目前不支持读取 `@MapperScan` 配置的变量内容，请写真正的包路径。
+
+生效的配置如：
+@MapperScan("io.github.future0923.test.dao")
+@MapperScan("io.github.future0923.test.**.dao")
+@MapperScan("io.github.future0923.test.**")
+@MapperScan({"io.github.future0923.test.user.**.dao", "io.github.future0923.test.order.**.dao"})
+
+不支持的配置如：
+@MapperScan("${mybatis-plus.mapperPackage}")
+
+:::
 
 ### 热重载功能
 
