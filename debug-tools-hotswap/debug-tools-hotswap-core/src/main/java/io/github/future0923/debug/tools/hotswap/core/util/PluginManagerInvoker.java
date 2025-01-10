@@ -90,6 +90,8 @@ public class PluginManagerInvoker {
 
     /**
      * 构建反射调用的指定ClassLoader中的Plugin方法的javassist字符串
+     *
+     * @param paramValueAndType 值 类型 值 类型...
      */
     public static String buildCallPluginMethod(Class<?> pluginClass, String method, String... paramValueAndType) {
         return buildCallPluginMethod("getClass().getClassLoader()", pluginClass, method, paramValueAndType);

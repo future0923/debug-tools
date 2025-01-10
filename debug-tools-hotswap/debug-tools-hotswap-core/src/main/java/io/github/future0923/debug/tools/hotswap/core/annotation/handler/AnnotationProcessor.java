@@ -109,17 +109,19 @@ public class AnnotationProcessor {
         Class<?> pluginClass = plugin.getClass();
 
         for (Field field : pluginClass.getDeclaredFields()) {
-            if (!Modifier.isStatic(field.getModifiers()))
-                if (!processFieldAnnotations(plugin, field, pluginClass))
+            if (!Modifier.isStatic(field.getModifiers())) {
+                if (!processFieldAnnotations(plugin, field, pluginClass)) {
                     return false;
-
+                }
+            }
         }
 
         for (Method method : pluginClass.getDeclaredMethods()) {
-            if (!Modifier.isStatic(method.getModifiers()))
-                if (!processMethodAnnotations(plugin, method, pluginClass))
+            if (!Modifier.isStatic(method.getModifiers())) {
+                if (!processMethodAnnotations(plugin, method, pluginClass)) {
                     return false;
-
+                }
+            }
         }
 
         return true;

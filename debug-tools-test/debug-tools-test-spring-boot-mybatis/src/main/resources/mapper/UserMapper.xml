@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper">
+
+    <select id="selectByNameAndAge" resultType="io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User">
+        select * from dp_user where name = #{name} and age = #{age}
+    </select>
+</mapper>

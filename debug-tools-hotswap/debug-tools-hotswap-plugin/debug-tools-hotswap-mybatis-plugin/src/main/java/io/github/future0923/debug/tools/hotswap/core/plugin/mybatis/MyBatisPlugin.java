@@ -13,6 +13,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtNewMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyBatisEntityRegister;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyBatisMapperRegister;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MybatisXmlRegister;
 
 /**
  * Mybatis热重载插件
@@ -23,7 +24,8 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.register.MyB
         expectedVersions = {"5.3.2"},
         supportClass = {
                 MyBatisMapperRegister.class,
-                MyBatisEntityRegister.class
+                MyBatisEntityRegister.class,
+                MybatisXmlRegister.class
         }
 )
 public class MyBatisPlugin {
