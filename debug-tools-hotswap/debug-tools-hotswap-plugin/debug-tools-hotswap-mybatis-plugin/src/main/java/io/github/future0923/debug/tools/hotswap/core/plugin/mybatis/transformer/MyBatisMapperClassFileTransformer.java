@@ -18,6 +18,7 @@ import java.security.ProtectionDomain;
  * <p>目前识别方式</p>
  * <ul>
  *     <li>有{@link Mapper}注解</li>
+ *     <li>继承{@code BaseMapper}</li>
  * </ul>
  *
  * @author future0923
@@ -77,7 +78,7 @@ public class MyBatisMapperClassFileTransformer implements HaClassFileTransformer
             if (baseMapperClass.isAssignableFrom(clazz)) {
                 return true;
             }
-            // 检查类的父类是否继承 Model
+            // 检查类的父类是否继承 BaseMapper
             Class<?> superClass = clazz.getSuperclass();
             while (superClass != null && superClass != Object.class) {
                 if (baseMapperClass.isAssignableFrom(superClass)) {
