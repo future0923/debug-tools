@@ -16,5 +16,5 @@ public interface UserMapper {
     List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age);
 
     @Select("select * from dp_user")
-    List<User> listAll();
+    List<User> listA23ll1();
 }
