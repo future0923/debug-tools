@@ -18,7 +18,9 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.annotation;
 
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand;
+import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchHandler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 
 import java.lang.annotation.Documented;
@@ -33,6 +35,7 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent
 
 /**
  * OnResourceFileEvent当资源文件改变时的事件（只能加到非静态方法上）
+ * 方法在{@link WatchHandler#initMethod(PluginAnnotation)}中注册
  * 方法上可以自动注入的参数类型如下，在{@link WatchEventCommand#executeCommand}中解析
  * <ul>
  * <li>{@link ClassLoader} 加载class的类加载器
