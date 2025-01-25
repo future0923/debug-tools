@@ -22,6 +22,7 @@ public class DebugToolsIcons {
     public static final Icon Groovy = IconLoader.getIcon("/icon/groovy.svg", DebugToolsIcons.class);
     public static final Icon Request = IconLoader.getIcon("/icon/request.svg", DebugToolsIcons.class);
     public static final Icon Last = IconLoader.getIcon("/icon/last.svg", DebugToolsIcons.class);
+    public static final Icon Last_ClassLoader = IconLoader.getIcon("/icon/last_classloader.svg", DebugToolsIcons.class);
     public static final Icon Connect = IconLoader.getIcon("/icon/connect.svg", DebugToolsIcons.class);
     public static final Icon Search = IconLoader.getIcon("/icon/search.svg", DebugToolsIcons.class);
 
