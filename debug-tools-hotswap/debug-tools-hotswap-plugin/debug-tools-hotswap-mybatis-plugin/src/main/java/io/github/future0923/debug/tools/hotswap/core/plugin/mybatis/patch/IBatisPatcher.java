@@ -11,6 +11,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.caller.XPathParserCaller;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 
@@ -27,54 +28,48 @@ public class IBatisPatcher {
     public static final String SRC_FILE_NAME_FIELD = "$$ha$srcFileName";
 
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.Configuration")
-    public static void transformConfiguration(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+    public static void patchConfiguration(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtMethod addMappedStatementMethod = ctClass.getDeclaredMethod("addMappedStatement", new CtClass[]{classPool.get("org.apache.ibatis.mapping.MappedStatement")});
-        addMappedStatementMethod.setBody(
-                "{" +
-                        "if(mappedStatements.containsKey($1.getId())){" +
-                        "   mappedStatements.remove($1.getId());" +
-                        "}" +
-                        "mappedStatements.put($1.getId(),$1);" +
-                        "}");
+        addMappedStatementMethod.setBody("{" +
+                "   if(mappedStatements.containsKey($1.getId())){" +
+                "       mappedStatements.remove($1.getId());" +
+                "   }" +
+                "   mappedStatements.put($1.getId(),$1);" +
+                "}");
         CtMethod addParameterMapMethod = ctClass.getDeclaredMethod("addParameterMap", new CtClass[]{classPool.get("org.apache.ibatis.mapping.ParameterMap")});
-        addParameterMapMethod.setBody(
-                "{" +
-                        "if(parameterMaps.containsKey($1.getId())){" +
-                        "   parameterMaps.remove($1.getId());" +
-                        "}" +
-                        "parameterMaps.put($1.getId(),$1);" +
-                        "}");
+        addParameterMapMethod.setBody("{" +
+                "   if(parameterMaps.containsKey($1.getId())){" +
+                "       parameterMaps.remove($1.getId());" +
+                "   }" +
+                "   parameterMaps.put($1.getId(),$1);" +
+                "}");
         CtMethod addResultMapMethod = ctClass.getDeclaredMethod("addResultMap", new CtClass[]{classPool.get("org.apache.ibatis.mapping.ResultMap")});
-        addResultMapMethod.setBody(
-                "{" +
-                        "if(resultMaps.containsKey($1.getId())){" +
-                        "   resultMaps.remove($1.getId());" +
-                        "}" +
-                        "resultMaps.put($1.getId(),$1);" +
-                        "checkLocallyForDiscriminatedNestedResultMaps($1);" +
-                        "checkGloballyForDiscriminatedNestedResultMaps($1);" +
-                        "}");
+        addResultMapMethod.setBody("{" +
+                "   if(resultMaps.containsKey($1.getId())){" +
+                "       resultMaps.remove($1.getId());" +
+                "   }" +
+                "   resultMaps.put($1.getId(),$1);" +
+                "   checkLocallyForDiscriminatedNestedResultMaps($1);" +
+                "   checkGloballyForDiscriminatedNestedResultMaps($1);" +
+                "}");
         CtMethod addKeyGeneratorMethod = ctClass.getDeclaredMethod("addKeyGenerator", new CtClass[]{classPool.get("java.lang.String"), classPool.get("org.apache.ibatis.executor.keygen.KeyGenerator")});
-        addKeyGeneratorMethod.setBody(
-                "{" +
-                        "if(keyGenerators.containsKey($1)){" +
-                        "   keyGenerators.remove($1);" +
-                        "}" +
-                        "keyGenerators.put($1,$2);" +
-                        "}");
+        addKeyGeneratorMethod.setBody("{" +
+                "   if(keyGenerators.containsKey($1)){" +
+                "       keyGenerators.remove($1);" +
+                "   }" +
+                "   keyGenerators.put($1,$2);" +
+                "}");
         CtMethod addCacheMethod = ctClass.getDeclaredMethod("addCache", new CtClass[]{classPool.get("org.apache.ibatis.cache.Cache")});
-        addCacheMethod.setBody(
-                "{" +
-                        "if(caches.containsKey($1.getId())){" +
-                        "   caches.remove($1.getId());" +
-                        "}" +
-                        "caches.put($1.getId(),$1);" +
-                        "}");
+        addCacheMethod.setBody("{" +
+                "   if(caches.containsKey($1.getId())){" +
+                "       caches.remove($1.getId());" +
+                "   }" +
+                "   caches.put($1.getId(),$1);" +
+                "}");
         for (CtConstructor constructor : ctClass.getDeclaredConstructors()) {
-            constructor.insertAfter(
-                    "{" +
-                            "io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.bean.MyBatisHolder.configuration(this);" +
-                            "}");
+            constructor.insertAfter("{" +
+                        MyBatisSpringResourceManager.class.getName() + ".registerConfiguration(this);" +
+                    "}");
         }
     }
 
@@ -83,12 +78,11 @@ public class IBatisPatcher {
      * 写 $ 时 org.apache.ibatis.session.Configuration 主类就获取不到了，不知道为啥
      */
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.Configuration.StrictMap")
-    public static void patchStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod method = ctClass.getDeclaredMethod("put", new CtClass[]{classPool.get(String.class.getName()), classPool.get(Object.class.getName())});
-        method.insertBefore(
-                "if (containsKey($1)) {" +
-                        "   remove($1);" +
-                        "}");
+    public static void patchConfigurationStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod method = ctClass.getDeclaredMethod("put",new CtClass[]{classPool.get("java.lang.String"), classPool.get("java.lang.Object")});
+        method.insertBefore("{" +
+                "   remove($1);" +
+                "}");
     }
 
     /**

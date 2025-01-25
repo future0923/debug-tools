@@ -7,10 +7,10 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEv
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringXmlReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisPlusPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisSpringPatcher;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisXmlResourceRefreshCommands;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -34,13 +34,16 @@ public class MyBatisPlugin {
     private static final Logger logger = Logger.getLogger(MyBatisPlugin.class);
 
     @Init
-    Scheduler scheduler;
+    static Scheduler scheduler;
 
     @Init
-    ClassLoader appClassLoader;
+    static ClassLoader appClassLoader;
 
     private final Map<String, Object> configurationMap = new HashMap<>();
 
+    /**
+     * 在{@link IBatisPatcher#patchXMLMapperBuilder}处调用时生成mapper文件信息
+     */
     public void registerConfigurationFile(String configFile, Object configObject) {
         if (configFile != null && !configurationMap.containsKey(configFile)) {
             logger.debug("MyBatisPlugin - configuration file registered : {}", configFile);
@@ -51,11 +54,11 @@ public class MyBatisPlugin {
     /**
      * OnResourceFileEvent只能在主插件作用与实例对象，所以放在这里
      */
-    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.MODIFY})
+    @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.CREATE, FileEvent.MODIFY})
     public void registerResourceListeners(URL url) {
-        logger.info("registerResourceListeners, url:{}", url.getPath());
+        logger.debug("registerResourceListeners, url:{}", url.getPath());
         if (configurationMap.containsKey(url.getPath())) {
-            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisXmlResourceRefreshCommands.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
         }
     }
 }

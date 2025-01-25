@@ -39,7 +39,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * ClassInitPlugin在类重新定义后初始化静态变量的新枚举值
+ * ClassInitPlugin 在类重新定义后初始化静态（类）变量。初始化新的枚举值。
  */
 @Plugin(name = "ClassInitPlugin",
         description = "Initialize empty static fields (left by DCEVM) using code from <clinit> method.",
