@@ -22,6 +22,6 @@ public interface UserDao extends BaseMapperPlus<User> {
         return selectList(queryWrapper);
     }
 
-    @Select("select * from dp_user limit 10")
+    @Select("select * from dp_user limit 2")
     List<User> aaa();
 }

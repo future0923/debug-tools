@@ -1,0 +1,164 @@
+package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
+
+import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.dto.MyBatisPlusEntityReloadDTO;
+import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
+import org.apache.ibatis.binding.MapperRegistry;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.reflection.DefaultReflectorFactory;
+import org.apache.ibatis.reflection.Reflector;
+import org.apache.ibatis.session.Configuration;
+import org.mybatis.spring.mapper.ClassPathMapperScanner;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+
+/**
+ * 重载 MyBatisPlus Entity 资源
+ *
+ * @author future0923
+ */
+@SuppressWarnings({"unchecked"})
+public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBatisPlusEntityReloadDTO>{
+
+    private static final Logger logger = Logger.getLogger(MyBatisPlusEntityReload.class);
+
+    public static final MyBatisPlusEntityReload INSTANCE = new MyBatisPlusEntityReload();
+
+    private MyBatisPlusEntityReload() {
+    }
+
+    @Override
+    protected void doReload(MyBatisPlusEntityReloadDTO dto) throws Exception {
+        Class<?> clazz = dto.getClazz();
+        ClassLoader classLoader = dto.getAppClassLoader();
+        try {
+            logger.debug("transform class: {}", clazz.getName());
+            if (clazz.isInterface()) {
+                logger.debug("classBeingRedefined is interface");
+                return;
+            }
+            if (!isMybatisEntity(classLoader, clazz)) {
+                logger.debug("classBeingRedefined is not mybatis entity");
+                return;
+            }
+            ClassPathMapperScanner mapperScanner = MyBatisSpringResourceManager.getMapperScanner();
+            if (mapperScanner == null) {
+                logger.debug("mapperScanner is null");
+                return;
+            }
+            Set<Configuration> configurationList = MyBatisSpringResourceManager.getConfigurationList();
+            if (configurationList.isEmpty()) {
+                logger.debug("mybatis configuration is empty");
+                return;
+            }
+            for (Configuration configuration : configurationList) {
+                Class<? extends Configuration> configurationClass = configuration.getClass();
+                if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
+                    MapperRegistry mapperRegistry = configuration.getMapperRegistry();
+                    Collection<Class<?>> mappers = mapperRegistry.getMappers();
+                    List<Class<?>> mapperClassList = new LinkedList<>();
+                    for (Class<?> mapper : mappers) {
+                        Type[] genericInterfaces = mapper.getGenericInterfaces();
+                        for (Type genericInterface : genericInterfaces) {
+                            if (genericInterface instanceof ParameterizedType) {
+                                ParameterizedType parameterizedType = (ParameterizedType) genericInterface;
+                                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                                if (actualTypeArguments.length > 0) {
+                                    Type modelType = Arrays.stream(actualTypeArguments).filter(type -> type.getTypeName().equals(clazz.getTypeName())).findAny().orElse(null);
+                                    if (modelType != null) {
+                                        mapperClassList.add(mapper);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for (Class<?> mapperClass : mapperClassList) {
+                        Map<String, MappedStatement> mappedStatements = (Map<String, MappedStatement>) ReflectionHelper.get(configuration, "mappedStatements");
+                        // 清空 Mapper 方法 mappedStatement 缓存信息
+                        final String typeKey = mapperClass.getName() + ".";
+                        Set<String> mapperSet = mappedStatements.keySet()
+                                .stream()
+                                .filter(mappedStatement -> mappedStatement.startsWith(typeKey))
+                                .collect(Collectors.toSet());
+                        for (String key : mapperSet) {
+                            mappedStatements.remove(key);
+                        }
+
+                        //构建MapperBuilderAssistant
+                        String xmlResource = mapperClass.getName().replace(".", "/") + ".java (best guess)";
+                        MapperBuilderAssistant builderAssistant = new MapperBuilderAssistant(configuration, xmlResource);
+                        builderAssistant.setCurrentNamespace(mapperClass.getName());
+
+                        //移除实体类对应的字段缓存，否则在初始化TableInfo的时候，不重新初始化字段集合
+                        Map<Class<?>, List<Field>> classFieldCache = (Map<Class<?>, List<Field>>) ReflectionHelper.get(null, classLoader.loadClass("com.baomidou.mybatisplus.core.toolkit.ReflectionKit"), "CLASS_FIELD_CACHE");
+                        classFieldCache.remove(clazz);
+
+                        //移除mapper缓存，否则不执行循环注入自定义方法  if (!mapperRegistryCache.contains(className)) {
+                        Set<String> mapperRegistryCache = (Set<String>) ReflectionHelper.invoke(null, classLoader.loadClass("com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils"), "getMapperRegistryCache", new Class[]{Configuration.class}, builderAssistant.getConfiguration());
+                        mapperRegistryCache.remove(mapperClass.toString());
+
+                        //移除实体类对应的表缓存，否则不重新初始化TableInfo
+                        ReflectionHelper.invoke(null, classLoader.loadClass("com.baomidou.mybatisplus.core.metadata.TableInfoHelper"), "remove", new Class[]{Class.class}, clazz);
+
+                        //移除实体类对应的映射器缓存
+                        DefaultReflectorFactory reflectorFactory = (DefaultReflectorFactory) configuration.getReflectorFactory();
+                        ConcurrentMap<Class<?>, Reflector> reflectorMap = (ConcurrentMap<Class<?>, Reflector>) ReflectionHelper.get(reflectorFactory, reflectorFactory.getClass(), "reflectorMap");
+                        reflectorMap.remove(clazz);
+
+                        //注入自定义方法
+                        Object iSqlInjector = ReflectionHelper.invoke(null, classLoader.loadClass("com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils"), "getSqlInjector", new Class[]{Configuration.class}, configuration);
+                        ReflectionHelper.invoke(iSqlInjector, iSqlInjector.getClass(), "inspectInject", new Class[]{MapperBuilderAssistant.class, Class.class}, builderAssistant, mapperClass);
+                    }
+                    logger.reload("reload {}", clazz.getName());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("refresh mybatis error", e);
+        }
+    }
+
+    /**
+     * <p>目前识别方式</p>
+     * <ul>
+     *     <li>有com.baomidou.mybatisplus.annotation.TableName注解</li>
+     *     <li>继承或父类继承com.baomidou.mybatisplus.extension.activerecord.Model</li>
+     * </ul>
+     */
+    public static boolean isMybatisEntity(ClassLoader loader, Class<?> clazz) {
+        try {
+            for (Annotation annotation : clazz.getAnnotations()) {
+                if (annotation.annotationType().getName().equals("com.baomidou.mybatisplus.annotation.TableName")) {
+                    return true;
+                }
+            }
+            Class<?> modelClass = loader.loadClass("com.baomidou.mybatisplus.extension.activerecord.Model");
+            if (modelClass.isAssignableFrom(clazz)) {
+                return true;
+            }
+
+            // 检查类的父类是否继承 Model
+            Class<?> superClass = clazz.getSuperclass();
+            while (superClass != null && superClass != Object.class) {
+                if (modelClass.isAssignableFrom(superClass)) {
+                    return true;
+                }
+                superClass = superClass.getSuperclass();
+            }
+        } catch (ClassNotFoundException ignored) {
+        }
+        return false;
+    }
+}

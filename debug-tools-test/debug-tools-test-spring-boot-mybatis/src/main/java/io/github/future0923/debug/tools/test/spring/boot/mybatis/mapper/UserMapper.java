@@ -17,4 +17,14 @@ public interface UserMapper {
 
     @Select("select * from dp_user")
     List<User> listA23ll1();
+
+    @Select("select * from dp_user limit1")
+    List<User> limit1();
+
+
+    @Select("select * from dp_user limit1")
+    List<User> ddd();
+
+    @Select("select * from dp_user limit 1")
+    List<User> aaa();
 }

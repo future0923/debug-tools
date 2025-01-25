@@ -1,15 +1,9 @@
-package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.spring.resource;
-
-import java.net.URL;
+package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
 
 /**
  * @author future0923
  */
 public interface MyBatisResourceReload {
-
-    String XML_TYPE = "XML";
-
-    String INTERFACE_TYPE = "INTERFACE";
 
     /**
      * namespace 为 xml 文件中 mapper 的 namespace 属性。在执行 SQL 时，通过 namespace + SQL ID 精确定位某个 SQL 语句。如 namespace:io.github.debug.tools.mapper.UserMapper
@@ -32,6 +26,9 @@ public interface MyBatisResourceReload {
      */
     String LOADED_RESOURCES_FIELD = "loadedResources";
 
-    void reload(URL url) throws Exception;
+    /**
+     * 重载 MyBatis 资源
+     */
+    void reload(Object object) throws Exception;
 
 }
