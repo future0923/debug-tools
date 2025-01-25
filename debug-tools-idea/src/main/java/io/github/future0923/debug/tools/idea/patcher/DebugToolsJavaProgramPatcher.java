@@ -24,11 +24,30 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
 
     @Override
     public void patchJavaParameters(Executor executor, RunProfile configuration, JavaParameters javaParameters) {
+        if (isMavenAndGrade(configuration, javaParameters)) {
+            return;
+        }
         Project project = (configuration instanceof RunConfiguration) ? ((RunConfiguration) configuration).getProject() : null;
         if (project == null) {
             return;
         }
         applyForConfiguration(configuration, javaParameters, project);
+    }
+
+    private boolean isMavenAndGrade(RunProfile configuration, JavaParameters javaParameters) {
+        if (configuration.getClass().getName().equals("org.jetbrains.idea.maven.execution.MavenRunConfiguration")) {
+            return true;
+        }
+        if (configuration.getClass().getName().equals("org.jetbrains.plugins.gradle.service.execution.GradleRunConfiguration")) {
+            return true;
+        }
+        if (javaParameters.getMainClass().equals("org.codehaus.classworlds.Launcher")) {
+            return true;
+        }
+        if (javaParameters.getMainClass().equals("org.codehaus.plexus.classworlds.launcher.Launcher")) {
+            return true;
+        }
+        return false;
     }
 
     private void applyForConfiguration(RunProfile configuration, JavaParameters javaParameters, Project project) {
