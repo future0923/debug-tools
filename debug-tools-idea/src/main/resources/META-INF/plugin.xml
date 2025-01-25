@@ -98,6 +98,12 @@
                     description="Quickly call last for execution">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
             </action>
+            <action id="DebugToolsTool.ExecuteLastWithDefaultClassLoader"
+                    class="io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction"
+                    text="Execute Last With Default ClassLoader"
+                    description="Quickly call last with default classloader for execution">
+                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl D"/>
+            </action>
             <action id="DebugToolsTool.EvaluateGroovy"
                     class="io.github.future0923.debug.tools.idea.action.GroovyConsoleAction"
                     text="Groovy Console"
