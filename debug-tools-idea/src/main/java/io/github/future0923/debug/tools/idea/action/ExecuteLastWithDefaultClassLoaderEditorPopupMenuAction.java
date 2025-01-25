@@ -10,6 +10,7 @@ import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
@@ -22,13 +23,13 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author future0923
  */
-public class ExecuteLastEditorPopupMenuAction extends AnAction {
+public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAction {
 
-    private static final Logger log = Logger.getInstance(ExecuteLastEditorPopupMenuAction.class);
+    private static final Logger log = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
-    public ExecuteLastEditorPopupMenuAction() {
-        getTemplatePresentation().setText("Execute Last");
-        getTemplatePresentation().setIcon(DebugToolsIcons.Last);
+    public ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction() {
+        getTemplatePresentation().setText("Execute Last With Default ClassLoader");
+        getTemplatePresentation().setIcon(DebugToolsIcons.Last_ClassLoader);
     }
 
     @Override
@@ -54,9 +55,15 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
             return;
         }
         try {
+            runDTO.setClassLoader(HttpClientUtils.defaultClassLoader(project));
+        } catch (Exception ex) {
+            log.error("execute last with default class loader request error", ex);
+            Messages.showErrorDialog(ex.getMessage(), "执行失败");
+        }
+        try {
             info.getClient().getHolder().send(packet);
         } catch (Exception ex) {
-            log.error("execute last request error", ex);
+            log.error("execute last with default class loader  request error", ex);
             Messages.showErrorDialog(ex.getMessage(), "执行失败");
             DebugToolsToolWindowFactory.showWindow(project, null);
         }
