@@ -3,7 +3,9 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
+import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
@@ -12,12 +14,10 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.bean.MyBatisSpringBeanDefinition;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.spring.resource.MyBatisSpringResourceManager;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.transformer.MyBatisEntityClassFileTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.transformer.MyBatisMapperClassFileTransformer;
-import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
+import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
@@ -37,13 +37,13 @@ public class MyBatisSpringPatcher {
     private static final Logger logger = Logger.getLogger(MyBatisSpringPatcher.class);
 
     @Init
-    static HotswapTransformer hotswapTransformer;
-
-    @Init
     static ClassLoader appClassLoader;
 
     @Init
     static Scheduler scheduler;
+
+    @Init
+    static Watcher watcher;
 
     /**
      * ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
@@ -54,7 +54,7 @@ public class MyBatisSpringPatcher {
             CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
             constructor.insertAfter(
                     "{" +
-                            MyBatisSpringBeanDefinition.class.getName() + ".loadScanner(this);" +
+                            MyBatisSpringResourceManager.class.getName() + ".loadScanner(this);" +
                             "}");
         } catch (Throwable e) {
             logger.error("patchMyBatisClassPathMapperScanner err", e);
@@ -75,26 +75,12 @@ public class MyBatisSpringPatcher {
     }
 
     /**
-     * 实际上是 org.apache.ibatis.session.Configuration$StrictMap，将 $ 换成 . 也可以识别
-     * 写 $ 时 org.apache.ibatis.session.Configuration 主类就获取不到了，不知道为啥
-     */
-    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.session.Configuration.StrictMap")
-    public static void patchConfigurationStrictMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        logger.debug("org.apache.ibatis.session.Configuration.StrictMap patched.");
-        CtClass[] constructorParams = new CtClass[]{classPool.get("java.lang.String"), classPool.get("java.lang.Object")};
-        CtMethod putMethod = ctClass.getDeclaredMethod("put", constructorParams);
-        putMethod.insertBefore("{" +
-                "   remove(key);" +
-                "}");
-    }
-
-    /**
-     * 当 AbstractApplicationContext refresh方法执行完成后（Spring应用上下文已经初始化完成）初始化 Mybatis 资源
+     * 当 AbstractApplicationContext refresh方法执行完成后（Spring应用上下文已经初始化完成）初始化
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.context.support.AbstractApplicationContext")
     public static void patchAbstractApplicationContext(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtMethod buildSqlSessionFactory = ctClass.getDeclaredMethod("refresh");
-        buildSqlSessionFactory.insertAfter(MyBatisSpringResourceManager.class.getName() + ".init();");
+        buildSqlSessionFactory.insertAfter("{}");
     }
 
     /**
@@ -113,7 +99,7 @@ public class MyBatisSpringPatcher {
     }
 
     /**
-     * 获取{@link MapperScan}的mapper路径注册{@link MyBatisMapperClassFileTransformer}进行重载
+     * 获取{@link MapperScan}的mapper路径
      * {@link #patchMapperScannerRegistrar}调用
      */
     public static void baseMapperPackage(Object annoMetaObj, Object annoAttrsObj) {
@@ -134,12 +120,10 @@ public class MyBatisSpringPatcher {
         }
     }
 
-    /**
-     * 创建对应包下变动的{@link MyBatisMapperClassFileTransformer}，可以处理class的redefine事件
-     */
     public static void registerMapperTransformer(final String basePackage) {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
-        hotswapTransformer.registerTransformer(appClassLoader, classNameRegExp, new MyBatisMapperClassFileTransformer(scheduler, classNameRegExp));
+        // TODO watcher
+        //hotswapTransformer.registerTransformer(appClassLoader, classNameRegExp, new MyBatisPlusMapperClassFileTransformer(scheduler, classNameRegExp));
     }
 
 
@@ -153,11 +137,16 @@ public class MyBatisSpringPatcher {
         );
     }
 
-    /**
-     * 创建对应包下变动的{@link MyBatisEntityClassFileTransformer}，可以处理class的redefine事件
-     */
     public static void registerEntityTransformer(String basePackage) {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
-        hotswapTransformer.registerTransformer(appClassLoader, classNameRegExp, new MyBatisEntityClassFileTransformer(scheduler, classNameRegExp));
+        // TODO watcher
+
+    }
+
+    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
+    public static void redefineMyBatisSpringMapper(final CtClass ctClass, String className) {
+        className = className.replace("/", ".");
+        logger.debug("redefineMyBatisSpringMapper, className:{}", className);
+        scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className), 500);
     }
 }

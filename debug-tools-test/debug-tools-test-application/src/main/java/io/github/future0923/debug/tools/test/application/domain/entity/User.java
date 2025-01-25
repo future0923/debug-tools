@@ -13,8 +13,8 @@ public class User extends Model<User> {
     private Integer id;
 
     private String name;
-    //
-    //private Integer age;
+
+    private Integer age;
 
     private Integer version;
 }
