@@ -20,6 +20,12 @@ public class MyBatisSpringMapperReload extends AbstractMyBatisResourceReload<Str
 
     private static final Logger logger = Logger.getLogger(MyBatisSpringMapperReload.class);
 
+    public static final MyBatisSpringMapperReload INSTANCE = new MyBatisSpringMapperReload();
+
+    private MyBatisSpringMapperReload() {
+
+    }
+
     @Override
     protected void doReload(String className) throws Exception {
         String loadedResource = buildLoadedResource(className);
