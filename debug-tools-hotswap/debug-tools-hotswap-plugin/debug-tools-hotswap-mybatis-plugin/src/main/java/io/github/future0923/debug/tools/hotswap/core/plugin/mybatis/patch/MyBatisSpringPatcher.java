@@ -16,7 +16,10 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher.MyBatisPlusMapperWatchEventListener;
+import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
+import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -24,9 +27,12 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -107,7 +113,7 @@ public class MyBatisSpringPatcher {
         if (annoMetaObj instanceof AnnotationMetadata && annoAttrsObj instanceof AnnotationAttributes) {
             AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
             AnnotationAttributes annoAttrs = (AnnotationAttributes) annoAttrsObj;
-            List<String> basePackages = new ArrayList<>();
+            Set<String> basePackages = new HashSet<>();
             basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
             basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
             basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
@@ -120,10 +126,23 @@ public class MyBatisSpringPatcher {
         }
     }
 
-    public static void registerMapperTransformer(final String basePackage) {
+    public static void registerMapperTransformer(final String basePackage)  {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
-        // TODO watcher
-        //hotswapTransformer.registerTransformer(appClassLoader, classNameRegExp, new MyBatisPlusMapperClassFileTransformer(scheduler, classNameRegExp));
+        Enumeration<URL> resourceUrls;
+        try {
+            resourceUrls = ClassLoaderHelper.getResources(appClassLoader, classNameRegExp);
+        } catch (IOException e) {
+            logger.error("Unable to resolve base package {} in classloader {}.", classNameRegExp, appClassLoader);
+            return;
+        }
+        while (resourceUrls.hasMoreElements()) {
+            URL basePackageURL = resourceUrls.nextElement();
+            if (!IOUtils.isFileURL(basePackageURL)) {
+                logger.debug("mybatis mapper basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
+            } else {
+                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, appClassLoader, basePackage));
+            }
+        }
     }
 
 

@@ -70,7 +70,7 @@ public class MyBatisPlusMapperReload extends AbstractMyBatisResourceReload<MyBat
                     String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
                     BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
                     mybatisBeanDefinition(mapperScanner, definitionHolder);
-                    logger.reload("reload {} in ", clazz.getName(), configuration);
+                    logger.reload("reload {} in {}", clazz.getName(), configuration);
                 }
             }
         } catch (Exception e) {

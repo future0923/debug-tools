@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 @Mapper
-public interface User1Dao extends BaseMapperPlus<User> {
+public interface UserDao2 extends BaseMapperPlus<User> {
 
     @Select("select * from user where name = #{name} and age = #{age}")
     List<User> selectByNameAndAge(

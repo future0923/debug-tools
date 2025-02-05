@@ -38,6 +38,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.S
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
+import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 
 import java.io.IOException;
@@ -155,7 +156,7 @@ public class SpringPlugin {
         this.registerBasePackage(basePackage);
         Enumeration<URL> resourceUrls;
         try {
-            resourceUrls = getResources(basePackage);
+            resourceUrls = ClassLoaderHelper.getResources(appClassLoader, basePackage);
         } catch (IOException e) {
             logger.error("Unable to resolve base package {} in classloader {}.", basePackage, appClassLoader);
             return;
@@ -169,23 +170,6 @@ public class SpringPlugin {
                 watcher.addEventListener(appClassLoader, basePackageURL, new SpringBeanWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
-    }
-
-    /**
-     * 通过ClassLoader获取Package的资源信息
-     */
-    private Enumeration<URL> getResources(String basePackage) throws IOException {
-        String resourceName = basePackage;
-        int index = resourceName.indexOf('*');
-        if (index != -1) {
-            resourceName = resourceName.substring(0, index);
-            index = resourceName.lastIndexOf('.');
-            if (index != -1) {
-                resourceName = resourceName.substring(0, index);
-            }
-        }
-        resourceName = resourceName.replace('.', '/');
-        return appClassLoader.getResources(resourceName);
     }
 
     /**
