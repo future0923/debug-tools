@@ -21,10 +21,28 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
 
     public static final String PATH = "/allClassLoader";
 
-    public static final Map<String, ClassLoader> classLoaderMap = new ConcurrentHashMap<>();
+    private static final Map<String, ClassLoader> classLoaderMap = new ConcurrentHashMap<>();
 
     private AllClassLoaderHttpHandler() {
 
+    }
+
+    public static Map<String, ClassLoader> getClassLoaderMap() {
+        if (classLoaderMap.isEmpty()) {
+            Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
+            for (Class<?> clazz : instrumentation.getAllLoadedClasses()) {
+                ClassLoader classLoader = clazz.getClassLoader();
+                if (classLoader != null
+                        // groovy的加载器不要
+                        && !(classLoader instanceof SunClassLoader)
+                        // DelegatingClassLoader是jdk底层用来提升反射效率的加载器
+                        && !classLoader.getClass().getSimpleName().equals("DelegatingClassLoader")) {
+                    AllClassLoaderRes.Item item = new AllClassLoaderRes.Item(classLoader);
+                    classLoaderMap.put(item.getIdentity(), classLoader);
+                }
+            }
+        }
+        return classLoaderMap;
     }
 
     public static ClassLoader getDebugToolsClassLoader() {

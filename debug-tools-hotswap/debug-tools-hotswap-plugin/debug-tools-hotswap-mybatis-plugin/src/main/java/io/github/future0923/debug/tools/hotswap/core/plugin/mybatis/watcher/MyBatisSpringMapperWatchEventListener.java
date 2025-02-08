@@ -2,8 +2,9 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
@@ -16,7 +17,7 @@ import java.util.Objects;
 /**
  * @author future0923
  */
-public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
+public class MyBatisSpringMapperWatchEventListener implements WatchEventListener {
 
     private static final Logger logger = Logger.getLogger(SpringBeanWatchEventListener.class);
 
@@ -26,7 +27,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
 
     private final String basePackage;
 
-    public MyBatisPlusMapperWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
+    public MyBatisSpringMapperWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
         this.scheduler = scheduler;
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
@@ -37,6 +38,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
         logger.debug("{}, {}", event.getEventType(), event.getURI().toString());
         // 创建了class新文件
         if (FileEvent.CREATE.equals(event.getEventType()) && event.isFile() && event.getURI().toString().endsWith(".class")) {
+            // 检查该类尚未被类加载器加载（避免重复重新加载）。
             String className;
             try {
                 className = IOUtils.urlToClassName(event.getURI());
@@ -53,7 +55,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
             }
             if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+                scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className, bytes), 500);
             }
         }
     }
@@ -62,7 +64,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MyBatisPlusMapperWatchEventListener that = (MyBatisPlusMapperWatchEventListener) o;
+        MyBatisSpringMapperWatchEventListener that = (MyBatisSpringMapperWatchEventListener) o;
         return Objects.equals(appClassLoader, that.appClassLoader) && Objects.equals(basePackage, that.basePackage);
     }
 

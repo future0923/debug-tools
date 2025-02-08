@@ -180,7 +180,8 @@ public class SpringEnvUtil {
         for (ApplicationContext applicationContext : applicationContexts) {
             try {
                 beanList.addAll(applicationContext.getBeansOfType(requiredType).values());
-            } catch (BeansException ignored) {
+            } catch (BeansException e) {
+                logger.warning("获取bean信息失败", e);
             }
         }
         return beanList;
@@ -192,7 +193,8 @@ public class SpringEnvUtil {
         for (ApplicationContext applicationContext : applicationContexts) {
             try {
                 beanList.add((T) applicationContext.getBean(beanName));
-            } catch (BeansException ignored) {
+            } catch (BeansException e) {
+                logger.warning("获取bean信息失败", e);
             }
         }
         return beanList;
@@ -203,7 +205,8 @@ public class SpringEnvUtil {
         for (BeanFactory beanFactory : beanFactories) {
             try {
                 beanList.add(beanFactory.getBean(requiredType));
-            } catch (BeansException ignored) {
+            } catch (BeansException e) {
+                logger.warning("获取bean信息失败", e);
             }
         }
         return beanList;
@@ -215,7 +218,8 @@ public class SpringEnvUtil {
         for (BeanFactory beanFactory : beanFactories) {
             try {
                 beanList.add((T) beanFactory.getBean(beanName));
-            } catch (BeansException ignored) {
+            } catch (BeansException e) {
+                logger.warning("获取bean信息失败", e);
             }
         }
         return beanList;
@@ -257,7 +261,8 @@ public class SpringEnvUtil {
                     return getTargetObject(target);
                 }
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable e) {
+            logger.warning("获取实例信息失败", e);
 
         }
         return (T) candidate;

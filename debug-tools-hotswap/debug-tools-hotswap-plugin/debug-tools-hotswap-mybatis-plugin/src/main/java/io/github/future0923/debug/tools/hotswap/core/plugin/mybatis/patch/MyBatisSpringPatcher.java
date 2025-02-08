@@ -16,7 +16,10 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher.MyBatisPlusEntityWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher.MyBatisPlusMapperWatchEventListener;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher.MyBatisSpringMapperWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
@@ -132,7 +135,7 @@ public class MyBatisSpringPatcher {
         try {
             resourceUrls = ClassLoaderHelper.getResources(appClassLoader, classNameRegExp);
         } catch (IOException e) {
-            logger.error("Unable to resolve base package {} in classloader {}.", classNameRegExp, appClassLoader);
+            logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, appClassLoader);
             return;
         }
         while (resourceUrls.hasMoreElements()) {
@@ -141,6 +144,7 @@ public class MyBatisSpringPatcher {
                 logger.debug("mybatis mapper basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
                 watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisSpringMapperWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
     }
@@ -158,14 +162,33 @@ public class MyBatisSpringPatcher {
 
     public static void registerEntityTransformer(String basePackage) {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
-        // TODO watcher
-
+        Enumeration<URL> resourceUrls;
+        try {
+            resourceUrls = ClassLoaderHelper.getResources(appClassLoader, classNameRegExp);
+        } catch (IOException e) {
+            logger.error("Unable to resolve entity base package {} in classloader {}.", classNameRegExp, appClassLoader);
+            return;
+        }
+        while (resourceUrls.hasMoreElements()) {
+            URL basePackageURL = resourceUrls.nextElement();
+            if (!IOUtils.isFileURL(basePackageURL)) {
+                logger.debug("mybatis entity basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
+            } else {
+                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisPlusEntityWatchEventListener(scheduler, appClassLoader, basePackage));
+            }
+        }
     }
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void redefineMyBatisSpringMapper(final CtClass ctClass, String className) {
-        className = className.replace("/", ".");
-        logger.debug("redefineMyBatisSpringMapper, className:{}", className);
-        scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className), 500);
+    public void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
+        logger.debug("redefineMyBatisSpringMapper, className:{}", clazz.getName());
+        try {
+            appClassLoader.loadClass("org.mybatis.spring.mapper.ClassPathMapperScanner");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes), 500);
+        }
     }
 }
