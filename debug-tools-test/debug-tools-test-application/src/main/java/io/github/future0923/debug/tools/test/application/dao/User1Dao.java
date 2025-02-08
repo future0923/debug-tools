@@ -23,5 +23,5 @@ public interface User1Dao extends BaseMapperPlus<User> {
     }
     //
     @Select("select * from dp_user where name = #{name}")
-    List<User> dasda(@Param("name") String name);
+    List<User> bbb(@Param("name") String name);
 }

@@ -11,7 +11,7 @@ import java.util.List;
  * @author future0923
  */
 @Mapper
-public interface UserMapper {
+public interface UserMapper2 {
 
     List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age);
 
