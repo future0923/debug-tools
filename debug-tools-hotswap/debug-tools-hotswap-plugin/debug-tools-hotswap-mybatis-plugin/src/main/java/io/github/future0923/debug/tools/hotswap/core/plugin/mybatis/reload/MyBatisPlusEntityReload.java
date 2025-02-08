@@ -45,14 +45,6 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
         ClassLoader classLoader = dto.getAppClassLoader();
         try {
             logger.debug("transform class: {}", clazz.getName());
-            if (clazz.isInterface()) {
-                logger.debug("classBeingRedefined is interface");
-                return;
-            }
-            if (!isMybatisEntity(classLoader, clazz)) {
-                logger.debug("classBeingRedefined is not mybatis entity");
-                return;
-            }
             ClassPathMapperScanner mapperScanner = MyBatisSpringResourceManager.getMapperScanner();
             if (mapperScanner == null) {
                 logger.debug("mapperScanner is null");
@@ -128,37 +120,5 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
         } catch (Exception e) {
             logger.error("refresh mybatis error", e);
         }
-    }
-
-    /**
-     * <p>目前识别方式</p>
-     * <ul>
-     *     <li>有com.baomidou.mybatisplus.annotation.TableName注解</li>
-     *     <li>继承或父类继承com.baomidou.mybatisplus.extension.activerecord.Model</li>
-     * </ul>
-     */
-    public static boolean isMybatisEntity(ClassLoader loader, Class<?> clazz) {
-        try {
-            for (Annotation annotation : clazz.getAnnotations()) {
-                if (annotation.annotationType().getName().equals("com.baomidou.mybatisplus.annotation.TableName")) {
-                    return true;
-                }
-            }
-            Class<?> modelClass = loader.loadClass("com.baomidou.mybatisplus.extension.activerecord.Model");
-            if (modelClass.isAssignableFrom(clazz)) {
-                return true;
-            }
-
-            // 检查类的父类是否继承 Model
-            Class<?> superClass = clazz.getSuperclass();
-            while (superClass != null && superClass != Object.class) {
-                if (modelClass.isAssignableFrom(superClass)) {
-                    return true;
-                }
-                superClass = superClass.getSuperclass();
-            }
-        } catch (ClassNotFoundException ignored) {
-        }
-        return false;
     }
 }

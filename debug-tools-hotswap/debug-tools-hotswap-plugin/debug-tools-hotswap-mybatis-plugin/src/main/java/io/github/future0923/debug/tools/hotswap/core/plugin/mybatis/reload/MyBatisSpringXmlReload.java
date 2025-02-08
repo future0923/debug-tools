@@ -34,9 +34,6 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
         String loadedResource = buildLoadedResource(url);
         for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
             Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
-            if (!loadedResources.contains(loadedResource)) {
-                continue;
-            }
             loadedResources.remove(loadedResource);
             XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(
                     url.openConnection().getInputStream(),

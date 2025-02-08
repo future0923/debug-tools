@@ -3,7 +3,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusEntityReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author future0923
  */
-public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
+public class MyBatisPlusEntityWatchEventListener implements WatchEventListener {
 
     private static final Logger logger = Logger.getLogger(SpringBeanWatchEventListener.class);
 
@@ -26,7 +26,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
 
     private final String basePackage;
 
-    public MyBatisPlusMapperWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
+    public MyBatisPlusEntityWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
         this.scheduler = scheduler;
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
@@ -51,9 +51,8 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
                 logger.warning("not found class", e);
                 return;
             }
-            if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-                byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+            if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
+                scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
             }
         }
     }
@@ -62,7 +61,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MyBatisPlusMapperWatchEventListener that = (MyBatisPlusMapperWatchEventListener) o;
+        MyBatisPlusEntityWatchEventListener that = (MyBatisPlusEntityWatchEventListener) o;
         return Objects.equals(appClassLoader, that.appClassLoader) && Objects.equals(basePackage, that.basePackage);
     }
 

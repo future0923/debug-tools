@@ -55,10 +55,8 @@ public class MyBatisPlugin {
      * OnResourceFileEvent只能在主插件作用与实例对象，所以放在这里
      */
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.CREATE, FileEvent.MODIFY})
-    public void registerResourceListeners(URL url) {
+    public void watchResource(URL url) {
         logger.debug("registerResourceListeners, url:{}", url.getPath());
-        if (configurationMap.containsKey(url.getPath())) {
-            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
-        }
+        scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
     }
 }

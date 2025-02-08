@@ -46,7 +46,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             return;
         }
         if (runDTO.getClassLoader() != null && DebugToolsStringUtils.isNotBlank(runDTO.getClassLoader().getIdentity())) {
-            ClassLoader classLoader = AllClassLoaderHttpHandler.classLoaderMap.get(runDTO.getClassLoader().getIdentity());
+            ClassLoader classLoader = AllClassLoaderHttpHandler.getClassLoaderMap().get(runDTO.getClassLoader().getIdentity());
             if (classLoader == null) {
                 ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() +"]类加载器");
                 String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
