@@ -21,7 +21,7 @@ public class Test {
         }
 
         public void test() {
-            System.out.println("test");
+            System.out.println("123");
         }
 
         public void exampleMethod(Map<String, Map<String, Map<Integer, String>>> param) {

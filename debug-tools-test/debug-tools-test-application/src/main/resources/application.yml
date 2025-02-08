@@ -20,3 +20,5 @@ my:
     - item1
     - item2
     - item3
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml

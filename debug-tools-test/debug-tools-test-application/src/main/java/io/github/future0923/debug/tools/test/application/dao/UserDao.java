@@ -11,10 +11,7 @@ import java.util.List;
 @Mapper
 public interface UserDao extends BaseMapperPlus<User> {
 
-    @Select("select * from user where name = #{name} and age = #{age}")
-    List<User> selectByNameAndAge(
-            @Param("name") String name,
-            @Param("age") Integer age);
+    List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age);
 
     default List<User> selectByName(String name) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -23,5 +20,5 @@ public interface UserDao extends BaseMapperPlus<User> {
     }
 
     @Select("select * from dp_user limit 2")
-    List<User> aaa();
+    List<User> bbb();
 }
