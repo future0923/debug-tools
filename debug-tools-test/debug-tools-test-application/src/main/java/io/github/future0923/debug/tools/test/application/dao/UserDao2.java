@@ -23,5 +23,5 @@ public interface UserDao2 extends BaseMapperPlus<User> {
     }
     //
     @Select("select * from dp_user where name = #{name}")
-    List<User> dasda(@Param("name") String name);
+    List<User> aaa(@Param("name") String name);
 }
