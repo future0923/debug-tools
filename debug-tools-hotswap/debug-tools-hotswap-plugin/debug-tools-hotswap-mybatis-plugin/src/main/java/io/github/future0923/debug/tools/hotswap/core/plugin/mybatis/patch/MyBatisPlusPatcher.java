@@ -13,6 +13,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtNewMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusEntityReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 
 /**
  * @author future0923
@@ -53,9 +54,18 @@ public class MyBatisPlusPatcher {
     }
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void redefineMyBatisPlus(final Class<?> clazz, final byte[] bytes) {
+    public static void watchResourceRedefineMyBatisClass(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisPlus, className:{}", clazz.getName());
-        scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
-        scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+        try {
+            appClassLoader.loadClass("com.baomidou.mybatisplus.core.MybatisConfiguration");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
+            scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
+        }
+        if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+            scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+        }
     }
 }
