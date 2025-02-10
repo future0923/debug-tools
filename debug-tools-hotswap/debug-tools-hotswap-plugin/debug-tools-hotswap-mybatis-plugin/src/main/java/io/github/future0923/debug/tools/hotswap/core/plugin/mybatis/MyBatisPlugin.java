@@ -11,7 +11,12 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBa
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisPlusPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisSpringPatcher;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +46,8 @@ public class MyBatisPlugin {
 
     private final Map<String, Object> configurationMap = new HashMap<>();
 
+    private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
     /**
      * 在{@link IBatisPatcher#patchXMLMapperBuilder}处调用时生成mapper文件信息
      */
@@ -55,8 +62,15 @@ public class MyBatisPlugin {
      * OnResourceFileEvent只能在主插件作用与实例对象，所以放在这里
      */
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.CREATE, FileEvent.MODIFY})
-    public void watchResource(URL url) {
+    public void watchResource(final URL url, final FileEvent fileEvent) throws ParserConfigurationException, IOException, SAXException {
         logger.debug("registerResourceListeners, url:{}", url.getPath());
-        scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
+        if (!MyBatisUtils.isMyBatisSpring(appClassLoader) && !MyBatisUtils.isMyBatisPlus(appClassLoader)) {
+            return;
+        }
+        if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(url.getPath()))
+                || ((FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(url.getPath())))) {
+            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
+        }
     }
 }

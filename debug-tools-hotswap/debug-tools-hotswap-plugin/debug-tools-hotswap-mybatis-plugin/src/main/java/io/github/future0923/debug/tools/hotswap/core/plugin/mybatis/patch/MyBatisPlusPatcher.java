@@ -56,16 +56,13 @@ public class MyBatisPlusPatcher {
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public static void watchResourceRedefineMyBatisClass(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisPlus, className:{}", clazz.getName());
-        try {
-            appClassLoader.loadClass("com.baomidou.mybatisplus.core.MybatisConfiguration");
-        } catch (ClassNotFoundException e) {
-            return;
-        }
-        if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
-        }
-        if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+        if (MyBatisUtils.isMyBatisPlus(appClassLoader)) {
+            if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
+                scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
+            }
+            if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+            }
         }
     }
 }

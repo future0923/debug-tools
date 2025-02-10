@@ -182,12 +182,7 @@ public class MyBatisSpringPatcher {
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisSpringMapper, className:{}", clazz.getName());
-        try {
-            appClassLoader.loadClass("org.mybatis.spring.mapper.ClassPathMapperScanner");
-        } catch (ClassNotFoundException e) {
-            return;
-        }
-        if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+        if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
             scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes), 500);
         }
     }
