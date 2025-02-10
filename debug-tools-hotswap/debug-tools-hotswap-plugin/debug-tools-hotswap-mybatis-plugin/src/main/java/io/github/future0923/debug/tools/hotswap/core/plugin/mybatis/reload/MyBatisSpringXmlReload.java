@@ -7,7 +7,15 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.session.Configuration;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,6 +39,17 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
 
     @Override
     protected void doReload(URL url) throws Exception {
+        //DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        //factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
+        //factory.setValidating(false);
+        //factory.setNamespaceAware(false);
+        //factory.setIgnoringComments(true);
+        //factory.setIgnoringElementContentWhitespace(false);
+        //factory.setCoalescing(false);
+        //factory.setExpandEntityReferences(true);
+        //DocumentBuilder builder = factory.newDocumentBuilder();
+        //Document document = builder.parse(url.openConnection().getInputStream());
+        //NodeList mapper = document.getElementsByTagName("mapper");
         String loadedResource = buildLoadedResource(url);
         for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
             Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
