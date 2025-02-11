@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.future0923</groupId>
         <artifactId>debug-tools-test</artifactId>
-        <version>3.2.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>debug-tools-test-agent</artifactId>

@@ -23,7 +23,7 @@ If the prompt `DCEVM is not installed` is prompted when starting the project, ch
 Start the project in the state of the big plane, the project outputs the following log, and prints the loaded hot reload plug-in.
 
 ```text
-DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.2.0}
+DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.3.0}
 DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistry 132 : Discovered plugins: [JdkPlugin, ClassInitPlugin, AnonymousClassPatch, WatchResources, HotSwapper, Proxy, Spring, MyBatis]
 ```
 
@@ -68,10 +68,33 @@ Click [Hot reload proxy class](hot-reload-proxy.md) for details
 
 Click [SpringBoot](hot-reload-springboot.md) for details
 
-### MyBatis Plus
+### MyBatis
 
-- entity
-- mapper
+- Mapper (create/modify)
+
+- Xml (create/modify)
+
+::: tip
+
+MyBatis currently supports the `Spring` environment, other situations are unknown.
+
+:::
+
+Click [MyBatis](hot-reload-mybatis.md) for details
+
+### MyBatisPlus
+
+- Entity (create/modify)
+
+- Mapper (create/modify)
+
+- Xml (create/modify)
+
+::: tip
+
+MyBatisPlus currently supports the `Spring` environment, other situations are unknown.
+
+:::
 
 Click [MyBatisPlus](hot-reload-mybatis-plus.md) for details
 

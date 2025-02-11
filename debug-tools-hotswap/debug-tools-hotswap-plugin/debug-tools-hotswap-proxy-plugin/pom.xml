@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.future0923</groupId>
         <artifactId>debug-tools-hotswap-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>debug-tools-hotswap-proxy-plugin</artifactId>
