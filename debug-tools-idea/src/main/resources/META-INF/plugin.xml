@@ -28,9 +28,13 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.2.0</strong>
+        <strong>3.3.0</strong>
         <ul>
-            <li>The written code can take effect without restarting the application, supporting property and method changes of classes (including proxy classes), SpringBoot, MybatisPlus, etc.</li>
+            <li>Hot reload supports MyBatis Plus to add Entity/Mapper files.</li>
+            <li>Hot reload supports MyBatis Plus to add/modify xml files.</li>
+            <li>Hot reload supports MyBatis to add/modify Mapper/Xml files.</li>
+            <li>Optimize Execute Last.</li>
+            <li>Fix the exception bug when executing the Maven command to print SQL.</li>
         </ul>
         ]]>
     </change-notes>

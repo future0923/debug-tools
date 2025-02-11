@@ -200,7 +200,6 @@ public class DebugToolsStringUtils {
      * @param str      指定字符串
      * @param testStrs 需要检查的字符串数组
      * @return 是否包含任意一个字符串
-     * @since 3.2.0
      */
     public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
         return null != getContainsStr(str, testStrs);
@@ -234,7 +233,6 @@ public class DebugToolsStringUtils {
      * @param str      指定字符串
      * @param testStrs 需要检查的字符串数组
      * @return 被包含的第一个字符串
-     * @since 3.2.0
      */
     public static String getContainsStr(CharSequence str, CharSequence... testStrs) {
         if (isEmpty(str) || testStrs == null) {

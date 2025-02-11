@@ -227,7 +227,96 @@ public interface UserDao extends BaseMapper<User> {
 }
 ```
 
-- You can execute the newly added `getAll()` method, and output `select id, deptId, user_name, sex from user`.
+- You can execute the newly added `getAll()` method, and output `select id, dept_id, user_name, sex from user`.
 - You can execute the newly added `getByDeptId(1L)` method, and output `select id, dept_id, user_name, age from user where dept_id = 1`.
 - The previous `getUserCountByName()` method no longer exists. You can execute the modified `getUserCountBySex()` method, and output `select sex, count(1) from user group by sex`.
 - The previous `getByUserName(String userName)` method no longer exists. You can execute the modified `getBySex(Integer sex)` method, and output `select id, dept_id, user_name, age from user where sex = xxx`.
+
+## Xml hot reload
+
+### Identification method
+
+Get changes to xml resource files (new/modified)
+- New: xml files verified by MyBatis
+- Modified: xml resources existing in loadedResources in Configuration
+
+### Hot reload function
+
+Recompile the xml file and reload it into Configuration to make the xml effective.
+
+### Example
+
+#### New example {#add-xml}
+
+
+mapper
+
+```java
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface UserDao extends BaseMapper<User> {
+
+    Integer getCountByName(@Param("name") String name); // [!code focus] // [!code ++]
+}
+```
+
+add xml file
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserDao">
+    <select id="getCountByName" resultType="java.lang.Integer">
+        select count(1) from dp_user where name = #{name}
+    </select>
+</mapper>
+```
+
+#### Modify example {#modify-xml}
+
+```java
+import org.apache.ibatis.annotations.Mapper;
+
+public class User {
+    
+    private Long id;
+    
+    private Long deptId;
+    
+    private String userName;
+    
+    private Integer age;
+    
+}
+
+@Mapper
+public interface UserDao extends BaseMapper<User> {
+
+    List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age); // [!code ++]
+
+    Integer selectCount(@Param("name") String name); // [!code --]
+    Long selectCount(@Param("name") String name, @Param("age") Integer age); // [!code ++]
+}
+```
+
+modify the `xml` file
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserDao">
+    <select id="selectByNameAndAge" resultType="User"> // [!code ++]
+        select * from dp_user where name = #{name} and age = #{age} // [!code ++]
+    </select> // [!code ++]
+
+    <select id="selectCount" resultType="java.lang.Integer"> // [!code --]
+        select * from dp_user where name = #{name} // [!code --]
+    <select id="selectCount" resultType="java.lang.Long"> // [!code ++]
+        select * from dp_user where name = #{name} and age = #{age} // [!code ++]
+    </select>
+</mapper>
+```
+
+After hot reloading, we can call the modified methods of UserDao through [call method function](attach-local.md) and they can be executed normally.

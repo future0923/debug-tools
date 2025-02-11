@@ -70,7 +70,6 @@ public class MyBatisPlugin {
         if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(url.getPath()))
                 || ((FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(url.getPath())))) {
             scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
-            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
         }
     }
 }

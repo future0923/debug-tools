@@ -78,6 +78,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: 'Class', link: 'hot-reload-class'},
         {text: 'Proxy', link: 'hot-reload-proxy'},
         {text: 'SpringBoot', link: 'hot-reload-springboot'},
+        {text: 'Mybatis', link: 'hot-reload-mybatis'},
         {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
       ]
     },

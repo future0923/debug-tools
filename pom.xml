@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>3.2.0</revision>
+        <revision>3.3.0</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

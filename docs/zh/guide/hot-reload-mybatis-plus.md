@@ -1,7 +1,8 @@
 # MyBatisPlus热重载 <Badge type="warning" text="beta" />
 
-- Mybatis没试过，目前没有做Xml文件的更新识别，但是理论上应该不支持，但是可以尝试一下。
+- 如果使用MyBatis请[点击](hot-reload-mybatis.md)点击查看。
 - SQL打印可以通过[打印执行SQL与耗时](sql.md)开启。
+- MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 ## Entity热重载
 
@@ -54,9 +55,9 @@ public interface UserDao extends BaseMapper<User> {
 }
 ```
 
-- 我们执行 `userDao.selectList()` 是之前会输出 `select id, deptId, name, sex from user`，重载之后会输出 `select id, deptId, user_name, age from dt_user`。
+- 我们执行 `userDao.selectList()` 是之前会输出 `select id, dept_id, name, sex from user`，重载之后会输出 `select id, dept_id, user_name, age from dt_user`。
 
-- 我们执行 `userDao.getByDeptId(1L)` 是之前会输出 `select id, deptId, name, sex from user where dept_id = 1`，重载之后会输出 `select id, deptId, user_name, age from dt_user where dept_id = 1`。
+- 我们执行 `userDao.getByDeptId(1L)` 是之前会输出 `select id, dept_id, name, sex from user where dept_id = 1`，重载之后会输出 `select id, dept_id, user_name, age from dt_user where dept_id = 1`。
 
 ::: info 如果 Entity 对象被两个 Mapper 引用，那么两个 Mapper 执行时都会更新对应的 Entity 类信息
 
@@ -95,17 +96,17 @@ public interface UserDao extends BaseMapper<User> {
 - 必须是接口并且必须含有 `org.apache.ibatis.annotations.Mapper` 注解
 - 类或父类继承 `com.baomidou.mybatisplus.core.mapper.BaseMapper` 接口。
 
-::: tip
+::: warning
 
 因为是启动时修改字节码注入，目前不支持读取 `@MapperScan` 配置的变量内容，请写真正的包路径。
 
-生效的配置如：
-@MapperScan("io.github.future0923.test.dao")
-@MapperScan("io.github.future0923.test.**.dao")
-@MapperScan("io.github.future0923.test.**")
-@MapperScan({"io.github.future0923.test.user.**.dao", "io.github.future0923.test.order.**.dao"})
+生效的配置如：<br>
+@MapperScan("io.github.future0923.test.dao")<br>
+@MapperScan("io.github.future0923.test.\*\*.dao")<br>
+@MapperScan("io.github.future0923.test.\*\*")<br>
+@MapperScan({"io.github.future0923.test.user.\*\*.dao", "io.github.future0923.test.order.\*\*.dao"})<br>
 
-不支持的配置如：
+不支持的配置如：<br>
 @MapperScan("${mybatis-plus.mapperPackage}")
 
 :::
@@ -228,7 +229,94 @@ public interface UserDao extends BaseMapper<User> {
 }
 ```
 
-- 可以执行新增的 `getAll()` 方法，输出 `select id, deptId, user_name, sex from user`。
+- 可以执行新增的 `getAll()` 方法，输出 `select id, dept_id, user_name, sex from user`。
 - 可以执行新增的 `getByDeptId(1L)` 方法，输出 `select id, dept_id, user_name, age from user where dept_id = 1`。
 - 之前的 `getUserCountByName()` 方法不存在了，可以执行修改后的 `getUserCountBySex()` 方法，输出 `select sex, count(1) from user group by sex`。
 - 之前的 `getByUserName(String userName)` 方法不存在了，可以执行修改后的 `getBySex(Integer sex)` 方法，输出 `select id, dept_id, user_name, age from user where sex = xxx`。
+
+## Xml热重载
+
+### 识别方式
+
+获取xml资源文件变动（新增/修改）
+- 新增：通过MyBatis验证的xml文件
+- 修改：Configuration中loadedResources存在的xml资源
+
+### 热重载功能
+
+重新编译xml文件，并重新加载到Configuration中，让xml生效。
+
+### 示例
+
+#### 新增示例 {#add-xml}
+
+mapper
+
+```java
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface UserDao extends BaseMapper<User> {
+
+    Integer getCountByName(@Param("name") String name); // [!code focus] // [!code ++]
+}
+```
+
+新增xml文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserDao">
+    <select id="getCountByName" resultType="java.lang.Integer">
+        select count(1) from dp_user where name = #{name}
+    </select>
+</mapper>
+```
+
+#### 修改示例 {#modify-xml}
+
+```java
+import org.apache.ibatis.annotations.Mapper;
+
+public class User {
+    
+    private Long id;
+    
+    private Long deptId;
+    
+    private String userName;
+    
+    private Integer age;
+    
+}
+
+@Mapper
+public interface UserDao extends BaseMapper<User> {
+
+    List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age); // [!code ++]
+
+    Integer selectCount(@Param("name") String name); // [!code --]
+    Long selectCount(@Param("name") String name, @Param("age") Integer age); // [!code ++]
+}
+```
+
+修改 `xml` 文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserDao">
+    <select id="selectByNameAndAge" resultType="User"> // [!code ++]
+        select * from dp_user where name = #{name} and age = #{age} // [!code ++]
+    </select> // [!code ++]
+
+    <select id="selectCount" resultType="java.lang.Integer"> // [!code --]
+        select * from dp_user where name = #{name} // [!code --]
+    <select id="selectCount" resultType="java.lang.Long"> // [!code ++]
+        select * from dp_user where name = #{name} and age = #{age} // [!code ++]
+    </select>
+</mapper>
+```
+
+热重载之后，我们通过 [调用方法功能](attach-local.md) 调用 UserDao 修改后的方法都可以正常执行。
