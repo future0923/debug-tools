@@ -1,3 +1,11 @@
+# [3.3.0](https://github.com/future0923/debug-tools/compare/v3.2.0...v3.3.0) (2025-02-11)
+
+- Hot reload supports MyBatis Plus to add Entity/Mapper files.
+- Hot reload supports MyBatis Plus to add/modify xml files.
+- Hot reload supports MyBatis to add/modify Mapper/Xml files.
+- Optimize Execute Last([#12](https://github.com/future0923/debug-tools/issues/12)).
+- Fix the exception bug when executing the Maven command to print SQL([#7](https://github.com/future0923/debug-tools/issues/7)).
+
 # [3.2.0](https://github.com/future0923/debug-tools/compare/v3.1.2...v3.2.0) (2025-01-09)
 
 - Hot reload, the written code can take effect without restarting the application.

@@ -23,7 +23,7 @@
 在大飞机的状态下启动项目，项目输出如下日志，并打印载入的热重载插件。
 
 ```text
-DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.2.0}
+DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.3.0}
 DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistry 132 : Discovered plugins: [JdkPlugin, ClassInitPlugin, AnonymousClassPatch, WatchResources, HotSwapper, Proxy, Spring, MyBatis]
 ```
 
@@ -68,10 +68,30 @@ DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.Clas
 
 详细点击 [SpringBoot](hot-reload-springboot.md) 查看
 
-### MyBatis Plus
+### MyBatis
 
-- entity
-- mapper
+- Mapper（新增/修改）
+- Xml（新增/修改）
+
+::: tip 注意
+
+MyBatis 目前支持在 `Spring` 环境下，其他情况未知。
+
+:::
+
+详细点击 [MyBatis](hot-reload-mybatis.md) 查看
+
+### MyBatisPlus
+
+- Entity（新增/修改）
+- Mapper（新增/修改）
+- Xml（新增/修改）
+
+::: tip 注意
+
+MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
+
+:::
 
 详细点击 [MyBatisPlus](hot-reload-mybatis-plus.md) 查看
 

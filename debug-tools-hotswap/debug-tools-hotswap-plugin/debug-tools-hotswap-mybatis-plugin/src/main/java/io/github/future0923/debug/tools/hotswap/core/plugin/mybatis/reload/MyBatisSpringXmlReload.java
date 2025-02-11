@@ -39,17 +39,6 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
 
     @Override
     protected void doReload(URL url) throws Exception {
-        //DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        //factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, false);
-        //factory.setValidating(false);
-        //factory.setNamespaceAware(false);
-        //factory.setIgnoringComments(true);
-        //factory.setIgnoringElementContentWhitespace(false);
-        //factory.setCoalescing(false);
-        //factory.setExpandEntityReferences(true);
-        //DocumentBuilder builder = factory.newDocumentBuilder();
-        //Document document = builder.parse(url.openConnection().getInputStream());
-        //NodeList mapper = document.getElementsByTagName("mapper");
         String loadedResource = buildLoadedResource(url);
         for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
             Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
