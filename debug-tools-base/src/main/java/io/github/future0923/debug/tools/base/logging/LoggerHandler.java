@@ -28,8 +28,6 @@ import java.util.Date;
 
 /**
  * Simple handler to log to output stream (default is system.out).
- *
- * @author Jiri Bubnik
  */
 public class LoggerHandler {
 
