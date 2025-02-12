@@ -1,28 +1,9 @@
-/*
- * Copyright 2013-2024 the HotswapAgent authors.
- *
- * This file is part of HotswapAgent.
- *
- * HotswapAgent is free software: you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 2 of the License, or (at your
- * option) any later version.
- *
- * HotswapAgent is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
- */
-package io.github.future0923.debug.tools.hotswap.core.plugin.jvm;
+package io.github.future0923.debug.tools.hotswap.core.plugin.classes.dto;
 
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
-import lombok.Getter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -30,17 +11,12 @@ import java.lang.reflect.Method;
 /**
  * 获取匿名类的签名以比较两个版本（重新加载前后）
  */
-@Getter
 public class AnonymousClassInfo {
-    // name of the anonymous class
     String className;
-
-    // signatures
     String classSignature;
     String methodSignature;
     String fieldsSignature;
     String enclosingMethodSignature;
-
 
     public AnonymousClassInfo(Class<?> c) {
         this.className = c.getName();
@@ -160,6 +136,26 @@ public class AnonymousClassInfo {
 
     public boolean matchClassSignature(AnonymousClassInfo other) {
         return getClassSignature().equals(other.getClassSignature());
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getClassSignature() {
+        return classSignature;
+    }
+
+    public String getMethodSignature() {
+        return methodSignature;
+    }
+
+    public String getFieldsSignature() {
+        return fieldsSignature;
+    }
+
+    public String getEnclosingMethodSignature() {
+        return enclosingMethodSignature;
     }
 }
 

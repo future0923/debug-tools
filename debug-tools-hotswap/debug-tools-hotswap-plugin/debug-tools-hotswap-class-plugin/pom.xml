@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.future0923</groupId>
-        <artifactId>debug-tools-hotswap</artifactId>
+        <artifactId>debug-tools-hotswap-plugin</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>debug-tools-hotswap-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>debug-tools-hotswap-proxy-plugin</module>
-        <module>debug-tools-hotswap-spring-plugin</module>
-        <module>debug-tools-hotswap-mybatis-plugin</module>
-        <module>debug-tools-hotswap-class-plugin</module>
-    </modules>
+    <artifactId>debug-tools-hotswap-class-plugin</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 </project>

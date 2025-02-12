@@ -45,8 +45,6 @@ import java.util.Vector;
  * This classloader checks if the resource was modified after application startup and in that case
  * delegates getResource()/getResources() to custom URL classloader. Otherwise returns null or resource
  * from paren classloader (depending on searchParent property).
- *
- * @author Jiri Bubnik
  */
 public class WatchResourcesClassLoader extends URLClassLoader {
     private static final Logger LOGGER = Logger.getLogger(WatchResourcesClassLoader.class);

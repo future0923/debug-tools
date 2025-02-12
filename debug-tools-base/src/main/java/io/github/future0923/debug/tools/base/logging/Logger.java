@@ -25,8 +25,6 @@ import java.util.Map;
  * Create custom simple logging mechanism.
  * <p/>
  * Instead of java.util.logging because many frameworks and APP servers will complicate/override settings.
- *
- * @author Jiri Bubnik
  */
 public class Logger {
 
