@@ -2,8 +2,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.classes;
 
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer.AnonymousClassTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer.ClassEnumTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer.ClassStaticTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer.ClassInitTransformer;
 
 /**
  * @author future0923
@@ -13,8 +12,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer.
         testedVersions = {"DCEVM"},
         supportClass = {
                 AnonymousClassTransformer.class,
-                ClassStaticTransformer.class,
-                ClassEnumTransformer.class
+                ClassInitTransformer.class
         }
 )
 public class ClassPlugin {
