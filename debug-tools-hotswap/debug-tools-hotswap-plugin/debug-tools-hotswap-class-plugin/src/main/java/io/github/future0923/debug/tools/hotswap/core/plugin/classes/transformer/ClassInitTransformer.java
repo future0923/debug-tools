@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
- * 热重载 static 变量、static final 变量、static 代码块
+ * 热重载 static 变量、static final 变量、static 代码块、枚举值
  *
  * @author future0923
  */
-public class ClassStaticTransformer {
+public class ClassInitTransformer {
 
-    private static final Logger logger = Logger.getLogger(ClassStaticTransformer.class);
+    private static final Logger logger = Logger.getLogger(ClassInitTransformer.class);
 
     private static final String HOTSWAP_AGENT_CLINIT_METHOD = "$$ha$clinit";
 
@@ -30,7 +30,7 @@ public class ClassStaticTransformer {
     static Scheduler scheduler;
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void patchStaticCode(final CtClass ctClass, final ClassLoader classLoader, final Class<?> originalClass) throws IOException, CannotCompileException, NotFoundException {
+    public static void patchClassInit(final CtClass ctClass, final ClassLoader classLoader, final Class<?> originalClass) throws IOException, CannotCompileException, NotFoundException {
         if (isSyntheticClass(originalClass)) {
             return;
         }
