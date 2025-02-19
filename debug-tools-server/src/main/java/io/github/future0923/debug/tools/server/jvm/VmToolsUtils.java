@@ -85,10 +85,7 @@ public class VmToolsUtils {
      */
     public static Object getSpringInstance(Class<?> clazz) {
         try {
-            Object firstBean = DebugToolsEnvUtils.getFirstBean(clazz);
-            if (firstBean != null) {
-                return firstBean;
-            }
+            return DebugToolsEnvUtils.getFirstBean(clazz);
         } catch (Throwable ignored) {
             // 加载不到从JVM中获取
         }
