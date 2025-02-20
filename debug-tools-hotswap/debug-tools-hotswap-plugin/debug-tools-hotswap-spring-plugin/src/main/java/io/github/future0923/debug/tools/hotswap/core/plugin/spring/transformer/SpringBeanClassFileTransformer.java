@@ -31,11 +31,12 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (classBeingRedefined != null) {
-            logger.debug("transform class: {}", className);
             final SpringChangesAnalyzer analyzer = new SpringChangesAnalyzer(appClassLoader);
             if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
-                logger.debug("transform needed reload class: {}", className);
+                logger.info("watch change class event, start reloading spring bean, class name:{}, classfileBuffer:{}", className, classfileBuffer);
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(), basePackage, className, classfileBuffer));
+            } else {
+                logger.debug("watch change class event, There is no need to reload Spring beans, className:{}", className);
             }
         }
         return classfileBuffer;
