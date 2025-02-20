@@ -31,17 +31,14 @@ public class AnonymousClassInfo {
             getMethodSignature(methodsSignature, m);
         }
         this.methodSignature = methodsSignature.toString();
-
         StringBuilder fieldsSignature = new StringBuilder();
         for (Field f : c.getDeclaredFields()) {
-            // replace declarig class for constant because of unit tests (class name change)
             fieldsSignature.append(f.getType().getName());
             fieldsSignature.append(" ");
             fieldsSignature.append(f.getName());
             fieldsSignature.append(";");
         }
         this.fieldsSignature = fieldsSignature.toString();
-
         StringBuilder enclosingMethodSignature = new StringBuilder();
         Method enclosingMethod = c.getEnclosingMethod();
         if (enclosingMethod != null) {
@@ -70,20 +67,17 @@ public class AnonymousClassInfo {
     public AnonymousClassInfo(CtClass c) {
         try {
             this.className = c.getName();
-
             StringBuilder classSignature = new StringBuilder(c.getSuperclassName());
-            for (CtClass intef : c.getInterfaces()) {
+            for (CtClass interfaceCtClass : c.getInterfaces()) {
                 classSignature.append(";");
-                classSignature.append(intef.getName());
+                classSignature.append(interfaceCtClass.getName());
             }
             this.classSignature = classSignature.toString();
-
             StringBuilder methodsSignature = new StringBuilder();
             for (CtMethod m : c.getDeclaredMethods()) {
                 getMethodSignature(methodsSignature, m);
             }
             this.methodSignature = methodsSignature.toString();
-
             StringBuilder fieldsSignature = new StringBuilder();
             for (CtField f : c.getDeclaredFields()) {
                 fieldsSignature.append(f.getType().getName());

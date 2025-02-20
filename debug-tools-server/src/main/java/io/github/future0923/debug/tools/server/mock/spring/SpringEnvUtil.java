@@ -2,6 +2,7 @@ package io.github.future0923.debug.tools.server.mock.spring;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
@@ -181,7 +182,9 @@ public class SpringEnvUtil {
             try {
                 beanList.addAll(applicationContext.getBeansOfType(requiredType).values());
             } catch (BeansException e) {
-                logger.warning("获取bean信息失败", e);
+                if (ProjectConstants.DEBUG) {
+                    logger.warning("获取bean信息失败", e);
+                }
             }
         }
         return beanList;
@@ -194,7 +197,9 @@ public class SpringEnvUtil {
             try {
                 beanList.add((T) applicationContext.getBean(beanName));
             } catch (BeansException e) {
-                logger.warning("获取bean信息失败", e);
+                if (ProjectConstants.DEBUG) {
+                    logger.warning("获取bean信息失败", e);
+                }
             }
         }
         return beanList;
@@ -206,7 +211,9 @@ public class SpringEnvUtil {
             try {
                 beanList.add(beanFactory.getBean(requiredType));
             } catch (BeansException e) {
-                logger.warning("获取bean信息失败", e);
+                if (ProjectConstants.DEBUG) {
+                    logger.warning("获取bean信息失败", e);
+                }
             }
         }
         return beanList;
@@ -219,7 +226,9 @@ public class SpringEnvUtil {
             try {
                 beanList.add((T) beanFactory.getBean(beanName));
             } catch (BeansException e) {
-                logger.warning("获取bean信息失败", e);
+                if (ProjectConstants.DEBUG) {
+                    logger.warning("获取bean信息失败", e);
+                }
             }
         }
         return beanList;
@@ -262,7 +271,9 @@ public class SpringEnvUtil {
                 }
             }
         } catch (Throwable e) {
-            logger.warning("获取实例信息失败", e);
+            if (ProjectConstants.DEBUG) {
+                logger.warning("获取实例信息失败", e);
+            }
 
         }
         return (T) candidate;

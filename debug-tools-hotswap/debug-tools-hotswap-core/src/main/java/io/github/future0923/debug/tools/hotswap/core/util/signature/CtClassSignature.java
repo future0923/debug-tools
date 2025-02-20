@@ -56,7 +56,8 @@ public class CtClassSignature extends ClassSignatureBase {
                 if (!useStaticMethod && Modifier.isStatic(method.getModifiers())) {
                     continue;
                 }
-                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)) {
+                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)
+                        || method.getName().startsWith(CLASS_CLINIT_METHOD_NAME)) {
                     continue;
                 }
                 strings.add(getMethodString(method));
@@ -176,7 +177,7 @@ public class CtClassSignature extends ClassSignatureBase {
 
         StringBuilder b = new StringBuilder();
         b.append('[');
-        for (int i = 0;; i++) {
+        for (int i = 0; ; i++) {
             b.append("class " + a[i].getName());
             if (i == iMax)
                 return b.append(']').toString();

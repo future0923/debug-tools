@@ -26,6 +26,8 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.signature.ClassSignatureComparer;
 
+import java.io.ByteArrayInputStream;
+
 /**
  * 解析是否需要Spring进行重新加载{@link #isReloadNeeded}
  * <p>
@@ -60,7 +62,7 @@ public class SpringChangesAnalyzer {
     private boolean classChangeNeedsReload(Class<?> classBeingRedefined, byte[] classfileBuffer) {
         CtClass makeClass = null;
         try {
-            makeClass = classPool.makeClass(new java.io.ByteArrayInputStream(classfileBuffer));
+            makeClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
             return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, classPool);
         } catch (Exception e) {
             LOGGER.error("Error analyzing class {} for reload necessity. Defaulting to yes.", e, classBeingRedefined.getName());
