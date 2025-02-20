@@ -36,7 +36,10 @@ public abstract class ClassSignatureBase {
 
     private final Set<ClassSignatureElement> elements = new HashSet<>();
 
-    protected static final String SWITCH_TABLE_METHOD_PREFIX = "$SWITCH_TABLE$"; // java stores switch table to class field, signature should ingore it
+    // java stores switch table to class field, signature should ingore it
+    protected static final String SWITCH_TABLE_METHOD_PREFIX = "$SWITCH_TABLE$";
+
+    protected static final String CLASS_CLINIT_METHOD_NAME = "$$ha$clinit";
 
     /**
      * 返回类的签名

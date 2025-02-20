@@ -51,6 +51,7 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
                 return;
             }
             if (!ClassLoaderHelper.isClassLoaded(appClassLoader, className)) {
+                logger.info("watch add class event, start reloading spring bean, class name:{}", className);
                 // 只刷新spring中新产生的classes
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader, basePackage, className, event), WAIT_ON_CREATE);
             }

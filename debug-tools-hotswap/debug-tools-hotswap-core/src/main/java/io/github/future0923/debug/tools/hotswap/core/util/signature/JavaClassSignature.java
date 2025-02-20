@@ -54,7 +54,8 @@ public class JavaClassSignature extends ClassSignatureBase {
                 if (!useStaticMethod && Modifier.isStatic(method.getModifiers())) {
                     continue;
                 }
-                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)) {
+                if (method.getName().startsWith(SWITCH_TABLE_METHOD_PREFIX)
+                        || method.getName().startsWith(CLASS_CLINIT_METHOD_NAME)) {
                     continue;
                 }
                 strings.add(getMethodString(method));
