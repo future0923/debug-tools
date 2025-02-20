@@ -40,6 +40,7 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent
  * 当jvm加载类时的回调方法，在define或redefine之后调用。
  * <p>该注解通过{@link OnClassLoadedHandler}来实现，创建{@link PluginClassFileTransformer}类型的Transformer调用{@link HotswapTransformer#registerTransformer}注册
  * <p>方法上可以自动注入的参数类型如下，通过{@link PluginClassFileTransformer#transform(PluginManager, PluginAnnotation, ClassLoader, String, Class, ProtectionDomain, byte[])})}解析
+ * <ul>
  * <li>{@code byte[]} 输入的class字节码byte[]，不可更改
  * <li>{@link ClassLoader} 加载class的类加载器
  * <li>{@link String} 类名(e.g: {@code java/utils/List})
@@ -48,6 +49,8 @@ import static io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent
  * <li>{@link ClassPool} javassist的ClassPool
  * <li>{@link CtClass} 通过byte[]与ClassLoader创建的javassist的CtClass
  * <li>{@link LoadEvent} 加载的事件类型
+ * </ul>
+ * <p>{@return byte[]} 返回null表示不修改字节码，否则返回修改后的字节码byte[]
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
