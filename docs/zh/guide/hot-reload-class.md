@@ -43,6 +43,84 @@ public class UserUtils {
 - 可以使用新增的 `getUserName` 方法。
 - 删除掉 `getUserDefaultUser` 方法，可以使用新增的 `genDefaultUser` 方法。
 
+## 静态信息变动
+
+支持 static 变量、static final 变量、static 静态代码块。
+
+```java
+public class StaticClass {
+    
+    private static String var1 = "debug"; // [!code --]
+    private static String var1 = "tools"; // [!code ++]
+    
+    private static final String var2 = "debug"; // [!code --]
+    private static final String var2 = "tools"; // [!code ++]
+    
+    private static String var3;
+    
+    static {
+        var3 = "debug"; // [!code --]
+        var3 = "tools"; // [!code ++]
+    }
+    
+}
+```
+
+变量 var1 、var2 、var3 更改为重载之后的值。
+
+## 枚举类信息变动
+
+```java
+public enum StatusEnum {
+    
+    A1, // [!code --]
+    A22, // [!code --]
+    A2, // [!code ++]
+    A3, // [!code ++]
+}
+```
+
+更改之后只有 A2 、A3 两个枚举值。
+
+```java
+public enum StatusEnum {
+
+    A1(1, "a"), // [!code --]
+    A1(1, "A"), // [!code ++]
+    A22(22, "BB"), // [!code --]
+    A2(2, "B"), // [!code ++]
+    A3(3, "C"), // [!code ++]
+    ;
+    private final Integer code;
+
+    private final String name;
+
+    public StatusEnum(Integer code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+    
+    public StatusEnum of(Integer code) { // [!code ++]
+        for (StatusEnum statusEnum : StatusEnum.values()) { // [!code ++]
+            if (statusEnum.getCode().equals(code)) { // [!code ++]
+                return statusEnum; // [!code ++]
+            } // [!code ++]
+        } // [!code ++]
+        return code; // [!code ++]
+    }
+}
+```
+
+更改之后的内容生效。
+
 ## 内部类变动
 
 ```java

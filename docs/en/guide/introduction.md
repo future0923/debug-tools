@@ -11,7 +11,7 @@ Just want to try it out? Skip to the [Quickstart](./quick-start)。
 
 ## Use Cases {#use-cases}
 
-- Hot reload allows the written code to take effect without restarting the application. It supports changes to properties and methods of classes (including proxy classes), SpringBoot, MybatisPlus, etc.
+- Hot reload allows the written code to take effect without restarting the application. It supports changes to properties and methods of classes (including proxy classes), Spring, Mybatis, etc.
 - You can quickly call any Java methods without sophisticated business validation calls coming in from the Controller layer like the API.
 - You can also call the remote method to trigger the remote method to run and cooperate with remote debugging to achieve the purpose of remote debugging.
 - The method can be called directly to test whether the result is achieved without writing a test case.
