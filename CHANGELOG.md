@@ -1,3 +1,9 @@
+# [3.4.0](https://github.com/future0923/debug-tools/compare/v3.3.0...v3.4.0) (2025-02-20)
+
+- Hot reload supports static variable、static final variable、static code block in class([#10](https://github.com/future0923/debug-tools/issues/10)).
+- Hot reload supports enum class([#10](https://github.com/future0923/debug-tools/issues/10))
+- Fixed the bug where non-bean classes couldn't be called in the Spring environment([#16](https://github.com/future0923/debug-tools/issues/16)).
+
 # [3.3.0](https://github.com/future0923/debug-tools/compare/v3.2.0...v3.3.0) (2025-02-11)
 
 - Hot reload supports MyBatis Plus to add Entity/Mapper files.
