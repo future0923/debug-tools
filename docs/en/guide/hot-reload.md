@@ -48,6 +48,8 @@ DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.Clas
 
 - Add new class files
 - **Add/modify** **properties/methods/inner classes** in existing classes.
+- Anonymous inner class
+- Enum class
 
 Click [Hot reload of class files](hot-reload-class.md) for details
 

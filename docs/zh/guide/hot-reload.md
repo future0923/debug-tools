@@ -49,6 +49,8 @@ DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.Clas
 
 - 新增类文件
 - 存在的类 **增加/修改** 类中的 **属性/方法/内部类**。
+- 匿名内部类
+- 枚举类
 
 详细点击 [class文件热重载](hot-reload-class.md) 查看
 
