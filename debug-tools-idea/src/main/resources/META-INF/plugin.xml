@@ -28,13 +28,11 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.3.0</strong>
+        <strong>3.4.0</strong>
         <ul>
-            <li>Hot reload supports MyBatis Plus to add Entity/Mapper files.</li>
-            <li>Hot reload supports MyBatis Plus to add/modify xml files.</li>
-            <li>Hot reload supports MyBatis to add/modify Mapper/Xml files.</li>
-            <li>Optimize Execute Last.</li>
-            <li>Fix the exception bug when executing the Maven command to print SQL.</li>
+            <li>Hot reload supports static variable、static final variable、static code block in class.</li>
+            <li>Hot reload supports enum class.</li>
+            <li>Fixed the bug where non-bean classes couldn't be called in the Spring environment.</li>
         </ul>
         ]]>
     </change-notes>

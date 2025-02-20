@@ -43,6 +43,85 @@ public class UserUtils {
 - You can use the new `getUserName` method.
 - Remove the `getUserDefaultUser` method, and use the new `genDefaultUser` method.
 
+## Static information changes
+
+Support static variables, static final variables, and static code blocks.
+
+
+```java
+public class StaticClass {
+    
+    private static String var1 = "debug"; // [!code --]
+    private static String var1 = "tools"; // [!code ++]
+    
+    private static final String var2 = "debug"; // [!code --]
+    private static final String var2 = "tools"; // [!code ++]
+    
+    private static String var3;
+    
+    static {
+        var3 = "debug"; // [!code --]
+        var3 = "tools"; // [!code ++]
+    }
+    
+}
+```
+
+After being overloaded, the values of variables var1, var2, and var3 are changed.
+
+## Enumeration class information changes.
+
+```java
+public enum StatusEnum {
+    
+    A1, // [!code --]
+    A22, // [!code --]
+    A2, // [!code ++]
+    A3, // [!code ++]
+}
+```
+
+After the change, there are only two enumeration values, A2 and A3.
+
+```java
+public enum StatusEnum {
+
+    A1(1, "a"), // [!code --]
+    A1(1, "A"), // [!code ++]
+    A22(22, "BB"), // [!code --]
+    A2(2, "B"), // [!code ++]
+    A3(3, "C"), // [!code ++]
+    ;
+    private final Integer code;
+
+    private final String name;
+
+    public StatusEnum(Integer code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getName() {
+        return name;
+    }
+    
+    public StatusEnum of(Integer code) { // [!code ++]
+        for (StatusEnum statusEnum : StatusEnum.values()) { // [!code ++]
+            if (statusEnum.getCode().equals(code)) { // [!code ++]
+                return statusEnum; // [!code ++]
+            } // [!code ++]
+        } // [!code ++]
+        return code; // [!code ++]
+    }
+}
+```
+
+The content will take effect after being changed.
+
 ## Internal class changes
 
 ```java
