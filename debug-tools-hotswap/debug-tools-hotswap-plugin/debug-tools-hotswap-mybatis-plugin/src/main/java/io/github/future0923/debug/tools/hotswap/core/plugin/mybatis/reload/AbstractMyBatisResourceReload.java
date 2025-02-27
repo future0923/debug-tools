@@ -65,6 +65,6 @@ public abstract class AbstractMyBatisResourceReload<T> implements MyBatisResourc
         String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
         BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
         mybatisBeanDefinition(mapperScanner, definitionHolder);
-        logger.reload("reload {} in {}", className);
+        logger.reload("register mapper {} in spring bean", className);
     }
 }

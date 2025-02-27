@@ -17,6 +17,12 @@ public class MyBatisUtils {
 
     private static final Logger logger = Logger.getLogger(MyBatisUtils.class);
 
+    private static final Object reload_lock = new Object();
+
+    public static Object getReloadLockObject () {
+        return reload_lock;
+    }
+
     /**
      * 是否是MyBatisSpring环境
      */

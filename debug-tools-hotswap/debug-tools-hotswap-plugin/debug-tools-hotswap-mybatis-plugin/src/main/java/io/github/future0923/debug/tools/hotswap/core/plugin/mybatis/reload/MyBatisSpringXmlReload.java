@@ -1,25 +1,20 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.session.Configuration;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 重新载入mybatis spring的xml资源
@@ -33,6 +28,8 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
 
     public static final MyBatisSpringXmlReload INSTANCE = new MyBatisSpringXmlReload();
 
+    private static final Set<String> RELOADING_XML = ConcurrentHashMap.newKeySet();
+
     private MyBatisSpringXmlReload() {
 
     }
@@ -40,22 +37,38 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
     @Override
     protected void doReload(URL url) throws Exception {
         String loadedResource = buildLoadedResource(url);
-        for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
-            Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
-            loadedResources.remove(loadedResource);
-            XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(
-                    url.openConnection().getInputStream(),
-                    configuration,
-                    loadedResource,
-                    configuration.getSqlFragments()
-            );
-            try {
-                this.removeSelectKey(xmlMapperBuilder, configuration);
-            } catch (Error error) {
-                logger.error("mybatis 重置selectKey失败，url：{}", url);
+        String path = url.getPath();
+        if (RELOADING_XML.contains(path)) {
+            if (ProjectConstants.DEBUG) {
+                logger.info("{} is currently processing reload task.", path);
             }
-            xmlMapperBuilder.parse();
-            logger.reload("reload MyBatis xml file {}", url.getPath());
+            return;
+        }
+        for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
+            synchronized (MyBatisUtils.getReloadLockObject()) {
+                if (!RELOADING_XML.add(path)) {
+                    if (ProjectConstants.DEBUG) {
+                        logger.info("{} is currently processing reload task.", path);
+                    }
+                    return;
+                }
+                Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
+                loadedResources.remove(loadedResource);
+                XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(
+                        url.openConnection().getInputStream(),
+                        configuration,
+                        loadedResource,
+                        configuration.getSqlFragments()
+                );
+                try {
+                    this.removeSelectKey(xmlMapperBuilder, configuration);
+                } catch (Error error) {
+                    logger.error("mybatis 重置selectKey失败，url：{}", url);
+                }
+                xmlMapperBuilder.parse();
+                RELOADING_XML.remove(path);
+            }
+            logger.reload("reload MyBatis xml file {}", path);
         }
     }
 
