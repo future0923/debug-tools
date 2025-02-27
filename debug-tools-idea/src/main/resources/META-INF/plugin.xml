@@ -122,6 +122,12 @@
                     icon="AllIcons.Actions.Execute"
                     description="Run current groovy"
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
+            <action id="DebugTools.DynamicCompiler"
+                    text="Dynamic Compiler"
+                    icon="AllIcons.Actions.Execute"
+                    description=""
+                    class="io.github.future0923.debug.tools.idea.action.HotSwapDynamicCompilerAction"
+            />
             <separator/>
         </group>
         <action id="DebugTools.HttpUrl"
