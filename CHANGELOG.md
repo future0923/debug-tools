@@ -1,3 +1,7 @@
+# [3.4.1](https://github.com/future0923/debug-tools/compare/v3.4.0...v3.4.1) (2025-02-27)
+
+- Fix the bug of ConcurrentModificationException when reloading multiple files in MyBatis([#20](https://github.com/future0923/debug-tools/issues/20)).
+
 # [3.4.0](https://github.com/future0923/debug-tools/compare/v3.3.0...v3.4.0) (2025-02-20)
 
 - Hot reload supports static variable、static final variable、static code block in class([#10](https://github.com/future0923/debug-tools/issues/10)).
