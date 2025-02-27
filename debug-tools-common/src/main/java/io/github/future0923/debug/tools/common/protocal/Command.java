@@ -24,4 +24,6 @@ public interface Command {
     Byte HOTSWAP_REQUEST = 10;
 
     Byte HOTSWAP_RESPONSE = 11;
+
+    Byte DYNAMIC_COMPILER_REQUEST = 12;
 }
