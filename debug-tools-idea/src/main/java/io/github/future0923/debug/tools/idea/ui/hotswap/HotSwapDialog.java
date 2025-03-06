@@ -1,7 +1,6 @@
 package io.github.future0923.debug.tools.idea.ui.hotswap;
 
 import cn.hutool.core.io.FileUtil;
-import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -21,6 +20,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
 import io.github.future0923.debug.tools.idea.utils.VirtualFileUtil;
 import lombok.Data;
@@ -46,7 +46,7 @@ public class HotSwapDialog extends DialogWrapper {
     private final Project project;
     private final List<String> fullPathJavaFiles = new ArrayList<>();
     private final List<String> fullPathResourceFiles = new ArrayList<>();
-    private final Pattern pattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", 8);
+    private final Pattern pattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", Pattern.MULTILINE);
 
     public HotSwapDialog(@Nullable Project project) {
         super(project, true);
@@ -158,13 +158,8 @@ public class HotSwapDialog extends DialogWrapper {
                                 // 获取源文件路径和内容
                                 String sourceFilePath = selectedFile.getPath();
                                 Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
-                                String content = document.getText();
-
-                                Matcher matcher = pattern.matcher(content);
-                                String packageName;
-                                if (matcher.find()) {
-                                    packageName = matcher.group(1);
-                                } else {
+                                String packageName = DebugToolsIdeaClassUtil.getPackageName(document.getText());
+                                if (packageName == null) {
                                     log.error("解析package失败");
                                     return;
                                 }

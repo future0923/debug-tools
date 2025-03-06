@@ -13,16 +13,22 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 动态编译的文件管理器，用于动态编译Java代码
+ *
  * @author future0923
  */
 public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+
     private static final String[] superLocationNames = {
             javax.tools.StandardLocation.PLATFORM_CLASS_PATH.name(),
             // JPMS StandardLocation.SYSTEM_MODULES
-            "SYSTEM_MODULES"};
+            "SYSTEM_MODULES"
+    };
+
     private final PackageInternalsFinder finder;
 
     private final DynamicClassLoader classLoader;
+
     private final List<MemoryByteCode> byteCodes = new ArrayList<MemoryByteCode>();
 
     public DynamicJavaFileManager(JavaFileManager fileManager, DynamicClassLoader classLoader) {
@@ -31,6 +37,10 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
         this.finder = new PackageInternalsFinder(classLoader);
     }
 
+    /**
+     * 重写这个方法可以指定字节码存储位置。
+     * 让 .class 文件存储在内存中不是磁盘中，结合JavaCompiler可以在不写入磁盘的情况下编译java代码
+     */
     @Override
     public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className,
                                                JavaFileObject.Kind kind, FileObject sibling) throws IOException {
@@ -55,17 +65,12 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
         if (file instanceof CustomJavaFileObject) {
             return ((CustomJavaFileObject) file).getClassName();
         } else {
-            /**
-             * if it's not CustomJavaFileObject, then it's coming from standard file manager
-             * - let it handle the file
-             */
             return super.inferBinaryName(location, file);
         }
     }
 
     @Override
-    public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds,
-                                         boolean recurse) throws IOException {
+    public Iterable<JavaFileObject> list(Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
         if (location instanceof StandardLocation) {
             String locationName = ((StandardLocation) location).name();
             for (String name : superLocationNames) {
@@ -74,11 +79,12 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
                 }
             }
         }
-
-        // merge JavaFileObjects from specified ClassLoader
+        // 从指定的类加载器合并 JavaFileObjects
         if (location == StandardLocation.CLASS_PATH && kinds.contains(JavaFileObject.Kind.CLASS)) {
-            return new IterableJoin<JavaFileObject>(super.list(location, packageName, kinds, recurse),
-                    finder.find(packageName));
+            return new IterableJoin<>(
+                    super.list(location, packageName, kinds, recurse),
+                    finder.find(packageName)
+            );
         }
 
         return super.list(location, packageName, kinds, recurse);
@@ -119,9 +125,5 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
             return next.next();
         }
 
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("remove");
-        }
     }
 }

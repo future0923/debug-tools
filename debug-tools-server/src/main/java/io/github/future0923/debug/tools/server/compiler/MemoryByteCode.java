@@ -8,6 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
+ * 要编译的资源文件，封装为JavaFileObject对象实现动态编译
+ *
  * @author future0923
  */
 public class MemoryByteCode extends SimpleJavaFileObject {

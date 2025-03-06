@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 动态编译类加载器
+ *
  * @author future0923
  */
 public class DynamicClassLoader extends ClassLoader {
@@ -14,6 +16,9 @@ public class DynamicClassLoader extends ClassLoader {
         super(classLoader);
     }
 
+    /**
+     * 注册对应的编译资源文件
+     */
     public void registerCompiledSource(MemoryByteCode byteCode) {
         byteCodes.put(byteCode.getClassName(), byteCode);
     }
@@ -27,6 +32,9 @@ public class DynamicClassLoader extends ClassLoader {
         return super.defineClass(name, byteCode.getByteCode(), 0, byteCode.getByteCode().length);
     }
 
+    /**
+     * 获取编译信息的class对象
+     */
     public Map<String, Class<?>> getClasses() throws ClassNotFoundException {
         Map<String, Class<?>> classes = new HashMap<>();
         for (MemoryByteCode byteCode : byteCodes.values()) {
@@ -35,6 +43,9 @@ public class DynamicClassLoader extends ClassLoader {
         return classes;
     }
 
+    /**
+     * 获取编译信息的class字节码
+     */
     public Map<String, byte[]> getByteCodes() {
         Map<String, byte[]> result = new HashMap<>(byteCodes.size());
         for (Map.Entry<String, MemoryByteCode> entry : byteCodes.entrySet()) {
