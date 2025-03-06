@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.server.scoket.handler;
 
+import cn.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.SpyAPI;
 import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.logging.Logger;
@@ -42,11 +43,7 @@ public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicComp
         Map<String, Class<?>> classesMap = classLoader.getClasses();
         Map<Class<?>, byte[]> reloadMap = new HashMap<>();
         packet.getFilePathByteCodeMap().forEach((k, v) -> {
-            try {
-                reloadMap.put(SpyAPI.class.getClassLoader().loadClass(k), v.getBytes(StandardCharsets.UTF_8));
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            reloadMap.put(classesMap.get(k), byteCodesMap.get(k));
         });
         ClassDefinition[] definitions = new ClassDefinition[reloadMap.size()];
         String[] classNames = new String[reloadMap.size()];

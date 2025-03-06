@@ -9,9 +9,13 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.logging.AnsiLog;
+import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+
+import java.io.File;
 
 /**
  * java参数Patcher
@@ -71,5 +75,21 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             agentArgs.setPrintSql(settingState.getPrintSql().toString());
             javaParameters.getVMParametersList().add("-javaagent:" + agentPath + "=" + agentArgs.format());
         }
+        String javaHome = ProjectRootManager.getInstance(project).getProjectSdk().getHomePath();
+        File toolsJar = new File(javaHome, "lib/tools.jar");
+        if (!toolsJar.exists()) {
+            toolsJar = new File(javaHome, "../lib/tools.jar");
+        }
+        if (!toolsJar.exists()) {
+            // maybe jre
+            toolsJar = new File(javaHome, "../../lib/tools.jar");
+        }
+
+        if (!toolsJar.exists()) {
+            throw new IllegalArgumentException("Can not find tools.jar under java home: " + javaHome);
+        }
+
+        AnsiLog.debug("Found tools.jar: " + toolsJar.getAbsolutePath());
+        //javaParameters.getVMParametersList().add("-classpath", toolsJar.getAbsolutePath());
     }
 }

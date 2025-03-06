@@ -11,6 +11,8 @@ import java.io.Writer;
 import java.net.URI;
 
 /**
+ * 自定义的JavaFileObject，载入jar文件index时创建对应class的JavaFileObject对象实现动态编译
+ *
  * @author future0923
  */
 public class CustomJavaFileObject implements JavaFileObject {
