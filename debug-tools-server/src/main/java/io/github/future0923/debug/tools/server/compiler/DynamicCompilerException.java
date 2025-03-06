@@ -9,6 +9,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * 编译失败异常
+ *
  * @author future0923
  */
 public class DynamicCompilerException extends RuntimeException {

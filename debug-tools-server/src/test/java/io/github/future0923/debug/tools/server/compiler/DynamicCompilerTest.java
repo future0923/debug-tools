@@ -1,5 +1,8 @@
 package io.github.future0923.debug.tools.server.compiler;
 
+import cn.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -8,8 +11,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,24 +24,46 @@ import java.util.Map;
 class DynamicCompilerTest {
 
     public static void main(String[] args) throws Exception{
-        String jarPath = LoggerFactory.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        String jarPath = Data.class.getProtectionDomain().getCodeSource().getLocation().getFile();
         File file = new File(jarPath);
 
-        URLClassLoader classLoader = new URLClassLoader(new URL[] { file.toURI().toURL() },
-                ClassLoader.getSystemClassLoader().getParent());
+        String javaHome = DebugToolsExecUtils.findJavaHome();
+        File toolsJar = DebugToolsExecUtils.findToolsJar(javaHome);
+        List<URL> urls = new LinkedList<>();
+        urls.add(file.toURI().toURL());
+        try {
+            Class.forName("com.sun.tools.javac.processing.JavacProcessingEnvironment");
+        } catch (ClassNotFoundException e) {
+            urls.add(toolsJar.toURI().toURL());
+        }
+
+        URL toolsJarUrl = toolsJar.toURI().toURL();
+
+        //// 获取 AppClassLoader
+        //ClassLoader appClassLoader = ClassLoader.getSystemClassLoader();
+        //
+        //// 反射调用 URLClassLoader 的 addURL 方法（JDK 8 可用）
+        //Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        //addURL.setAccessible(true);
+        //addURL.invoke(appClassLoader, toolsJarUrl);
+
+        URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]),
+                ClassLoader.getSystemClassLoader());
+        Thread.currentThread().setContextClassLoader(classLoader);
+        //String jarPath = LoggerFactory.class.getProtectionDomain().getCodeSource().getLocation().getFile();
+        //DynamicCompiler dynamicCompiler = new DynamicCompiler(DynamicCompilerTest.class.getClassLoader());
 
         DynamicCompiler dynamicCompiler = new DynamicCompiler(classLoader);
 
-        InputStream logger1Stream = DynamicCompilerTest.class.getClassLoader().getResourceAsStream("TestLogger1.java");
-        InputStream logger2Stream = DynamicCompilerTest.class.getClassLoader().getResourceAsStream("TestLogger2.java");
+        InputStream logger1Stream = DynamicCompilerTest.class.getClassLoader().getResourceAsStream("Test.java");
 
-        dynamicCompiler.addSource("TestLogger2", toString(logger2Stream));
-        dynamicCompiler.addSource("TestLogger1", toString(logger1Stream));
+        dynamicCompiler.addSource("Test", toString(logger1Stream));
 
         Map<String, byte[]> byteCodes = dynamicCompiler.buildByteCodes();
 
-        System.out.println(byteCodes.containsKey("com.test.TestLogger1"));
-        System.out.println(byteCodes.containsKey("com.hello.TestLogger2"));
+        System.out.println(byteCodes.containsKey("com.test.Test"));
+
+        FileUtil.writeBytes(byteCodes.get("com.test.Test"), new File("Test.class"));
     }
 
     /**
