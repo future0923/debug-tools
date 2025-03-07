@@ -18,14 +18,19 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetBeanPostProcessorCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetRequestMappingCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetSpringStaticCaches;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacer;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
+import io.github.future0923.debug.tools.hotswap.core.util.spring.util.CollectionUtils;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -48,11 +53,12 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 处理Spring{@link ClassPathBeanDefinitionScanner}的Agent类
@@ -65,7 +71,12 @@ public class ClassPathBeanDefinitionScannerAgent {
     /**
      * Spring的ClassPathBeanDefinitionScanner与热重载处理它的ClassPathBeanDefinitionScannerAgent类的映射
      */
-    private static final Map<ClassPathBeanDefinitionScanner, ClassPathBeanDefinitionScannerAgent> instances = new HashMap<>();
+    private static final Map<ClassPathBeanDefinitionScanner, ClassPathBeanDefinitionScannerAgent> instances = new ConcurrentHashMap<>(16);
+
+    /**
+     * path 与 bean name 的映射
+     */
+    private static final Map<String, Set<String>> pathBeanNameMapping = new ConcurrentHashMap<>(256);
 
     /**
      * Flag to check reload status.
@@ -101,6 +112,7 @@ public class ClassPathBeanDefinitionScannerAgent {
 
     /**
      * 创建处理ClassPathBeanDefinitionScanner的ClassPathBeanDefinitionScannerAgent
+     * {@link ClassPathBeanDefinitionScannerTransformer#transform(CtClass, ClassPool)}
      */
     public static ClassPathBeanDefinitionScannerAgent getInstance(ClassPathBeanDefinitionScanner scanner) {
         ClassPathBeanDefinitionScannerAgent classPathBeanDefinitionScannerAgent = instances.get(scanner);
@@ -129,8 +141,9 @@ public class ClassPathBeanDefinitionScannerAgent {
     public static List<ClassPathBeanDefinitionScannerAgent> getInstances(String basePackage) {
         List<ClassPathBeanDefinitionScannerAgent> scannerAgents = new ArrayList<>();
         for (ClassPathBeanDefinitionScannerAgent scannerAgent : instances.values()) {
-            if (scannerAgent.basePackages.contains(basePackage))
+            if (scannerAgent.basePackages.contains(basePackage)) {
                 scannerAgents.add(scannerAgent);
+            }
         }
         return scannerAgents;
     }
@@ -151,6 +164,94 @@ public class ClassPathBeanDefinitionScannerAgent {
         this.basePackages.add(basePackage);
         PluginManagerInvoker.callPluginMethod(SpringPlugin.class, getClass().getClassLoader(),
                 "registerComponentScanBasePackage", new Class[]{String.class}, new Object[]{basePackage});
+    }
+
+    /**
+     * 初始化文件path与beanName的映射，在{@link SpringPlugin#patchAbstractApplicationContext(CtClass, ClassPool)}处调用
+     */
+    @SuppressWarnings("unchecked")
+    public static void initPathBeanNameMapping() {
+        for (ClassPathBeanDefinitionScannerAgent value : instances.values()) {
+            DefaultListableBeanFactory defaultListableBeanFactory = value.maybeRegistryToBeanFactory();
+            Map<String, BeanDefinition> beanDefinitionMap = (Map<String, BeanDefinition>)ReflectionHelper.get(defaultListableBeanFactory, "beanDefinitionMap");
+            for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+                String beanName = entry.getKey();
+                BeanDefinition beanDefinition = entry.getValue();
+                Resource resource = (Resource) ReflectionHelper.get(beanDefinition, "resource");
+                if (resource == null) {
+                    continue;
+                }
+                String path = null;
+                try {
+                    if ("jar".equals(resource.getURL().getProtocol())) {
+                        continue;
+                    }
+                    path = resource.getURL().getPath();
+                } catch (IOException e) {
+                    try {
+                        if ("jar".equals(resource.getURI().getScheme())) {
+                            continue;
+                        }
+                        path = resource.getURI().getPath();
+                    } catch (IOException ex) {
+                        try {
+                            path = resource.getFile().getAbsolutePath();
+                        } catch (IOException ignore) {
+                            if (ProjectConstants.DEBUG) {
+                                LOGGER.error("Cannot get beanName {} path from resource: {}", e, beanName, resource);
+                            }
+                        }
+                    }
+                }
+                if (path != null) {
+                    Set<String> beanNameList = pathBeanNameMapping.computeIfAbsent(path, k -> new HashSet<>());
+                    beanNameList.add(beanName);
+                }
+            }
+        }
+    }
+
+    /**
+     * 通过dir path移除beanDefinition
+     */
+    public static void removeBeanDefinitionByDirPath(String path) {
+        Set<String> beanNameSet = new HashSet<>();
+        pathBeanNameMapping.forEach((k, v) -> {
+            if (k.startsWith(path)) {
+                beanNameSet.addAll(v);
+            }
+        });
+        removeBeanDefinition(beanNameSet, path);
+    }
+
+    /**
+     * 通过file path移除beanDefinition
+     */
+    public static void removeBeanDefinitionByFilePath(String path) {
+        Set<String> beanNameSet = pathBeanNameMapping.get(path);
+        if (CollectionUtils.isEmpty(beanNameSet)) {
+            return;
+        }
+        removeBeanDefinition(beanNameSet, path);
+    }
+
+    /**
+     * 通过beanName移除beanDefinition
+     */
+    public static void removeBeanDefinition(Collection<String> beanNameSet, String path) {
+        for (ClassPathBeanDefinitionScannerAgent value : instances.values()) {
+            DefaultListableBeanFactory defaultListableBeanFactory = value.maybeRegistryToBeanFactory();
+            if (defaultListableBeanFactory != null) {
+                for (String beanName : beanNameSet) {
+                    try {
+                        defaultListableBeanFactory.removeBeanDefinition(beanName);
+                        LOGGER.info("remove bean name {} by delete path {}", beanName, path);
+                    } catch (NoSuchBeanDefinitionException ignored) {
+
+                    }
+                }
+            }
+        }
     }
 
     /**
