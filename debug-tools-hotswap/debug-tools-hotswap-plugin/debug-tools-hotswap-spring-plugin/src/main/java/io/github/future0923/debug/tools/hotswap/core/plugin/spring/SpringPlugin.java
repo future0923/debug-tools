@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
@@ -185,5 +186,16 @@ public class SpringPlugin {
                 "}");
 
         logger.debug("org.springframework.aop.framework.CglibAopProxy - cglib Enhancer cache disabled");
+    }
+
+    /**
+     * 当 AbstractApplicationContext refresh方法执行完成后（Spring应用上下文已经初始化完成）初始化
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.context.support.AbstractApplicationContext")
+    public static void patchAbstractApplicationContext(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod buildSqlSessionFactory = ctClass.getDeclaredMethod("refresh");
+        buildSqlSessionFactory.insertAfter("{" +
+                        ClassPathBeanDefinitionScannerAgent.class.getName() + ".initPathBeanNameMapping();" +
+                "}");
     }
 }
