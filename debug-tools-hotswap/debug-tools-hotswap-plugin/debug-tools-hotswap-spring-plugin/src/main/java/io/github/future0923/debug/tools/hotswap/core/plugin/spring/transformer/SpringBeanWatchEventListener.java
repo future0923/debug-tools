@@ -39,21 +39,31 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
-        logger.debug("{}, {}", event.getEventType(), event.getURI().toString());
-        // 创建了class新文件
-        if (FileEvent.CREATE.equals(event.getEventType()) && event.isFile() && event.getURI().toString().endsWith(".class")) {
-            // 检查该类尚未被类加载器加载（避免重复重新加载）。
-            String className;
-            try {
-                className = IOUtils.urlToClassName(event.getURI());
-            } catch (IOException e) {
-                logger.trace("Watch event on resource '{}' skipped, probably Ok because of delete/create event sequence (compilation not finished yet).", e, event.getURI());
-                return;
+        logger.info("{}, {}", event.getEventType(), event.getURI().toString());
+        // 文件都删除时，返回的是文件夹目录删除事件，不会给
+        if (event.isDirectory() && FileEvent.DELETE.equals(event.getEventType())) {
+            ClassPathBeanDefinitionScannerAgent.removeBeanDefinitionByDirPath(event.getURI().getPath());
+        }
+        if (event.isFile() && event.getURI().toString().endsWith(".class")) {
+            // 删除了class文件，卸载bean
+            if (FileEvent.DELETE.equals(event.getEventType())) {
+                ClassPathBeanDefinitionScannerAgent.removeBeanDefinitionByFilePath(event.getURI().getPath());
             }
-            if (!ClassLoaderHelper.isClassLoaded(appClassLoader, className)) {
-                logger.info("watch add class event, start reloading spring bean, class name:{}", className);
-                // 只刷新spring中新产生的classes
-                scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader, basePackage, className, event), WAIT_ON_CREATE);
+            // 创建了class新文件
+            else if (FileEvent.CREATE.equals(event.getEventType())) {
+                // 检查该类尚未被类加载器加载（避免重复重新加载）。
+                String className;
+                try {
+                    className = IOUtils.urlToClassName(event.getURI());
+                } catch (IOException e) {
+                    logger.trace("Watch event on resource '{}' skipped, probably Ok because of delete/create event sequence (compilation not finished yet).", e, event.getURI());
+                    return;
+                }
+                if (!ClassLoaderHelper.isClassLoaded(appClassLoader, className)) {
+                    logger.info("watch add class event, start reloading spring bean, class name:{}", className);
+                    // 只刷新spring中新产生的classes
+                    scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(appClassLoader, basePackage, className, event), WAIT_ON_CREATE);
+                }
             }
         }
     }
