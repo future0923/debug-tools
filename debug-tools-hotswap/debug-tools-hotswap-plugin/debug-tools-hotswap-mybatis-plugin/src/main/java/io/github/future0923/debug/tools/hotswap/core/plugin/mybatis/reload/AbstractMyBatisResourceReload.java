@@ -47,7 +47,7 @@ public abstract class AbstractMyBatisResourceReload<T> implements MyBatisResourc
         }
     }
 
-    protected void defineBean(String className, byte[] bytes) throws IOException {
+    protected void defineBean(String className, byte[] bytes, String path) throws IOException {
         ClassPathMapperScanner mapperScanner = MyBatisSpringResourceManager.getMapperScanner();
         if (mapperScanner == null) {
             logger.debug("mapperScanner is null");
@@ -59,7 +59,7 @@ public abstract class AbstractMyBatisResourceReload<T> implements MyBatisResourc
             logger.error("not found beanDefinition:{}", className);
             return;
         }
-        scannerAgent.defineBean(beanDefinition);
+        scannerAgent.defineBean(beanDefinition, path);
         BeanNameGenerator beanNameGenerator = (BeanNameGenerator) ReflectionHelper.get(mapperScanner, "beanNameGenerator");
         BeanDefinitionRegistry registry = (BeanDefinitionRegistry) ReflectionHelper.get(scannerAgent, "registry");
         String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);

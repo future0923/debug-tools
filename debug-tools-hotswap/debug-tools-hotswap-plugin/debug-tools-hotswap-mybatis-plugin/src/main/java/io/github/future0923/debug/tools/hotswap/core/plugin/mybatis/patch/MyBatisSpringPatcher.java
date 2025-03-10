@@ -183,7 +183,7 @@ public class MyBatisSpringPatcher {
     public void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisSpringMapper, className:{}", clazz.getName());
         if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes, null), 500);
         }
     }
 }
