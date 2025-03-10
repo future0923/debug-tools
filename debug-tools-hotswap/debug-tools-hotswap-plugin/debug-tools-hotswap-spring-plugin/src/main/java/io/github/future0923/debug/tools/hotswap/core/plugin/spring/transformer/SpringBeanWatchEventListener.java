@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
@@ -39,7 +40,9 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
-        logger.info("{}, {}", event.getEventType(), event.getURI().toString());
+        if (ProjectConstants.DEBUG) {
+            logger.info("{}, {}", event.getEventType(), event.getURI().toString());
+        }
         // 文件都删除时，返回的是文件夹目录删除事件，不会给
         if (event.isDirectory() && FileEvent.DELETE.equals(event.getEventType())) {
             ClassPathBeanDefinitionScannerAgent.removeBeanDefinitionByDirPath(event.getURI().getPath());
