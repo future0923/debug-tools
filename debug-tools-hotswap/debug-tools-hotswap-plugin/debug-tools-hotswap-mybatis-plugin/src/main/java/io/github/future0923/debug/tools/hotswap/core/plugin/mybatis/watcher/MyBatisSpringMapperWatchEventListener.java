@@ -55,7 +55,7 @@ public class MyBatisSpringMapperWatchEventListener implements WatchEventListener
             }
             if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className, bytes), 500);
+                scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className, bytes, event.getURI().getPath()), 500);
             }
         }
     }
