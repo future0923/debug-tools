@@ -53,7 +53,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
             }
             if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes, event.getURI().getPath()), 500);
             }
         }
     }
