@@ -5,39 +5,34 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.dto;
  */
 public class MyBatisPlusMapperReloadDTO {
 
-    private ClassLoader appClassLoader;
+    private final ClassLoader appClassLoader;
 
-    private Class<?> clazz;
+    private final Class<?> clazz;
 
-    private byte[] bytes;
+    private final byte[] bytes;
 
-    public MyBatisPlusMapperReloadDTO(ClassLoader appClassLoader, Class<?> clazz, byte[] bytes) {
+    private final String path;
+
+    public MyBatisPlusMapperReloadDTO(ClassLoader appClassLoader, Class<?> clazz, byte[] bytes, String path) {
         this.appClassLoader = appClassLoader;
         this.clazz = clazz;
         this.bytes = bytes;
+        this.path = path;
     }
 
     public ClassLoader getAppClassLoader() {
         return appClassLoader;
     }
 
-    public void setAppClassLoader(ClassLoader appClassLoader) {
-        this.appClassLoader = appClassLoader;
-    }
-
     public Class<?> getClazz() {
         return clazz;
-    }
-
-    public void setClazz(Class<?> clazz) {
-        this.clazz = clazz;
     }
 
     public byte[] getBytes() {
         return bytes;
     }
 
-    public void setBytes(byte[] bytes) {
-        this.bytes = bytes;
+    public String getPath() {
+        return path;
     }
 }
