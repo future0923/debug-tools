@@ -74,7 +74,7 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
     }
 
     /**
-     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[])}刷新spring bean class
+     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[], String)}刷新spring bean class
      */
     @Override
     public void executeCommand() {
@@ -93,8 +93,12 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
             }
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class);
-            method.invoke(null, basePackage, classDefinition);
+            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class, String.class);
+            String path = null;
+            if (event != null) {
+                path = event.getURI().getPath();
+            }
+            method.invoke(null, basePackage, classDefinition, path);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
         } catch (InvocationTargetException e) {

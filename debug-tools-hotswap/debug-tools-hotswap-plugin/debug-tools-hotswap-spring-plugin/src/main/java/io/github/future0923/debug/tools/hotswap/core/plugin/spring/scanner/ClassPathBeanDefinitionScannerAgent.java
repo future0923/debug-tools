@@ -173,42 +173,50 @@ public class ClassPathBeanDefinitionScannerAgent {
     public static void initPathBeanNameMapping() {
         for (ClassPathBeanDefinitionScannerAgent value : instances.values()) {
             DefaultListableBeanFactory defaultListableBeanFactory = value.maybeRegistryToBeanFactory();
-            Map<String, BeanDefinition> beanDefinitionMap = (Map<String, BeanDefinition>)ReflectionHelper.get(defaultListableBeanFactory, "beanDefinitionMap");
+            Map<String, BeanDefinition> beanDefinitionMap = (Map<String, BeanDefinition>) ReflectionHelper.get(defaultListableBeanFactory, "beanDefinitionMap");
             for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
                 String beanName = entry.getKey();
                 BeanDefinition beanDefinition = entry.getValue();
-                Resource resource = (Resource) ReflectionHelper.get(beanDefinition, "resource");
-                if (resource == null) {
-                    continue;
+                resolvePath(beanDefinition, beanName);
+            }
+        }
+    }
+
+    private static void resolvePath(String path, String beanName) {
+        if (path != null) {
+            Set<String> beanNameList = pathBeanNameMapping.computeIfAbsent(path, k -> new HashSet<>());
+            beanNameList.add(beanName);
+        }
+    }
+
+    private static void resolvePath(BeanDefinition beanDefinition, String beanName) {
+        Resource resource = (Resource) ReflectionHelper.get(beanDefinition, "resource");
+        if (resource == null) {
+            return;
+        }
+        String path = null;
+        try {
+            if ("jar".equals(resource.getURL().getProtocol())) {
+                return;
+            }
+            path = resource.getURL().getPath();
+        } catch (IOException e) {
+            try {
+                if ("jar".equals(resource.getURI().getScheme())) {
+                    return;
                 }
-                String path = null;
+                path = resource.getURI().getPath();
+            } catch (IOException ex) {
                 try {
-                    if ("jar".equals(resource.getURL().getProtocol())) {
-                        continue;
+                    path = resource.getFile().getAbsolutePath();
+                } catch (IOException ignore) {
+                    if (ProjectConstants.DEBUG) {
+                        LOGGER.error("Cannot get beanName {} path from resource: {}", e, beanName, resource);
                     }
-                    path = resource.getURL().getPath();
-                } catch (IOException e) {
-                    try {
-                        if ("jar".equals(resource.getURI().getScheme())) {
-                            continue;
-                        }
-                        path = resource.getURI().getPath();
-                    } catch (IOException ex) {
-                        try {
-                            path = resource.getFile().getAbsolutePath();
-                        } catch (IOException ignore) {
-                            if (ProjectConstants.DEBUG) {
-                                LOGGER.error("Cannot get beanName {} path from resource: {}", e, beanName, resource);
-                            }
-                        }
-                    }
-                }
-                if (path != null) {
-                    Set<String> beanNameList = pathBeanNameMapping.computeIfAbsent(path, k -> new HashSet<>());
-                    beanNameList.add(beanName);
                 }
             }
         }
+        resolvePath(path, beanName);
     }
 
     /**
@@ -259,9 +267,10 @@ public class ClassPathBeanDefinitionScannerAgent {
      *
      * @param basePackage     base package on witch the transformer was registered, used to obtain associated scanner.
      * @param classDefinition new class definition
+     * @param path            class path
      * @throws IOException error working with classDefinition
      */
-    public static void refreshClass(String basePackage, byte[] classDefinition) throws IOException {
+    public static void refreshClass(String basePackage, byte[] classDefinition, String path) throws IOException {
         ResetSpringStaticCaches.reset();
         List<ClassPathBeanDefinitionScannerAgent> scannerAgents = getInstances(basePackage);
         if (scannerAgents.isEmpty()) {
@@ -273,7 +282,7 @@ public class ClassPathBeanDefinitionScannerAgent {
             if (null == beanDefinition) {
                 continue;
             }
-            scannerAgent.defineBean(beanDefinition);
+            scannerAgent.defineBean(beanDefinition, path);
             break;
         }
         reloadFlag = false;
@@ -281,12 +290,12 @@ public class ClassPathBeanDefinitionScannerAgent {
 
     /**
      * 验证BeanDefinition后，处理SpringBean的Scope生成最终要注册到SpringBean中的BeanDefinitionHolder。
-     *
+     * <p>
      * 根据{@link ClassPathBeanDefinitionScanner}的doScan方法}
      *
      * @param candidate 要重载的BeanDefinition
      */
-    public void defineBean(BeanDefinition candidate) {
+    public void defineBean(BeanDefinition candidate, String path) {
         synchronized (ClassPathBeanDefinitionScannerAgent.class) {
             ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
             candidate.setScope(scopeMetadata.getScopeName());
@@ -310,6 +319,9 @@ public class ClassPathBeanDefinitionScannerAgent {
                 }
                 ProxyReplacer.clearAllProxies();
                 freezeConfiguration();
+                if (path != null) {
+                    resolvePath(path, beanName);
+                }
                 LOGGER.reload("Registered Spring bean '{}'", beanName);
             }
         }

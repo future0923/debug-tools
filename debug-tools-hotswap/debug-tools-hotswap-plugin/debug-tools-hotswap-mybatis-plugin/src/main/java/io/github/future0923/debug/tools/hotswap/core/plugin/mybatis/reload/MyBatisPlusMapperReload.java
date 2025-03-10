@@ -61,7 +61,7 @@ public class MyBatisPlusMapperReload extends AbstractMyBatisResourceReload<MyBat
                         }
                         ReflectionHelper.invoke(configuration, configurationClass, "removeMapper", new Class[]{Class.class}, clazz);
                         ReflectionHelper.invoke(configuration, configurationClass, "addMapper", new Class[]{Class.class}, clazz);
-                        defineBean(className, dto.getBytes());
+                        defineBean(className, dto.getBytes(), dto.getPath());
                         RELOADING_CLASS.remove(className);
                         logger.reload("reload {} in {}", className, configuration);
                     }
