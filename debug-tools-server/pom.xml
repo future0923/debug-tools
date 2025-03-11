@@ -25,9 +25,9 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>com.taobao.arthas</groupId>
-            <artifactId>arthas-vmtool</artifactId>
-            <scope>compile</scope>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-vm</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.groovy</groupId>
