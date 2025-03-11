@@ -78,8 +78,8 @@ public class HttpClientUtils {
         allClassLoaderResCache.remove(project);
     }
 
-    public static String getApplicationName(Project project) throws IOException, InterruptedException {
-        return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_APPLICATION_NAME_URI), TIMEOUT);
+    public static String getApplicationName(Project project, boolean local) throws IOException, InterruptedException {
+        return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_APPLICATION_NAME_URI, local), TIMEOUT);
     }
 
     public static AllClassLoaderRes.Item defaultClassLoader(Project project) throws IOException, InterruptedException {
