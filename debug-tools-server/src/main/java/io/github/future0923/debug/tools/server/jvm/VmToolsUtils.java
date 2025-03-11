@@ -1,11 +1,12 @@
 package io.github.future0923.debug.tools.server.jvm;
 
-import arthas.VmTool;
-import com.taobao.arthas.common.OSUtils;
 import io.github.future0923.debug.tools.base.config.AgentConfig;
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
+import io.github.future0923.debug.tools.vm.OSUtils;
+import io.github.future0923.debug.tools.vm.VmTool;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,9 @@ public class VmToolsUtils {
             return;
         }
         String jniPath = AgentConfig.INSTANCE.getJniLibraryPath();
-        if (DebugToolsStringUtils.isNotBlank(jniPath) && DebugToolsFileUtils.exist(jniPath) && !load) {
+        String version = AgentConfig.INSTANCE.getVersion();
+        boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
+        if (!ProjectConstants.DEBUG && !isUpgrade && DebugToolsStringUtils.isNotBlank(jniPath) && DebugToolsFileUtils.exist(jniPath) && !load) {
             initVmTool(jniPath);
             return;
         }
