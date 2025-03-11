@@ -28,9 +28,11 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.4.1</strong>
+        <strong>3.4.2</strong>
         <ul>
-            <li>Fix the bug of ConcurrentModificationException when reloading multiple files in MyBatis.</li>
+            - Added a button to compile XML files to trigger hot reload.
+            - Fix the bug that hot reload doesn't work after renaming the Controller.
+            - Fix the bug that can't connect to remote applications.
         </ul>
         ]]>
     </change-notes>
