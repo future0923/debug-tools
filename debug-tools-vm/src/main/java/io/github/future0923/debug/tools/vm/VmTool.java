@@ -63,9 +63,6 @@ public class VmTool {
 
     /**
      * 获取所有已加载的类
-     *
-     * @param klass 这个参数必须是 Class.class
-     * @return
      */
     private static synchronized native Class<?>[] getAllLoadedClasses0(Class<?> klass);
 
