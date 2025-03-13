@@ -51,14 +51,17 @@ import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * 处理Spring{@link ClassPathBeanDefinitionScanner}的Agent类
@@ -77,6 +80,11 @@ public class ClassPathBeanDefinitionScannerAgent {
      * path 与 bean name 的映射
      */
     private static final Map<String, Set<String>> pathBeanNameMapping = new ConcurrentHashMap<>(256);
+
+    /**
+     * 已经删除的BeanName集合
+     */
+    private static final Set<String> deleteBeanNameSet = new ConcurrentSkipListSet<>();
 
     /**
      * Flag to check reload status.
@@ -225,11 +233,12 @@ public class ClassPathBeanDefinitionScannerAgent {
     public static void removeBeanDefinitionByDirPath(String path) {
         Set<String> beanNameSet = new HashSet<>();
         pathBeanNameMapping.forEach((k, v) -> {
-            if (k.startsWith(path)) {
+            if (k.startsWith(path + File.separator)) {
                 beanNameSet.addAll(v);
             }
         });
-        removeBeanDefinition(beanNameSet, path);
+        addDeleteBeanNameSet(beanNameSet);
+        //removeBeanDefinition(beanNameSet, path);
     }
 
     /**
@@ -240,7 +249,8 @@ public class ClassPathBeanDefinitionScannerAgent {
         if (CollectionUtils.isEmpty(beanNameSet)) {
             return;
         }
-        removeBeanDefinition(beanNameSet, path);
+        addDeleteBeanNameSet(beanNameSet);
+        //removeBeanDefinition(beanNameSet, path);
     }
 
     /**
@@ -260,6 +270,28 @@ public class ClassPathBeanDefinitionScannerAgent {
                 }
             }
         }
+    }
+
+    /**
+     * 设置删除的
+     */
+    public static void addDeleteBeanNameSet(Set<String> beanNameSet) {
+        deleteBeanNameSet.addAll(beanNameSet);
+    }
+
+    /**
+     * 新增Bean的时候移除已经删除的beanName
+     */
+    public static void removeDeleteBeanNameSet(String beanName) {
+        deleteBeanNameSet.remove(beanName);
+    }
+
+    /**
+     * 过滤掉已经删除的beanName
+     * {@link SpringPlugin#patchAbstractHandlerMethodMapping(CtClass, ClassPool)}
+     */
+    public static String[] filterDeleteBeanName(String[] original) {
+        return Arrays.stream(original).filter(beanName -> !deleteBeanNameSet.contains(beanName)).toArray(String[]::new);
     }
 
     /**
@@ -310,8 +342,6 @@ public class ClassPathBeanDefinitionScannerAgent {
             if (checkCandidate(beanName, candidate)) {
                 BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
                 definitionHolder = applyScopedProxyMode(scopeMetadata, definitionHolder, registry);
-                LOGGER.debug("Registering Spring bean '{}'", beanName);
-                LOGGER.debug("Bean definition '{}'", beanName, candidate);
                 registerBeanDefinition(definitionHolder, registry);
                 DefaultListableBeanFactory bf = maybeRegistryToBeanFactory();
                 if (bf != null) {
@@ -322,6 +352,7 @@ public class ClassPathBeanDefinitionScannerAgent {
                 if (path != null) {
                     resolvePath(path, beanName);
                 }
+                removeDeleteBeanNameSet(beanName);
                 LOGGER.reload("Registered Spring bean '{}'", beanName);
             }
         }

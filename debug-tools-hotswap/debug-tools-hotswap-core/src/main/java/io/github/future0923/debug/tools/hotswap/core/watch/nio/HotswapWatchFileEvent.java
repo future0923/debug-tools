@@ -18,6 +18,8 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.watch.nio;
 
+import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
@@ -61,7 +63,11 @@ public class HotswapWatchFileEvent implements WatchFileEvent {
 
     @Override
     public boolean isDirectory() {
-        return Files.isDirectory(path);
+        if (Files.isDirectory(this.path)) {
+            return true;
+        }
+        // 删除文件夹时，Files.isDirectory() 判断不存在的文件夹会给false
+        return DebugToolsStringUtils.isBlank(DebugToolsFileUtils.extName(this.path.toString(), false));
     }
 
     @Override

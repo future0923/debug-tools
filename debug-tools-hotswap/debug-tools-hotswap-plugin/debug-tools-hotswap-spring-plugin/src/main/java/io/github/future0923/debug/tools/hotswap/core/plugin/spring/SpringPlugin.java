@@ -198,4 +198,18 @@ public class SpringPlugin {
                         ClassPathBeanDefinitionScannerAgent.class.getName() + ".initPathBeanNameMapping();" +
                 "}");
     }
+
+    /**
+     * Controller初始化的时候getCandidateBeanNames获取ioc中所有的beanName，这里需要过滤掉被删除的beanName。<a href="https://github.com/future0923/debug-tools/issues/23">https://github.com/future0923/debug-tools/issues/23</a>
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.web.servlet.handler.AbstractHandlerMethodMapping")
+    public static void patchAbstractHandlerMethodMapping(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod getCandidateBeanNames = ctClass.getDeclaredMethod("getCandidateBeanNames");
+        getCandidateBeanNames.setBody("{" +
+                "java.lang.String[] original = (this.detectHandlerMethodsInAncestorContexts ? " +
+                "   org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), java.lang.Object.class) :" +
+                "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
+                "return " + ClassPathBeanDefinitionScannerAgent.class.getName() + ".filterDeleteBeanName(original);" +
+                "}");
+    }
 }
