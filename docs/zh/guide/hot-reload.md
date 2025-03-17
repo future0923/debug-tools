@@ -37,6 +37,10 @@ DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistr
 
 ![compile_reload_file.png](/images/compile_reload_file.png)
 
+- `Xml` 文件可以也可以通过上面 **Run** 的方式编译项目触发热重载，还可以通过右键菜单的 `Compile 'xxx.xml' to Target` 方式单独触发热重载.
+
+![compile_xml.png](/images/compile_xml.png)
+
 控制台会输出相关热重载的信息。
 
 ```text
