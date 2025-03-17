@@ -18,7 +18,6 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
-import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
@@ -208,19 +207,16 @@ public class ClassPathBeanDefinitionScannerAgent {
                 return;
             }
             path = resource.getURL().getPath();
-        } catch (IOException e) {
+        } catch (Exception e) {
             try {
                 if ("jar".equals(resource.getURI().getScheme())) {
                     return;
                 }
                 path = resource.getURI().getPath();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 try {
                     path = resource.getFile().getAbsolutePath();
-                } catch (IOException ignore) {
-                    if (ProjectConstants.DEBUG) {
-                        LOGGER.error("Cannot get beanName {} path from resource: {}", e, beanName, resource);
-                    }
+                } catch (Exception ignore) {
                 }
             }
         }

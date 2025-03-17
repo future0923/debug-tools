@@ -1,8 +1,8 @@
-# [3.4.2](https://github.com/future0923/debug-tools/compare/v3.4.1...v3.4.2) (2025-03-12)
+# [3.4.2](https://github.com/future0923/debug-tools/compare/v3.4.1...v3.4.2) (2025-03-17)
 
-- Added a button to compile XML files to trigger hot reload[#21](https://github.com/future0923/debug-tools/issues/21).
-- Fix the bug that hot reload doesn't work after renaming the Controller[#23](https://github.com/future0923/debug-tools/issues/23).
-- Fix the bug that can't connect to remote applications[#27](https://github.com/future0923/debug-tools/issues/27).
+- Added a button to compile XML files to trigger hot reload([#21](https://github.com/future0923/debug-tools/issues/21)).
+- Fix the bug that hot reload doesn't work after renaming the Controller([#23](https://github.com/future0923/debug-tools/issues/23)).
+- Fix the bug that can't connect to remote applications([#27](https://github.com/future0923/debug-tools/issues/27)).
 
 # [3.4.1](https://github.com/future0923/debug-tools/compare/v3.4.0...v3.4.1) (2025-02-27)
 

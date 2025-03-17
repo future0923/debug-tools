@@ -123,7 +123,6 @@
                     description="Run current groovy"
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <action id="DebugTools.CompileXmlFileToTarget"
-                    icon="AllIcons.Actions.Compile"
                     description="Run current xml file to target"
                     class="io.github.future0923.debug.tools.idea.action.CompileXmlFileToTargetAction"/>
             <separator/>
