@@ -336,6 +336,10 @@ public class ClassPathBeanDefinitionScannerAgent {
             }
             removeIfExists(beanName);
             if (checkCandidate(beanName, candidate)) {
+                if (path != null) {
+                    resolvePath(path, beanName);
+                }
+                removeDeleteBeanNameSet(beanName);
                 BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
                 definitionHolder = applyScopedProxyMode(scopeMetadata, definitionHolder, registry);
                 registerBeanDefinition(definitionHolder, registry);
@@ -345,10 +349,6 @@ public class ClassPathBeanDefinitionScannerAgent {
                 }
                 ProxyReplacer.clearAllProxies();
                 freezeConfiguration();
-                if (path != null) {
-                    resolvePath(path, beanName);
-                }
-                removeDeleteBeanNameSet(beanName);
                 LOGGER.reload("Registered Spring bean '{}'", beanName);
             }
         }

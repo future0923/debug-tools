@@ -22,6 +22,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Command;
+import io.github.future0923.debug.tools.hotswap.core.command.EventMergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
@@ -39,7 +40,7 @@ import java.util.List;
  * <li>新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
  * <li>修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
  */
-public class ClassPathBeanRefreshCommand extends MergeableCommand {
+public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPathBeanRefreshCommand> {
 
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
@@ -71,6 +72,11 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
         this.basePackage = basePackage;
         this.event = event;
         this.className = className;
+    }
+
+    @Override
+    protected WatchFileEvent event() {
+        return event;
     }
 
     /**
@@ -111,31 +117,6 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
 
     }
 
-    /**
-     * 检查所有合并的事件，查看是否有删除和创建事件。如果发现只有删除而没有创建，那么就假设文件被删除了。
-     */
-    private boolean isDeleteEvent() {
-        List<ClassPathBeanRefreshCommand> mergedCommands = new ArrayList<>();
-        for (Command command : getMergedCommands()) {
-            mergedCommands.add((ClassPathBeanRefreshCommand) command);
-        }
-        mergedCommands.add(this);
-        boolean createFound = false;
-        boolean deleteFound = false;
-        for (ClassPathBeanRefreshCommand command : mergedCommands) {
-            if (command.event != null) {
-                if (command.event.getEventType().equals(FileEvent.DELETE)) {
-                    deleteFound = true;
-                }
-                if (command.event.getEventType().equals(FileEvent.CREATE)) {
-                    createFound = true;
-                }
-            }
-        }
-        LOGGER.trace("isDeleteEvent result {}: createFound={}, deleteFound={}", createFound, deleteFound);
-        return !createFound && deleteFound;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -164,4 +145,5 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
                 ", className='" + className + '\'' +
                 '}';
     }
+
 }

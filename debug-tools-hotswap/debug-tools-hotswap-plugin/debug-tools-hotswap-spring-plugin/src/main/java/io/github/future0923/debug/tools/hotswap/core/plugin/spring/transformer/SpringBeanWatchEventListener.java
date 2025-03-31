@@ -6,6 +6,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanRefreshCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.RemoveBeanDefinitionCommand;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
@@ -26,7 +27,8 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
     /**
      * 合并延迟执行时间
      */
-    private static final int WAIT_ON_CREATE = 600;
+    private static final int WAIT_ON_ANALYSIS_PATH = 500;
+    private static final int WAIT_ON_CREATE = 1000;
 
     private final Scheduler scheduler;
     private final ClassLoader appClassLoader;
@@ -48,12 +50,9 @@ public class SpringBeanWatchEventListener implements WatchEventListener {
             ClassPathBeanDefinitionScannerAgent.removeBeanDefinitionByDirPath(event.getURI().getPath());
         }
         if (event.isFile() && event.getURI().toString().endsWith(".class")) {
-            // 删除了class文件，卸载bean
-            if (FileEvent.DELETE.equals(event.getEventType())) {
-                ClassPathBeanDefinitionScannerAgent.removeBeanDefinitionByFilePath(event.getURI().getPath());
-            }
+            scheduler.scheduleCommand(new RemoveBeanDefinitionCommand(event), WAIT_ON_ANALYSIS_PATH);
             // 创建了class新文件
-            else if (FileEvent.CREATE.equals(event.getEventType())) {
+            if (FileEvent.CREATE.equals(event.getEventType())) {
                 // 检查该类尚未被类加载器加载（避免重复重新加载）。
                 String className;
                 try {
