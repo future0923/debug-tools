@@ -1,6 +1,7 @@
 package io.github.future0923.debug.tools.idea.utils;
 
 import com.intellij.openapi.projectRoots.Sdk;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -23,31 +24,37 @@ import java.util.regex.Pattern;
  */
 public class DcevmUtils {
 
-    public static boolean isDcevmInstalledLikeAltJvm(Sdk projectSdk) {
-        String jdkPathString = projectSdk.getHomePath();
-        if (jdkPathString == null) {
-            return false;
+    public static Installation of(String jdkPathString) {
+        if (DebugToolsStringUtils.isBlank(jdkPathString)) {
+            return null;
         }
         Path jdkPath = Paths.get(jdkPathString);
-        Installation installation;
         try {
-            installation = new Installation(ConfigurationInfo.current(), jdkPath);
+            return new Installation(ConfigurationInfo.current(), jdkPath);
         } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public static boolean isDcevmInstalledLikeAltJvm(String jdkPathString) {
+        Installation installation = of(jdkPathString);
+        if (installation == null) {
             return false;
         }
         return installation.isDCEInstalledAltjvm();
     }
 
-    public static boolean isDCEVMPresent(Sdk projectSdk) {
-        String jdkPathString = projectSdk.getHomePath();
-        if (jdkPathString == null) {
-            return false;
+    public static String getJdkVersion(String jdkPathString) {
+        Installation installation = of(jdkPathString);
+        if (installation == null) {
+            return null;
         }
-        Path jdkPath = Paths.get(jdkPathString);
-        Installation installation;
-        try {
-            installation = new Installation(ConfigurationInfo.current(), jdkPath);
-        } catch (Exception e) {
+        return installation.getVersion();
+    }
+    public static boolean isDCEVMPresent(String jdkPathString) {
+        Installation installation = of(jdkPathString);
+        if (installation == null) {
             return false;
         }
         return installation.isDCEInstalled() || installation.isDCEInstalledAltjvm();
