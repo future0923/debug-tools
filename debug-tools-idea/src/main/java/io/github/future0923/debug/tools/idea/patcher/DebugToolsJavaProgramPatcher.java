@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.idea.patcher;
 
+import com.intellij.execution.CantRunException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.RunConfiguration;
@@ -7,8 +8,8 @@ import com.intellij.execution.configurations.RunProfile;
 import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -57,19 +58,68 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         if (settingState.getPrintSql() || settingState.getHotswap()) {
             AgentArgs agentArgs = new AgentArgs();
             if (settingState.getHotswap()) {
-                ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
-                if (rootManager.getProjectSdk() != null) {
-                    if (DcevmUtils.isDcevmInstalledLikeAltJvm(rootManager.getProjectSdk())) {
-                        javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
-                        agentArgs.setHotswap(Boolean.TRUE.toString());
+                //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
+                //rootManager.getProjectSdk();
+                String jdkPath;
+                try {
+                    jdkPath = javaParameters.getJdkPath();
+                } catch (CantRunException e) {
+                    DebugToolsNotifierUtil.notifyError(project, e.getMessage());
+                    return;
+                }
+                if (DebugToolsStringUtils.isNotBlank(jdkPath)) {
+                    String jdkVersion = DcevmUtils.getJdkVersion(jdkPath);
+                    if (jdkVersion == null) {
+                        DebugToolsNotifierUtil.notifyError(project, "Failed to obtain the running version of jdk.");
+                        return;
                     }
-                    if (!DcevmUtils.isDCEVMPresent(rootManager.getProjectSdk())) {
-                        DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
+                    if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+                        agentArgs.setHotswap(Boolean.TRUE.toString());
+                        javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
+                        addVm(javaParameters);
+                    } else if (jdkVersion.startsWith("11")) {
+                        agentArgs.setHotswap(Boolean.TRUE.toString());
+                        addVm(javaParameters);
+                    } else if (jdkVersion.startsWith("1.8")) {
+                        if (DcevmUtils.isDcevmInstalledLikeAltJvm(jdkPath)) {
+                            agentArgs.setHotswap(Boolean.TRUE.toString());
+                            javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
+                        }
+                        if (!DcevmUtils.isDCEVMPresent(jdkPath)) {
+                            DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
+                        }
+                    } else {
+                        DebugToolsNotifierUtil.notifyError(project, "hotswap not support " + jdkVersion + " version");
                     }
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().toString());
             javaParameters.getVMParametersList().add("-javaagent:" + agentPath + "=" + agentArgs.format());
         }
+    }
+
+    private static void addVm(JavaParameters javaParameters) {
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/java.lang=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/jdk.internal.loader=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/java.io=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.desktop/java.beans=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.desktop/com.sun.beans=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.desktop/com.sun.beans.introspect=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.desktop/com.sun.beans.util=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/sun.security.action=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/java.lang.reflect=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/java.net=ALL-UNNAMED");
+        javaParameters.getVMParametersList().add("--add-opens");
+        javaParameters.getVMParametersList().add("java.base/sun.nio.ch=ALL-UNNAMED");
     }
 }
