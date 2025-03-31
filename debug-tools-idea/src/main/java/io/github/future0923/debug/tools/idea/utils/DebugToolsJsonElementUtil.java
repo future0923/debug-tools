@@ -87,10 +87,15 @@ public class DebugToolsJsonElementUtil {
                     if (psiClass.isInterface() && psiClass.getAnnotation("java.lang.FunctionalInterface") != null) {
                         return RunContentType.LAMBDA.getType();
                     }
-                    if (psiClass.isInterface() && "javax.servlet.http.HttpServletRequest".equals(psiClass.getQualifiedName())) {
+                    if (psiClass.isInterface() &&
+                            ("javax.servlet.http.HttpServletRequest".equals(psiClass.getQualifiedName())
+                                    || "org.springframework.http.server.reactive.ServerHttpRequest".equals(psiClass.getQualifiedName())
+                                    || "org.springframework.web.server.ServerWebExchange".equals(psiClass.getQualifiedName()))) {
                         return RunContentType.REQUEST.getType();
                     }
-                    if (psiClass.isInterface() && "javax.servlet.http.HttpServletResponse".equals(psiClass.getQualifiedName())) {
+                    if (psiClass.isInterface() &&
+                            ("javax.servlet.http.HttpServletResponse".equals(psiClass.getQualifiedName())
+                                    || "org.springframework.http.server.reactive.ServerHttpResponse".equals(psiClass.getQualifiedName()))) {
                         return RunContentType.RESPONSE.getType();
                     }
                     if (psiClass.isInterface() && "org.springframework.web.multipart.MultipartFile".equals(psiClass.getQualifiedName())) {
