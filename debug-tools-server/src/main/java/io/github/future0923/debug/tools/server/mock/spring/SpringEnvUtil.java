@@ -5,11 +5,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
-import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.tools.server.mock.spring.method.SpringParamConvertUtils;
-import io.github.future0923.debug.tools.server.mock.spring.request.MockHttpServletRequest;
-import io.github.future0923.debug.tools.server.mock.spring.request.MockHttpServletResponse;
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.TargetClassAware;
 import org.springframework.aop.framework.Advised;
@@ -25,11 +22,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -303,17 +296,6 @@ public class SpringEnvUtil {
                 object.getClass().getName().contains(ClassUtils.CGLIB_CLASS_SEPARATOR)));
     }
 
-    public static void setRequest(RunDTO runDTO) {
-        if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
-            MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
-            runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
-            ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest);
-            RequestContextHolder.setRequestAttributes(requestAttributes);
-        } else {
-            RequestContextHolder.resetRequestAttributes();
-        }
-    }
-
     public static Method findBridgedMethod(Method targetMethod) {
         return BridgeMethodResolver.findBridgedMethod(targetMethod);
     }
@@ -325,22 +307,5 @@ public class SpringEnvUtil {
     public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
         return SpringParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
     }
-
-    public static HttpServletRequest getRequest() {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            return requestAttributes.getRequest();
-        }
-        return new MockHttpServletRequest();
-    }
-
-    public static HttpServletResponse getResponse() {
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes != null) {
-            return requestAttributes.getResponse();
-        }
-        return new MockHttpServletResponse();
-    }
-
 
 }
