@@ -28,11 +28,11 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.4.2</strong>
+        <strong>3.4.3</strong>
         <ul>
-            - Added a button to compile XML files to trigger hot reload.
-            - Fix the bug that hot reload doesn't work after renaming the Controller.
-            - Fix the bug that can't connect to remote applications.
+            - Fix the bug that hot reload fails when modifying the Controller file when there is only one Controller file.
+            - Fix the bug of JDK21's hot reload startup failure.
+            - Fix the bug of WebFlux call failure.
         </ul>
         ]]>
     </change-notes>
