@@ -1,3 +1,9 @@
+# [3.4.3](https://github.com/future0923/debug-tools/compare/v3.4.2...v3.4.3) (2025-04-01)
+
+- Fix the bug that hot reload fails when modifying the Controller file when there is only one Controller file([#31](https://github.com/future0923/debug-tools/issues/31)).
+- Fix the bug of JDK21's hot reload startup failure([#30](https://github.com/future0923/debug-tools/issues/30)).
+- Fix the bug of WebFlux call failure([#29](https://github.com/future0923/debug-tools/issues/29)).
+
 # [3.4.2](https://github.com/future0923/debug-tools/compare/v3.4.1...v3.4.2) (2025-03-17)
 
 - Added a button to compile XML files to trigger hot reload([#21](https://github.com/future0923/debug-tools/issues/21)).
