@@ -20,9 +20,9 @@ public class MyBatisSpringMapperReloadCommand {
      * 当class重新定义时，通过{@link MyBatisSpringPatcher#redefineMyBatisSpringMapper}创建命令后调用这
      * 当class新增时，通过{@link MyBatisSpringMapperWatchEventListener#onEvent(WatchFileEvent)}创建命令后调用这
      */
-    public static void reloadConfiguration(String className, byte[] bytes) {
+    public static void reloadConfiguration(String className, byte[] bytes, String path) {
         try {
-            MyBatisSpringMapperReload.INSTANCE.reload(new MyBatisSpringMapperReloadDTO(className, bytes));
+            MyBatisSpringMapperReload.INSTANCE.reload(new MyBatisSpringMapperReloadDTO(className, bytes, path));
         } catch (Exception e) {
             logger.error("reloadConfiguration error", e);
         }

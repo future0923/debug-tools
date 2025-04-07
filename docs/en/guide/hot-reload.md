@@ -37,6 +37,10 @@ After writing the code, hot reload is automatically triggered after compiling th
 
 ![compile_reload_file.png](/images/compile_reload_file.png)
 
+- `Xml` files can also compile the project to trigger hot reload through the above **Run** method, and can also trigger hot reload separately through the `Compile 'xxx.xml' to Target` method in the right-click menu.
+
+![compile_xml.png](/images/compile_xml.png)
+
 The console will output relevant hot reload information.
 
 ```text

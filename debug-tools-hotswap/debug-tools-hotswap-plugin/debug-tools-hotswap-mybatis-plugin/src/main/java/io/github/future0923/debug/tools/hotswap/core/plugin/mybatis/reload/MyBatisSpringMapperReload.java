@@ -59,7 +59,7 @@ public class MyBatisSpringMapperReload extends AbstractMyBatisResourceReload<MyB
                 Map<Class<?>, MapperProxyFactory<?>> knownMappers = (Map<Class<?>, MapperProxyFactory<?>>) ReflectionHelper.get(mapperRegistry, "knownMappers");
                 knownMappers.keySet().removeIf(mapperClass -> loadedResource.contains(mapperClass.getName()));
                 new MapperAnnotationBuilder(configuration, Class.forName(className)).parse();
-                defineBean(className, dto.getBytes());
+                defineBean(className, dto.getBytes(), dto.getPath());
                 RELOADING_CLASS.remove(className);
             }
             logger.reload("reload {} in {}", className, configuration);
