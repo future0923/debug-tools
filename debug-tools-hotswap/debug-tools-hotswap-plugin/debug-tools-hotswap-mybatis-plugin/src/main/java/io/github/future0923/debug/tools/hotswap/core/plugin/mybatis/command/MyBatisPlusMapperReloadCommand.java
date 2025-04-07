@@ -20,16 +20,22 @@ public class MyBatisPlusMapperReloadCommand extends MergeableCommand {
 
     private final byte[] bytes;
 
-    public MyBatisPlusMapperReloadCommand(ClassLoader loader, Class<?> clazz, byte[] bytes) {
+    /**
+     * 路径(没有认为是修改)
+     */
+    private final String path;
+
+    public MyBatisPlusMapperReloadCommand(ClassLoader loader, Class<?> clazz, byte[] bytes, String path) {
         this.loader = loader;
         this.clazz = clazz;
         this.bytes = bytes;
+        this.path = path;
     }
 
     @Override
     public void executeCommand() {
         try {
-            MyBatisPlusMapperReload.INSTANCE.reload(new MyBatisPlusMapperReloadDTO(loader, clazz, bytes));
+            MyBatisPlusMapperReload.INSTANCE.reload(new MyBatisPlusMapperReloadDTO(loader, clazz, bytes, path));
         } catch (Exception e) {
             logger.error("refresh mybatis error", e);
         }

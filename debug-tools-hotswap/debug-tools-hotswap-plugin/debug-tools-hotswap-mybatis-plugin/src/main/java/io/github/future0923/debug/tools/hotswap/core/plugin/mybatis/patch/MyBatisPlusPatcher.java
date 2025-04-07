@@ -61,7 +61,7 @@ public class MyBatisPlusPatcher {
                 scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
             }
             if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes), 500);
+                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes, null), 500);
             }
         }
     }

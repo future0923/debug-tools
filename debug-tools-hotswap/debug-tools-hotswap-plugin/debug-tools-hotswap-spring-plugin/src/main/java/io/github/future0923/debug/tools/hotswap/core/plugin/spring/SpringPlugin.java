@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
+import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
@@ -185,5 +186,30 @@ public class SpringPlugin {
                 "}");
 
         logger.debug("org.springframework.aop.framework.CglibAopProxy - cglib Enhancer cache disabled");
+    }
+
+    /**
+     * 当 AbstractApplicationContext refresh方法执行完成后（Spring应用上下文已经初始化完成）初始化
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.context.support.AbstractApplicationContext")
+    public static void patchAbstractApplicationContext(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod buildSqlSessionFactory = ctClass.getDeclaredMethod("refresh");
+        buildSqlSessionFactory.insertAfter("{" +
+                        ClassPathBeanDefinitionScannerAgent.class.getName() + ".initPathBeanNameMapping();" +
+                "}");
+    }
+
+    /**
+     * Controller初始化的时候getCandidateBeanNames获取ioc中所有的beanName，这里需要过滤掉被删除的beanName。<a href="https://github.com/future0923/debug-tools/issues/23">https://github.com/future0923/debug-tools/issues/23</a>
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.web.servlet.handler.AbstractHandlerMethodMapping")
+    public static void patchAbstractHandlerMethodMapping(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod getCandidateBeanNames = ctClass.getDeclaredMethod("getCandidateBeanNames");
+        getCandidateBeanNames.setBody("{" +
+                "java.lang.String[] original = (this.detectHandlerMethodsInAncestorContexts ? " +
+                "   org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), java.lang.Object.class) :" +
+                "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
+                "return " + ClassPathBeanDefinitionScannerAgent.class.getName() + ".filterDeleteBeanName(original);" +
+                "}");
     }
 }
