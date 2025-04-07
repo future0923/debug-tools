@@ -22,6 +22,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Command;
+import io.github.future0923.debug.tools.hotswap.core.command.EventMergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
@@ -39,7 +40,7 @@ import java.util.List;
  * <li>新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
  * <li>修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
  */
-public class ClassPathBeanRefreshCommand extends MergeableCommand {
+public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPathBeanRefreshCommand> {
 
     private static final Logger LOGGER = Logger.getLogger(ClassPathBeanRefreshCommand.class);
 
@@ -73,8 +74,13 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
         this.className = className;
     }
 
+    @Override
+    protected WatchFileEvent event() {
+        return event;
+    }
+
     /**
-     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[])}刷新spring bean class
+     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[], String)}刷新spring bean class
      */
     @Override
     public void executeCommand() {
@@ -93,8 +99,12 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
             }
             LOGGER.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
             Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class);
-            method.invoke(null, basePackage, classDefinition);
+            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class, String.class);
+            String path = null;
+            if (event != null) {
+                path = event.getURI().getPath();
+            }
+            method.invoke(null, basePackage, classDefinition, path);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
         } catch (InvocationTargetException e) {
@@ -105,31 +115,6 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
             throw new IllegalStateException("Plugin error, Spring class not found in application classloader", e);
         }
 
-    }
-
-    /**
-     * 检查所有合并的事件，查看是否有删除和创建事件。如果发现只有删除而没有创建，那么就假设文件被删除了。
-     */
-    private boolean isDeleteEvent() {
-        List<ClassPathBeanRefreshCommand> mergedCommands = new ArrayList<>();
-        for (Command command : getMergedCommands()) {
-            mergedCommands.add((ClassPathBeanRefreshCommand) command);
-        }
-        mergedCommands.add(this);
-        boolean createFound = false;
-        boolean deleteFound = false;
-        for (ClassPathBeanRefreshCommand command : mergedCommands) {
-            if (command.event != null) {
-                if (command.event.getEventType().equals(FileEvent.DELETE)) {
-                    deleteFound = true;
-                }
-                if (command.event.getEventType().equals(FileEvent.CREATE)) {
-                    createFound = true;
-                }
-            }
-        }
-        LOGGER.trace("isDeleteEvent result {}: createFound={}, deleteFound={}", createFound, deleteFound);
-        return !createFound && deleteFound;
     }
 
     @Override
@@ -160,4 +145,5 @@ public class ClassPathBeanRefreshCommand extends MergeableCommand {
                 ", className='" + className + '\'' +
                 '}';
     }
+
 }

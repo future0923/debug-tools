@@ -99,9 +99,24 @@ public class SpringParamConvertUtils {
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
             return Enum.valueOf((Class<? extends Enum>) parameter.getParameterType(), runContentDTO.getContent().toString());
         } else if (RunContentType.REQUEST.getType().equals(runContentDTO.getType())) {
-            return DebugToolsEnvUtils.getRequest();
+            if (parameter.getParameterType().getName().equals("javax.servlet.http.HttpServletRequest")) {
+                return DebugToolsEnvUtils.getRequest();
+            }
+            if (parameter.getParameterType().getName().equals("org.springframework.http.server.reactive.ServerHttpRequest")) {
+                return DebugToolsEnvUtils.getServerHttpRequest();
+            }
+            if (parameter.getParameterType().getName().equals("org.springframework.web.server.ServerWebExchange")) {
+                return DebugToolsEnvUtils.getServerWebExchange();
+            }
+            return null;
         } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
-            return DebugToolsEnvUtils.getResponse();
+            if (parameter.getParameterType().getName().equals("javax.servlet.http.HttpServletResponse")) {
+                return DebugToolsEnvUtils.getResponse();
+            }
+            if (parameter.getParameterType().getName().equals("org.springframework.http.server.reactive.ServerHttpResponse")) {
+                return DebugToolsEnvUtils.getServerHttpResponse();
+            }
+            return null;
         } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
             File file = new File(runContentDTO.getContent().toString());
             if (MultipartFile.class.isAssignableFrom(parameter.getParameterType())) {

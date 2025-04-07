@@ -386,8 +386,14 @@ public class DebugToolsFileUtils {
 
     private static final char UNIX_SEPARATOR = '/';
     private static final char WINDOWS_SEPARATOR = '\\';
-    ;
 
+    /**
+     * 获取文件扩展名
+     *
+     * @param fileName 文件路径名
+     * @param hasDot   返回带不带点
+     * @return 扩展名
+     */
     public static String extName(String fileName, boolean hasDot) {
         if (fileName == null) {
             return null;

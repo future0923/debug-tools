@@ -87,14 +87,8 @@ public class HotswapAgent {
         System.setProperty(JBOSS_SYSTEM_MODULES_KEY, oldValue == null ? HOTSWAP_AGENT_EXPORT_PACKAGES : oldValue + "," + HOTSWAP_AGENT_EXPORT_PACKAGES);
     }
 
-    public static final String HOTSWAP_AGENT_EXPORT_PACKAGES =
-            "io.github.future0923.debug.tools.attach.hotswap.annotation,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.command,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.config,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.logging,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.plugin,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.util,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.watch,"
-                    + "io.github.future0923.debug.tools.attach.hotswap.versions,"
-                    + "io.github.future0923.debug.tools.hotswap.core.javassist";
+    /**
+     * 多个逗号分隔的包名
+     */
+    public static final String HOTSWAP_AGENT_EXPORT_PACKAGES = "io.github.future0923.debug.tools.hotswap";
 }

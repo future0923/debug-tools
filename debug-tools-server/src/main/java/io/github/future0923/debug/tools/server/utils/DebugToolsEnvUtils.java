@@ -17,11 +17,17 @@ public class DebugToolsEnvUtils {
 
     private static Class<?> springEnvUtil;
 
+    private static Class<?> springServletUtil;
+
+    private static Class<?> springReactiveUtil;
+
     private static Class<?> xxlJobEnvUtil;
 
     static {
         try {
             springEnvUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringEnvUtil");
+            springServletUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringServletUtil");
+            springReactiveUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringReactiveUtil");
             xxlJobEnvUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.xxljob.XxlJobEnvUtil");
         } catch (ClassNotFoundException ignored) {
         }
@@ -115,7 +121,8 @@ public class DebugToolsEnvUtils {
     public static void setRequest(RunDTO runDTO) {
         try {
             DebugToolsClassUtils.loadDebugToolsClass("org.springframework.web.context.request.RequestContextHolder");
-            Method setRequest = springEnvUtil.getMethod("setRequest", RunDTO.class);
+            DebugToolsClassUtils.loadDebugToolsClass("javax.servlet.http.HttpServletRequest");
+            Method setRequest = springServletUtil.getMethod("setRequest", RunDTO.class);
             setRequest.invoke(null, runDTO);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -150,7 +157,30 @@ public class DebugToolsEnvUtils {
     public static Object getRequest() {
         try {
             DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
-            Method getRequest = springEnvUtil.getMethod("getRequest");
+            DebugToolsClassUtils.loadDebugToolsClass("javax.servlet.http.HttpServletRequest");
+            Method getRequest = springServletUtil.getMethod("getRequest");
+            return getRequest.invoke(null);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+    public static Object getServerHttpRequest() {
+        try {
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.server.reactive.ServerHttpRequest");
+            Method getRequest = springReactiveUtil.getMethod("getServerHttpRequest");
+            return getRequest.invoke(null);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+   public static Object getServerWebExchange() {
+        try {
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.web.server.ServerWebExchange");
+            Method getRequest = springReactiveUtil.getMethod("getServerWebExchange");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -162,7 +192,19 @@ public class DebugToolsEnvUtils {
     public static Object getResponse() {
         try {
             DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
-            Method getRequest = springEnvUtil.getMethod("getResponse");
+            Method getRequest = springServletUtil.getMethod("getResponse");
+            return getRequest.invoke(null);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public static Object getServerHttpResponse() {
+        try {
+            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.server.reactive.ServerHttpResponse");
+            Method getRequest = springReactiveUtil.getMethod("getServerHttpResponse");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);

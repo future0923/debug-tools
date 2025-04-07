@@ -28,9 +28,11 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.4.1</strong>
+        <strong>3.4.3</strong>
         <ul>
-            <li>Fix the bug of ConcurrentModificationException when reloading multiple files in MyBatis.</li>
+            - Fix the bug that hot reload fails when modifying the Controller file when there is only one Controller file.
+            - Fix the bug of JDK21's hot reload startup failure.
+            - Fix the bug of WebFlux call failure.
         </ul>
         ]]>
     </change-notes>
@@ -121,7 +123,6 @@
                     description="Run current groovy"
                     class="io.github.future0923.debug.tools.idea.action.RunGroovyAction"/>
             <action id="DebugTools.CompileXmlFileToTarget"
-                    icon="AllIcons.Actions.Compile"
                     description="Run current xml file to target"
                     class="io.github.future0923.debug.tools.idea.action.CompileXmlFileToTargetAction"/>
             <action id="DebugTools.DynamicCompiler"

@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,6 +29,10 @@ import java.io.IOException;
 public class CompileXmlFileToTargetAction extends AnAction {
 
     private static final Logger logger = Logger.getInstance(CompileXmlFileToTargetAction.class);
+
+    public CompileXmlFileToTargetAction() {
+        getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Compile);
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

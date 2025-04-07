@@ -197,6 +197,10 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
 
     public String getUrl(String uri) {
-        return  "http://" + (isLocal() ? "127.0.0.1" : getRemoteHost()) + ":" + (isLocal() ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
+        return getUrl(uri, isLocal());
+    }
+
+    public String getUrl(String uri, boolean local) {
+        return  "http://" + (local ? "127.0.0.1" : getRemoteHost()) + ":" + (local ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
     }
 }

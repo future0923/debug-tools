@@ -58,21 +58,27 @@ public class DebugToolsAttachUtils {
 
     public static void attachRemote(Project project, String host, int tcpPort) {
         HttpClientUtils.removeAllClassLoaderCache(project);
+        try {
+            String applicationName = HttpClientUtils.getApplicationName(project, true);
+            DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+            ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
+            if (info != null) {
+                if (!settingState.isLocal() && !info.getClient().isClosed()) {
+                    return;
+                }
+                if (settingState.isLocal() && !info.getClient().isClosed()) {
+                    ApplicationProjectHolder.close(applicationName);
+                }
+            }
+        } catch (Exception ignored) {
+            // 没有连接
+        }
         String applicationName;
         try {
-            applicationName = HttpClientUtils.getApplicationName(project);
+            applicationName = HttpClientUtils.getApplicationName(project, false);
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
-        if (info != null) {
-            if (!settingState.isLocal() && !info.getClient().isClosed()) {
-                return;
-            }
-            if (settingState.isLocal() && !info.getClient().isClosed()) {
-                ApplicationProjectHolder.close(applicationName);
-            }
+            DebugToolsNotifierUtil.notifyError(project, e.getMessage());
+            return;
         }
         DebugToolsSocketClient client = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort).getClient();
         try {

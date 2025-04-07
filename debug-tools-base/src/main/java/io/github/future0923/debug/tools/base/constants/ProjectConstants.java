@@ -9,7 +9,7 @@ public interface ProjectConstants {
 
     String NAME = "DebugTools";
 
-    String VERSION = "3.4.1";
+    String VERSION = "3.4.3";
 
     String SERVER_CORE_JAR_PATH = "lib/debug-tools-server.jar";
 
