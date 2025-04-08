@@ -23,11 +23,7 @@ public class UserService {
         return userMapper.selectByNameAndAge(name, age);
     }
 
-//    public String a() {
-//        return "a";
-//    }
-//
-//    public String c() {
-//        return "c";
-//    }
+    public String a() {
+        return "a";
+    }
 }

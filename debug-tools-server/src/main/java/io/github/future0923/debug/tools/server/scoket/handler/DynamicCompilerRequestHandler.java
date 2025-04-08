@@ -5,14 +5,12 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.DynamicCompilerRequestPacket;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
-import io.github.future0923.debug.tools.server.compiler.DynamicClassLoader;
 import io.github.future0923.debug.tools.server.compiler.DynamicCompiler;
 
 import java.io.OutputStream;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,20 +32,13 @@ public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicComp
     public void handle(OutputStream outputStream, DynamicCompilerRequestPacket packet) throws Exception {
         DynamicCompiler compiler = new DynamicCompiler(DefaultClassLoader.getDefaultClassLoader());
         packet.getFilePathByteCodeMap().forEach(compiler::addSource);
-        compiler.build();
-        DynamicClassLoader classLoader = compiler.getClassLoader();
-        Map<String, byte[]> byteCodesMap = classLoader.getByteCodes();
-        Map<String, Class<?>> classesMap = classLoader.getClasses();
-        Map<Class<?>, byte[]> reloadMap = new HashMap<>();
-        packet.getFilePathByteCodeMap().forEach((k, v) -> {
-            reloadMap.put(classesMap.get(k), byteCodesMap.get(k));
-        });
-        ClassDefinition[] definitions = new ClassDefinition[reloadMap.size()];
-        String[] classNames = new String[reloadMap.size()];
+        Map<String, byte[]> byteCodesMap = compiler.buildByteCodes();
+        ClassDefinition[] definitions = new ClassDefinition[byteCodesMap.size()];
+        String[] classNames = new String[byteCodesMap.size()];
         int i = 0;
-        for (Map.Entry<Class<?>, byte[]> entry : reloadMap.entrySet()) {
-            classNames[i] = entry.getKey().getName();
-            definitions[i++] = new ClassDefinition(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, byte[]> entry : byteCodesMap.entrySet()) {
+            classNames[i] = entry.getKey();
+            definitions[i++] = new ClassDefinition(DefaultClassLoader.getDefaultClassLoader().loadClass(entry.getKey()), entry.getValue());
         }
         try {
             logger.reload("Reloading classes {}", Arrays.toString(classNames));
