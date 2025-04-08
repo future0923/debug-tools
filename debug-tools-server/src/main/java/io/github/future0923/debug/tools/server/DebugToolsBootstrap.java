@@ -3,9 +3,8 @@ package io.github.future0923.debug.tools.server;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
-import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.server.config.ServerConfig;
 import io.github.future0923.debug.tools.server.http.DebugToolsHttpServer;
 import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
@@ -39,15 +38,14 @@ public class DebugToolsBootstrap {
 
     public Integer httpPort;
 
-    private DebugToolsBootstrap(Instrumentation instrumentation, ClassLoader classloader) {
+    private DebugToolsBootstrap(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
-        DebugToolsClassUtils.setClassLoader(classloader);
         VmToolsUtils.init();
     }
 
-    public static synchronized DebugToolsBootstrap getInstance(Instrumentation instrumentation, ClassLoader classloader) {
+    public static synchronized DebugToolsBootstrap getInstance(Instrumentation instrumentation) {
         if (INSTANCE == null) {
-            INSTANCE = new DebugToolsBootstrap(instrumentation, classloader);
+            INSTANCE = new DebugToolsBootstrap(instrumentation);
         }
         return INSTANCE;
     }

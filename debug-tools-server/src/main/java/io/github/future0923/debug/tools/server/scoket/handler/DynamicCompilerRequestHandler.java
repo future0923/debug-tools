@@ -47,7 +47,7 @@ public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicComp
         int i = 0;
         for (Map.Entry<Class<?>, byte[]> entry : reloadMap.entrySet()) {
             classNames[i] = entry.getKey().getName();
-            definitions[i++] = new ClassDefinition(entry.getKey(), entry.getValue());
+            definitions[i++] = new ClassDefinition(Class.forName(entry.getKey().getName()), entry.getValue());
         }
         try {
             logger.reload("Reloading classes {}", Arrays.toString(classNames));

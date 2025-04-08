@@ -76,6 +76,7 @@
         <module>debug-tools-core</module>
         <module>debug-tools-hotswap</module>
         <module>debug-tools-vm</module>
+        <module>debug-tools-sql</module>
     </modules>
 
     <profiles>

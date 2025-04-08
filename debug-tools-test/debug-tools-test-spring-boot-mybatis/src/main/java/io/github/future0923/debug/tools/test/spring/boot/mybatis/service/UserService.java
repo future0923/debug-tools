@@ -12,22 +12,30 @@ import java.util.List;
  * @author future0923
  */
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserMapper userMapper;
 
     private final UserMapper2 userMapper2;
 
+    public UserService(UserMapper userMapper, UserMapper2 userMapper2) {
+        this.userMapper = userMapper;
+        this.userMapper2 = userMapper2;
+    }
+
     public List<User> selectByNameAndAge(String name, Integer age) {
         return userMapper.selectByNameAndAge(name, age);
     }
 
-//    public String a() {
-//        return "a";
-//    }
-//
-//    public String c() {
-//        return "c";
-//    }
+    public String a() {
+        return "a";
+    }
+
+    public String c() {
+        return "c";
+    }
+
+    public String d() {
+        return "d";
+    }
 }
