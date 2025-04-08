@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
@@ -180,10 +181,12 @@ public class MyBatisSpringPatcher {
     }
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
-        logger.debug("redefineMyBatisSpringMapper, className:{}", clazz.getName());
+    public static void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
+        if (ProjectConstants.DEBUG) {
+            logger.info("redefine class {}", clazz.getName());
+        }
         if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes, null), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes, ""), 500);
         }
     }
 }

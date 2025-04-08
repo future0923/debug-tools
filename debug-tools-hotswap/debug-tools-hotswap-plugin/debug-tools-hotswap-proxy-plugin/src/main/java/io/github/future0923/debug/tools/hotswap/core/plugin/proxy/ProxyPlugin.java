@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
@@ -47,6 +48,9 @@ public class ProxyPlugin {
 
     @OnClassLoadEvent(classNameRegexp = "(jdk.proxy\\d+.\\$Proxy.*)|(com.sun.proxy.\\$Proxy.*)", events = LoadEvent.REDEFINE, skipSynthetic = false)
     public static void transformJavaProxy(final Class<?> classBeingRedefined, final ClassLoader classLoader) {
+        if (ProjectConstants.DEBUG) {
+            LOGGER.info("redefine class {}", classBeingRedefined.getName());
+        }
         // 在这个方法中无法直接重新定义代理（并返回新的代理类字节码），因为类加载器中包含了代理接口的旧定义。因此，在DCEVM中重新定义代理接口后，代理是在延迟命令中定义的（经过一些延迟）。
         Object proxyCache = ReflectionHelper.getNoException(null, java.lang.reflect.Proxy.class, "proxyCache");
         if (proxyCache != null) {
@@ -82,7 +86,9 @@ public class ProxyPlugin {
                                              final byte[] classfileBuffer,
                                              final ClassLoader loader,
                                              final ClassPool cp) throws Exception {
-
+        if (ProjectConstants.DEBUG) {
+            LOGGER.info("redefine class {}", classBeingRedefined.getName());
+        }
         GeneratorParams generatorParams = GeneratorParametersTransformer.getGeneratorParams(loader, classBeingRedefined.getName());
 
         if (generatorParams == null) {
