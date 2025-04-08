@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.attach;
 
-import io.github.future0923.debug.tools.attach.sqlprint.SqlPrintByteCodeEnhance;
 import io.github.future0923.debug.tools.base.classloader.DebugToolsClassLoader;
 import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
@@ -10,6 +9,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.sql.SqlPrintByteCodeEnhance;
 
 import java.io.File;
 import java.lang.instrument.Instrumentation;
