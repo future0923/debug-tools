@@ -3,9 +3,9 @@ package io.github.future0923.debug.tools.server.jvm;
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
-import io.github.future0923.debug.tools.vm.OSUtils;
 import io.github.future0923.debug.tools.vm.VmTool;
 
 import java.io.File;
@@ -41,11 +41,11 @@ public class VmToolsUtils {
             return;
         }
         String libName;
-        if (OSUtils.isMac()) {
+        if (DebugToolsOSUtils.isMac()) {
             libName = "libJniLibrary.dylib";
-        } else if (OSUtils.isLinux()) {
+        } else if (DebugToolsOSUtils.isLinux()) {
             libName = "libJniLibrary-x64.so";
-        } else if (OSUtils.isWindows()) {
+        } else if (DebugToolsOSUtils.isWindows()) {
             libName = "libJniLibrary-x64.dll";
         } else {
             throw new IllegalStateException("unsupported os");

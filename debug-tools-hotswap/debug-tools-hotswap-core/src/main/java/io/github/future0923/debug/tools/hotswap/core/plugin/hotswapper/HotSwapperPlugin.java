@@ -80,7 +80,7 @@ public class HotSwapperPlugin {
         }
         LOGGER.debug("Init plugin at classLoader {}", appClassLoader);
         if (!HotswapAgent.isAutoHotswap() && !pluginConfiguration.containsPropertyFile()) {
-            LOGGER.debug("ClassLoader {} does not contain hotswap-agent.properties file, hot swapper skipped.", appClassLoader);
+            LOGGER.debug("ClassLoader {} does not contain debug-tools-agent.properties file, hot swapper skipped.", appClassLoader);
             return;
         }
         if (!HotswapAgent.isAutoHotswap() && !pluginConfiguration.getPropertyBoolean("autoHotswap")) {

@@ -18,6 +18,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.watch;
 
+import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.hotswap.core.watch.nio.TreeWatcherNIO;
 import io.github.future0923.debug.tools.hotswap.core.watch.nio.WatcherNIO2;
 
@@ -47,15 +48,9 @@ public class WatcherFactory {
         return Double.parseDouble(version.substring(0, pos));
     }
 
-    public static boolean IS_WINDOWS = isWindows();
-
-    static boolean isWindows() {
-        return System.getProperty("os.name").startsWith("Windows");
-    }
-
     public Watcher getWatcher() throws IOException {
         if (JAVA_VERSION >= 1.7) {
-            if (IS_WINDOWS) {
+            if (DebugToolsOSUtils.isWindows()) {
                 return new TreeWatcherNIO();
             } else {
                 return new WatcherNIO2();
