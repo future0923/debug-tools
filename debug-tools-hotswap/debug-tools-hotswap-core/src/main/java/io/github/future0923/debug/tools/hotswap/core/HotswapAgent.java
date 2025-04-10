@@ -33,7 +33,7 @@ public class HotswapAgent {
     private static boolean autoHotswap = false;
 
     /**
-     * 外部配置文件 `hotswap-agent.properties` 的路径
+     * 外部配置文件 `debug-tools-agent.properties` 的路径
      */
     private static String propertiesFilePath;
 
@@ -58,7 +58,7 @@ public class HotswapAgent {
             disabledPlugins.addAll(StringUtils.commaDelimitedListToSet(args.getDisabledPlugins()));
         }
         //autoHotswap = Boolean.parseBoolean(optionValue);
-        //propertiesFilePath = optionValue;
+        propertiesFilePath = args.getPropertiesFilePath();
     }
 
     /**
