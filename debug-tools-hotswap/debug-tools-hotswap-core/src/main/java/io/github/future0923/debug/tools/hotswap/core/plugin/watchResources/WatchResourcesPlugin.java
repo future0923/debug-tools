@@ -18,32 +18,28 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.watchResources;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.HotswapAgentClassLoaderExt;
-import io.github.future0923.debug.tools.hotswap.core.util.classloader.URLClassPathHelper;
+import io.github.future0923.debug.tools.hotswap.core.util.classloader.URLClassLoaderPathHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.WatchResourcesClassLoader;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
-import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.net.URL;
 
 /**
- * Support for watchResources configuration property.
- *
- * This plugin creates special WatchResourcesClassLoader witch returns only modified resources on watchResources
- * path. It then modifies application classloader to look for resources first in WatchResourcesClassLoader and
- * only if the resource is not found, standard execution proceeds.
- *
- * Works for any java.net.URLClassLoader which delegates to URLClassPath property to findResource() (typical
- * scenario).
+ * 支持watchResources配置加载外部资源。
+ * 1. 通过{@link WatchResourcesClassLoader}加载指定路径上被修改的外部资源。
+ * 2. 修改应用程序类加载器（使用继承UrlClassLoader的），现在 WatchResourcesClassLoader 中加载，加载不到再从应用类加载器找。通过{@link URLClassLoaderPathHelper}实现。
  */
 @Plugin(name = "WatchResources", description = "Support for watchResources configuration property.",
         testedVersions = {"JDK 1.7.0_45"}, expectedVersions = {"JDK 1.6+"})
 public class WatchResourcesPlugin {
-    private static final Logger LOGGER = Logger.getLogger(WatchResourcesPlugin.class);
+
+    private static final Logger logger = Logger.getLogger(WatchResourcesPlugin.class);
 
     @Init
     Watcher watcher;
@@ -51,37 +47,37 @@ public class WatchResourcesPlugin {
     @Init
     ClassLoader appClassLoader;
 
-
-    // Classloader to return only modified resources on watchResources path.
+    /**
+     * WatchResourcesClassLoader加载 watchResources 路径修改的资源
+     */
     WatchResourcesClassLoader watchResourcesClassLoader = new WatchResourcesClassLoader(false);
 
     /**
      * For each classloader check for watchResources configuration instance with hotswapper.
      */
-    @Init
+    //@Init
     public static void init(PluginManager pluginManager, PluginConfiguration pluginConfiguration, ClassLoader appClassLoader) {
-        LOGGER.debug("Init plugin at classLoader {}", appClassLoader);
+        logger.debug("Init plugin at classLoader {}", appClassLoader);
 
-        // synthetic classloader, skip
+        // 跳过合成类加载器
         if (appClassLoader instanceof WatchResourcesClassLoader.UrlOnlyClassLoader)
             return;
 
-        // init only if the classloader contains directly the property file (not in parent classloader)
         if (!pluginConfiguration.containsPropertyFile()) {
-            LOGGER.debug("ClassLoader {} does not contain hotswap-agent.properties file, WatchResources skipped.", appClassLoader);
+            logger.debug("ClassLoader {} does not contain debug-tools-agent.properties file, WatchResources skipped.", appClassLoader);
             return;
         }
 
         // and watch resources are set
         URL[] watchResources = pluginConfiguration.getWatchResources();
         if (watchResources.length == 0) {
-            LOGGER.debug("ClassLoader {} has hotswap-agent.properties watchResources empty.", appClassLoader);
+            logger.debug("ClassLoader {} has debug-tools-agent.properties watchResources empty.", appClassLoader);
             return;
         }
 
-        if (!URLClassPathHelper.isApplicable(appClassLoader) &&
+        if (!URLClassLoaderPathHelper.isApplicable(appClassLoader) &&
                 !(appClassLoader instanceof HotswapAgentClassLoaderExt)) {
-            LOGGER.warning("Unable to modify application classloader. Classloader '{}' is of type '{}'," +
+            logger.warning("Unable to modify application classloader. Classloader '{}' is of type '{}'," +
                             "unknown classloader type.\n" +
                             "*** watchResources configuration property will not be handled on JVM level ***",
                     appClassLoader, appClassLoader.getClass());
@@ -96,8 +92,8 @@ public class WatchResourcesPlugin {
         watchResourcesClassLoader.initWatchResources(watchResources, watcher);
         if (appClassLoader instanceof HotswapAgentClassLoaderExt) {
             ((HotswapAgentClassLoaderExt) appClassLoader).$$ha$setWatchResourceLoader(watchResourcesClassLoader);
-        } else if (URLClassPathHelper.isApplicable(appClassLoader)) {
-            URLClassPathHelper.setWatchResourceLoader(appClassLoader, watchResourcesClassLoader);
+        } else if (URLClassLoaderPathHelper.isApplicable(appClassLoader)) {
+            URLClassLoaderPathHelper.setWatchResourceLoader(appClassLoader, watchResourcesClassLoader);
         }
     }
 }

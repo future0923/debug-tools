@@ -19,17 +19,16 @@
         <can.retransform.classes>true</can.retransform.classes>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+        <shade.cn.hutool.source>cn.hutool</shade.cn.hutool.source>
+        <shade.cn.hutool.target>${shade.package}.${shade.cn.hutool.source}</shade.cn.hutool.target>
+        <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
+        <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.cn.hutool.source}</shade.pl.joegreen.lambdaFromString.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-base</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.github.future0923</groupId>
-            <artifactId>debug-tools-hotswap-core</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
@@ -57,13 +56,10 @@
             <artifactId>debug-tools-sql</artifactId>
             <version>${revision}</version>
         </dependency>
-        <!--没蛋用，就要个打包顺序-->
         <dependency>
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-server</artifactId>
             <version>${revision}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -108,6 +104,14 @@
                                 <relocation>
                                     <pattern>${shade.net.bytebuddy.source}</pattern>
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.cn.hutool.source}</pattern>
+                                    <shadedPattern>${shade.cn.hutool.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.pl.joegreen.lambdaFromString.source}</pattern>
+                                    <shadedPattern>${shade.pl.joegreen.lambdaFromString.target}</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>

@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.vm;
+package io.github.future0923.debug.tools.base.utils;
 
 import java.io.File;
 import java.util.Locale;
@@ -6,7 +6,7 @@ import java.util.Locale;
 /**
  * @author future0923
  */
-public class OSUtils {
+public class DebugToolsOSUtils {
 
     private static final String OPERATING_SYSTEM_NAME = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
     private static final String OPERATING_SYSTEM_ARCH = System.getProperty("os.arch").toLowerCase(Locale.ENGLISH);
@@ -30,7 +30,7 @@ public class OSUtils {
         arch = normalizeArch();
     }
 
-    private OSUtils() {
+    private DebugToolsOSUtils() {
     }
 
     public static boolean isWindows() {
