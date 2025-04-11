@@ -8,20 +8,22 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
-import io.github.future0923.debug.tools.common.protocal.packet.request.DynamicCompilerRequestPacket;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author future0923
  */
-public class HotSwapDynamicCompilerAction extends AnAction {
+public class RemoteCompilerAction extends AnAction {
+
+    public RemoteCompilerAction() {
+        getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.RemoteCompiler);
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
@@ -44,23 +46,9 @@ public class HotSwapDynamicCompilerAction extends AnAction {
             return;
         }
         String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
-        DynamicCompilerRequestPacket packet = new DynamicCompilerRequestPacket();
+        RemoteCompilerRequestPacket packet = new RemoteCompilerRequestPacket();
         packet.add(packetAllName, content);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null) {
-            Messages.showErrorDialog("Run attach first", "执行失败");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-            return;
-        }
-        try {
-            info.getClient().getHolder().send(packet);
-        } catch (SocketCloseException e) {
-            Messages.showErrorDialog("Socket close", "执行失败");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        } catch (Exception e) {
-            Messages.showErrorDialog("Socket send error " + e.getMessage(), "执行失败");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        }
+        SocketSendUtils.send(project, packet);
     }
 
     @Override
@@ -78,7 +66,7 @@ public class HotSwapDynamicCompilerAction extends AnAction {
             return;
         }
         if ("JAVA".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText("Dynamic Compile '" + file.getName() + "' to Reload");
+            presentation.setText("Remote Compile '" + file.getName() + "' to Hot Reload");
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);
