@@ -144,8 +144,8 @@ public class MyBatisSpringPatcher {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("mybatis mapper basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, appClassLoader, basePackage));
-                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisSpringMapperWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisSpringMapperWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
     }
@@ -175,7 +175,7 @@ public class MyBatisSpringPatcher {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("mybatis entity basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackageURL, new MyBatisPlusEntityWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisPlusEntityWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
     }

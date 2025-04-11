@@ -26,4 +26,8 @@ public class UserService {
     public String a() {
         return "a";
     }
+
+    public String c() {
+        return "c";
+    }
 }

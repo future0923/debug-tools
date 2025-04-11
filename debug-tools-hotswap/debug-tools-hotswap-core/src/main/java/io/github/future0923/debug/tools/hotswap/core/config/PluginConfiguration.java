@@ -68,6 +68,11 @@ public class PluginConfiguration {
     private static final String EXCLUDED_CLASS_LOADERS_KEY = "excludedClassLoaderPatterns";
 
     /**
+     * 热部署文件是所有类加载所有插件公用的，所以只需要初始化一次，如果多次初始化，则之前的watch就会被后面的清理掉从而失效
+     */
+    private static volatile boolean clean = false;
+
+    /**
      * 配置（key小驼峰）
      */
     Properties properties = new HotswapProperties();
@@ -197,8 +202,11 @@ public class PluginConfiguration {
     }
 
     private void checkExtraPath() {
-        cleanExtraPath(getExtraClasspath());
-        cleanExtraPath(getWatchResources());
+        if (!clean) {
+            cleanExtraPath(getExtraClasspath());
+            cleanExtraPath(getWatchResources());
+            clean = true;
+        }
     }
 
     private void cleanExtraPath(URL[] extraPath) {
