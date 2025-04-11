@@ -18,8 +18,11 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.watch.nio;
 
+import cn.hutool.core.io.FileUtil;
 import com.sun.nio.file.ExtendedWatchEventModifier;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 
@@ -144,15 +147,23 @@ public abstract class AbstractNIO2Watcher implements Watcher {
     }
 
     @Override
-    public void addEventListener(ClassLoader classLoader, URL pathPrefix, WatchEventListener listener) {
+    public void addEventListener(ClassLoader classLoader, String basePackage, URL pathPrefix, WatchEventListener listener) {
         if (pathPrefix == null) {
             return;
         }
-
         try {
             addEventListener(classLoader, pathPrefix.toURI(), listener);
         } catch (URISyntaxException e) {
             throw new RuntimeException("Unable to convert URL to URI " + pathPrefix, e);
+        }
+        PluginConfiguration configuration = PluginManager.getInstance().getPluginConfiguration(classLoader);
+        URL[] extraClasspath = configuration.getExtraClasspath();
+        for (URL url : extraClasspath) {
+            String basePackagePath = url.getPath() + basePackage.replace(".", File.separator);
+            FileUtil.mkdir(basePackagePath);
+            // 不能清空文件夹，如果第一个 basePackage 为 /var/tmp/debug/tools，第二个 basePackage 为 /var/tmp 就会把tools文件夹清除，这样第一个watch就失效了
+            //FileUtil.clean(basePackagePath);
+            addEventListener(classLoader, new File(basePackagePath).toURI(), listener);
         }
     }
 

@@ -18,6 +18,8 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.watch;
 
+import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
+
 import java.net.URI;
 import java.net.URL;
 
@@ -36,13 +38,14 @@ public interface Watcher {
     void addEventListener(ClassLoader classLoader, URI pathPrefix, WatchEventListener listener);
 
     /**
-     * 在类加载器中注册事件监听者
+     * 在类加载器中注册事件监听者，还会同步在 {@link PluginConfiguration#getExtraClasspath()} 注册
      *
      * @param classLoader 与路径关联的类加载器
+     * @param basePackage 启动时基础的包名
      * @param pathPrefix  插件的路径
      * @param listener    监听者信息
      */
-    void addEventListener(ClassLoader classLoader, URL pathPrefix, WatchEventListener listener);
+    void addEventListener(ClassLoader classLoader, String basePackage, URL pathPrefix, WatchEventListener listener);
 
     /**
      * 删除在类加载器中注册的所有侦听器

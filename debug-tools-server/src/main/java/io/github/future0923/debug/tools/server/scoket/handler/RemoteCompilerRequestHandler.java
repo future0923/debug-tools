@@ -1,12 +1,13 @@
 package io.github.future0923.debug.tools.server.scoket.handler;
 
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
-import io.github.future0923.debug.tools.common.protocal.packet.request.DynamicCompilerRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.response.RemoteCompilerResponsePacket;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
@@ -25,20 +26,21 @@ import java.util.Map;
 /**
  * @author future0923
  */
-public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicCompilerRequestPacket> {
+public class RemoteCompilerRequestHandler extends BasePacketHandler<RemoteCompilerRequestPacket> {
 
-    private static final Logger logger = Logger.getLogger(DynamicCompilerRequestHandler.class);
+    private static final Logger logger = Logger.getLogger(RemoteCompilerRequestHandler.class);
 
-    public static final DynamicCompilerRequestHandler INSTANCE = new DynamicCompilerRequestHandler();
+    public static final RemoteCompilerRequestHandler INSTANCE = new RemoteCompilerRequestHandler();
 
     private static final Object hotswapLock = new Object();
 
-    private DynamicCompilerRequestHandler() {
+    private RemoteCompilerRequestHandler() {
 
     }
 
     @Override
-    public void handle(OutputStream outputStream, DynamicCompilerRequestPacket packet) throws Exception {
+    public void handle(OutputStream outputStream, RemoteCompilerRequestPacket packet) throws Exception {
+        long start = System.currentTimeMillis();
         ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader();
         DynamicCompiler compiler = new DynamicCompiler(defaultClassLoader);
         packet.getFilePathByteCodeMap().forEach(compiler::addSource);
@@ -53,6 +55,7 @@ public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicComp
         String reloadClass = String.join(", ", byteCodesMap.keySet());
         if (definitions.isEmpty()) {
             logger.warning("There are no classes that need to be redefined. {}", reloadClass);
+            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         try {
@@ -61,9 +64,12 @@ public class DynamicCompilerRequestHandler extends BasePacketHandler<DynamicComp
                 Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
                 instrumentation.redefineClasses(definitions.toArray(new ClassDefinition[0]));
             }
+            long end = System.currentTimeMillis();
             logger.reload("reloaded classes {}", reloadClass);
+            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
         } catch (Exception e) {
             logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
+            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
         }
     }
 
