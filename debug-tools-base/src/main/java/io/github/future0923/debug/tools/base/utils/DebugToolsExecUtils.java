@@ -154,6 +154,22 @@ public class DebugToolsExecUtils {
         return javaList.get(0);
     }
 
+    public static File findToolsJarNoCheckVersion(String javaHome) {
+        File toolsJar = new File(javaHome, "lib/tools.jar");
+        if (!toolsJar.exists()) {
+            toolsJar = new File(javaHome, "../lib/tools.jar");
+        }
+        if (!toolsJar.exists()) {
+            // maybe jre
+            toolsJar = new File(javaHome, "../../lib/tools.jar");
+        }
+        if (!toolsJar.exists()) {
+            throw new IllegalArgumentException("Can not find tools.jar under java home: " + javaHome);
+        }
+        AnsiLog.debug("Found tools.jar: " + toolsJar.getAbsolutePath());
+        return toolsJar;
+    }
+
     public static File findToolsJar(String javaHome) {
         if (DebugToolsJavaVersionUtils.isGreaterThanJava8()) {
             return null;
