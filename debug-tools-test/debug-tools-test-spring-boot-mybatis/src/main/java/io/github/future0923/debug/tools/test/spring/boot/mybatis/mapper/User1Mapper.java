@@ -15,4 +15,10 @@ public interface User1Mapper {
 
     @Select("select * from dp_user limit 1")
     List<User> aaa();
+
+    @Select("select * from dp_user limit 1")
+    List<User> c();
+
+    @Select("select * from dp_user limit 1")
+    List<User> dd();
 }

@@ -9,9 +9,8 @@ import com.intellij.openapi.util.io.FileUtil;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -47,18 +46,6 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
         }
         RunDTO runDTO = DebugToolsJsonUtils.toBean(json, RunDTO.class);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null) {
-            Messages.showErrorDialog("Run attach first", "执行失败");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-            return;
-        }
-        try {
-            info.getClient().getHolder().send(packet);
-        } catch (Exception ex) {
-            log.error("execute last request error", ex);
-            Messages.showErrorDialog(ex.getMessage(), "执行失败");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        }
+        SocketSendUtils.send(project, packet);
     }
 }

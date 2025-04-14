@@ -1,4 +1,4 @@
-package io.github.future0923.debug.tools.attach.sqlprint;
+package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import net.bytebuddy.agent.builder.AgentBuilder;

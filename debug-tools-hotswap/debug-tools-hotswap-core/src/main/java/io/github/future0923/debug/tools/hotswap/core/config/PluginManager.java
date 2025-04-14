@@ -18,6 +18,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.config;
 
+import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.InitHandler;
@@ -26,6 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.command.impl.SchedulerImpl;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderDefineClassPatcher;
+import io.github.future0923.debug.tools.hotswap.core.util.classloader.URLClassLoaderPathHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatcherFactory;
 import lombok.Getter;
@@ -159,10 +161,16 @@ public class PluginManager {
 
         ClassLoader classLoader = getClass().getClassLoader();
 
-        classLoaderConfigurations.put(classLoader, new PluginConfiguration(classLoader));
+        PluginConfiguration configuration = new PluginConfiguration(classLoader);
+
+        classLoaderConfigurations.put(classLoader, configuration);
 
         // 扫描插件
         pluginRegistry.scanPlugins(getClass().getClassLoader(), PLUGIN_PACKAGE);
+
+        ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader(instrumentation);
+
+        URLClassLoaderPathHelper.prependClassPath(defaultClassLoader, configuration.getExtraClasspath());
 
         // 注册转换器
         instrumentation.addTransformer(hotswapTransformer);

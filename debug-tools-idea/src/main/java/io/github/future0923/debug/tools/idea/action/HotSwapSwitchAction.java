@@ -1,6 +1,5 @@
 package io.github.future0923.debug.tools.idea.action;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -9,8 +8,6 @@ import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 /**
  * @author future0923
