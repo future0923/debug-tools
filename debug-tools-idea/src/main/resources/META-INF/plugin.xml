@@ -51,7 +51,8 @@
         <scratch.rootType implementation="io.github.future0923.debug.tools.idea.extensions.ScratchDebugToolsRootType"/>
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
         <nonProjectFileWritingAccessExtension implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
-
+        <!--项目启动完成后，后台异步地执行-->
+        <backgroundPostStartupActivity implementation="io.github.future0923.debug.tools.idea.startup.HotSwapStartupActivity" />
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
         <!--文件变更-->
@@ -125,6 +126,9 @@
             <action id="DebugTools.CompileXmlFileToTarget"
                     description="Run current xml file to target"
                     class="io.github.future0923.debug.tools.idea.action.CompileXmlFileToTargetAction"/>
+            <action id="DebugTools.RemoteCompiler"
+                    description="Hot deploy the current file through remote compilation"
+                    class="io.github.future0923.debug.tools.idea.action.RemoteCompilerAction"/>
             <separator/>
         </group>
         <action id="DebugTools.HttpUrl"
@@ -148,13 +152,11 @@
             <add-to-group group-id="RunToolbarMainActionGroup" anchor="after"
                           relative-to-action="MoreRunToolbarActions"/>
             <action id="HotSwapSwitchAction"
-                    class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"
-                    text="hotswap switch"
-                    description="hotswap switch"/>
-<!--            <action id="HotSwapAction"-->
-<!--                    class="io.github.future0923.debug.tools.idea.action.HotSwapAction"-->
-<!--                    text="hotswap switch"-->
-<!--                    description="hotswap switch"/>-->
+                    class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"/>
+            <action id="DeployAction"
+                    class="io.github.future0923.debug.tools.idea.action.HotDeploymentAction"
+                    text="Hot Deployment"
+                    description="Hot deploy the changed files to the attached application"/>
         </group>
     </actions>
 </idea-plugin>

@@ -120,6 +120,9 @@ public class DebugToolsFileUtils {
         return cleanPath(path1).equals(cleanPath(path2));
     }
 
+    /**
+     * 修正路径
+     */
     public static String cleanPath(String path) {
         if (path.isEmpty()) {
             return path;
@@ -289,6 +292,20 @@ public class DebugToolsFileUtils {
         return mkdir(getParent(file, 1));
     }
 
+    /**
+     * 创建文件夹，如果存在直接返回此文件夹<br>
+     * 此方法不对File对象类型做判断，如果File不存在，无法判断其类型
+     *
+     * @param dirPath 文件夹路径，使用POSIX格式，无论哪个平台
+     * @return 创建的目录
+     */
+    public static File mkdir(String dirPath) {
+        if (dirPath == null) {
+            return null;
+        }
+        final File dir = file(dirPath);
+        return mkdir(dir);
+    }
 
     /**
      * 创建文件夹，会递归自动创建其不存在的父文件夹，如果存在直接返回此文件夹<br>
@@ -307,6 +324,17 @@ public class DebugToolsFileUtils {
         return dir;
     }
 
+    /**
+     * 创建File对象
+     *
+     * @return File
+     */
+    public static File file(String path) {
+        if (null == path) {
+            return null;
+        }
+        return new File(path);
+    }
 
     /**
      * 安全地级联创建目录 (确保并发环境下能创建成功)
@@ -414,4 +442,61 @@ public class DebugToolsFileUtils {
             return DebugToolsStringUtils.containsAny(ext, UNIX_SEPARATOR, WINDOWS_SEPARATOR) ? "" : ext;
         }
     }
+
+    /**
+     * 写数据到文件中<br>
+     * 文件路径如果是相对路径，则相对ClassPath
+     *
+     * @param data 数据
+     * @param path 相对ClassPath的目录或者绝对路径目录
+     * @return 目标文件
+     */
+    public static File writeBytes(byte[] data, String path) {
+        return writeBytes(data, touch(path));
+    }
+
+    /**
+     * 写数据到文件中
+     *
+     * @param dest 目标文件
+     * @param data 数据
+     * @return 目标文件
+     */
+    public static File writeBytes(byte[] data, File dest) {
+        return writeBytes(data, dest, 0, data.length, false);
+    }
+
+    /**
+     * 写入数据到文件
+     *
+     * @param data     数据
+     * @param file     目标文件
+     * @param off      数据开始位置
+     * @param len      数据长度
+     * @param isAppend 是否追加模式
+     * @return 目标文件
+     */
+    public static File writeBytes(byte[] data, File file, int off, int len, boolean isAppend) {
+        return write(file, data, off, len, isAppend);
+    }
+
+    /**
+     * 写入数据到文件
+     *
+     * @param data     数据
+     * @param off      数据开始位置
+     * @param len      数据长度
+     * @param isAppend 是否追加模式
+     * @return 目标文件
+     */
+    public static File write(File file, byte[] data, int off, int len, boolean isAppend) {
+        try (FileOutputStream out = new FileOutputStream(touch(file), isAppend)) {
+            out.write(data, off, len);
+            out.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return file;
+    }
+
 }

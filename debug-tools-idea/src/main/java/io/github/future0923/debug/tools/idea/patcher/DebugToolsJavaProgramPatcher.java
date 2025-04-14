@@ -9,6 +9,7 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
@@ -87,6 +88,11 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                         }
                         if (!DcevmUtils.isDCEVMPresent(jdkPath)) {
                             DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
+                        }
+                        try {
+                            DebugToolsExecUtils.findToolsJarNoCheckVersion(jdkPath);
+                        } catch (Exception e) {
+                            DebugToolsNotifierUtil.notifyError(project, "Can't find tools.jar. Please run it in the JDK environment.");
                         }
                     } else {
                         DebugToolsNotifierUtil.notifyError(project, "hotswap not support " + jdkVersion + " version");

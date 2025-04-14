@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
@@ -37,13 +38,17 @@ public class FileChangedService {
     @Getter
     private boolean checkVCS;
 
+    private FileChangedService() {
+
+    }
+
     public static FileChangedService getInstance(@NotNull Project project) {
         FileChangedService service = project.getService(FileChangedService.class);
-        if (service != null && service.lastJavaScanTime == null) {
+        if (service != null) {
             service.project = project;
-            long now = System.currentTimeMillis();
-            service.lastJavaScanTime = now;
-            service.lastResourceScanTime = now;
+            Long projectOpenTime = StateUtils.getProjectOpenTime(project);
+            service.lastJavaScanTime = projectOpenTime;
+            service.lastResourceScanTime = projectOpenTime;
         }
         return service;
     }
@@ -125,7 +130,7 @@ public class FileChangedService {
         // 创建一个用于存储修改文件路径的集合
         final Set<String> modifiedFiles = new HashSet<>();
         // 获取映射路径对应的虚拟文件夹
-        VirtualFile virtualFileDir = VirtualFileUtil.getVirtualFileByPath(path);
+        VirtualFile virtualFileDir = LocalFileSystem.getInstance().findFileByPath(path);
 
         if (virtualFileDir != null) {
             // 遍历文件夹中的所有文件
