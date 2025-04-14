@@ -10,7 +10,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
@@ -46,7 +46,7 @@ public class RemoteCompilerAction extends AnAction {
             return;
         }
         String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
-        RemoteCompilerRequestPacket packet = new RemoteCompilerRequestPacket();
+        RemoteCompilerHotDeployRequestPacket packet = new RemoteCompilerHotDeployRequestPacket();
         packet.add(packetAllName, content);
         SocketSendUtils.send(project, packet);
     }
