@@ -27,7 +27,7 @@ public class UserService {
         return "a";
     }
 
-    public String c() {
-        return "c";
+    public String b() {
+        return "b";
     }
 }

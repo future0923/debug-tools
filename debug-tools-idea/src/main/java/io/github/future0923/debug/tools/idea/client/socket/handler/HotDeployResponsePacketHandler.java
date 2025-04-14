@@ -8,7 +8,7 @@ import com.intellij.execution.ui.RunContentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindowManager;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
-import io.github.future0923.debug.tools.common.protocal.packet.response.RemoteCompilerResponsePacket;
+import io.github.future0923.debug.tools.common.protocal.packet.response.HotDeployResponsePacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.ui.console.MyConsolePanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
@@ -21,15 +21,15 @@ import java.io.OutputStream;
 /**
  * @author future0923
  */
-public class RemoteCompilerResponseHandler extends BasePacketHandler<RemoteCompilerResponsePacket> {
+public class HotDeployResponsePacketHandler extends BasePacketHandler<HotDeployResponsePacket> {
 
-    public static final RemoteCompilerResponseHandler INSTANCE = new RemoteCompilerResponseHandler();
+    public static final HotDeployResponsePacketHandler INSTANCE = new HotDeployResponsePacketHandler();
 
-    private RemoteCompilerResponseHandler() {
+    private HotDeployResponsePacketHandler() {
     }
 
     @Override
-    public void handle(OutputStream outputStream, RemoteCompilerResponsePacket packet) throws Exception {
+    public void handle(OutputStream outputStream, HotDeployResponsePacket packet) throws Exception {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
         if (info == null) {
             DebugToolsNotifierUtil.notifyError(null, "未找到应用" + packet.getApplicationName() + "的链接信息");
@@ -49,7 +49,7 @@ public class RemoteCompilerResponseHandler extends BasePacketHandler<RemoteCompi
         });
     }
 
-    private static @NotNull RunContentDescriptor getRunContentDescriptor(RemoteCompilerResponsePacket packet, Project project, String consoleTitle) {
+    private static @NotNull RunContentDescriptor getRunContentDescriptor(HotDeployResponsePacket packet, Project project, String consoleTitle) {
         MyConsolePanel consolePanel = new MyConsolePanel(project);
         consolePanel.print(packet.getPrintResult(), packet.isSuccess() ? ConsoleViewContentType.NORMAL_OUTPUT : ConsoleViewContentType.ERROR_OUTPUT);
         return new RunContentDescriptor(null, null, consolePanel, consoleTitle) {
