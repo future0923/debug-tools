@@ -26,6 +26,8 @@ public class AgentArgs {
 
     private String disabledPlugins;
 
+    private String propertiesFilePath;
+
     public static AgentArgs parse(String agentArgs) {
         AgentArgs config = new AgentArgs();
         if (DebugToolsStringUtils.isNotBlank(agentArgs)) {

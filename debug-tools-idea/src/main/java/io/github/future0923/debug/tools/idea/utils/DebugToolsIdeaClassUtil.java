@@ -8,8 +8,21 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DebugToolsIdeaClassUtil {
+
+    private static final Pattern pattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", Pattern.MULTILINE);
+
+    public static String getPackageName(String content) {
+        Matcher matcher = pattern.matcher(content);
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+    }
 
     public static String getMethodQualifiedName(PsiMethod psiMethod) {
         // 获取方法所在的Psi类， 在代码分析、重构和导航时非常有用，因为它允许你获取方法所属的类，从而可以执行各种操作，比如检查类的属性、调用其他方法等。

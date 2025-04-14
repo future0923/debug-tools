@@ -1,7 +1,6 @@
 package io.github.future0923.debug.tools.idea.ui.hotswap;
 
 import cn.hutool.core.io.FileUtil;
-import com.intellij.configurationStore.StoreReloadManager;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -11,18 +10,22 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileUtil;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
-import io.github.future0923.debug.tools.idea.utils.VirtualFileUtil;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,21 +49,20 @@ public class HotSwapDialog extends DialogWrapper {
     private final Project project;
     private final List<String> fullPathJavaFiles = new ArrayList<>();
     private final List<String> fullPathResourceFiles = new ArrayList<>();
-    private final Pattern pattern = Pattern.compile("^\\s*package\\s+([\\w.]+)\\s*;", 8);
 
     public HotSwapDialog(@Nullable Project project) {
         super(project, true);
         this.project = project;
         this.hotUndoShowList = new DefaultListModel<>();
         this.init();
-        this.setTitle("变动的文件");
+        this.setTitle("Change Files");
         this.pack();
     }
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
         JPanel mainPanel = new JPanel(new GridLayoutManager(5, 2));
-        mainPanel.setPreferredSize(new Dimension(600, 450));
+        mainPanel.setPreferredSize(new Dimension(800, 450));
         JRadioButton javaRadio = new JRadioButton("Java");
         javaRadio.addItemListener((e) -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -127,81 +129,98 @@ public class HotSwapDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        List<VirtualFile> virtualFiles = getHotUndoList().stream().map(VirtualFileUtil::getVirtualFileByPath).toList();
+        List<VirtualFile> virtualFiles = getHotUndoList().stream().map(LocalFileSystem.getInstance()::findFileByPath).toList();
         if (!virtualFiles.isEmpty()) {
-            // 获取编译管理器实例
-            CompilerManager compilerManager = CompilerManager.getInstance(project);
-            // 创建编译范围
-            CompileScope scope = compilerManager.createFilesCompileScope(virtualFiles.toArray(new VirtualFile[0]));
-            // 编译这些文件
-            compilerManager.compile(scope, (aborted, errors, warnings, compileContext) -> {
-                if (errors > 0) {
-                    // 记录错误日志
-                    log.error("Compilation failed with errors: " + errors + ", warnings: " + warnings);
-                } else {
-                    // 编译成功后，更新文件并上传
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        Set<VirtualFile> allOutputs = new HashSet<>();
-                        List<ClassFilePath> allOutputClasses = new ArrayList<>();
-                        // 遍历所有虚拟文件
-                        virtualFiles.forEach((selectedFile) -> {
-                            // 获取输出目录
-                            VirtualFile outputDirectory = compileContext.getModuleOutputDirectory(compileContext.getModuleByFile(selectedFile));
-                            if (outputDirectory == null) {
-                                log.error("Output directory error.");
-                            } else {
-                                // 如果输出目录未刷新，则刷新它
-                                if (!allOutputs.contains(outputDirectory)) {
-                                    outputDirectory.refresh(false, true);
-                                    allOutputs.add(outputDirectory);
-                                }
-                                // 获取源文件路径和内容
-                                String sourceFilePath = selectedFile.getPath();
-                                Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
-                                String content = document.getText();
-
-                                Matcher matcher = pattern.matcher(content);
-                                String packageName;
-                                if (matcher.find()) {
-                                    packageName = matcher.group(1);
-                                } else {
-                                    log.error("解析package失败");
-                                    return;
-                                }
-                                String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");
-                                // 构建源文件的基本名称
-                                String sourceFileBaseName = packageName.replace(".", "/") + "/" + className;
-                                // 收集编译后的类文件
-                                List<ClassFilePath> outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
-                                // 如果未找到类文件，再次刷新输出目录并尝试收集
-                                if (outputClasses.isEmpty()) {
-                                    outputDirectory.refresh(false, true);
-                                    outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
-                                }
-                                allOutputClasses.addAll(outputClasses);
-                            }
-                        });
-                        HotSwapRequestPacket hotSwapRequestPacket = new HotSwapRequestPacket();
-                        for (ClassFilePath allOutputClass : allOutputClasses) {
-                            hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
-                        }
-                        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-                        if (info == null) {
-                            Messages.showErrorDialog("Run attach first", "执行失败");
-                            DebugToolsToolWindowFactory.showWindow(project, null);
-                            return;
-                        }
-                        try {
-                            info.getClient().getHolder().send(hotSwapRequestPacket);
-                        } catch (Exception ex) {
-                            log.error("execute last request error", ex);
-                            Messages.showErrorDialog(ex.getMessage(), "执行失败");
-                        }
-                    });
-                }
-            });
+            remoteCompiler(virtualFiles);
         }
         super.doOKAction();
+    }
+
+    private void remoteCompiler(List<VirtualFile> virtualFiles) {
+        // 编译成功后，更新文件并上传
+        ApplicationManager.getApplication().invokeLater(() -> {
+            RemoteCompilerRequestPacket packet = new RemoteCompilerRequestPacket();
+            for (VirtualFile virtualFile : virtualFiles) {
+                String content = VirtualFileUtil.readText(virtualFile);
+                // 获取源文件路径和内容
+                String packageName = DebugToolsIdeaClassUtil.getPackageName(content);
+                if (packageName == null) {
+                    return;
+                }
+                String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
+                packet.add(packetAllName, content);
+            }
+            SocketSendUtils.send(project, packet);
+        });
+    }
+
+    private void localCompiler(List<VirtualFile> virtualFiles) {
+        // 获取编译管理器实例
+        CompilerManager compilerManager = CompilerManager.getInstance(project);
+        // 创建编译范围
+        CompileScope scope = compilerManager.createFilesCompileScope(virtualFiles.toArray(new VirtualFile[0]));
+        // 编译这些文件
+        compilerManager.compile(scope, (aborted, errors, warnings, compileContext) -> {
+            if (errors > 0) {
+                // 记录错误日志
+                log.error("Compilation failed with errors: " + errors + ", warnings: " + warnings);
+            } else {
+                // 编译成功后，更新文件并上传
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    Set<VirtualFile> allOutputs = new HashSet<>();
+                    List<ClassFilePath> allOutputClasses = new ArrayList<>();
+                    // 遍历所有虚拟文件
+                    virtualFiles.forEach((selectedFile) -> {
+                        // 获取输出目录
+                        VirtualFile outputDirectory = compileContext.getModuleOutputDirectory(compileContext.getModuleByFile(selectedFile));
+                        if (outputDirectory == null) {
+                            log.error("Output directory error.");
+                        } else {
+                            // 如果输出目录未刷新，则刷新它
+                            if (!allOutputs.contains(outputDirectory)) {
+                                outputDirectory.refresh(false, true);
+                                allOutputs.add(outputDirectory);
+                            }
+                            // 获取源文件路径和内容
+                            String sourceFilePath = selectedFile.getPath();
+                            Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
+                            String packageName = DebugToolsIdeaClassUtil.getPackageName(document.getText());
+                            if (packageName == null) {
+                                log.error("解析package失败");
+                                return;
+                            }
+                            String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");
+                            // 构建源文件的基本名称
+                            String sourceFileBaseName = packageName.replace(".", "/") + "/" + className;
+                            // 收集编译后的类文件
+                            List<ClassFilePath> outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
+                            // 如果未找到类文件，再次刷新输出目录并尝试收集
+                            if (outputClasses.isEmpty()) {
+                                outputDirectory.refresh(false, true);
+                                outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
+                            }
+                            allOutputClasses.addAll(outputClasses);
+                        }
+                    });
+                    HotSwapRequestPacket hotSwapRequestPacket = new HotSwapRequestPacket();
+                    for (ClassFilePath allOutputClass : allOutputClasses) {
+                        hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
+                    }
+                    ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+                    if (info == null) {
+                        Messages.showErrorDialog("Run attach first", "执行失败");
+                        DebugToolsToolWindowFactory.showWindow(project, null);
+                        return;
+                    }
+                    try {
+                        info.getClient().getHolder().send(hotSwapRequestPacket);
+                    } catch (Exception ex) {
+                        log.error("execute last request error", ex);
+                        Messages.showErrorDialog(ex.getMessage(), "执行失败");
+                    }
+                });
+            }
+        });
     }
 
     private static List<ClassFilePath> collectClassFiles(VirtualFile directory, final String sourceFileBaseName) {

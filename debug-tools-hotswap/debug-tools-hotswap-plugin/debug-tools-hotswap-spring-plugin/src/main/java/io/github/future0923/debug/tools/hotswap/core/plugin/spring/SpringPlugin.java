@@ -168,7 +168,7 @@ public class SpringPlugin {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("Spring basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackageURL, new SpringBeanWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new SpringBeanWatchEventListener(scheduler, appClassLoader, basePackage));
             }
         }
     }
