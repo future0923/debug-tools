@@ -17,13 +17,13 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCompilerRequestPacket extends Packet {
+public class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     private Map<String, String> filePathByteCodeMap = new HashMap<>();
 
     @Override
     public Byte getCommand() {
-        return Command.REMOTE_COMPILER_REQUEST;
+        return Command.REMOTE_COMPILER_HOT_DEPLOY_REQUEST;
     }
 
     @Override

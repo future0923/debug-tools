@@ -9,24 +9,26 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileUtil;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
+import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.SimpleTextAttributes;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
 import lombok.Data;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,14 +45,18 @@ import java.util.regex.Pattern;
 /**
  * @author future0923
  */
-public class HotSwapDialog extends DialogWrapper {
-    private static final Logger log = Logger.getInstance(HotSwapDialog.class);
+public class HotDeployDialog extends DialogWrapper {
+    private static final Logger log = Logger.getInstance(HotDeployDialog.class);
+    @Getter
     private final DefaultListModel<String> hotUndoShowList;
     private final Project project;
     private final List<String> fullPathJavaFiles = new ArrayList<>();
     private final List<String> fullPathResourceFiles = new ArrayList<>();
+    private boolean local = true;
+    private boolean isJava = true;
+    private boolean checkVCS = false;
 
-    public HotSwapDialog(@Nullable Project project) {
+    public HotDeployDialog(@Nullable Project project) {
         super(project, true);
         this.project = project;
         this.hotUndoShowList = new DefaultListModel<>();
@@ -61,11 +67,21 @@ public class HotSwapDialog extends DialogWrapper {
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        JPanel mainPanel = new JPanel(new GridLayoutManager(5, 2));
-        mainPanel.setPreferredSize(new Dimension(800, 450));
+        JPanel compilerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        ButtonGroup compilerButtonGroup = new ButtonGroup();
+        JRadioButton localRadio = new JRadioButton("Local Intellij Idea");
+        localRadio.setSelected(true);
+        localRadio.addItemListener((e) -> local = true);
+        JRadioButton remoteRadio = new JRadioButton("Remote Attach Application");
+        remoteRadio.addItemListener((e) -> local = false);
+        compilerButtonGroup.add(localRadio);
+        compilerButtonGroup.add(remoteRadio);
+        compilerPanel.add(localRadio);
+        compilerPanel.add(remoteRadio);
         JRadioButton javaRadio = new JRadioButton("Java");
         javaRadio.addItemListener((e) -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
+                isJava = true;
                 FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
                 fileChangedBean.setSelectResource(false);
                 this.fillInJavaFiles();
@@ -74,28 +90,24 @@ public class HotSwapDialog extends DialogWrapper {
         //JRadioButton resourceRadio = new JRadioButton("Resource(mapping path)");
         //resourceRadio.addItemListener((e) -> {
         //    if (e.getStateChange() == ItemEvent.SELECTED) {
+        //        isJava = false;
         //        FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
         //        fileChangedBean.setSelectResource(true);
         //        this.fillInResourceFiles();
         //    }
         //
         //});
-        JPanel optPanel = new JPanel();
+        JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         ButtonGroup group = new ButtonGroup();
         group.add(javaRadio);
         //group.add(resourceRadio);
-        optPanel.add(Box.createHorizontalStrut(50));
         optPanel.add(javaRadio);
-        optPanel.add(Box.createHorizontalStrut(10));
         //optPanel.add(resourceRadio);
         JCheckBox vcs = new JCheckBox("Vcs(git/svn)");
         vcs.addItemListener((e) -> {
             FileChangedService fileChangedBean = FileChangedService.getInstance(project);
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                fileChangedBean.setCheckVCS(true);
-            } else {
-                fileChangedBean.setCheckVCS(false);
-            }
+            checkVCS = e.getStateChange() == ItemEvent.SELECTED;
+            fileChangedBean.setCheckVCS(checkVCS);
             this.fullPathResourceFiles.clear();
             this.fullPathJavaFiles.clear();
             if (this.isResource()) {
@@ -103,16 +115,22 @@ public class HotSwapDialog extends DialogWrapper {
             } else {
                 this.fillInJavaFiles();
             }
-
         });
-        optPanel.add(Box.createHorizontalStrut(30));
         optPanel.add(vcs);
-        mainPanel.add(optPanel, new GridConstraints(0, 0, 1, 2, 8, 0, 0, 0, (Dimension) null, (Dimension) null, (Dimension) null));
         final JBList<String> jbList = new JBList<>(this.hotUndoShowList);
+        jbList.setCellRenderer(new ColoredListCellRenderer<String>() {
+            @Override
+            protected void customizeCellRenderer(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
+                if (value.startsWith("src/main")) {
+                    append(value, new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.BLUE));
+                } else {
+                    append(value);
+                }
+            }
+        });
         JBScrollPane scrollPane = new JBScrollPane(jbList);
-        Dimension minimumSize = new Dimension(100, 50);
+        Dimension minimumSize = new Dimension(950, 400);
         scrollPane.setMinimumSize(minimumSize);
-        mainPanel.add(scrollPane, new GridConstraints(1, 0, 4, 2, 8, 3, 5, 5, (Dimension) null, (Dimension) null, (Dimension) null));
         FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
         if (fileChangedBean.isCheckVCS()) {
             vcs.setSelected(true);
@@ -124,14 +142,36 @@ public class HotSwapDialog extends DialogWrapper {
             javaRadio.setSelected(true);
             this.fillInJavaFiles();
         }
-        return mainPanel;
+        MulticasterEventPublisher publisher = new MulticasterEventPublisher();
+        HotDeployToolBar mainToolBar = new HotDeployToolBar(publisher);
+        publisher.addListener(new AddListener(project, this));
+        publisher.addListener(new DeleteListener(this, jbList));
+        publisher.addListener(new ClearListener(this));
+        publisher.addListener(new ResetListener(this));
+        FormBuilder formBuilder = FormBuilder.createFormBuilder();
+        formBuilder.addLabeledComponent(
+                        new JBLabel("Compiler type:"),
+                        compilerPanel
+                )
+                .addLabeledComponent(
+                        new JBLabel("Select type:"),
+                        optPanel
+                        )
+                .addComponent(mainToolBar)
+                .addComponent(scrollPane);
+        return formBuilder.getPanel();
     }
+
 
     @Override
     protected void doOKAction() {
         List<VirtualFile> virtualFiles = getHotUndoList().stream().map(LocalFileSystem.getInstance()::findFileByPath).toList();
         if (!virtualFiles.isEmpty()) {
-            remoteCompiler(virtualFiles);
+            if (local) {
+                localCompiler(virtualFiles);
+            } else {
+                remoteCompiler(virtualFiles);
+            }
         }
         super.doOKAction();
     }
@@ -139,7 +179,7 @@ public class HotSwapDialog extends DialogWrapper {
     private void remoteCompiler(List<VirtualFile> virtualFiles) {
         // 编译成功后，更新文件并上传
         ApplicationManager.getApplication().invokeLater(() -> {
-            RemoteCompilerRequestPacket packet = new RemoteCompilerRequestPacket();
+            RemoteCompilerHotDeployRequestPacket packet = new RemoteCompilerHotDeployRequestPacket();
             for (VirtualFile virtualFile : virtualFiles) {
                 String content = VirtualFileUtil.readText(virtualFile);
                 // 获取源文件路径和内容
@@ -202,22 +242,11 @@ public class HotSwapDialog extends DialogWrapper {
                             allOutputClasses.addAll(outputClasses);
                         }
                     });
-                    HotSwapRequestPacket hotSwapRequestPacket = new HotSwapRequestPacket();
+                    LocalCompilerHotDeployRequestPacket hotSwapRequestPacket = new LocalCompilerHotDeployRequestPacket();
                     for (ClassFilePath allOutputClass : allOutputClasses) {
                         hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
                     }
-                    ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-                    if (info == null) {
-                        Messages.showErrorDialog("Run attach first", "执行失败");
-                        DebugToolsToolWindowFactory.showWindow(project, null);
-                        return;
-                    }
-                    try {
-                        info.getClient().getHolder().send(hotSwapRequestPacket);
-                    } catch (Exception ex) {
-                        log.error("execute last request error", ex);
-                        Messages.showErrorDialog(ex.getMessage(), "执行失败");
-                    }
+                    SocketSendUtils.send(project, hotSwapRequestPacket);
                 });
             }
         });
@@ -336,5 +365,18 @@ public class HotSwapDialog extends DialogWrapper {
         private String className;
         private String fullPath;
         private byte[] payload;
+    }
+
+    public void reset() {
+        FileChangedService instance = FileChangedService.getInstance(project);
+        instance.setSelectResource(!isJava);
+        instance.setCheckVCS(checkVCS);
+        if (isJava) {
+            fullPathJavaFiles.clear();
+            fillInJavaFiles();
+        } else {
+            fullPathResourceFiles.clear();
+            fillInResourceFiles();
+        }
     }
 }

@@ -4,14 +4,14 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
-import io.github.future0923.debug.tools.common.protocal.packet.request.HotSwapRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.HeartBeatResponsePacket;
-import io.github.future0923.debug.tools.common.protocal.packet.response.RemoteCompilerResponsePacket;
+import io.github.future0923.debug.tools.common.protocal.packet.response.HotDeployResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunGroovyScriptResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.serializer.Serializer;
@@ -64,9 +64,9 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.CLEAR_RUN_RESULT, ClearRunResultRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_REQUEST, RunGroovyScriptRequestPacket.class);
         this.packetTypeMap.put(Command.RUN_GROOVY_SCRIPT_RESPONSE, RunGroovyScriptResponsePacket.class);
-        this.packetTypeMap.put(Command.HOTSWAP_REQUEST, HotSwapRequestPacket.class);
-        this.packetTypeMap.put(Command.REMOTE_COMPILER_REQUEST, RemoteCompilerRequestPacket.class);
-        this.packetTypeMap.put(Command.REMOTE_COMPILER_RESPONSE, RemoteCompilerResponsePacket.class);
+        this.packetTypeMap.put(Command.LOCAL_COMPILER_HOT_DEPLOY_REQUEST, LocalCompilerHotDeployRequestPacket.class);
+        this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_REQUEST, RemoteCompilerHotDeployRequestPacket.class);
+        this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_RESPONSE, HotDeployResponsePacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 
