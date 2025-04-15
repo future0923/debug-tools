@@ -45,4 +45,11 @@ public class DebugToolsIcons {
         public static final Icon Deploy = IconLoader.getIcon("/icon/hotswap/hot_deployment.svg", DebugToolsIcons.class);
         public static final Icon RemoteCompiler = IconLoader.getIcon("/icon/hotswap/remote_compiler.svg", DebugToolsIcons.class);
     }
+
+    public static final class Action {
+        public static final Icon Add = IconLoader.getIcon("/icon/action/add.svg", DebugToolsIcons.class);
+        public static final Icon Delete = IconLoader.getIcon("/icon/action/delete.svg", DebugToolsIcons.class);
+        public static final Icon Clear = IconLoader.getIcon("/icon/action/clear.svg", DebugToolsIcons.class);
+        public static final Icon Reset = IconLoader.getIcon("/icon/action/reset.svg", DebugToolsIcons.class);
+    }
 }
