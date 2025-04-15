@@ -39,7 +39,13 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends 
     @Override
     public void handle(OutputStream outputStream, T packet) throws Exception {
         long start = System.currentTimeMillis();
-        Map<String, byte[]> byteCodesMap = getByteCodes(packet);
+        Map<String, byte[]> byteCodesMap;
+        try {
+            byteCodesMap = getByteCodes(packet);
+        } catch (Exception e) {
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            return;
+        }
         ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader();
         writeFile(byteCodesMap);
         List<ClassDefinition> definitions = new ArrayList<>();
