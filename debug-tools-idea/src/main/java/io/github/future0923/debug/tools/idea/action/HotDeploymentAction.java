@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAwareAction;
-import io.github.future0923.debug.tools.idea.ui.hotswap.HotSwapDialog;
+import io.github.future0923.debug.tools.idea.ui.hotswap.HotDeployDialog;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,8 +20,8 @@ public class HotDeploymentAction extends DumbAwareAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         FileDocumentManager.getInstance().saveAllDocuments();
-        HotSwapDialog hotSwapDialog = new HotSwapDialog(e.getProject());
-        hotSwapDialog.show();
+        HotDeployDialog hotDeployDialog = new HotDeployDialog(e.getProject());
+        hotDeployDialog.show();
     }
 
     @Override

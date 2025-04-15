@@ -6,13 +6,12 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerRequestPacket;
-import io.github.future0923.debug.tools.common.protocal.packet.response.RemoteCompilerResponsePacket;
+import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.github.future0923.debug.tools.common.protocal.packet.response.HotDeployResponsePacket;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
-import io.github.future0923.debug.tools.server.compiler.DynamicCompiler;
 
 import java.io.File;
 import java.io.OutputStream;
@@ -26,25 +25,28 @@ import java.util.Map;
 /**
  * @author future0923
  */
-public class RemoteCompilerRequestHandler extends BasePacketHandler<RemoteCompilerRequestPacket> {
+public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends BasePacketHandler<T> {
 
-    private static final Logger logger = Logger.getLogger(RemoteCompilerRequestHandler.class);
+    private static final Logger logger = Logger.getLogger(AbstractHotDeployRequestHandler.class);
 
-    public static final RemoteCompilerRequestHandler INSTANCE = new RemoteCompilerRequestHandler();
+    /**
+     * instrumentation的redefineClasses锁
+     */
+    protected final Object hotswapLock = new Object();
 
-    private static final Object hotswapLock = new Object();
-
-    private RemoteCompilerRequestHandler() {
-
-    }
+    protected abstract Map<String, byte[]> getByteCodes(T packet);
 
     @Override
-    public void handle(OutputStream outputStream, RemoteCompilerRequestPacket packet) throws Exception {
+    public void handle(OutputStream outputStream, T packet) throws Exception {
         long start = System.currentTimeMillis();
+        Map<String, byte[]> byteCodesMap;
+        try {
+            byteCodesMap = getByteCodes(packet);
+        } catch (Exception e) {
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            return;
+        }
         ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader();
-        DynamicCompiler compiler = new DynamicCompiler(defaultClassLoader);
-        packet.getFilePathByteCodeMap().forEach(compiler::addSource);
-        Map<String, byte[]> byteCodesMap = compiler.buildByteCodes();
         writeFile(byteCodesMap);
         List<ClassDefinition> definitions = new ArrayList<>();
         for (Map.Entry<String, byte[]> entry : byteCodesMap.entrySet()) {
@@ -55,7 +57,7 @@ public class RemoteCompilerRequestHandler extends BasePacketHandler<RemoteCompil
         String reloadClass = String.join(", ", byteCodesMap.keySet());
         if (definitions.isEmpty()) {
             logger.warning("There are no classes that need to be redefined. {}", reloadClass);
-            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         try {
@@ -65,15 +67,14 @@ public class RemoteCompilerRequestHandler extends BasePacketHandler<RemoteCompil
                 instrumentation.redefineClasses(definitions.toArray(new ClassDefinition[0]));
             }
             long end = System.currentTimeMillis();
-            logger.reload("reloaded classes {}", reloadClass);
-            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
         } catch (Exception e) {
             logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
-            writeAndFlushNotException(outputStream, RemoteCompilerResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
         }
     }
 
-    private void writeFile(Map<String, byte[]> byteCodesMap) {
+    protected void writeFile(Map<String, byte[]> byteCodesMap) {
         PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(DefaultClassLoader.getDefaultClassLoader());
         if (pluginConfiguration == null) {
             logger.error("Failure to retrieve PluginConfiguration. Please ensure that the project is started in hot reload mode.");

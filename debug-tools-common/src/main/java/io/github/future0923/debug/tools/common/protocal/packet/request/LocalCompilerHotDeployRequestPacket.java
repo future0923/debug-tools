@@ -17,13 +17,13 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class HotSwapRequestPacket extends Packet {
+public class LocalCompilerHotDeployRequestPacket extends Packet {
 
     private Map<String, byte[]> filePathByteCodeMap = new HashMap<>();
 
     @Override
     public Byte getCommand() {
-        return Command.HOTSWAP_REQUEST;
+        return Command.LOCAL_COMPILER_HOT_DEPLOY_REQUEST;
     }
 
     @Override
