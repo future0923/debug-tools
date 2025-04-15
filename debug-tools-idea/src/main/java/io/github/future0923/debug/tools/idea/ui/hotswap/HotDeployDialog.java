@@ -121,7 +121,7 @@ public class HotDeployDialog extends DialogWrapper {
         jbList.setCellRenderer(new ColoredListCellRenderer<String>() {
             @Override
             protected void customizeCellRenderer(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
-                if (value.startsWith("src/main")) {
+                if (!value.startsWith("/")) {
                     append(value, new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.BLUE));
                 } else {
                     append(value);
