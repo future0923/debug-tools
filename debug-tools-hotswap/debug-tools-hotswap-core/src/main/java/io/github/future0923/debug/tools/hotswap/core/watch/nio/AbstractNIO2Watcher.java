@@ -21,6 +21,7 @@ package io.github.future0923.debug.tools.hotswap.core.watch.nio;
 import cn.hutool.core.io.FileUtil;
 import com.sun.nio.file.ExtendedWatchEventModifier;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
@@ -158,6 +159,7 @@ public abstract class AbstractNIO2Watcher implements Watcher {
         }
         PluginConfiguration configuration = PluginManager.getInstance().getPluginConfiguration(classLoader);
         URL[] extraClasspath = configuration.getExtraClasspath();
+        basePackage = DebugToolsStringUtils.getClassNameRemoveStar(basePackage);
         for (URL url : extraClasspath) {
             String basePackagePath = url.getPath() + basePackage.replace(".", File.separator);
             FileUtil.mkdir(basePackagePath);

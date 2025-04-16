@@ -18,8 +18,9 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
-import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -100,15 +101,7 @@ public class ClassLoaderHelper {
      * 通过ClassLoader获取Package的资源信息
      */
     public static Enumeration<URL> getResources(ClassLoader appClassLoader, String basePackage) throws IOException {
-        String resourceName = basePackage;
-        int index = resourceName.indexOf('*');
-        if (index != -1) {
-            resourceName = resourceName.substring(0, index);
-            index = resourceName.lastIndexOf('.');
-            if (index != -1) {
-                resourceName = resourceName.substring(0, index);
-            }
-        }
+        String resourceName = DebugToolsStringUtils.getClassNameRemoveStar(basePackage);
         resourceName = resourceName.replace('.', '/');
         return appClassLoader.getResources(resourceName);
     }

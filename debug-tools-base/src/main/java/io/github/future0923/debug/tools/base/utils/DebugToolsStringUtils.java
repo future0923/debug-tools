@@ -260,4 +260,21 @@ public class DebugToolsStringUtils {
         }
         return regexp;
     }
+
+    /**
+     * 移除包名中的 .* .** .***信息。
+     * eg：io.github.* => io.github
+     */
+    public static String getClassNameRemoveStar(String basePackage) {
+        String resourceName = basePackage;
+        int index = resourceName.indexOf('*');
+        if (index != -1) {
+            resourceName = resourceName.substring(0, index);
+            index = resourceName.lastIndexOf('.');
+            if (index != -1) {
+                resourceName = resourceName.substring(0, index);
+            }
+        }
+        return resourceName;
+    }
 }
