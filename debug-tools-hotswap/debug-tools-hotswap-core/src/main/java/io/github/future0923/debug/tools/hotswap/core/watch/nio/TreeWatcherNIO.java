@@ -73,7 +73,7 @@ public class TreeWatcherNIO extends AbstractNIO2Watcher {
 
     @Override
     protected void registerAll(Path dir, boolean fromCreateEvent) throws IOException {
-        LOGGER.info("Registering directory {} ", dir);
+        LOGGER.debug("Registering directory {} ", dir);
         register(dir);
     }
 }
