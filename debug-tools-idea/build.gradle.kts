@@ -1,84 +1,134 @@
-import org.jetbrains.intellij.tasks.BuildSearchableOptionsTask
+import org.gradle.api.JavaVersion.VERSION_17
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.BuildSearchableOptionsTask
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
 
-fun properties(key: String) = providers.gradleProperty(key)
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url = uri("https://maven.aliyun.com/repository/public/") }
+        mavenCentral()
+    }
+}
 
 plugins {
+    idea
     id("java")
-    id("org.jetbrains.intellij") version "1.17.2"
+    id("org.jetbrains.intellij.platform") version "2.5.0"
 }
+
+val pluginVersionString = prop("pluginVersion")
+val ideVersion = prop("ideVersion")
 
 group = "io.github.future0923"
-version = "4.0.0-SNAPSHOT"
+version = pluginVersionString
 
-repositories {
-    mavenLocal()
-    maven { url = uri("https://maven.aliyun.com/repository/public/") }
-    mavenCentral()
+val platformVersion = when {
+    // e.g. '2024.1'
+    ideVersion.length == 6 -> ideVersion.replace(".", "").substring(2).toInt()
+    // e.g. '243.16718.32'
+    else -> ideVersion.substringBefore(".").toInt()
 }
 
-dependencies {
-    implementation("io.github.future0923:debug-tools-common:4.0.0-SNAPSHOT")
-    implementation("io.github.future0923:debug-tools-client:4.0.0-SNAPSHOT")
-    implementation("cn.hutool:hutool-http:5.8.29")
-    compileOnly("org.projectlombok:lombok:1.18.32")
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
-}
-
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    pluginName.set("DebugTools")
-    version.set("2024.3")
-//    version.set("2024.2")
-//    version.set("2024.1")
-//    version.set("2023.3")
-//    version.set("2023.2")
-//    version.set("2023.1")
-    type.set("IU")
-    plugins.set(listOf("com.intellij.java", "com.intellij.modules.json"))
-//    plugins.set(listOf("com.intellij.java"))
-//    plugins = ["java"]
-}
-
-tasks {
-    withType<JavaCompile> {
-//        getOptions().setEncoding("UTF-8")
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
-        options.encoding = "UTF-8"
+allprojects {
+    apply {
+        plugin("idea")
+        plugin("java")
+        plugin("org.jetbrains.intellij.platform.module")
     }
 
-    withType<BuildSearchableOptionsTask> {
-        enabled = false
+    repositories {
+        mavenLocal()
+        maven { url = uri("https://maven.aliyun.com/repository/public/") }
+        mavenCentral()
+        intellijPlatform {
+            defaultRepositories()
+        }
     }
 
-    patchPluginXml {
-        sinceBuild.set("231")
-//        untilBuild.set("243.*")
+    dependencies {
+        intellijPlatform {
+            intellijIdeaUltimate(ideVersion)
+            // using "Bundled" to gain access to the Java plugin's test classes
+            testFramework(TestFrameworkType.Bundled)
+
+            bundledPlugin("com.intellij.java")
+
+            // 2024.3 extracted JSON support into a plugin
+            if (platformVersion >= 243) {
+                bundledPlugin("com.intellij.modules.json")
+            }
+        }
+        implementation("io.github.future0923:debug-tools-common:4.0.0-SNAPSHOT")
+        implementation("io.github.future0923:debug-tools-client:4.0.0-SNAPSHOT")
+        implementation("cn.hutool:hutool-http:5.8.29")
+        compileOnly("org.projectlombok:lombok:1.18.32")
+        annotationProcessor("org.projectlombok:lombok:1.18.32")
     }
 
-    register<Copy>("movePluginZip") {
-        from(layout.buildDirectory.dir("distributions"))
-        into(layout.projectDirectory.dir("../dist"))
-        include("*.zip")
+    intellijPlatform {
+        instrumentCode = false
     }
 
-    register<Delete>("cleanPluginZip") {
-        delete(fileTree(layout.projectDirectory.dir("../dist")) {
-            include("*.zip") // 只删除 .zip 文件
-        })
+    configure<JavaPluginExtension> {
+        sourceCompatibility = VERSION_17
+        targetCompatibility = VERSION_17
     }
 
+    tasks {
+        withType<JavaCompile> {
+            sourceCompatibility = "17"
+            targetCompatibility = "17"
+            options.encoding = "UTF-8"
+        }
+        withType<BuildSearchableOptionsTask> {
+            enabled = false
+        }
+    }
 }
 
-tasks.named("build") {
-    finalizedBy("movePluginZip")
+project(":") {
+    apply {
+        plugin("java")
+        plugin("org.jetbrains.intellij.platform")
+    }
+
+    dependencies {
+        intellijPlatform {
+            pluginVerifier()
+        }
+    }
+
+    intellijPlatform {
+        pluginConfiguration {
+
+            version = pluginVersionString
+
+            ideaVersion {
+                sinceBuild.set(prop("sinceBuild"))
+                untilBuild.set(prop("untilBuild"))
+            }
+        }
+
+        pluginVerification {
+
+            ides {
+                ides(prop("ideVersionVerifier").split(","))
+            }
+
+            failureLevel.set(
+                listOf(
+                    FailureLevel.INTERNAL_API_USAGES,
+                    FailureLevel.COMPATIBILITY_PROBLEMS,
+                    FailureLevel.OVERRIDE_ONLY_API_USAGES,
+                    FailureLevel.NON_EXTENDABLE_API_USAGES,
+                    FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
+                )
+            )
+        }
+    }
 }
 
-tasks.named("buildPlugin") {
-    finalizedBy("movePluginZip")
-}
-
-tasks.named("clean") {
-    finalizedBy("cleanPluginZip")
+fun prop(name: String): String {
+    return extra.properties[name] as? String ?: error("Property `$name` is not defined in gradle.properties")
 }
