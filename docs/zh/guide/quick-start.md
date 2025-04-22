@@ -10,6 +10,10 @@
 
 ![marketplace](/images/marketplace.png){v-zoom}
 
+::: tip 2025.1版本的 Intellij Idea
+由于 jetbrains Marketplace 插件验证器的BUG，3.4.4 版本无法安装，请使用下面的 [离线安装](https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip) 或者 [Github](https://github.com/future0923/debug-tools/releases) 或者 [Gitee](https://gitee.com/future94/debug-tools/releases) 安装。
+:::
+
 ### 自行安装 {#manual-installation}
 ::: code-group
 
