@@ -10,6 +10,10 @@
 
 ![marketplace](/images/marketplace.png){v-zoom}
 
+::: tip 2025.1 version of Intellij Idea
+Due to a bug in the jetbrains Marketplace plugin validator, version 3.4.4 cannot be installed. Please use the following [offline installation](https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip) or [Github](https://github.com/future0923/debug-tools/releases) or [Gitee](https://gitee.com/future94/debug-tools/releases) to install.
+:::
+
 ### Manual Install {#manual-installation}
 
 ::: code-group

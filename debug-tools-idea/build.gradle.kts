@@ -1,4 +1,3 @@
-import org.gradle.api.JavaVersion.VERSION_17
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildSearchableOptionsTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
@@ -54,13 +53,16 @@ allprojects {
 
             bundledPlugin("com.intellij.java")
 
+            bundledModule("com.intellij.modules.json")
+
             // 2024.3 extracted JSON support into a plugin
             if (platformVersion >= 243) {
                 bundledPlugin("com.intellij.modules.json")
             }
+            pluginVerifier(version = "1.384")
         }
-        implementation("io.github.future0923:debug-tools-common:4.0.0-SNAPSHOT")
-        implementation("io.github.future0923:debug-tools-client:4.0.0-SNAPSHOT")
+        implementation("io.github.future0923:debug-tools-common:${version}")
+        implementation("io.github.future0923:debug-tools-client:${version}")
         implementation("cn.hutool:hutool-http:5.8.29")
         compileOnly("org.projectlombok:lombok:1.18.32")
         annotationProcessor("org.projectlombok:lombok:1.18.32")
@@ -71,8 +73,8 @@ allprojects {
     }
 
     configure<JavaPluginExtension> {
-        sourceCompatibility = VERSION_17
-        targetCompatibility = VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     tasks {
@@ -84,6 +86,16 @@ allprojects {
         withType<BuildSearchableOptionsTask> {
             enabled = false
         }
+        register<Copy>("movePluginZip") {
+            from(layout.buildDirectory.dir("distributions"))
+            into(layout.projectDirectory.dir("../dist"))
+            include("*.zip")
+        }
+        register<Delete>("cleanPluginZip") {
+            delete(fileTree(layout.projectDirectory.dir("../dist")) {
+                include("*.zip") // 只删除 .zip 文件
+            })
+        }
     }
 }
 
@@ -93,25 +105,20 @@ project(":") {
         plugin("org.jetbrains.intellij.platform")
     }
 
-    dependencies {
-        intellijPlatform {
-            pluginVerifier()
-        }
-    }
-
     intellijPlatform {
+
         pluginConfiguration {
 
             version = pluginVersionString
 
             ideaVersion {
                 sinceBuild.set(prop("sinceBuild"))
-                untilBuild.set(prop("untilBuild"))
+//                untilBuild.set(prop("untilBuild"))
             }
         }
 
         pluginVerification {
-
+//
             ides {
                 ides(prop("ideVersionVerifier").split(","))
             }
@@ -123,10 +130,21 @@ project(":") {
                     FailureLevel.OVERRIDE_ONLY_API_USAGES,
                     FailureLevel.NON_EXTENDABLE_API_USAGES,
                     FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
+                    FailureLevel.MISSING_DEPENDENCIES,
+                    FailureLevel.INVALID_PLUGIN,
                 )
             )
         }
+
     }
+}
+
+tasks.named("build") {
+    finalizedBy("movePluginZip")
+}
+
+tasks.named("buildPlugin") {
+    finalizedBy("movePluginZip")
 }
 
 fun prop(name: String): String {
