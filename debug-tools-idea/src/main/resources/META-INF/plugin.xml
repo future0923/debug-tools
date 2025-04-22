@@ -28,11 +28,9 @@
 
     <change-notes>
         <![CDATA[
-        <strong>3.4.3</strong>
+        <strong>3.4.4</strong>
         <ul>
-            - Fix the bug that hot reload fails when modifying the Controller file when there is only one Controller file.
-            - Fix the bug of JDK21's hot reload startup failure.
-            - Fix the bug of WebFlux call failure.
+            - Support version 2025.1
         </ul>
         ]]>
     </change-notes>
