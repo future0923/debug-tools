@@ -1,3 +1,7 @@
+# [3.4.4](https://github.com/future0923/debug-tools/compare/v3.4.3...v3.4.4) (2025-04-22)
+
+- Support intellij idea 2025.1 version([#37](https://github.com/future0923/debug-tools/issues/37)).
+
 # [3.4.3](https://github.com/future0923/debug-tools/compare/v3.4.2...v3.4.3) (2025-04-01)
 
 - Fix the bug that hot reload fails when modifying the Controller file when there is only one Controller file([#31](https://github.com/future0923/debug-tools/issues/31)).

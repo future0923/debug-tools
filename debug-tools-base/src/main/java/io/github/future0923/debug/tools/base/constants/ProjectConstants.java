@@ -5,11 +5,11 @@ package io.github.future0923.debug.tools.base.constants;
  */
 public interface ProjectConstants {
 
-    Boolean DEBUG = true;
+    Boolean DEBUG = false;
 
     String NAME = "DebugTools";
 
-    String VERSION = "3.4.3";
+    String VERSION = "3.4.4";
 
     String SERVER_CORE_JAR_PATH = "lib/debug-tools-server.jar";
 
