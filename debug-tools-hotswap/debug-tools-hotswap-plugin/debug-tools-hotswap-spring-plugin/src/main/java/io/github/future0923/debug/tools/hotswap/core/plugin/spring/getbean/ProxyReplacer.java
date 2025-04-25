@@ -21,13 +21,14 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 /**
- * 代理替换器。代理getBean方法，在{@link ProxyReplacerTransformer#replaceBeanWithProxy(CtClass)}中被初始化
+ * 代理替换器。代理getBean方法，在{@link ProxyReplacerPatcher#replaceBeanWithProxy(CtClass)}中被初始化
  */
 public class ProxyReplacer {
 
@@ -51,7 +52,7 @@ public class ProxyReplacer {
     }
 
     /**
-     * 创建SpringBean的代理，主要处理原型Bean。在{@link ProxyReplacerTransformer#replaceBeanWithProxy(CtClass)}中字节码增强到SpringBean方法之后
+     * 创建SpringBean的代理，主要处理原型Bean。在{@link ProxyReplacerPatcher#replaceBeanWithProxy(CtClass)}中字节码增强到SpringBean方法之后
      */
     public static Object register(Object beanFactory, Object bean, Class<?>[] paramClasses, Object[] paramValues) {
         if (bean == null) {

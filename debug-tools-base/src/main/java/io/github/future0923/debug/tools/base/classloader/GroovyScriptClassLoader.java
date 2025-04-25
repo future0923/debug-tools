@@ -7,7 +7,7 @@ package io.github.future0923.debug.tools.base.classloader;
  */
 public class GroovyScriptClassLoader extends ClassLoader {
 
-    private DefaultClassLoader defaultClassLoader;
+    private ClassLoaderWrapper defaultClassLoader;
 
     private static GroovyScriptClassLoader classLoader;
 
@@ -25,7 +25,7 @@ public class GroovyScriptClassLoader extends ClassLoader {
     }
 
     public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
-        this.defaultClassLoader = new DefaultClassLoader(defaultClassLoader);
+        this.defaultClassLoader = new ClassLoaderWrapper(defaultClassLoader);
     }
 
     @Override

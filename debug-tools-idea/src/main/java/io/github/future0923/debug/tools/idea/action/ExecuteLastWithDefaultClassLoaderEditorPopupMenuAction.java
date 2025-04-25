@@ -7,12 +7,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
-import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -46,13 +47,12 @@ public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAc
             return;
         }
         RunDTO runDTO = DebugToolsJsonUtils.toBean(json, RunDTO.class);
-        try {
-            runDTO.setClassLoader(HttpClientUtils.defaultClassLoader(project));
-        } catch (Exception ex) {
-            log.error("execute last with default class loader request error", ex);
-            Messages.showErrorDialog(ex.getMessage(), "执行失败");
+        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
+        if (projectDefaultClassLoader == null) {
+            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
             return;
         }
+        runDTO.setClassLoader(projectDefaultClassLoader);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         SocketSendUtils.send(project, packet);
     }

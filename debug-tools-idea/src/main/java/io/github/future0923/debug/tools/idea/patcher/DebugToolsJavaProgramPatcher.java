@@ -58,6 +58,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         String agentPath = settingState.loadAgentPath(project);
         if (settingState.getPrintSql() || settingState.getHotswap()) {
             AgentArgs agentArgs = new AgentArgs();
+            agentArgs.setServer(Boolean.FALSE.toString());
             if (settingState.getHotswap()) {
                 //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
                 //rootManager.getProjectSdk();

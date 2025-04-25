@@ -21,6 +21,11 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
 
     private Map<String, byte[]> filePathByteCodeMap = new HashMap<>();
 
+    /**
+     * 类加载器
+     */
+    private String identity;
+
     @Override
     public Byte getCommand() {
         return Command.LOCAL_COMPILER_HOT_DEPLOY_REQUEST;
@@ -28,13 +33,16 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
 
     @Override
     public byte[] binarySerialize() {
+        ByteBuf byteBuf = new ByteBuf();
+        byte[] identityInfo = identity.getBytes(StandardCharsets.UTF_8);
+        byteBuf.writeInt(identityInfo.length);
+        byteBuf.writeBytes(identityInfo);
         StringBuilder fileHeaderInfo = new StringBuilder();
         List<byte[]> fileContent = new ArrayList<>();
         filePathByteCodeMap.forEach((filePath, byteCode) -> {
             fileHeaderInfo.append(filePath).append(":").append(byteCode.length).append(";");
             fileContent.add(byteCode);
         });
-        ByteBuf byteBuf = new ByteBuf();
         byte[] headerInfo = fileHeaderInfo.toString().getBytes(StandardCharsets.UTF_8);
         byteBuf.writeInt(headerInfo.length);
         byteBuf.writeBytes(headerInfo);
@@ -45,6 +53,10 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
     @Override
     public void binaryDeserialization(byte[] bytes) {
         ByteBuf byteBuf = ByteBuf.wrap(bytes);
+        int identityLength = byteBuf.readInt();
+        byte[] identityByte = new byte[identityLength];
+        byteBuf.readBytes(identityByte);
+        identity = new String(identityByte, StandardCharsets.UTF_8);
         int headerLength = byteBuf.readInt();
         byte[] headerByte = new byte[headerLength];
         byteBuf.readBytes(headerByte);

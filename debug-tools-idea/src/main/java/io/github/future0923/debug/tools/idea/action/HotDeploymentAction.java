@@ -4,8 +4,12 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.DumbAwareAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.idea.ui.hotswap.HotDeployDialog;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,8 +23,17 @@ public class HotDeploymentAction extends DumbAwareAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
+        Project project = e.getProject();
+        if (project == null) {
+            return;
+        }
+        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
+        if (projectDefaultClassLoader == null) {
+            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            return;
+        }
         FileDocumentManager.getInstance().saveAllDocuments();
-        HotDeployDialog hotDeployDialog = new HotDeployDialog(e.getProject());
+        HotDeployDialog hotDeployDialog = new HotDeployDialog(project, projectDefaultClassLoader);
         hotDeployDialog.show();
     }
 

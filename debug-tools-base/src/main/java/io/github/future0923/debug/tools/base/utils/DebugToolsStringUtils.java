@@ -1,5 +1,9 @@
 package io.github.future0923.debug.tools.base.utils;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * @author future0923
  */
@@ -276,5 +280,17 @@ public class DebugToolsStringUtils {
             }
         }
         return resourceName;
+    }
+
+    public static URL resourceNameToURL(String resource) throws Exception {
+        try {
+            return new URL(resource);
+        } catch (MalformedURLException e) {
+            if (resource.startsWith("./"))
+                resource = resource.substring(2);
+
+            File file = new File(resource).getCanonicalFile();
+            return file.toURI().toURL();
+        }
     }
 }

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.util;
+package io.github.future0923.debug.tools.base.utils;
 
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * 配置下划线会转为小驼峰
  */
-public class HotswapProperties extends Properties {
+public class DebugToolsProperties extends Properties {
 
     private static final long serialVersionUID = 4467598209091707788L;
 

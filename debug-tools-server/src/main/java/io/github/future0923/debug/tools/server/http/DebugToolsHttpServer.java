@@ -3,7 +3,6 @@ package io.github.future0923.debug.tools.server.http;
 import com.sun.net.httpserver.HttpServer;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.server.http.handler.DefaultClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.GetApplicationNameHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.IndexHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultDetailHttpHandler;
@@ -41,7 +40,6 @@ public class DebugToolsHttpServer {
         httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
-        httpServer.createContext(DefaultClassLoaderHttpHandler.PATH, DefaultClassLoaderHttpHandler.INSTANCE);
         httpServer.createContext(GetApplicationNameHttpHandler.PATH, GetApplicationNameHttpHandler.INSTANCE);
     }
 

@@ -1,7 +1,6 @@
 package io.github.future0923.debug.tools.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBLabel;
@@ -9,15 +8,15 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
-import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
-import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.impl.ConvertDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListener;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
+import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,7 +36,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     private final MethodDataContext methodDataContext;
 
     @Getter
-    private final ComboBox<AllClassLoaderRes.Item> classLoaderComboBox = new ComboBox<>(600);
+    private final ClassLoaderComboBox classLoaderComboBox;
 
     private final JButton refreshButton = new JButton("Refresh");
 
@@ -59,6 +58,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 600));
         this.project = project;
+        this.classLoaderComboBox = new ClassLoaderComboBox(project, 600, false);
         this.methodDataContext = methodDataContext;
         // 当前类和方法
         PsiMethod psiMethod = methodDataContext.getPsiMethod();
@@ -83,23 +83,11 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private void initLayout() {
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        classLoaderComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                AllClassLoaderRes.Item item = (AllClassLoaderRes.Item) value;
-                if (item == null) {
-                    return new JLabel();
-                }
-                String classLoader = item.getName();
-                JLabel jLabel = (JLabel) super.getListCellRendererComponent(list, classLoader, index, isSelected, cellHasFocus);
-                jLabel.setText(classLoader + "@" + item.getIdentity());
-                return jLabel;
-            }
-        });
         getAllClassLoader(true);
         refreshButton.addActionListener( e -> {
             classLoaderComboBox.removeAllItems();
             getAllClassLoader(false);
+            classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
         });
         classLoaderJPanel.add(classLoaderComboBox);
         classLoaderJPanel.add(refreshButton);
@@ -167,22 +155,8 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     private void getAllClassLoader(boolean cache) {
-        AllClassLoaderRes allClassLoaderRes;
-        try {
-            allClassLoaderRes = HttpClientUtils.allClassLoader(project, cache);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        AllClassLoaderRes.Item defaultClassLoader = null;
-        for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
-            if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
-                defaultClassLoader = item;
-            }
-            classLoaderComboBox.addItem(item);
-        }
-        if (defaultClassLoader != null) {
-            classLoaderComboBox.setSelectedItem(defaultClassLoader);
-        }
+        classLoaderComboBox.getAllClassLoader(cache);
+        classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
     }
 
     public Map<String, String> getItemHeaderMap() {
