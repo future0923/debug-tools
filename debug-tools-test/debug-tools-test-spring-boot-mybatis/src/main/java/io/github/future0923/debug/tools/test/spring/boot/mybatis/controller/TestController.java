@@ -23,4 +23,9 @@ public class TestController {
     public String a() {
         return Arrays.toString(UserService.class.getDeclaredMethods());
     }
+
+    @GetMapping("/c")
+    public String c() {
+        return "c";
+    }
 }

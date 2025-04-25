@@ -130,11 +130,11 @@ public class MyBatisSpringPatcher {
         }
     }
 
-    public static void registerMapperTransformer(final String basePackage)  {
+    public static void registerMapperTransformer(final String basePackage) {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
         Enumeration<URL> resourceUrls;
         try {
-            resourceUrls = ClassLoaderHelper.getResources(appClassLoader, classNameRegExp);
+            resourceUrls = ClassLoaderHelper.getResources(MyBatisSpringPatcher.class.getClassLoader(), classNameRegExp);
         } catch (IOException e) {
             logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, appClassLoader);
             return;
@@ -165,7 +165,7 @@ public class MyBatisSpringPatcher {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
         Enumeration<URL> resourceUrls;
         try {
-            resourceUrls = ClassLoaderHelper.getResources(appClassLoader, classNameRegExp);
+            resourceUrls = ClassLoaderHelper.getResources(MyBatisSpringPatcher.class.getClassLoader(), classNameRegExp);
         } catch (IOException e) {
             logger.error("Unable to resolve entity base package {} in classloader {}.", classNameRegExp, appClassLoader);
             return;

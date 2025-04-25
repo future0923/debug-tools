@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch;
 
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
@@ -29,7 +29,7 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 /**
  * SpringBean代理转换，返回被代理之后的bean，代理之后可以重置或重新载入。
  */
-public class ProxyReplacerTransformer {
+public class ProxyReplacerPatcher {
 
     public static final String FACTORY_METHOD_NAME = "getBean";
 

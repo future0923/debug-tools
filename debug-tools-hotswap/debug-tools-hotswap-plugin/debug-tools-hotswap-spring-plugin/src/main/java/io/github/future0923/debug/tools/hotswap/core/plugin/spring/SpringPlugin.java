@@ -31,11 +31,12 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacerTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPathBeanDefinitionScannerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.SpringBootClassLoaderPatcher;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
@@ -57,8 +58,9 @@ import java.util.List;
         description = "Reload Spring configuration after class definition/change.",
         testedVersions = {"All between 3.1.0 - 5.3.30"}, expectedVersions = {"3x", "4x", "5x"},
         supportClass = {
-                ClassPathBeanDefinitionScannerTransformer.class,
-                ProxyReplacerTransformer.class
+                ClassPathBeanDefinitionScannerPatcher.class,
+                ProxyReplacerPatcher.class,
+                SpringBootClassLoaderPatcher.class
         }
 )
 public class SpringPlugin {
@@ -108,7 +110,7 @@ public class SpringPlugin {
      * 初始化Spring插件
      */
     public void init(String version) {
-        logger.info("Spring plugin initialized - Spring core version '{}'", getClass().getClassLoader(), version);
+        logger.info("Spring plugin initialized in {} - Spring core version '{}' - {}", getClass().getClassLoader(), version, appClassLoader);
         this.initBasePackagePrefixes();
         this.registerBasePackageFromConfiguration();
     }

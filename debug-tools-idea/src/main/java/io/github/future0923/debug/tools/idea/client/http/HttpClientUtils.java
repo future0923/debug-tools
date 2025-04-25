@@ -2,7 +2,6 @@ package io.github.future0923.debug.tools.idea.client.http;
 
 import cn.hutool.http.HttpUtil;
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
@@ -26,8 +25,6 @@ public class HttpClientUtils {
     private static final String RESULT_DETAIL_URI = "/result/detail";
 
     private static final String ALL_CLASS_LOADER_URI = "/allClassLoader";
-
-    private static final String DEFAULT_CLASS_LOADER_URI = "/defaultClassLoader";
 
     private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
 
@@ -80,13 +77,5 @@ public class HttpClientUtils {
 
     public static String getApplicationName(Project project, boolean local) throws IOException, InterruptedException {
         return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_APPLICATION_NAME_URI, local), TIMEOUT);
-    }
-
-    public static AllClassLoaderRes.Item defaultClassLoader(Project project) throws IOException, InterruptedException {
-        String body = HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(DEFAULT_CLASS_LOADER_URI), TIMEOUT);
-        if (DebugToolsStringUtils.isBlank(body)) {
-            return null;
-        }
-        return DebugToolsJsonUtils.toBean(body, AllClassLoaderRes.Item.class);
     }
 }

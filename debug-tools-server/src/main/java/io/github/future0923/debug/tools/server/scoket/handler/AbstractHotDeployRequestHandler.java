@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.server.scoket.handler;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
-import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
+import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
@@ -34,7 +34,9 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends 
      */
     protected final Object hotswapLock = new Object();
 
-    protected abstract Map<String, byte[]> getByteCodes(T packet);
+    protected abstract Map<String, byte[]> getByteCodes(T packet) throws DefaultClassLoaderException;
+
+    protected abstract ClassLoader getClassLoader(T packet) throws DefaultClassLoaderException;
 
     @Override
     public void handle(OutputStream outputStream, T packet) throws Exception {
@@ -46,15 +48,22 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends 
             writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
-        ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader();
-        writeFile(byteCodesMap);
+        String reloadClass = String.join(", ", byteCodesMap.keySet());
+        ClassLoader defaultClassLoader;
+        try {
+            defaultClassLoader = getClassLoader(packet);
+        } catch (DefaultClassLoaderException e) {
+            logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            return;
+        }
+        writeFile(defaultClassLoader, byteCodesMap);
         List<ClassDefinition> definitions = new ArrayList<>();
         for (Map.Entry<String, byte[]> entry : byteCodesMap.entrySet()) {
             if (ClassLoaderHelper.isClassLoaded(defaultClassLoader, entry.getKey())) {
                 definitions.add(new ClassDefinition(defaultClassLoader.loadClass(entry.getKey()), entry.getValue()));
             }
         }
-        String reloadClass = String.join(", ", byteCodesMap.keySet());
         if (definitions.isEmpty()) {
             logger.warning("There are no classes that need to be redefined. {}", reloadClass);
             writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
@@ -74,8 +83,8 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends 
         }
     }
 
-    protected void writeFile(Map<String, byte[]> byteCodesMap) {
-        PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(DefaultClassLoader.getDefaultClassLoader());
+    protected void writeFile(ClassLoader defaultClassLoader, Map<String, byte[]> byteCodesMap) {
+        PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(defaultClassLoader);
         if (pluginConfiguration == null) {
             logger.error("Failure to retrieve PluginConfiguration. Please ensure that the project is started in hot reload mode.");
             return;

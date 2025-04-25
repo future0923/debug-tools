@@ -3,6 +3,7 @@ package io.github.future0923.debug.tools.server.scoket.handler;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
+import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
@@ -46,8 +47,10 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             return;
         }
         if (runDTO.getClassLoader() != null && DebugToolsStringUtils.isNotBlank(runDTO.getClassLoader().getIdentity())) {
-            ClassLoader classLoader = AllClassLoaderHttpHandler.getClassLoaderMap().get(runDTO.getClassLoader().getIdentity());
-            if (classLoader == null) {
+            ClassLoader classLoader;
+            try {
+                classLoader = AllClassLoaderHttpHandler.getClassLoader(runDTO.getClassLoader().getIdentity());
+            } catch (DefaultClassLoaderException e) {
                 ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() +"]类加载器");
                 String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
                 DebugToolsResultUtils.putCache(offsetPath, exception);

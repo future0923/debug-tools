@@ -70,6 +70,7 @@ public class DebugTools {
             }
             try {
                 AgentArgs agentArgs = new AgentArgs();
+                agentArgs.setServer(Boolean.TRUE.toString());
                 agentArgs.setTcpPort(cmd.getOptionValue(ArgType.TCP_PORT.getLongOpt(), String.valueOf(DebugToolsIOUtils.getAvailablePort(12345))));
                 agentArgs.setHttpPort(cmd.getOptionValue(ArgType.HTTP_PORT.getLongOpt(), String.valueOf(DebugToolsIOUtils.getAvailablePort(22222))));
                 virtualMachine.loadAgent(debugToolsAgentPath, agentArgs.format());
