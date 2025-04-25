@@ -10,11 +10,11 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiFile;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -28,6 +28,11 @@ public class RunGroovyAction extends AnAction {
         if (project == null) {
             return;
         }
+        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
+        if (projectDefaultClassLoader == null) {
+            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            return;
+        }
         // 获取当前编辑的文件
         Editor editor = event.getData(CommonDataKeys.EDITOR);
         if (editor == null) {
@@ -38,6 +43,7 @@ public class RunGroovyAction extends AnAction {
         String content = editor.getDocument().getText();
         RunGroovyScriptRequestPacket packet = new RunGroovyScriptRequestPacket();
         packet.setScript(content);
+        packet.setIdentity(projectDefaultClassLoader.getIdentity());
         SocketSendUtils.send(project, packet);
     }
 

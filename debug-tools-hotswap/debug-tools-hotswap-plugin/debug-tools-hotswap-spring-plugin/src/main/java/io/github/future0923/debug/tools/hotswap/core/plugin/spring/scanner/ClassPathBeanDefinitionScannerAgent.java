@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetBe
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetRequestMappingCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetSpringStaticCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.ProxyReplacer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPathBeanDefinitionScannerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.spring.util.CollectionUtils;
@@ -119,7 +120,7 @@ public class ClassPathBeanDefinitionScannerAgent {
 
     /**
      * 创建处理ClassPathBeanDefinitionScanner的ClassPathBeanDefinitionScannerAgent
-     * {@link ClassPathBeanDefinitionScannerTransformer#transform(CtClass, ClassPool)}
+     * {@link ClassPathBeanDefinitionScannerPatcher#transform(CtClass, ClassPool)}
      */
     public static ClassPathBeanDefinitionScannerAgent getInstance(ClassPathBeanDefinitionScanner scanner) {
         ClassPathBeanDefinitionScannerAgent classPathBeanDefinitionScannerAgent = instances.get(scanner);

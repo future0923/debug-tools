@@ -29,7 +29,7 @@ public class HeartBeatRequestThread extends Thread {
     @Override
     public void run() {
         int retryCount = 0;
-        while (!Thread.currentThread().isInterrupted() && retryCount < 30) {
+        while (!Thread.currentThread().isInterrupted() && retryCount < 20) {
             if (!DebugToolsThreadUtils.sleep(this.interval, TimeUnit.SECONDS)) {
                 return;
             }

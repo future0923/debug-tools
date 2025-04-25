@@ -124,7 +124,7 @@ public class DebugToolsExecUtils {
     }
 
     public static File findJava(String javaHome) {
-        String[] paths = { "bin/java", "bin/java.exe", "../bin/java", "../bin/java.exe" };
+        String[] paths = {"bin/java", "bin/java.exe", "../bin/java", "../bin/java.exe"};
 
         List<File> javaList = new ArrayList<File>();
         for (String path : paths) {
@@ -170,26 +170,17 @@ public class DebugToolsExecUtils {
         return toolsJar;
     }
 
+    /**
+     * 根据 JAVA_HOME 寻找 tools.jar 文件
+     *
+     * @return 大于8返回null
+     * @throws IllegalArgumentException 小于等于8时找不到
+     */
     public static File findToolsJar(String javaHome) {
         if (DebugToolsJavaVersionUtils.isGreaterThanJava8()) {
             return null;
         }
-
-        File toolsJar = new File(javaHome, "lib/tools.jar");
-        if (!toolsJar.exists()) {
-            toolsJar = new File(javaHome, "../lib/tools.jar");
-        }
-        if (!toolsJar.exists()) {
-            // maybe jre
-            toolsJar = new File(javaHome, "../../lib/tools.jar");
-        }
-
-        if (!toolsJar.exists()) {
-            throw new IllegalArgumentException("Can not find tools.jar under java home: " + javaHome);
-        }
-
-        AnsiLog.debug("Found tools.jar: " + toolsJar.getAbsolutePath());
-        return toolsJar;
+        return findToolsJarNoCheckVersion(javaHome);
     }
 
     public static Map<Long, String> listProcessByJps() {
@@ -200,7 +191,7 @@ public class DebugToolsExecUtils {
             jps = jpsFile.getAbsolutePath();
         }
         AnsiLog.debug("Try use jps to list java process, jps: " + jps);
-        String[] command = new String[] { jps, "-l" };
+        String[] command = new String[]{jps, "-l"};
         List<String> lines = runNative(command);
         AnsiLog.debug("jps result: " + lines);
         for (String line : lines) {
@@ -230,7 +221,7 @@ public class DebugToolsExecUtils {
     private static File findJps() {
         // Try to find jps under java.home and System env JAVA_HOME
         String javaHome = System.getProperty("java.home");
-        String[] paths = { "bin/jps", "bin/jps.exe", "../bin/jps", "../bin/jps.exe" };
+        String[] paths = {"bin/jps", "bin/jps.exe", "../bin/jps", "../bin/jps.exe"};
 
         List<File> jpsList = new ArrayList<File>();
         for (String path : paths) {

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with HotswapAgent. If not, see http://www.gnu.org/licenses/.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
+package io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
@@ -26,14 +26,16 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
 
 /**
  * 如果{@link SpringPlugin#basePackagePrefixes}没有配置，那么就解析Spring的{@link ClassPathScanningCandidateComponentProvider#findCandidateComponents}方法获取到Spring扫描的路径通过{@link ClassPathBeanDefinitionScannerAgent#registerBasePackage}注入
  */
-public class ClassPathBeanDefinitionScannerTransformer {
-    private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerTransformer.class);
+public class ClassPathBeanDefinitionScannerPatcher {
+
+    private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerPatcher.class);
 
     /**
      * 没配置SpringBasePackagePrefixes的话就识别Spring扫描的路径注册
