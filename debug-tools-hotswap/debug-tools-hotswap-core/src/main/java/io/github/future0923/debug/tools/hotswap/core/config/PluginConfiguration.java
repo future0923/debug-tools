@@ -22,20 +22,18 @@ package io.github.future0923.debug.tools.hotswap.core.config;
 import cn.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsProperties;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.watchResources.WatchResourcesPlugin;
-import io.github.future0923.debug.tools.hotswap.core.util.HotswapProperties;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.HotswapAgentClassLoaderExt;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.URLClassLoaderPathHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.spring.util.StringUtils;
 import lombok.Getter;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +73,7 @@ public class PluginConfiguration {
     /**
      * 配置（key小驼峰）
      */
-    Properties properties = new HotswapProperties();
+    Properties properties = new DebugToolsProperties();
 
     /**
      * 如果ClassLoader中未定义，从父类加载器中查找
@@ -125,7 +123,7 @@ public class PluginConfiguration {
         try {
             String externalPropertiesFile = HotswapAgent.getExternalPropertiesFile();
             if (DebugToolsStringUtils.isNotBlank(externalPropertiesFile)) {
-                configurationURL = resourceNameToURL(externalPropertiesFile);
+                configurationURL = DebugToolsStringUtils.resourceNameToURL(externalPropertiesFile);
                 properties.load(configurationURL.openStream());
                 return;
             }
@@ -335,6 +333,13 @@ public class PluginConfiguration {
     }
 
     /**
+     * 获取lombok.jar路径
+     */
+    public String getLombokJarPath() {
+        return getProperty("lombokJarPath");
+    }
+
+    /**
      * Spring基础package前缀
      */
     public String[] getBasePackagePrefixes() {
@@ -379,25 +384,13 @@ public class PluginConfiguration {
             while (tokenizer.hasMoreTokens()) {
                 String name = tokenizer.nextToken().trim();
                 try {
-                    ret.add(resourceNameToURL(name));
+                    ret.add(DebugToolsStringUtils.resourceNameToURL(name));
                 } catch (Exception e) {
                     LOGGER.error("Invalid configuration value: '{}' is not a valid URL or path and will be skipped.", name, e);
                 }
             }
         }
         return ret.toArray(new URL[0]);
-    }
-
-    private static URL resourceNameToURL(String resource) throws Exception {
-        try {
-            return new URL(resource);
-        } catch (MalformedURLException e) {
-            if (resource.startsWith("./"))
-                resource = resource.substring(2);
-
-            File file = new File(resource).getCanonicalFile();
-            return file.toURI().toURL();
-        }
     }
 
     /**

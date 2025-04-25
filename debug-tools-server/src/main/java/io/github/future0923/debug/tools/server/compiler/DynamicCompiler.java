@@ -1,5 +1,11 @@
 package io.github.future0923.debug.tools.server.compiler;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -7,6 +13,7 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,6 +26,8 @@ import java.util.Map;
  * @author future0923
  */
 public class DynamicCompiler {
+
+    private static final Logger logger = Logger.getLogger(DynamicCompiler.class);
 
     /**
      * 编译器
@@ -62,8 +71,31 @@ public class DynamicCompiler {
                             + " please confirm the application running in JDK not JRE.");
         }
         standardFileManager = javaCompiler.getStandardFileManager(null, null, null);
-        options.add("-Xlint:unchecked");
+        // 生成调试信息。
+        // 告诉编译器为生成的 .class 文件包含调试信息（如变量名、行号等）。
+        // 让你在调试或热重载时可以看到源码级别调试（断点、变量）
         options.add("-g");
+        if (ProjectConstants.DEBUG) {
+            // 打印 annotation processor 的运行轮次（调试用）
+            // 告诉 javac 在控制台输出 annotation processing 的执行“轮次”
+            options.add("-XprintRounds");
+            // 打印被加载的 annotation processor（处理器信息）
+            // 告诉 javac 在处理注解时输出加载了哪些注解处理器类
+            options.add("-XprintProcessorInfo");
+            // 显示泛型相关的未检查警告
+            options.add("-Xlint:unchecked");
+        }
+        // 隐藏 annotation processor 在未来可能默认关闭的警告
+        //options.add("-Xlint:-options");
+        // 显式开启 annotation processor(8不支持)
+        // options.add("-proc:full");
+        PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(classLoader);
+        if (DebugToolsStringUtils.isNotBlank(pluginConfiguration.getLombokJarPath())) {
+            options.add("-classpath");
+            options.add(System.getProperty("java.class.path") + File.pathSeparator + pluginConfiguration.getLombokJarPath());
+            options.add("-processorpath");
+            options.add(pluginConfiguration.getLombokJarPath());
+        }
         dynamicClassLoader = new DynamicClassLoader(classLoader);
     }
 
@@ -130,7 +162,8 @@ public class DynamicCompiler {
                         }
                     }
                     if (!warnings.isEmpty()) {
-                        throw new DynamicCompilerException("Compilation Warnings", warnings);
+                        DynamicCompilerException compilationWarnings = new DynamicCompilerException("Compilation Warnings", warnings);
+                        logger.warning(compilationWarnings.getMessage());
                     }
                     if (!errors.isEmpty()) {
                         throw new DynamicCompilerException("Compilation Error", errors);

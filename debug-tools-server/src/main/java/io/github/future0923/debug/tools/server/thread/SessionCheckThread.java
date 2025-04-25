@@ -22,8 +22,8 @@ public class SessionCheckThread extends Thread {
     public SessionCheckThread(Map<ClientHandleThread, Long> lastUpdateTime2Thread) {
         setDaemon(true);
         setName("DebugTools-SessionCheck-Thread");
-        this.HEALTH_CHECK_TIMEOUT = TimeUnit.SECONDS.toMillis(20L);
-        this.INTERVAL = 180L;
+        this.HEALTH_CHECK_TIMEOUT = TimeUnit.SECONDS.toMillis(180L);
+        this.INTERVAL = 30L;
         this.lastUpdateTime2Thread = lastUpdateTime2Thread;
     }
 

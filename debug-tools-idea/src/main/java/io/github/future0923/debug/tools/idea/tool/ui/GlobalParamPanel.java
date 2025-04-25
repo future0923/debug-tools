@@ -12,6 +12,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ServerClo
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import lombok.Getter;
@@ -41,6 +42,9 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
 
     private final JTextPane local = new JTextPane();
 
+    private final JPanel attachButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+    private final JPanel classLoaderPanel = new JPanel(new BorderLayout(5, 5));
     @Getter
     private final JTextPane attached = new JTextPane();
 
@@ -66,7 +70,10 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         attachStatusPanel.add(local);
         attachStatusPanel.add(attached);
         attachStatusPanel.add(textField);
-        JPanel attachButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+
+        ClassLoaderComboBox classLoaderComboBox = new ClassLoaderComboBox(project);
+        classLoaderPanel.add(new JBLabel("Default classLoader:"), BorderLayout.WEST);
+        classLoaderPanel.add(classLoaderComboBox);
         JButton closeButton = new JButton("Close");
         attachButtonPanel.add(closeButton);
         closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
@@ -79,7 +86,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 Messages.showErrorDialog(project, ex.getMessage(), "Stop Server Fail");
             }
             ApplicationProjectHolder.close(project);
-            unAttached(attachButtonPanel);
+            unAttached();
         });
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
@@ -120,6 +127,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         });
         globalHeaderPanel.add(saveHeaderButton);
         formBuilder.addComponent(attachStatusPanel);
+        formBuilder.addComponent(classLoaderPanel);
         formBuilder.addComponent(attachButtonPanel);
         formBuilder.addComponent(globalHeaderPanel);
         settingState.getGlobalHeader().forEach((k, v) -> headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, k, v, headerItemMap)));
@@ -140,7 +148,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 () -> {
                     ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
                     if (info == null || info.getClient() == null) {
-                        unAttached(attachButtonPanel);
+                        classLoaderComboBox.clearOneTimeStatus();
+                        unAttached();
                     } else {
                         local.setText(settingState.isLocal() ? "L" : "R");
                         local.setVisible(true);
@@ -150,6 +159,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             attached.setText("Connected");
                             attached.setBackground(JBColor.GREEN);
                             attachButtonPanel.setVisible(true);
+                            classLoaderPanel.setVisible(true);
+                            classLoaderComboBox.getAllClassLoaderOneTime(false);
                         } else {
                             if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
                                 attached.setText("Fail");
@@ -161,6 +172,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             attached.setBackground(JBColor.RED);
                             textField.setVisible(true);
                             attachButtonPanel.setVisible(true);
+                            classLoaderComboBox.clearOneTimeStatus();
                         }
                     }
                 },
@@ -170,12 +182,13 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         );
     }
 
-    private void unAttached(JPanel attachButtonPanel) {
+    private void unAttached() {
         local.setVisible(false);
         attached.setText("UnAttached");
         attached.setBackground(JBColor.RED);
         textField.setVisible(false);
         attachButtonPanel.setVisible(false);
+        classLoaderPanel.setVisible(false);
     }
 
     public void clearHeader() {

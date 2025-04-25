@@ -21,6 +21,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
@@ -50,15 +51,17 @@ public class HotDeployDialog extends DialogWrapper {
     @Getter
     private final DefaultListModel<String> hotUndoShowList;
     private final Project project;
+    private final AllClassLoaderRes.Item projectDefaultClassLoader;
     private final List<String> fullPathJavaFiles = new ArrayList<>();
     private final List<String> fullPathResourceFiles = new ArrayList<>();
     private boolean local = true;
     private boolean isJava = true;
     private boolean checkVCS = false;
 
-    public HotDeployDialog(@Nullable Project project) {
+    public HotDeployDialog(@Nullable Project project, AllClassLoaderRes.Item projectDefaultClassLoader) {
         super(project, true);
         this.project = project;
+        this.projectDefaultClassLoader = projectDefaultClassLoader;
         this.hotUndoShowList = new DefaultListModel<>();
         this.init();
         this.setTitle("Change Files");
@@ -189,6 +192,7 @@ public class HotDeployDialog extends DialogWrapper {
                 }
                 String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
                 packet.add(packetAllName, content);
+                packet.setIdentity(projectDefaultClassLoader.getIdentity());
             }
             SocketSendUtils.send(project, packet);
         });
@@ -246,6 +250,7 @@ public class HotDeployDialog extends DialogWrapper {
                     for (ClassFilePath allOutputClass : allOutputClasses) {
                         hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
                     }
+                    hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
                     SocketSendUtils.send(project, hotSwapRequestPacket);
                 });
             }

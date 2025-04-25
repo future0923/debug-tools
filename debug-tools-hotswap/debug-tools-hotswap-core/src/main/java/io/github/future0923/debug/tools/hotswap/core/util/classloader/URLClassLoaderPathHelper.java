@@ -76,7 +76,7 @@ public class URLClassLoaderPathHelper {
      *
      * @param classLoader    要添加的类加载器
      */
-    public static void prependClassPath(ClassLoader classLoader) {
+    public static void prependClassPath(final ClassLoader classLoader) {
         prependClassPath(classLoader, PluginManager.getInstance().getPluginConfiguration(classLoader).getExtraClasspath());
     }
 
@@ -87,7 +87,7 @@ public class URLClassLoaderPathHelper {
      * @param classLoader    要添加的类加载器
      * @param extraClassPath 要添加的路径
      */
-    public static void prependClassPath(ClassLoader classLoader, URL[] extraClassPath) {
+    public static void prependClassPath(final ClassLoader classLoader, URL[] extraClassPath) {
         synchronized (classLoader) {
             try {
                  Field ucpField = getUcpField(classLoader);
@@ -106,7 +106,7 @@ public class URLClassLoaderPathHelper {
                 ((Proxy) urlClassPath).setHandler(methodHandler);
                 // 处理当前类和父类的ucp字段
                 setUcpFieldOfAllClassLoader(classLoader, ucpField, urlClassPath);
-                logger.debug("Added extraClassPath URLs {} to classLoader {}", Arrays.toString(extraClassPath), classLoader);
+                logger.info("Added extraClassPath URLs {} to classLoader {}", Arrays.toString(extraClassPath), classLoader);
             } catch (Exception e) {
                 logger.error("Unable to add extraClassPath URLs {} to classLoader {}", e, Arrays.toString(extraClassPath), classLoader);
             }
