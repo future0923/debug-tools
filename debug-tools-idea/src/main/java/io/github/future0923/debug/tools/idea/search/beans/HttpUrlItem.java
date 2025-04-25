@@ -2,6 +2,8 @@ package io.github.future0923.debug.tools.idea.search.beans;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.util.Computable;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -63,21 +65,21 @@ public class HttpUrlItem implements NavigationItem {
 
             @Override
             public String getLocationString() {
-                String location = null;
-
-                if (psiMethod != null) {
-                    PsiClass psiClass = psiMethod.getContainingClass();
-                    if (psiClass != null) {
-                        location = psiClass.getName();
+                return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
+                    String location = null;
+                    if (psiMethod != null) {
+                        PsiClass psiClass = psiMethod.getContainingClass();
+                        if (psiClass != null) {
+                            location = psiClass.getName();
+                        }
+                        location += "#" + psiMethod.getName();
+                        location = "Java: (" + location + ")";
                     }
-                    location += "#" + psiMethod.getName();
-                    location = "Java: (" + location + ")";
-                }
-
-                if (psiElement != null) {
-                    location += " in " + psiElement.getResolveScope().getDisplayName();
-                }
-                return location;
+                    if (psiElement != null) {
+                        location += " in " + psiElement.getResolveScope().getDisplayName();
+                    }
+                    return location;
+                });
             }
 
             @NotNull
