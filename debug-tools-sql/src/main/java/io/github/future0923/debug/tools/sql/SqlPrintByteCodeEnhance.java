@@ -15,12 +15,19 @@ import java.sql.Connection;
 import java.util.Properties;
 
 /**
+ * 字节码增强打印SQL
+ *
  * @author future0923
  */
 public class SqlPrintByteCodeEnhance {
 
     private static final Logger logger = Logger.getLogger(SqlPrintByteCodeEnhance.class);
 
+    /**
+     * 增加字节码让其打印SQL
+     *
+     * @param inst instrumentation
+     */
     public static void enhance(Instrumentation inst) {
         new AgentBuilder.Default()
                 .type(ElementMatchers.named("com.mysql.jdbc.NonRegisteringDriver")
@@ -60,6 +67,9 @@ public class SqlPrintByteCodeEnhance {
                 }).installOn(inst);
     }
 
+    /**
+     * 拦截connect方法，SqlPrintInterceptor打印SQL
+     */
     public static class Transformer implements AgentBuilder.Transformer {
 
         @Override

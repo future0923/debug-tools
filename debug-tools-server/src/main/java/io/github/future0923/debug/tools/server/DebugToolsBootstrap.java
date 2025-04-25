@@ -50,11 +50,10 @@ public class DebugToolsBootstrap {
         return INSTANCE;
     }
 
-    public void start(String agentArgs) {
-        AgentArgs parse = AgentArgs.parse(agentArgs);
-        int tcpPort = Integer.parseInt(parse.getTcpPort());
-        int httpPort = parse.getHttpPort() == null ? DebugToolsIOUtils.getAvailablePort(22222) : Integer.parseInt(parse.getHttpPort());
-        serverConfig.setApplicationName(getApplicationName(parse));
+    public void start(AgentArgs agentArgs) {
+        int tcpPort = agentArgs.getTcpPort() == null ? DebugToolsIOUtils.getAvailablePort(12345) : Integer.parseInt(agentArgs.getTcpPort());
+        int httpPort = agentArgs.getHttpPort() == null ? DebugToolsIOUtils.getAvailablePort(22222) : Integer.parseInt(agentArgs.getHttpPort());
+        serverConfig.setApplicationName(getApplicationName(agentArgs));
         serverConfig.setTcpPort(tcpPort);
         serverConfig.setHttpPort(httpPort);
         startTcpServer(tcpPort);
