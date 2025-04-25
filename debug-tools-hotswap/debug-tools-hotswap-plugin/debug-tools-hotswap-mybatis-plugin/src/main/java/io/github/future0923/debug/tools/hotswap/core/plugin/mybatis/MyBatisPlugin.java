@@ -14,7 +14,6 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBati
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
@@ -39,14 +38,12 @@ public class MyBatisPlugin {
     private static final Logger logger = Logger.getLogger(MyBatisPlugin.class);
 
     @Init
-    static Scheduler scheduler;
+    Scheduler scheduler;
 
     @Init
-    static ClassLoader appClassLoader;
+    ClassLoader appClassLoader;
 
     private final Map<String, Object> configurationMap = new HashMap<>();
-
-    private final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
     /**
      * 在{@link IBatisPatcher#patchXMLMapperBuilder}处调用时生成mapper文件信息

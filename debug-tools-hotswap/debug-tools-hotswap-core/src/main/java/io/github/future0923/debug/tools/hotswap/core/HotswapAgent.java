@@ -39,25 +39,34 @@ public class HotswapAgent {
 
     private static boolean init = false;
 
+    /**
+     * 初始化热重载/热部署
+     *
+     * @param args 参数
+     * @param inst Instrumentation
+     */
     public static void init(AgentArgs args, Instrumentation inst) {
         if (!init) {
             LOGGER.info("open hot reload unlimited runtime class redefinition.{{}}", ProjectConstants.VERSION);
             parseArgs(args);
             fixJboss7Modules();
+            // 初始化插件
             PluginManager.getInstance().init(inst);
             LOGGER.debug("Hotswap agent initialized.");
             init = true;
         }
     }
 
-    public static void parseArgs(AgentArgs args) {
+    /**
+     * 参数覆盖
+     */
+    private static void parseArgs(AgentArgs args) {
         if (args == null) {
             return;
         }
         if (DebugToolsStringUtils.isNotBlank(args.getDisabledPlugins())) {
             disabledPlugins.addAll(StringUtils.commaDelimitedListToSet(args.getDisabledPlugins()));
         }
-        //autoHotswap = Boolean.parseBoolean(optionValue);
         propertiesFilePath = args.getPropertiesFilePath();
     }
 
@@ -82,7 +91,6 @@ public class HotswapAgent {
      */
     private static void fixJboss7Modules() {
         String JBOSS_SYSTEM_MODULES_KEY = "jboss.modules.system.pkgs";
-
         String oldValue = System.getProperty(JBOSS_SYSTEM_MODULES_KEY, null);
         System.setProperty(JBOSS_SYSTEM_MODULES_KEY, oldValue == null ? HOTSWAP_AGENT_EXPORT_PACKAGES : oldValue + "," + HOTSWAP_AGENT_EXPORT_PACKAGES);
     }

@@ -18,7 +18,6 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.config;
 
-import io.github.future0923.debug.tools.base.classloader.DefaultClassLoader;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.InitHandler;
@@ -168,12 +167,15 @@ public class PluginManager {
         // 扫描插件
         pluginRegistry.scanPlugins(getClass().getClassLoader(), PLUGIN_PACKAGE);
 
-        ClassLoader defaultClassLoader = DefaultClassLoader.getDefaultClassLoader(instrumentation);
-
-        URLClassLoaderPathHelper.prependClassPath(defaultClassLoader, configuration.getExtraClasspath());
-
         // 注册转换器
         instrumentation.addTransformer(hotswapTransformer);
+    }
+
+    /**
+     * 增强ClassLoader，让其可以加载热部署过来的类文件. {@code SpringBootClassLoaderPatcher}
+     */
+    public static void enhanceClassLoader(ClassLoader classLoader) {
+        URLClassLoaderPathHelper.prependClassPath(classLoader);
     }
 
     /**

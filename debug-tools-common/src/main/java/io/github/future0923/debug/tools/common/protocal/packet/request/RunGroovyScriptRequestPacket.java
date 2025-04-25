@@ -18,7 +18,15 @@ public class RunGroovyScriptRequestPacket extends Packet {
 
     private static final Logger logger = Logger.getLogger(RunGroovyScriptRequestPacket.class);
 
+    /**
+     * Groovy脚本内容
+     */
     private String script;
+
+    /**
+     * 类加载器
+     */
+    private String identity;
 
     @Override
     public Byte getCommand() {
@@ -42,5 +50,6 @@ public class RunGroovyScriptRequestPacket extends Packet {
         }
         RunGroovyScriptRequestPacket packet = DebugToolsJsonUtils.toBean(jsonString, RunGroovyScriptRequestPacket.class);
         this.setScript(packet.getScript());
+        this.setIdentity(packet.getIdentity());
     }
 }
