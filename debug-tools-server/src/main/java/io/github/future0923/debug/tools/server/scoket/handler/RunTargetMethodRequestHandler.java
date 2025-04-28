@@ -46,8 +46,8 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
+        ClassLoader classLoader = null;
         if (runDTO.getClassLoader() != null && DebugToolsStringUtils.isNotBlank(runDTO.getClassLoader().getIdentity())) {
-            ClassLoader classLoader;
             try {
                 classLoader = AllClassLoaderHttpHandler.getClassLoader(runDTO.getClassLoader().getIdentity());
             } catch (DefaultClassLoaderException e) {
@@ -61,7 +61,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         }
         Class<?> targetClass;
         try {
-            targetClass = DebugToolsClassUtils.loadClass(targetClassName);
+            targetClass = DebugToolsClassUtils.loadClass(targetClassName, classLoader);
         } catch (Exception e) {
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);

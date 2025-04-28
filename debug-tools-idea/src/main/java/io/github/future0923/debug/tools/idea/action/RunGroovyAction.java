@@ -31,6 +31,7 @@ public class RunGroovyAction extends AnAction {
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
             Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         // 获取当前编辑的文件

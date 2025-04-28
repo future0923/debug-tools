@@ -63,6 +63,9 @@
         <apache-cli.version>1.8.0</apache-cli.version>
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
         <groovy.version>4.0.22</groovy.version>
+
+        <shade.cn.hutool.source>cn.hutool</shade.cn.hutool.source>
+        <shade.cn.hutool.target>${shade.package}.${shade.cn.hutool.source}</shade.cn.hutool.target>
     </properties>
 
     <modules>
@@ -77,6 +80,7 @@
         <module>debug-tools-hotswap</module>
         <module>debug-tools-vm</module>
         <module>debug-tools-sql</module>
+        <module>debug-tools-extension</module>
     </modules>
 
     <profiles>

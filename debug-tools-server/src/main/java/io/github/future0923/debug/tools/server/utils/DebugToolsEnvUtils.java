@@ -1,5 +1,7 @@
 package io.github.future0923.debug.tools.server.utils;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
@@ -15,45 +17,66 @@ import java.util.Map;
  */
 public class DebugToolsEnvUtils {
 
-    private static Class<?> springEnvUtil;
+    private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
-    private static Class<?> springServletUtil;
-
-    private static Class<?> springReactiveUtil;
-
-    private static Class<?> xxlJobEnvUtil;
-
-    static {
+    public static Class<?> getSpringEnvUtilClass() {
         try {
-            springEnvUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringEnvUtil");
-        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringEnvUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("SpringEnvUtil get error", e);
+            }
+            return null;
         }
+    }
+
+    public static Class<?> getSpringServletUtil() {
         try {
-            springServletUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringServletUtil");
-        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringServletUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("SpringServletUtil get error", e);
+            }
+            return null;
         }
+    }
+
+    public static Class<?> getSpringReactiveUtil() {
         try {
-            springReactiveUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.spring.SpringReactiveUtil");
-        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringReactiveUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("SpringReactiveUtil get error", e);
+            }
+            return null;
         }
+    }
+
+    public static Class<?> getXxlJobEnvUtil() {
         try {
-            xxlJobEnvUtil = DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.server.mock.xxljob.XxlJobEnvUtil");
-        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.xxljob.XxlJobEnvUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("XxlJobEnvUtil get error", e);
+            }
+            return null;
         }
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFirstBean(String beanName) throws Exception {
+    public static <T> T getLastBean(String beanName) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
         DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
-        Method getFirstBean = springEnvUtil.getMethod("getFirstBean", String.class);
-        return (T) getFirstBean.invoke(null, beanName);
+        Method getLastBean = springEnvUtil.getMethod("getLastBean", String.class);
+        return (T) getLastBean.invoke(null, beanName);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> getBeans(String beanName) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
@@ -63,17 +86,19 @@ public class DebugToolsEnvUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T getFirstBean(Class<T> requiredType) throws Exception {
+    public static <T> T getLastBean(Class<T> requiredType) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
         DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
-        Method getFirstBean = springEnvUtil.getMethod("getFirstBean", Class.class);
-        return (T) getFirstBean.invoke(null, requiredType);
+        Method getLastBean = springEnvUtil.getMethod("getLastBean", Class.class);
+        return (T) getLastBean.invoke(null, requiredType);
     }
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> getBeans(Class<T> requiredType) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
@@ -83,6 +108,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static <T> void registerBean(T bean) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return;
         }
@@ -92,6 +118,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static <T> void registerBean(String beanName, T bean) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return;
         }
@@ -101,6 +128,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static void unregisterBean(String beanName) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return;
         }
@@ -110,6 +138,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getSpringConfig(String value) throws Exception {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
@@ -120,6 +149,7 @@ public class DebugToolsEnvUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T getTargetObject(Object candidate) {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return (T) candidate;
         }
@@ -133,6 +163,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Class<?> getTargetClass(Object candidate) {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return candidate.getClass();
         }
@@ -146,6 +177,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Method findBridgedMethod(Method targetMethod) {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return targetMethod;
         }
@@ -161,6 +193,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static void setRequest(RunDTO runDTO) {
+        Class<?> springServletUtil = getSpringServletUtil();
         if (springServletUtil == null) {
             return;
         }
@@ -176,6 +209,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static boolean isAopProxy(InvocationHandler invocationHandler) {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return false;
         }
@@ -191,6 +225,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
+        Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
         }
@@ -206,6 +241,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getRequest() {
+        Class<?> springServletUtil = getSpringServletUtil();
         if (springServletUtil == null) {
             return null;
         }
@@ -222,6 +258,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getServerHttpRequest() {
+        Class<?> springReactiveUtil = getSpringReactiveUtil();
         if (springReactiveUtil == null) {
             return null;
         }
@@ -237,6 +274,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getServerWebExchange() {
+        Class<?> springReactiveUtil = getSpringReactiveUtil();
         if (springReactiveUtil == null) {
             return null;
         }
@@ -252,6 +290,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getResponse() {
+        Class<?> springServletUtil = getSpringServletUtil();
         if (springServletUtil == null) {
             return null;
         }
@@ -267,6 +306,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static Object getServerHttpResponse() {
+        Class<?> springReactiveUtil = getSpringReactiveUtil();
         if (springReactiveUtil == null) {
             return null;
         }
@@ -282,6 +322,7 @@ public class DebugToolsEnvUtils {
     }
 
     public static void setXxlJobParam(String jobParam) {
+        Class<?> xxlJobEnvUtil = getXxlJobEnvUtil();
         if (xxlJobEnvUtil == null) {
             return;
         }
