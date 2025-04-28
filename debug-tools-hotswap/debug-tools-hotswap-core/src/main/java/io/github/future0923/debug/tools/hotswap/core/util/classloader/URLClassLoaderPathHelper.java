@@ -18,7 +18,9 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
+import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.MethodHandler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.Proxy;
@@ -35,6 +37,7 @@ import java.net.URLClassLoader;
 import java.security.AccessControlContext;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -77,7 +80,15 @@ public class URLClassLoaderPathHelper {
      * @param classLoader    要添加的类加载器
      */
     public static void prependClassPath(final ClassLoader classLoader) {
-        prependClassPath(classLoader, PluginManager.getInstance().getPluginConfiguration(classLoader).getExtraClasspath());
+        URL[] extraClasspath = PluginManager.getInstance().getPluginConfiguration(classLoader).getExtraClasspath();
+        List<URL> result = new LinkedList<>(Arrays.asList(extraClasspath));
+        try {
+            result.add(DebugToolsStringUtils.resourceNameToURL(AgentConfig.INSTANCE.getSpringExtensionPath()));
+            result.add(DebugToolsStringUtils.resourceNameToURL(AgentConfig.INSTANCE.getXxlJobExtensionPath()));
+        } catch (Exception e) {
+            logger.warning("load debug tools extension error", e);
+        }
+        prependClassPath(classLoader, result.toArray(new URL[0]));
     }
 
     /**

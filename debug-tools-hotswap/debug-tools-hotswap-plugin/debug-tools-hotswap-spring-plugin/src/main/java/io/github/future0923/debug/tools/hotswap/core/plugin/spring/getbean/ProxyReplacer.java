@@ -21,6 +21,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
 
 import java.lang.reflect.InvocationHandler;
@@ -56,16 +57,16 @@ public class ProxyReplacer {
      */
     public static Object register(Object beanFactory, Object bean, Class<?>[] paramClasses, Object[] paramValues) {
         if (bean == null) {
-            return bean;
+            return null;
         }
         // 如果不是basePackagePrefixes下的Bean不处理
         String[] basePackagePrefixes;
         try {
-            basePackagePrefixes = (String[]) PluginManager.getInstance().getPlugin("io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin",
+            basePackagePrefixes = (String[]) PluginManager.getInstance().getPlugin(SpringPlugin.class.getName(),
                     ProxyReplacer.class.getClassLoader()).getClass().getDeclaredField("basePackagePrefixes").get(null);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error("load io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin failed, classLoader: {}, exception: {}",
-                    ProxyReplacer.class.getClassLoader(), e);
+            LOGGER.error("load {} failed, classLoader: {}, exception: {}",
+                    SpringPlugin.class.getName(), ProxyReplacer.class.getClassLoader(), e);
             return bean;
         }
 

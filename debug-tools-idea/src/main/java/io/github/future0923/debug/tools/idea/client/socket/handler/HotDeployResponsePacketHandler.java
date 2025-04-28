@@ -51,7 +51,8 @@ public class HotDeployResponsePacketHandler extends BasePacketHandler<HotDeployR
 
     private static @NotNull RunContentDescriptor getRunContentDescriptor(HotDeployResponsePacket packet, Project project, String consoleTitle) {
         MyConsolePanel consolePanel = new MyConsolePanel(project);
-        consolePanel.print(packet.getPrintResult(), packet.isSuccess() ? ConsoleViewContentType.NORMAL_OUTPUT : ConsoleViewContentType.ERROR_OUTPUT);
+        consolePanel.printWithTime(packet.getPrintResult(), packet.isSuccess() ? ConsoleViewContentType.NORMAL_OUTPUT : ConsoleViewContentType.ERROR_OUTPUT);
+        consolePanel.println();
         return new RunContentDescriptor(null, null, consolePanel, consoleTitle) {
             @Override
             public boolean isContentReuseProhibited() {

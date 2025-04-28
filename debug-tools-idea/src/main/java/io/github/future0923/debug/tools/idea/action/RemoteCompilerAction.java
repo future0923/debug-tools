@@ -14,6 +14,7 @@ import com.intellij.psi.PsiFile;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
@@ -37,6 +38,7 @@ public class RemoteCompilerAction extends AnAction {
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
             Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         // 获取当前编辑的文件
