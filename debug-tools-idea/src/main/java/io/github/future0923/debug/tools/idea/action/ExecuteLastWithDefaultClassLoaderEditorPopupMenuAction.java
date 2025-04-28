@@ -12,6 +12,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +51,7 @@ public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAc
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
             Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         runDTO.setClassLoader(projectDefaultClassLoader);

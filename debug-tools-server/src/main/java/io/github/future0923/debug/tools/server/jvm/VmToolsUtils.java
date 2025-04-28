@@ -83,12 +83,12 @@ public class VmToolsUtils {
     /**
      * 获取实例对象
      * <p>优先通过spring 上下文获取
-     * <p>获取不到从jvm中获取，如果有多个取第一个
+     * <p>获取不到从jvm中获取，如果有多个取第最后一个
      * <p>获取不到调用构造方法创建
      */
     public static Object getSpringInstance(Class<?> clazz) {
         try {
-            Object firstBean = DebugToolsEnvUtils.getFirstBean(clazz);
+            Object firstBean = DebugToolsEnvUtils.getLastBean(clazz);
             if (firstBean != null) {
                 return firstBean;
             }
@@ -99,7 +99,7 @@ public class VmToolsUtils {
         if (instances.length == 0) {
             return instantiate(clazz);
         } else {
-            return instances[0];
+            return instances[instances.length - 1];
         }
     }
 

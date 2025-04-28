@@ -3,15 +3,12 @@ package io.github.future0923.debug.tools.server.compiler;
 import cn.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import lombok.Data;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;

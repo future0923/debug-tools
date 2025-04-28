@@ -30,8 +30,10 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPa
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.spring.util.CollectionUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.spring.util.ReflectionUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -45,6 +47,7 @@ import org.springframework.context.annotation.ScannedGenericBeanDefinition;
 import org.springframework.context.annotation.ScopeMetadata;
 import org.springframework.context.annotation.ScopeMetadataResolver;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
@@ -53,6 +56,8 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -85,6 +90,8 @@ public class ClassPathBeanDefinitionScannerAgent {
      * 已经删除的BeanName集合
      */
     private static final Set<String> deleteBeanNameSet = new ConcurrentSkipListSet<>();
+
+    public static final Map<String, Map<String, String>> autoWiredDependencyMap = new ConcurrentHashMap<>();
 
     /**
      * Flag to check reload status.
@@ -299,7 +306,7 @@ public class ClassPathBeanDefinitionScannerAgent {
      * @param path            class path
      * @throws IOException error working with classDefinition
      */
-    public static void refreshClass(String basePackage, byte[] classDefinition, String path) throws IOException {
+    public static void refreshClass(String basePackage, byte[] classDefinition, String path) throws IOException, ClassNotFoundException {
         ResetSpringStaticCaches.reset();
         List<ClassPathBeanDefinitionScannerAgent> scannerAgents = getInstances(basePackage);
         if (scannerAgents.isEmpty()) {
@@ -311,10 +318,48 @@ public class ClassPathBeanDefinitionScannerAgent {
             if (null == beanDefinition) {
                 continue;
             }
+            String beanName = scannerAgent.getBeanName(beanDefinition);
+            Class<?> beanClass = ((AbstractBeanDefinition) beanDefinition).resolveBeanClass(ClassPathBeanDefinitionScannerAgent.class.getClassLoader());
+            assemblingSpringBean(beanName, beanClass);
             scannerAgent.defineBean(beanDefinition, path);
             break;
         }
         reloadFlag = false;
+    }
+
+    private static void assemblingSpringBean(String beanName, Class<?> beanClass) {
+        ReflectionUtils.doWithFields(beanClass,
+                field -> {
+                    Type genericType = field.getGenericType();
+                    if (genericType instanceof ParameterizedType) {
+                        ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                        Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                        if (actualTypeArguments.length > 0) {
+                            Class<?> clazz;
+                            Type lastType = actualTypeArguments[actualTypeArguments.length - 1];
+                            if (lastType instanceof Class) {
+                                clazz = (Class<?>) lastType;
+                            } else if (lastType instanceof ParameterizedType) {
+                                clazz = ((Class<?>) ((ParameterizedType) lastType).getRawType());
+                            } else {
+                                return;
+                            }
+                            autoWiredDependencyMap.computeIfAbsent(clazz.getName(), k -> new ConcurrentHashMap<>()).put(beanName, beanClass.getName());
+                        }
+                    }
+                },
+                field -> {
+                    Autowired autowired = AnnotationUtils.getAnnotation(field, Autowired.class);
+                    if (autowired == null) {
+                        return false;
+                    }
+                    return List.class.isAssignableFrom(field.getType()) || Map.class.isAssignableFrom(field.getType());
+                }
+        );
+    }
+
+    public String getBeanName(BeanDefinition candidate) {
+        return this.beanNameGenerator.generateBeanName(candidate, this.registry);
     }
 
     /**
@@ -328,7 +373,7 @@ public class ClassPathBeanDefinitionScannerAgent {
         synchronized (ClassPathBeanDefinitionScannerAgent.class) {
             ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
             candidate.setScope(scopeMetadata.getScopeName());
-            String beanName = this.beanNameGenerator.generateBeanName(candidate, registry);
+            String beanName = getBeanName(candidate);
             if (candidate instanceof AbstractBeanDefinition) {
                 postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
             }
@@ -473,14 +518,14 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     /**
-     * 调用Spring的{@code ClassPathBeanDefinitionScanner#registerBeanDefinition(BeanDefinitionHolder, BeanDefinitionRegistry)} 注册Bean
+     * 注册Bean到容器
      */
     private void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
         ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class, "registerBeanDefinition", new Class[]{BeanDefinitionHolder.class, BeanDefinitionRegistry.class}, definitionHolder, registry);
     }
 
     /**
-     * 调用Spring {@code ClassPathBeanDefinitionScanner#checkCandidate(String, BeanDefinition)} 对BeanName和BeanDefinition进行检查
+     * 对BeanName和BeanDefinition进行检查
      *
      * @return 返回true表示可以注册
      */
@@ -488,10 +533,16 @@ public class ClassPathBeanDefinitionScannerAgent {
         return (Boolean) ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class, "checkCandidate", new Class[]{String.class, BeanDefinition.class}, beanName, candidate);
     }
 
+    /**
+     * 解析公共的注解信息(@Lazy、@DependsOn、@Role、@Description)并将其应用到 BeanDefinition 上。
+     */
     private void processCommonDefinitionAnnotations(AnnotatedBeanDefinition candidate) {
         ReflectionHelper.invoke(null, AnnotationConfigUtils.class, "processCommonDefinitionAnnotations", new Class[]{AnnotatedBeanDefinition.class}, candidate);
     }
 
+    /**
+     * 设置BeanDefinition的属性
+     */
     private void postProcessBeanDefinition(AbstractBeanDefinition candidate, String beanName) {
         ReflectionHelper.invoke(scanner, ClassPathBeanDefinitionScanner.class, "postProcessBeanDefinition", new Class[]{AbstractBeanDefinition.class, String.class}, candidate, beanName);
     }

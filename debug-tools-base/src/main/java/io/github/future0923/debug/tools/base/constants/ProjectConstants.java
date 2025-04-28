@@ -11,13 +11,9 @@ public interface ProjectConstants {
 
     String VERSION = "4.0.0-SNAPSHOT";
 
-    String SERVER_CORE_JAR_PATH = "lib/debug-tools-server.jar";
+    String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
+
+    String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
 
     String CONFIG_FILE = "debug-tools.properties";
-
-    String DEBUG_TOOLS_BOOTSTRAP = "io.github.future0923.debug.tools.server.DebugToolsBootstrap";
-
-    String GET_INSTANCE = "getInstance";
-
-    String START = "start";
 }

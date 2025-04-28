@@ -7,11 +7,14 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author future0923
@@ -19,6 +22,8 @@ import java.awt.*;
 public class MyConsolePanel extends JPanel {
 
     private final ConsoleView consoleView;
+
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public MyConsolePanel(Project project) {
         this(TextConsoleBuilderFactory.getInstance().createBuilder(project).getConsole(), null);
@@ -50,5 +55,21 @@ public class MyConsolePanel extends JPanel {
 
     public void print(@NotNull String text, @NotNull ConsoleViewContentType contentType) {
         consoleView.print(text, contentType);
+    }
+
+    public void printWithTime(@NotNull String text, @NotNull ConsoleViewContentType contentType) {
+        consoleView.print(getTime() + text, contentType);
+    }
+
+    public void println() {
+        consoleView.print("\n", ConsoleViewContentType.NORMAL_OUTPUT);
+    }
+
+    public boolean isDisposed() {
+        return Disposer.newCheckedDisposable(consoleView).isDisposed();
+    }
+
+    private String getTime() {
+        return timeFormat.format(new Date()) + " ";
     }
 }

@@ -19,8 +19,6 @@
         <can.retransform.classes>true</can.retransform.classes>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
-        <shade.cn.hutool.source>cn.hutool</shade.cn.hutool.source>
-        <shade.cn.hutool.target>${shade.package}.${shade.cn.hutool.source}</shade.cn.hutool.target>
         <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
         <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.cn.hutool.source}</shade.pl.joegreen.lambdaFromString.target>
     </properties>
@@ -61,6 +59,22 @@
             <artifactId>debug-tools-server</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!--打包顺序依赖开始-->
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-extension-spring</artifactId>
+            <version>${revision}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-extension-xxljob</artifactId>
+            <version>${revision}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <!--打包顺序依赖结束-->
     </dependencies>
 
     <build>
