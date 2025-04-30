@@ -15,7 +15,7 @@
 ## 2. 开启热部署
 
 ::: tip
-热部署需要特定的jdk才能生效，请先参考[JDK安装](quick-start#jdk)完成JDK的初始化。
+热部署需要特定的jdk才能生效，请先参考[JDK安装](install#jdk)完成JDK的初始化。
 :::
 
 ### 2.1 添加JVM参数

@@ -15,7 +15,7 @@ Hot deployment is based on [hot reload](hot-reload). Hot reload only supports lo
 ## 2. Enable hot deployment
 
 ::: tip
-Hot deployment requires a specific JDK to take effect. Please refer to [JDK Installation](quick-start#jdk) to complete JDK initialization.
+Hot deployment requires a specific JDK to take effect. Please refer to [JDK Installation](install#jdk) to complete JDK initialization.
 :::
 
 ### 2.1 Add JVM parameters

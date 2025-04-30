@@ -19,10 +19,10 @@ Click <img src="/icon/hotswap.svg" style="display: inline-block; width: 20px; he
 ![hotswap_on](/images/hotswap_on.png){v-zoom}
 
 ::: tip
-Hot reload requires a specific JDK to take effect. Please refer to [JDK installation](quick-start#jdk) to complete JDK initialization
+Hot reload requires a specific JDK to take effect. Please refer to [JDK installation](install#jdk) to complete JDK initialization
 :::
 
-> If the startup project prompts `DCEVM is not installed`, check whether the [JDK installation](quick-start#jdk) is correct. JDK8 Check whether the command `java -XXaltjvm=dcevm -version` can be output normally.
+> If the startup project prompts `DCEVM is not installed`, check whether the [JDK installation](install#jdk) is correct. JDK8 Check whether the command `java -XXaltjvm=dcevm -version` can be output normally.
 > ![dcevm_not_install.png](/images/dcevm_not_install.png){v-zoom}
 
 ## 2. Trigger hot reload
