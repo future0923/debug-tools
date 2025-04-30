@@ -1,5 +1,7 @@
 package io.github.future0923.debug.tools.server.utils;
 
+import io.github.future0923.debug.tools.base.classloader.DebugToolsExtensionClassLoader;
+import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
@@ -9,8 +11,12 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author future0923
@@ -19,9 +25,30 @@ public class DebugToolsEnvUtils {
 
     private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
+    private static final Map<ClassLoader, DebugToolsExtensionClassLoader> EXTENSION_CLASS_LOADER_MAP = new HashMap<>();
+
+    private static DebugToolsExtensionClassLoader getExtensionClassLoader(ClassLoader classLoader) {
+        DebugToolsExtensionClassLoader extensionClassLoader = EXTENSION_CLASS_LOADER_MAP.get(classLoader);
+        if (extensionClassLoader != null) {
+            return extensionClassLoader;
+        }
+        synchronized (DebugToolsEnvUtils.class) {
+            extensionClassLoader = EXTENSION_CLASS_LOADER_MAP.get(classLoader);
+            if (extensionClassLoader != null) {
+                return extensionClassLoader;
+            }
+            List<URL> urls = new LinkedList<>();
+            Optional.ofNullable(AgentConfig.INSTANCE.getSpringExtensionURL()).ifPresent(urls::add);
+            Optional.ofNullable(AgentConfig.INSTANCE.getXxlJobExtensionURL()).ifPresent(urls::add);
+            extensionClassLoader = new DebugToolsExtensionClassLoader(urls.toArray(new URL[0]), classLoader);
+            EXTENSION_CLASS_LOADER_MAP.put(classLoader, extensionClassLoader);
+            return extensionClassLoader;
+        }
+    }
+
     public static Class<?> getSpringEnvUtilClass() {
         try {
-            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringEnvUtil");
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.spring.SpringEnvUtil");
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             if (ProjectConstants.DEBUG) {
                 logger.warning("SpringEnvUtil get error", e);
@@ -32,7 +59,7 @@ public class DebugToolsEnvUtils {
 
     public static Class<?> getSpringServletUtil() {
         try {
-            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringServletUtil");
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.spring.SpringServletUtil");
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             if (ProjectConstants.DEBUG) {
                 logger.warning("SpringServletUtil get error", e);
@@ -43,7 +70,7 @@ public class DebugToolsEnvUtils {
 
     public static Class<?> getSpringReactiveUtil() {
         try {
-            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.spring.SpringReactiveUtil");
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.spring.SpringReactiveUtil");
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             if (ProjectConstants.DEBUG) {
                 logger.warning("SpringReactiveUtil get error", e);
@@ -54,7 +81,7 @@ public class DebugToolsEnvUtils {
 
     public static Class<?> getXxlJobEnvUtil() {
         try {
-            return DebugToolsClassUtils.loadDebugToolsClass("io.github.future0923.debug.tools.extension.xxljob.XxlJobEnvUtil");
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.xxljob.XxlJobEnvUtil");
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             if (ProjectConstants.DEBUG) {
                 logger.warning("XxlJobEnvUtil get error", e);
