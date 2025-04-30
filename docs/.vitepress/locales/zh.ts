@@ -62,28 +62,26 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     {
       text: '文档',
-      link: '/zh/guide/introduction',
-      activeMatch: '/zh/'
+      link: '/guide/introduction',
     },
     {
       text: '博客',
-      link: 'zh/blog/java-env',
-      activeMatch: '/zh/'
+      link: '/blog/java-env',
     },
     {
       text: '联系我',
-      link: 'zh/contact-me',
+      link: '/contact-me',
     },
     {
       text: pkg.version,
       items: [
         {
           text: '更新日志',
-          link: 'zh/other/changelog'
+          link: '/other/changelog'
         },
         {
           text: '参与贡献',
-          link: 'zh/other/contributing.md'
+          link: '/other/contributing.md'
         },
         {
           text: 'DeepWiki',
