@@ -15,13 +15,13 @@ public class GroovyScriptClassLoader extends ClassLoader {
         return classLoader;
     }
 
-    public static GroovyScriptClassLoader init(ClassLoader debugToolsClassLoader) {
-        GroovyScriptClassLoader.classLoader = new GroovyScriptClassLoader(debugToolsClassLoader);
+    public static GroovyScriptClassLoader init(ClassLoader classLoader) {
+        GroovyScriptClassLoader.classLoader = new GroovyScriptClassLoader(classLoader);
         return getInstance();
     }
 
-    private GroovyScriptClassLoader(ClassLoader debugToolsClassLoader) {
-        super(debugToolsClassLoader);
+    private GroovyScriptClassLoader(ClassLoader classLoader) {
+        super(classLoader);
     }
 
     public void setDefaultClassLoader(ClassLoader defaultClassLoader) {
