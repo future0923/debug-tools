@@ -4,10 +4,12 @@ import io.github.future0923.debug.tools.base.SpyAPI;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.Properties;
 
@@ -104,6 +106,18 @@ public class AgentConfig {
         return properties.getProperty(SPRING_EXTENSION_PATH);
     }
 
+    public URL getSpringExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getSpringExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load spring extension error", e);
+            }
+            return null;
+        }
+    }
+
+
     public void setSpringExtensionPath(String path) {
         properties.setProperty(SPRING_EXTENSION_PATH, path);
     }
@@ -115,6 +129,17 @@ public class AgentConfig {
 
     public String getXxlJobExtensionPath() {
         return properties.getProperty(XXLJOB_EXTENSION_PATH);
+    }
+
+    public URL getXxlJobExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getXxlJobExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load xxl-job extension error", e);
+            }
+            return null;
+        }
     }
 
     public void setXxlJobExtensionPath(String path) {
