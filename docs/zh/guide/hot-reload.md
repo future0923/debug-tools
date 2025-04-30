@@ -19,10 +19,10 @@
 ![hotswap_on](/images/hotswap_on.png){v-zoom}
 
 ::: tip
-热重载需要特定的jdk才能生效，请先参考[JDK安装](quick-start#jdk)完成JDK的初始化
+热重载需要特定的jdk才能生效，请先参考[JDK安装](install#jdk)完成JDK的初始化
 :::
 
-> 启动项目如果提示 `DCEVM is not installed` ，检查[JDK安装](quick-start#jdk)是否正确。JDK8 检查命令 `java -XXaltjvm=dcevm -version` 是否能正常输出。
+> 启动项目如果提示 `DCEVM is not installed` ，检查[JDK安装](install#jdk)是否正确。JDK8 检查命令 `java -XXaltjvm=dcevm -version` 是否能正常输出。
 > ![dcevm_not_install.png](/images/dcevm_not_install.png){v-zoom}
 
 ## 2. 触发热重载
