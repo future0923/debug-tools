@@ -83,7 +83,6 @@ public class SpringEnvUtil {
         }));
         for (ApplicationContext applicationContext : result) {
             // 由于没有set进去，会从执行线程获取类加载器
-            // 当处于懒加载期间，会有获取到 DebugToolsClassLoader 的情况，这里兼容处理
             if (applicationContext instanceof DefaultResourceLoader) {
                 ((DefaultResourceLoader) applicationContext).setClassLoader(applicationContext.getClassLoader());
             }
