@@ -77,24 +77,7 @@ usage: debug-tools
 
 ## Connect
 
-Click <img src="/pluginIcon.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> toolbar on the right side of Idea to wake up the DebugTools window. Click <img src="/icon/connect.svg" alt="连接" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> to fill in the remote address.
-
-![connect_tools_window](/images/connect_tools_window.png){v-zoom}
-
-Enter **host** , **tcpPort** , **httpPort**, and click the `Save & Connent` button to connect to the remote application.
-
-![connect_input.png](/images/connect_input.png){v-zoom}
-
-After successfully attaching the app, DebugTools displays the attachment state.
-- `R`: The logo is attached to the remote application，`L` for local application.
-- `Connected`: The application has been successfully attached and the service has been successfully connected.
-- `i.g.f.d.t.t.a.DebugToolsTestApplication`: application name.
-  - Attach when specifying the application name is the specified `application name`.
-  - If the application name is not specified, the Spring application `spring.application.name` configuration item.
-  - When not specified, take the `Main-Class` in the startup jar.
-  - Fetch `sun.java.command` in the startup command when not found.
-
-![remote_attach_status](/images/remote_attach_status.png){v-zoom}
+<!--@include: ./parts/connect-remote.md-->
 
 ## Use
 

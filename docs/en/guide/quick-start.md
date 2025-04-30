@@ -1,55 +1,11 @@
 # Quick Start {#quick-start}
 
-## Install {#installation}
+Please make sure you have successfully [installed](install)
 
-### Marketplace（recommend） {#marketplace}
-
-1. Open `IDE Settings` and select `Plugins`.
-2. Search for `DebugTools` in the `Marketplace` and click `install`.
-3. Restart.
-
-![marketplace](/images/marketplace.png){v-zoom}
-
-::: tip 2025.1 version of Intellij Idea
-Due to a bug in the jetbrains Marketplace plugin validator, version 3.4.4 cannot be installed. Please use the following [offline installation](https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip) or [Github](https://github.com/future0923/debug-tools/releases) or [Gitee](https://gitee.com/future94/debug-tools/releases) to install.
-:::
-
-### Manual Install {#manual-installation}
-
-::: code-group
-
-```text [Marketplace]
-https://plugins.jetbrains.com/plugin/24463-debugtools
-```
-
-```text [Offline]
-https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip
-```
-
-```sh [Build manually]
-git clone https://github.com/future0923/debug-tools.git
-cd debug-tools
-mvn clean install -T 2C -Dmaven.test.skip=true
-# dist dir
-# debug-tools-boot.jar remote agent jar
-cd debug-tools-idea
-./gradlew clean buildPlugin
-# dist dir
-# DebugTools-{version}.zip IDEA plugin
-```
-
-```text [github]
-https://github.com/future0923/debug-tools/releases
-```
-
-```text [gitee]
-https://gitee.com/future94/debug-tools/releases
-```
-
-:::
-
-::: details The manual build encountered a packaging failure problem
-
-At present, the maven packaging needs to be built with the `java17+` version, and the grade packaging Idea plugins needs to be built with the `java17+` version.
-
-:::
+- [Hot reload](hot-reload)
+- [Hot deploy](hot-deploy)
+- [Call local method](attach-local)
+- [Call remote method](attach-remote)
+- [Search URL address](search-http)
+- [Print SQL statement](sql)
+- [Execute Groovy script](groovy-execute)
