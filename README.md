@@ -1,6 +1,6 @@
 <br/>
 
-<div style="text-align: center;">
+<p align="center">
     <a href="https://github.com/future0923/debug-tools/blob/main/README.md">
       中文
     </a>
@@ -8,17 +8,17 @@
     <a href="https://github.com/future0923/debug-tools/blob/main/README-en.md" >
       English
     </a>
-</div>
+</p>
 
-<p style="text-align: center;">
+<p align="center">
   <strong>集成于 IntelliJ IDEA 的插件，专注于提升开发效率与缩短调试周期</strong>
 </p>
 
-<p style="text-align: center;">
+<p align="center">
   <a target="_blank" href="https://debug-tools.cc">https://debug-tools.cc</a>
 </p>
 
-<div style="text-align: center;">
+<p align="center">
     <a href="https://debug-tools.cc">
       <img src="https://img.shields.io/badge/文档-简体中文-blue.svg" alt="简体中文文档" />
     </a>
@@ -28,9 +28,9 @@
     <a target="_blank" href="https://deepwiki.com/future0923/debug-tools" >
       <img src="https://img.shields.io/badge/DeepWiki-English-blue.svg" alt="Deepwiki docs" />
     </a>
-</div>
+</p>
 
-<div style="text-align: center;">
+<p align="center">
     <a target="_blank" href="LICENSE">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license" alt="apache 2.0" />
     </a>
@@ -64,7 +64,7 @@
     <a target="_blank" href="mailto:future94@qq.com">
         <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
     </a>
-</div>
+</p>
 
 ## 功能
 
