@@ -31,39 +31,17 @@
 </p>
 
 <p align="center">
-    <a target="_blank" href="LICENSE">
-        <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license" alt="apache 2.0" />
-    </a>
-    <a target="_blank" href='https://plugins.jetbrains.com/plugin/24463-debugtools'>
-        <img src="https://img.shields.io/jetbrains/plugin/d/24463?style=flat&color=blue" alt="github contributors"/>
-    </a>
-    <a href='https://github.com/future0923/debug-tools'>
-        <img src="https://img.shields.io/github/stars/future0923/debug-tools.svg?style=flat&label=stars" alt="github stars"/>
-    </a>
-    <a href='https://github.com/future0923/debug-tools'>
-        <img src="https://img.shields.io/github/forks/future0923/debug-tools.svg?style=flat&label=forks" alt="github forks"/>
-    </a>
-    <a href='https://github.com/future0923/debug-tools'>
-        <img src="https://img.shields.io/github/contributors/future0923/debug-tools.svg?style=flat&label=contributors&color=blue" alt="github contributors"/>
-    </a>
-    <a target="_blank" href="https://debug-tools.cc/guide/install#jdk8">
-        <img src="https://img.shields.io/badge/JDK-8-blue.svg" alt="jdk 8" />
-    </a>
-    <a target="_blank" href="https://debug-tools.cc/guide/install#jdk11">
-        <img src="https://img.shields.io/badge/JDK-11-blue.svg" alt="jdk 11" />
-    </a>
-    <a target="_blank" href="https://debug-tools.cc/guide/install#jdk17-21">
-        <img src="https://img.shields.io/badge/JDK-17-blue.svg" alt="jdk 17" />
-    </a>
-    <a target="_blank" href="https://debug-tools.cc/guide/install#jdk17-21">
-        <img src="https://img.shields.io/badge/JDK-21-blue.svg" alt="jdk 21" />
-    </a>
-    <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO">
-        <img src="https://img.shields.io/badge/QQ群-518757118-blue.svg" alt="518757118" />
-    </a>
-    <a target="_blank" href="mailto:future94@qq.com">
-        <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
-    </a>
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license" alt="apache 2.0" />
+    <img src="https://img.shields.io/jetbrains/plugin/d/24463?style=flat&color=blue" alt="github contributors"/>
+    <img src="https://img.shields.io/github/stars/future0923/debug-tools.svg?style=flat&label=stars" alt="github stars"/>
+    <img src="https://img.shields.io/github/forks/future0923/debug-tools.svg?style=flat&label=forks" alt="github forks"/>
+    <img src="https://img.shields.io/github/contributors/future0923/debug-tools.svg?style=flat&label=contributors&color=blue" alt="github contributors"/>
+    <img src="https://img.shields.io/badge/JDK-8-blue.svg" alt="jdk 8" />
+    <img src="https://img.shields.io/badge/JDK-11-blue.svg" alt="jdk 11" />
+    <img src="https://img.shields.io/badge/JDK-17-blue.svg" alt="jdk 17" />
+    <img src="https://img.shields.io/badge/JDK-21-blue.svg" alt="jdk 21" />
+    <img src="https://img.shields.io/badge/QQ群-518757118-blue.svg" alt="518757118" />
+    <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
 </p>
 
 ## 功能
