@@ -1,6 +1,6 @@
 <br/>
 
-<div style="text-align: center;">
+<p align="center">
     <a href="https://github.com/future0923/debug-tools/blob/main/README.md">
       中文
     </a>
@@ -8,17 +8,17 @@
     <a href="https://github.com/future0923/debug-tools/blob/main/README-en.md" >
       English
     </a>
-</div>
+</p>
 
-<p style="text-align: center;">
+<p align="center">
   <strong>A plug-in integrated into IntelliJ IDEA, focusing on improving development efficiency and shortening debugging cycles</strong>
 </p>
 
-<p style="text-align: center;">
+<p align="center">
   <a target="_blank" href="https://debug-tools.cc">https://debug-tools.cc</a>
 </p>
 
-<div style="text-align: center;">
+<p align="center">
     <a href="https://debug-tools.cc">
       <img src="https://img.shields.io/badge/文档-简体中文-blue.svg" alt="简体中文文档" />
     </a>
@@ -28,9 +28,9 @@
     <a target="_blank" href="https://deepwiki.com/future0923/debug-tools" >
       <img src="https://img.shields.io/badge/DeepWiki-English-blue.svg" alt="Deepwiki docs" />
     </a>
-</div>
+</p>
 
-<div style="text-align: center;">
+<p align="center">
     <a target="_blank" href="LICENSE">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?label=license" alt="apache 2.0" />
     </a>
@@ -64,9 +64,9 @@
     <a target="_blank" href="mailto:future94@qq.com">
         <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
     </a>
-</div>
+</p>
 
-## 功能
+## Features
 
 - [Hot deployment in seconds](https://debug-tools.cc/en/guide/hot-deploy.html)：The traditional deployment process is generally to submit code -> pull code -> package -> deploy -> restart the project before the written code can take effect. Hot deployment can skip this tedious process. After the developer modifies the code, there is no need to manually trigger packaging or restart the service. The application can load the new logic in real time and run, greatly shortening the feedback cycle. After we introduced hot deployment in development/testing environments, the overall development efficiency of the team can be greatly improved, especially for high-frequency iteration scenarios in agile development mode.
 - [Hot reload in seconds](https://debug-tools.cc/en/guide/hot-reload.html): When writing code in the traditional way, you need to restart the application to make it effective. However, hot reload can make the written code effective immediately without restarting the application, so that the code changes written by the developer can take effect instantly, greatly improving the iteration efficiency. Supports changes in properties and methods of classes (including proxy classes), Spring, Mybatis and other mainstream frameworks.
