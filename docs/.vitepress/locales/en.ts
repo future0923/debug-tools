@@ -7,8 +7,8 @@ const pkg = require('../../package.json')
 export const en = defineConfig({
   lang: 'en-US',
   title: 'DebugTools',
-  titleTemplate: 'Java Debugging Tools',
-  description: "Hot reload, Quickly call any Java method (local/remote), print SQL statements and time consumption, and execute Groovy scripts",
+  titleTemplate: 'Java development and debugging plugin integrated into IntelliJ IDEA',
+  description: "Focus on improving development efficiency and shortening debugging cycles",
   themeConfig: {
     siteTitle: 'DebugTools',
     logo: '/pluginIcon.svg',
@@ -22,13 +22,18 @@ export const en = defineConfig({
       text: 'Edit this page on GitHub'
     },
     sidebar: {
-      '/guide': {
-        base: '/guide/',
+      '/en/guide': {
+        base: '/en/guide/',
         items: sidebarGuide()
       },
+      '/en/other': {
+        base: '/en/other/',
+        items: sidebarOther()
+      }
     },
     socialLinks: [
-      {icon: 'github', link: 'https://github.com/future0923/debug-tools'}
+      {icon: 'github', link: 'https://github.com/future0923/debug-tools'},
+      {icon: 'gitee', link: 'https://gitee.com/future94/debug-tools'},
     ],
     footer: {
       message: `Released under the Apache License | Copyright © 2024-${new Date().getFullYear()} <a href="https://github.com/future0923/" target="_blank">Future0923</a>`,
@@ -41,19 +46,27 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     {
       text: 'Document',
-      link: '/guide/introduction',
-      activeMatch: '/guide/'
+      link: '/en/guide/introduction',
+      activeMatch: '/en/guide/'
+    },
+    {
+      text: 'Contact Me',
+      link: 'zh/contact-me',
     },
     {
       text: pkg.version,
       items: [
         {
           text: 'Changelog',
-          link: 'https://github.com/future0923/debug-tools/blob/main/CHANGELOG.md'
+          link: 'en/other/changelog'
         },
         {
           text: 'Contributing',
-          link: 'https://github.com/future0923/debug-tools/blob/main/.github/contributing.md'
+          link: 'zh/other/contributing.md'
+        },
+        {
+          text: 'DeepWiki',
+          link: 'https://deepwiki.com/future0923/debug-tools'
         }
       ]
     }
@@ -67,6 +80,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         {text: 'What is DebugTools？', link: 'introduction'},
+        {text: 'Install', link: 'install'},
         {text: 'Quick start', link: 'quick-start'}
       ]
     },
@@ -80,6 +94,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: 'SpringBoot', link: 'hot-reload-springboot'},
         {text: 'Mybatis', link: 'hot-reload-mybatis'},
         {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
+      ]
+    },
+    {
+      text: 'Hot Deploy',
+      collapsed: false,
+      items: [
+        {text: 'Hot Deploy', link: 'hot-deploy'},
       ]
     },
     {
@@ -129,5 +150,12 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: 'Run result', link: 'idea-result'},
       ]
     },
+  ]
+}
+
+function sidebarOther(): DefaultTheme.SidebarItem[] {
+  return [
+    {text: 'changeLog', link: 'changelog'},
+    {text: 'contributing', link: 'contributing'},
   ]
 }

@@ -30,7 +30,7 @@ https://gitee.com/future94/debug-tools/releases
 
 ::: details 手动构建遇到了打包失败问题
 
-目前maven打包需要使用 `java1.8` 版本构建。
+目前maven打包需要使用 `java17` 版本构建。
 
 :::
 
@@ -77,24 +77,7 @@ usage: debug-tools
 
 ## 连接
 
-点击 Idea 右侧的 <img src="/pluginIcon.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> 工具栏唤醒 DebugTools 的窗口，点击 <img src="/icon/connect.svg" alt="连接" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> 填写远程地址。
-
-![connect_tools_window](/images/connect_tools_window.png){v-zoom}
-
-输入 **host** 、**tcpPort** 和 **httpPort**，点击 `Save & Connent` 按钮连接远程应用。
-
-![connect_input.png](/images/connect_input.png){v-zoom}
-
-成功附着应用后，DebugTools 会在显示附着状态。
-- `R`: 标识附着的是远程应用，`L`代表是本地应用。
-- `Connected`: 应用已经附着成功并连接服务成功。
-- `i.g.f.d.t.t.a.DebugToolsTestApplication`: 应用名称。
-    - 附着时指定应用名时为`指定的应用名`。
-    - 未指定应用名时如果是 Spring 应用取 `spring.application.name` 配置项。
-    - 未指定时取启动时jar中的 `Main-Class`。
-    - 未找到时取启动命令中的 `sun.java.command`。
-
-![remote_attach_status](/images/remote_attach_status.png){v-zoom}
+<!--@include: ./parts/connect-remote.md-->
 
 ## 使用
 
@@ -102,4 +85,4 @@ usage: debug-tools
 
 ## 高级
 
-如果附着应用和Idea开启了 `远程Debug` 功能，通过 DebugTools 不但可以快速调用远程方法，还可以进行远程Debug断点调试。
+如果附着应用和Idea开启了 [远程Debug](../blog/remote-debug) 功能，通过 DebugTools 不但可以快速调用远程方法，还可以进行远程Debug断点调试。

@@ -144,3 +144,10 @@
 .medium-zoom-image {
     z-index: 10000 !important;
 }
+
+/**
+ * 扩展右侧栏宽度
+ */
+.aside-container {
+    width: 600px !important;
+}
