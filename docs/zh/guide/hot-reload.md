@@ -1,8 +1,12 @@
 # 热重载 <Badge type="warning" text="beta" /> {#hot-reload} 
 
-无需重启应用即可让编写的代码生效，支持类(包括代理类)的属性和方法变动、SpringBoot、MybatisPlus等，提升开发效率。
+::: info
+热重载实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。如果不生效麻烦提交 <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下。
+:::
 
-## 开启热重载
+传统编写代码时，需要重启应用才能生效，而热重载可以在不重启应用下让编写的代码生效立刻，让开发者编写的代码改动瞬间生效，极大提升迭代效率。支持类(包括代理类)的属性和方法变动、Spring、Mybatis等主流框架。同时适配 jdk8、jdk11、jdk17、jdk21 等多个JDK版本。
+
+## 1. 开启热重载
 
 点击 <img src="/icon/hotswap.svg" style="display: inline-block; width: 20px; height: 20px; vertical-align: middle;" /> 图标变为 <img src="/icon/hotswap_on.svg" style="display: inline-block; width: 25px; height: 25px; vertical-align: middle;" /> 表示开启热重载，大飞机模式下启动项目热重载即可生效。
 
@@ -14,42 +18,70 @@
 
 ![hotswap_on](/images/hotswap_on.png){v-zoom}
 
-启动项目如果提示 `DCEVM is not installed` ，检查命令 `java -XXaltjvm=dcevm -version` 是否能正常输出。如果不能则需要先[安装 DCEVM](#install-dcevm)。
+::: tip
+热重载需要特定的jdk才能生效，请先参考[JDK安装](quick-start#jdk)完成JDK的初始化
+:::
 
-![dcevm_not_install.png](/images/dcevm_not_install.png){v-zoom}
+> 启动项目如果提示 `DCEVM is not installed` ，检查[JDK安装](quick-start#jdk)是否正确。JDK8 检查命令 `java -XXaltjvm=dcevm -version` 是否能正常输出。
+> ![dcevm_not_install.png](/images/dcevm_not_install.png){v-zoom}
 
-## 使用热重载
+## 2. 触发热重载
 
-在大飞机的状态下启动项目，项目输出如下日志，并打印载入的热重载插件。
+在大飞机的状态下启动应用，项目输出如下日志，并打印载入的热重载插件。
 
 ```text
 DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.3.0}
 DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistry 132 : Discovered plugins: [JdkPlugin, ClassInitPlugin, AnonymousClassPatch, WatchResources, HotSwapper, Proxy, Spring, MyBatis]
 ```
 
-编写代码后通过 idea 编译项目后自动触发热重载（idea快捷键自己探索）。
+### 2.1 编译项目 {#compile-project}
 
-- `Run` 方式启动项目可以通过如下方式编译项目触发热重载
+应用启动后可以通过编译构建的方式触发热重载
 
 ![build_project.png](/images/build_project.png){v-zoom}
 
-- `Debug` 方式启动项目不但可以通过上面 **Run** 的方式编译项目触发热重载，还可以通过右键菜单的 `Compile and Reload Modified Files` 方式重新编译 class 触发热重载.
+### 2.2 Debug热更新 {#compile-reload-file}
 
-![compile_reload_file.png](/images/compile_reload_file.png)
+如果应用通过 `Debug` 的方式启动，则可以通过下面方式触发热重载，同时还可以更新断点信息。
 
-- `Xml` 文件可以也可以通过上面 **Run** 的方式编译项目触发热重载，还可以通过右键菜单的 `Compile 'xxx.xml' to Target` 方式单独触发热重载.
+- 通过右键菜单的 `Compile and Reload Modified Files` 按钮.
+  
+![compile_reload_file.png](/images/compile_reload_file.png){v-zoom}
 
-![compile_xml.png](/images/compile_xml.png)
+- 文件主页面的 `Code changed` 按钮.
 
-控制台会输出相关热重载的信息。
+![compile_code_changed.png](/images/compile_code_changed.png){v-zoom}
 
-```text
-DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.ClassPathBeanDefinitionScannerAgent 210 : Registered Spring bean 'testController'
-```
+### 2.3 热部署
 
-## 哪些情况可以热重载
+<!--@include: ./parts/hot-deploy-muti-file.md-->
 
-### 普通的class文件
+::: tip
+热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式2](#compile-reload-file)
+:::
+
+### 2.4 单文件远程编译[install.md](install.md)
+
+<!--@include: ./parts/hot-deploy-one-file.md-->
+
+::: tip
+热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式2](#compile-reload-file)
+:::
+
+### 2.5 单XML文件
+
+变动的 `xml` 文件可以还可以通过右键菜单的 `Compile 'xxx.xml' to Target` 方式单独触发热重载.
+
+![compile_xml.png](/images/compile_xml.png){v-zoom}
+
+::: tip
+- 实现方式就是将 xml 文件从 `src/main/resources` 移动到对应的 `target/` 下。
+- 也可以通过[方式1](#compile-project)触发 xml 文件。
+:::
+
+## 3. 哪些情况可以热重载
+
+### 3.1 普通的class文件
 
 - 新增类文件
 - 存在的类 **增加/修改** 类中的 **属性/方法/内部类**。
@@ -58,14 +90,14 @@ DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.Clas
 
 详细点击 [class文件热重载](hot-reload-class.md) 查看
 
-### 代理类
+### 3.2 代理类
 
 - java JDK 代理类。
 - Cglib 代理类。
 
 详细点击 [代理类热重载](hot-reload-proxy.md) 查看
 
-### SpringBoot Bean
+### 3.3 SpringBoot Bean
 
 - Controller
 - Service
@@ -74,7 +106,7 @@ DebugTools: 2025-01-07 16:50:22.205  RELOAD [Thread-26] i.g.f.d.t.h.c.p.s.s.Clas
 
 详细点击 [SpringBoot](hot-reload-springboot.md) 查看
 
-### MyBatis
+### 3.4 MyBatis
 
 - Mapper（新增/修改）
 - Xml（新增/修改）
@@ -87,7 +119,7 @@ MyBatis 目前支持在 `Spring` 环境下，其他情况未知。
 
 详细点击 [MyBatis](hot-reload-mybatis.md) 查看
 
-### MyBatisPlus
+### 3.5 MyBatisPlus
 
 - Entity（新增/修改）
 - Mapper（新增/修改）
@@ -101,68 +133,6 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 详细点击 [MyBatisPlus](hot-reload-mybatis-plus.md) 查看
 
-## 安装 DCEVM {#install-dcevm}
+### 3.6 其他
 
-### java 8
-
-#### window/mac
-
-下载对应版本的 .jar 文件。<span style="color: red;">目前只支持下面版本的JDK，请选择对应版本的。</span>
-
-| java version | download by debug tools                                                                                | [download by github](https://github.com/future0923/debug-tools/releases/tag/dcevm-installer)                                       |
-|--------------|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| 1.8.0_181    | [DCEVM-8u181-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u181-installer.jar) | [DCEVM-8u181-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u181-installer.jar) |
-| 1.8.0_172    | [DCEVM-8u172-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u172-installer.jar) | [DCEVM-8u172-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u172-installer.jar) |
-| 1.8.0_152    | [DCEVM-8u152-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u152-installer.jar) | [DCEVM-8u152-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u152-installer.jar) |
-| 1.8.0_144    | [DCEVM-8u144-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u144-installer.jar) | [DCEVM-8u144-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u144-installer.jar) |
-| 1.8.0_112    | [DCEVM-8u112-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u112-installer.jar) | [DCEVM-8u112-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u112-installer.jar) |
-| 1.8.0_92     | [DCEVM-8u92-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u92-installer.jar)   | [DCEVM-8u92-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u92-installer.jar)   |
-| 1.8.0_74     | [DCEVM-8u74-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u74-installer.jar)   | [DCEVM-8u74-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u74-installer.jar)   |
-| 1.8.0_66     | [DCEVM-8u66-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u66-installer.jar)   | [DCEVM-8u66-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u66-installer.jar)   |
-| 1.8.0_51     | [DCEVM-8u51-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u51-installer.jar)   | [DCEVM-8u51-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u51-installer.jar)   |
-| 1.8.0_45     | [DCEVM-8u45-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u45-installer.jar)   | [DCEVM-8u45-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u45-installer.jar)   |
-
-运行对应的 `java -jar DCEVM-8uXX-installer.jar` 文件，找到对应的版本，点击 `Install DCEVM as altjvm` 按钮即可。
-
-![dcevm-installer.png](/images/dcevm-installer.png){v-zoom}
-
-#### linux
-
-如输入 `java -XXaltjvm=dcevm -version` 输入如下提示
-
-```text
-Error: missing `dcevm' JVM at `/home/java/jdk1.8.0_291/jre/lib/amd64/dcevm/libjvm.so'.
-Please install or use the JRE or JDK that contains these missing components.
-```
-
-下载对应版本的文件并改名为 `libjvm.so` 到上面提取的目录下即可。
-
-| java version | download by debug tools                                             | [download by github](https://github.com/future0923/debug-tools/releases/tag/libjvm.so)             |
-|--------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| >= 1.8.0_181 | [libjvm181.so](https://download.debug-tools.cc/libjvm/libjvm181.so) | [libjvm181.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm181.so) |
-| 1.8.0_172    | [libjvm172.so](https://download.debug-tools.cc/libjvm/libjvm172.so) | [libjvm172.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm172.so) |
-| 1.8.0_152    | [libjvm152.so](https://download.debug-tools.cc/libjvm/libjvm152.so) | [libjvm152.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm152.so) |
-| 1.8.0_144    | [libjvm144.so](https://download.debug-tools.cc/libjvm/libjvm144.so) | [libjvm144.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm144.so) |
-| 1.8.0_112    | [libjvm112.so](https://download.debug-tools.cc/libjvm/libjvm112.so) | [libjvm112.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm112.so) |
-| 1.8.0_92     | [libjvm92.so](https://download.debug-tools.cc/libjvm/libjvm92.so)   | [libjvm92.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm92.so)   |
-| 1.8.0_74     | [libjvm74.so](https://download.debug-tools.cc/libjvm/libjvm74.so)   | [libjvm74.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm74.so)   |
-| <= 1.8.0_66  | [libjvm66.so](https://download.debug-tools.cc/libjvm/libjvm66.so)   | [libjvm66.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm66.so)   |
-
-
-### java 11
-
-下载 [trava-jdk-11-dcevm](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases) 作为jdk11使用。
-
-### java 17/21
-
-下载 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/releases) 作为jdk17/21使用。
-
-:::tip
-
-苹果系统如果下载JDK后提示已损坏或无法验证开发者等原因不能启动JDK，输入 `sudo xattr -r -d com.apple.quarantine /$jdkPath` 即可， **$jdkPath** 是你的jdk目录
-
-:::
-
-
-
-
+其他情况也可以热重载，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。

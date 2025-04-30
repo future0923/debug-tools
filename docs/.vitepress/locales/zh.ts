@@ -7,8 +7,8 @@ const pkg = require('../../package.json')
 export const zh = defineConfig({
   lang: 'zh-Hans',
   title: 'DebugTools',
-  titleTemplate: 'Java调试工具',
-  description: "热重载、快速调用任意Java方法(本地/远程)、搜索HttpUrl跳转代码定义、打印SQL语句与耗时、执行Groovy脚本",
+  titleTemplate: '集成于 IntelliJ IDEA 的 Java 开发调试插件',
+  description: "专注于提升开发效率与缩短调试周期",
   themeConfig: {
     siteTitle: 'DebugTools',
     logo: '/pluginIcon.svg',
@@ -34,13 +34,22 @@ export const zh = defineConfig({
       text: '最后更新于',
     },
     sidebar: {
-      '/zh/guide': {
-        base: '/zh/guide/',
+      '/guide': {
+        base: '/guide/',
         items: sidebarGuide()
       },
+      '/blog': {
+        base: '/blog/',
+        items: sidebarBlog()
+      },
+      'other': {
+        base: '/other/',
+        items: sidebarOther()
+      }
     },
     socialLinks: [
-      {icon: 'github', link: 'https://github.com/future0923/debug-tools'}
+      {icon: 'github', link: 'https://github.com/future0923/debug-tools'},
+      {icon: 'gitee', link: 'https://gitee.com/future94/debug-tools'},
     ],
     footer: {
       message: `基于 Apache 许可发布 | 版权所有 © 2024-${new Date().getFullYear()} <a href="https://github.com/future0923/" target="_blank">Future0923</a>`,
@@ -57,15 +66,28 @@ function nav(): DefaultTheme.NavItem[] {
       activeMatch: '/zh/'
     },
     {
+      text: '博客',
+      link: 'zh/blog/java-env',
+      activeMatch: '/zh/'
+    },
+    {
+      text: '联系我',
+      link: 'zh/contact-me',
+    },
+    {
       text: pkg.version,
       items: [
         {
           text: '更新日志',
-          link: 'https://github.com/future0923/debug-tools/blob/main/CHANGELOG.md'
+          link: 'zh/other/changelog'
         },
         {
           text: '参与贡献',
-          link: 'https://github.com/future0923/debug-tools/blob/main/.github/contributing.md'
+          link: 'zh/other/contributing.md'
+        },
+        {
+          text: 'DeepWiki',
+          link: 'https://deepwiki.com/future0923/debug-tools'
         }
       ]
     }
@@ -79,6 +101,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         {text: '什么是 DebugTools？', link: 'introduction'},
+        {text: '安装说明', link: 'install'},
         {text: '快速开始', link: 'quick-start'}
       ]
     },
@@ -92,6 +115,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: 'SpringBoot', link: 'hot-reload-springboot'},
         {text: 'Mybatis', link: 'hot-reload-mybatis'},
         {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
+      ]
+    },
+    {
+      text: '热部署',
+      collapsed: false,
+      items: [
+        {text: '使用热部署', link: 'hot-deploy'},
       ]
     },
     {
@@ -141,6 +171,21 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: '展示结果', link: 'idea-result'},
       ]
     },
+  ]
+}
+
+function sidebarBlog(): DefaultTheme.SidebarItem[] {
+  return [
+    {text: 'Java多版本管理', link: 'java-env'},
+    {text: '远程调试', link: 'remote-debug'},
+    {text: '@Autowired与@Value源码解析', link: 'autowired-value'},
+  ]
+}
+
+function sidebarOther(): DefaultTheme.SidebarItem[] {
+  return [
+    {text: '版本迭代记录', link: 'changelog'},
+    {text: '参与贡献', link: 'contributing'},
   ]
 }
 

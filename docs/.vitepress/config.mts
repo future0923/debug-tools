@@ -38,17 +38,17 @@ export default defineConfig({
         hostname: 'https://debugtools.cc',
     },
     rewrites: {
-        'en/:rest*': ':rest*'
+        'zh/:rest*': ':rest*'
     },
     lastUpdated: true,
     locales: {
         root: {
-            label: 'English',
-            ...en
-        },
-        zh: {
             label: '简体中文',
             ...zh
+        },
+        en: {
+            label: 'English',
+            ...en
         },
     },
     themeConfig: {
@@ -63,5 +63,10 @@ export default defineConfig({
                 }
             }
         },
-    }
+    },
+    markdown: {
+        image: {
+            lazyLoading: true
+        }
+    },
 })
