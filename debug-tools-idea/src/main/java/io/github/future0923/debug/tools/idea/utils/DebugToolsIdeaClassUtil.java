@@ -1,10 +1,7 @@
 package io.github.future0923.debug.tools.idea.utils;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
+import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.Objects;
@@ -85,4 +82,39 @@ public class DebugToolsIdeaClassUtil {
         }
         return null;
     }
+
+    /**
+     * 获取类名，处理多级内部类。io.github.Test.User.Name -> io.github.Test$User$Name
+     */
+    public static String tryInnerClassName(PsiClass psiClass) {
+        PsiClass originalClass = psiClass;
+        StringBuilder classNameBuilder = new StringBuilder();
+        // 构建类的层级结构（包括嵌套类）
+        while (psiClass != null) {
+            if (!classNameBuilder.isEmpty()) {
+                classNameBuilder.insert(0, "$");  // 如果已经有内容，表示嵌套类，插入$
+            }
+            classNameBuilder.insert(0, psiClass.getName());  // 插入当前类的名称
+            // 查找父类，如果当前类的父类是PsiClass，则跳出循环
+            PsiElement parent = psiClass.getParent();
+            if (parent instanceof PsiClass) {
+                psiClass = (PsiClass) parent;
+            } else {
+                break;
+            }
+        }
+        if (originalClass != null) {
+            // 获取包名并插入类名之前
+            PsiFile psiFile = originalClass.getContainingFile();
+            if (psiFile instanceof PsiJavaFile) {
+                String packageName = ((PsiJavaFile) psiFile).getPackageName();
+                if (!packageName.isEmpty()) {
+                    classNameBuilder.insert(0, ".");  // 插入包名的分隔符
+                    classNameBuilder.insert(0, packageName);  // 插入包名
+                }
+            }
+        }
+        return classNameBuilder.toString();
+    }
+
 }
