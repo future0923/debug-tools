@@ -15,6 +15,7 @@ import io.github.future0923.debug.tools.idea.listener.data.impl.PrettyDataListen
 import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListener;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
@@ -64,7 +65,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         PsiMethod psiMethod = methodDataContext.getPsiMethod();
         PsiClass psiClass = methodDataContext.getPsiClass();
         if (psiClass != null && psiMethod != null) {
-            classNameField.setText(psiClass.getQualifiedName());
+            classNameField.setText(DebugToolsIdeaClassUtil.tryInnerClassName(psiClass));
             methodNameField.setText(psiMethod.getName());
         }
         if (StringUtils.isNotBlank(methodDataContext.getCache().getXxlJobParam())) {
