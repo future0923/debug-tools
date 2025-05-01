@@ -19,6 +19,7 @@ import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +84,7 @@ public class MainDialog extends DialogWrapper {
         RunDTO runDTO = new RunDTO();
         runDTO.setHeaders(headers);
         runDTO.setClassLoader(classLoaderRes);
-        runDTO.setTargetClassName(methodDataContext.getPsiClass().getQualifiedName());
+        runDTO.setTargetClassName(DebugToolsIdeaClassUtil.tryInnerClassName(methodDataContext.getPsiClass()));
         runDTO.setTargetMethodName(methodDataContext.getPsiMethod().getName());
         runDTO.setTargetMethodParameterTypes(DebugToolsActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));
         runDTO.setTargetMethodContent(contentMap);
