@@ -28,7 +28,7 @@ public class HttpClientUtils {
 
     private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
 
-    private static final int TIMEOUT = 1000;
+    private static final int TIMEOUT = 5000;
 
     private static final Map<Project, AllClassLoaderRes> allClassLoaderResCache = new ConcurrentHashMap<>();
 

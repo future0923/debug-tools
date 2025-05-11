@@ -59,7 +59,7 @@ allprojects {
             if (platformVersion >= 243) {
                 bundledPlugin("com.intellij.modules.json")
             }
-            pluginVerifier(version = "1.384")
+            pluginVerifier(version = "1.385")
         }
         implementation("io.github.future0923:debug-tools-common:${version}")
         implementation("io.github.future0923:debug-tools-client:${version}")
