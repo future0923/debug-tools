@@ -133,6 +133,13 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 详细点击 [MyBatisPlus](hot-reload-mybatis-plus.md) 查看
 
-### 3.6 其他
+### 3.6 dynamic-datasource
+
+- `@DS`注解新增
+- `@DS`注解修改
+
+详细点击 [DynamicDatasource](dynamic-datasource.md) 查看
+
+### 3.7 其他
 
 其他情况也可以热重载，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。

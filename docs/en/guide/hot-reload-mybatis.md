@@ -13,21 +13,6 @@ All files under the package path of the `@MapperScan` annotation are read.
 - It must be an interface and must contain the `org.apache.ibatis.annotations.Mapper` annotation
 - The class or parent class inherits the `com.baomidou.mybatisplus.core.mapper.BaseMapper` interface.
 
-::: warning
-
-Because the bytecode injection is modified at startup, it currently does not support reading the variable content configured by `@MapperScan`. Please write the real package path.
-
-The configuration that works is as follows:<br>
-@MapperScan("io.github.future0923.test.dao")<br>
-@MapperScan("io.github.future0923.test.\*\*.dao")<br>
-@MapperScan("io.github.future0923.test.\*\*")<br>
-@MapperScan({"io.github.future0923.test.user.\*\*.dao", "io.github.future0923.test.order.\*\*.dao"})<br>
-
-The configuration that does not work is as follows:<br>
-@MapperScan("${mybatis-plus.mapperPackage}")
-
-:::
-
 ### Hot reload function
 
 Adding new changes to the Mapper interface will regenerate the information in the Mapper interface, such as **annotation methods**, etc. will regenerate the proxy class and inject it into the Spring Bean, which has the same effect as restarting. **`Of course, it also supports adding new Mapper classes`**.
