@@ -10,7 +10,7 @@ aside: false
 - 增加远程动态编译功能，热部署、热重载时可以选择本地Idea编译还是远程应用动态编译代码
 - 增加默认类加载器选择功能，执行热部署、热重载、Groovy脚本时可以选择类加载器
 - 增加[dynamic-datasource](https://github.com/baomidou/dynamic-datasource)动态数据源 `@DS` 注解热重载([#8](https://github.com/future0923/debug-tools/issues/8))
-- 重构调用方法功能，远程调用支持热部署后类
+- 重构调用方法功能，远程调用支持热部署后类，并支持调用两级以上内部类方法
 - 优化心跳逻辑
 - 优化 http 超时时间
 - 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG([#38](https://github.com/future0923/debug-tools/issues/38))
