@@ -96,21 +96,6 @@ public interface UserDao extends BaseMapper<User> {
 - 必须是接口并且必须含有 `org.apache.ibatis.annotations.Mapper` 注解
 - 类或父类继承 `com.baomidou.mybatisplus.core.mapper.BaseMapper` 接口。
 
-::: warning
-
-因为是启动时修改字节码注入，目前不支持读取 `@MapperScan` 配置的变量内容，请写真正的包路径。
-
-生效的配置如：<br>
-@MapperScan("io.github.future0923.test.dao")<br>
-@MapperScan("io.github.future0923.test.\*\*.dao")<br>
-@MapperScan("io.github.future0923.test.\*\*")<br>
-@MapperScan({"io.github.future0923.test.user.\*\*.dao", "io.github.future0923.test.order.\*\*.dao"})<br>
-
-不支持的配置如：<br>
-@MapperScan("${mybatis-plus.mapperPackage}")
-
-:::
-
 ### 热重载功能
 
 Mapper 接口新增修改是会重新生成 Mapper 接口中的信息，包括 **默认方法**、**注解方法**等会重新生成代理类并注入到Spring Bean中，和重新启动的效果一样。**`当然也支持新增 Mapper 类`**。

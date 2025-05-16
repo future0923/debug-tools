@@ -136,6 +136,13 @@ MyBatisPlus currently supports `Spring` environment, other situations are unknow
 
 Click [MyBatisPlus](hot-reload-mybatis-plus.md) for details
 
-### 3.6 Others
+### 3.6 dynamic-datasource
+
+- `@DS` annotation added
+- `@DS` annotation modified
+
+Click [DynamicDatasource](dynamic-datasource.md) for details
+
+### 3.7 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.
