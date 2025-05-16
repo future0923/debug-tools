@@ -22,7 +22,7 @@ public class UserService {
 
     public String c() {
         System.out.println("11111111");
-        return userMapper.toString();
+        return userMapper.aaa().toString();
     }
 
     public String a() {
