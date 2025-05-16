@@ -8,6 +8,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringXmlReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.DynamicPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisPlusPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisSpringPatcher;
@@ -30,7 +31,8 @@ import java.util.Map;
         supportClass = {
                 IBatisPatcher.class,
                 MyBatisPlusPatcher.class,
-                MyBatisSpringPatcher.class
+                MyBatisSpringPatcher.class,
+                DynamicPatcher.class
         }
 )
 public class MyBatisPlugin {

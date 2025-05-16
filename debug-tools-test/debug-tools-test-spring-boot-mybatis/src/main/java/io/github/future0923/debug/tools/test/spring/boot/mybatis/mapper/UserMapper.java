@@ -1,5 +1,6 @@
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,6 +12,7 @@ import java.util.List;
  * @author future0923
  */
 @Mapper
+//@DS("bbb")
 public interface UserMapper {
 
     List<User> selectByNameAndAge(@Param("name") String name, @Param("age") Integer age);
