@@ -4,13 +4,15 @@ aside: false
 ---
 # ChangeLog
 
-## [4.0.0-SNAPSHOT](https://github.com/future0923/debug-tools/compare/v3.4.4...main) (xxxx-xx-xx)
+## [4.0.0-SNAPSHOT](https://github.com/future0923/debug-tools/compare/v3.4.4...main)
 
 - Added hot deployment function to achieve hot update of remote application code in seconds.
 - Added remote dynamic compilation function. When hot deploying and hot reloading, you can choose to compile the code with local Idea or dynamically compile the code with remote application.
 - Added default class loader selection function, which allows you to select class loader when performing hot deployment, hot reload, and Groovy scripts
 - Added [dynamic-datasource](https://github.com/baomidou/dynamic-datasource) dynamic data source `@DS` annotation hot reload ([#8](https://github.com/future0923/debug-tools/issues/8))
 - Added [hutool](https://hutool.cn) hot reload([#48](https://github.com/future0923/debug-tools/issues/48))
+- Added [Gson](https://github.com/google/gson) hot reload([#49](https://github.com/future0923/debug-tools/issues/49))
+- Added [EasyExcel](https://github.com/alibaba/easyexcel) hot reload([#46](https://github.com/future0923/debug-tools/issues/46))
 - Refactor the calling method function, remote calling supports hot deployment of classes
 - Supports calling internal class methods at more than two levels([#43](https://github.com/future0923/debug-tools/issues/43))
 - Optimized heartbeat logic
