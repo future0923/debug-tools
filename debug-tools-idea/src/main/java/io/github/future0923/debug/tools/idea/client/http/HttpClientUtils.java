@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.idea.client.http;
 
-import cn.hutool.http.HttpUtil;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.base.hutool.http.HttpUtil;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;

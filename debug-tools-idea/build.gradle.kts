@@ -63,7 +63,6 @@ allprojects {
         }
         implementation("io.github.future0923:debug-tools-common:${version}")
         implementation("io.github.future0923:debug-tools-client:${version}")
-        implementation("cn.hutool:hutool-http:5.8.29")
         compileOnly("org.projectlombok:lombok:1.18.32")
         annotationProcessor("org.projectlombok:lombok:1.18.32")
     }

@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.common.utils;
 
-import cn.hutool.core.util.ClassLoaderUtil;
-import cn.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassLoaderUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 
 import java.lang.reflect.Field;
