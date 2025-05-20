@@ -17,6 +17,7 @@
         <module>debug-tools-hotswap-mybatis-plugin</module>
         <module>debug-tools-hotswap-class-plugin</module>
         <module>debug-tools-hotswap-hutool-plugin</module>
+        <module>debug-tools-hotswap-gson-plugin</module>
     </modules>
 
 </project>
