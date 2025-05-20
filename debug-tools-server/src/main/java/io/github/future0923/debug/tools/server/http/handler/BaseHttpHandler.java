@@ -1,6 +1,6 @@
 package io.github.future0923.debug.tools.server.http.handler;
 
-import cn.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

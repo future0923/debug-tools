@@ -1,6 +1,6 @@
 package io.github.future0923.debug.tools.idea.client;
 
-import cn.hutool.core.util.ObjectUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
 import io.github.future0923.debug.tools.client.DebugToolsSocketClient;

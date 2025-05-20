@@ -1,6 +1,6 @@
 package io.github.future0923.debug.tools.idea.search;
 
-import cn.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import com.intellij.ide.util.gotoByName.ChooseByNameItemProvider;
 import com.intellij.ide.util.gotoByName.ChooseByNameModel;
 import com.intellij.ide.util.gotoByName.ChooseByNamePopup;
