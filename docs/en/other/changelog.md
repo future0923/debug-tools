@@ -10,7 +10,9 @@ aside: false
 - Added remote dynamic compilation function. When hot deploying and hot reloading, you can choose to compile the code with local Idea or dynamically compile the code with remote application.
 - Added default class loader selection function, which allows you to select class loader when performing hot deployment, hot reload, and Groovy scripts
 - Added [dynamic-datasource](https://github.com/baomidou/dynamic-datasource) dynamic data source `@DS` annotation hot reload ([#8](https://github.com/future0923/debug-tools/issues/8))
-- Refactor the calling method function, remote calling supports hot deployment of classes, and supports calling internal class methods at more than two levels
+- Added [hutool](https://hutool.cn) hot reload([#48](https://github.com/future0923/debug-tools/issues/48))
+- Refactor the calling method function, remote calling supports hot deployment of classes
+- Supports calling internal class methods at more than two levels([#43](https://github.com/future0923/debug-tools/issues/43))
 - Optimized heartbeat logic
 - Optimize http timeout
 - Fixed the bug that RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only([#38](https://github.com/future0923/debug-tools/issues/38)).
