@@ -1,9 +1,9 @@
 package io.github.future0923.debug.tools.idea.utils;
 
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONConfig;
-import cn.hutool.json.JSONNull;
-import cn.hutool.json.JSONObject;
+import io.github.future0923.debug.tools.base.hutool.json.JSONArray;
+import io.github.future0923.debug.tools.base.hutool.json.JSONConfig;
+import io.github.future0923.debug.tools.base.hutool.json.JSONNull;
+import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import com.intellij.psi.PsiArrayType;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;

@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.server.utils;
 
-import cn.hutool.core.lang.TypeReference;
-import cn.hutool.json.JSONUtil;
+import io.github.future0923.debug.tools.base.hutool.core.lang.TypeReference;
+import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
