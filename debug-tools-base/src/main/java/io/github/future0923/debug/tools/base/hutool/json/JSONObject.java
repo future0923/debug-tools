@@ -1,3 +1,18 @@
+/*
+ * Copyright 2024-2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.github.future0923.debug.tools.base.hutool.json;
 
 import io.github.future0923.debug.tools.base.hutool.core.bean.BeanPath;
@@ -11,15 +26,6 @@ import io.github.future0923.debug.tools.base.hutool.core.map.MapWrapper;
 import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
-import io.github.future0923.debug.tools.base.hutool.json.InternalJSONUtil;
-import io.github.future0923.debug.tools.base.hutool.json.JSON;
-import io.github.future0923.debug.tools.base.hutool.json.JSONArray;
-import io.github.future0923.debug.tools.base.hutool.json.JSONConfig;
-import io.github.future0923.debug.tools.base.hutool.json.JSONConverter;
-import io.github.future0923.debug.tools.base.hutool.json.JSONException;
-import io.github.future0923.debug.tools.base.hutool.json.JSONGetter;
-import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
-import io.github.future0923.debug.tools.base.hutool.json.ObjectMapper;
 import io.github.future0923.debug.tools.base.hutool.json.serialize.JSONWriter;
 
 import java.io.StringWriter;
