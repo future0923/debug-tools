@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.extension.spring;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollectionUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
