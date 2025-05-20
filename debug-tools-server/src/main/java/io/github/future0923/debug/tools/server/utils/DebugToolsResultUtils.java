@@ -1,8 +1,8 @@
 package io.github.future0923.debug.tools.server.utils;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;

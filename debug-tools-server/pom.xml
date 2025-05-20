@@ -11,13 +11,6 @@
 
     <artifactId>debug-tools-server</artifactId>
 
-    <properties>
-        <shade.cn.hutool.source>cn.hutool</shade.cn.hutool.source>
-        <shade.cn.hutool.target>${shade.package}.${shade.cn.hutool.source}</shade.cn.hutool.target>
-        <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
-        <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.cn.hutool.source}</shade.pl.joegreen.lambdaFromString.target>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>

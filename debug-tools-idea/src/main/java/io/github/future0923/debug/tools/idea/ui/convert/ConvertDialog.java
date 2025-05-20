@@ -1,6 +1,6 @@
 package io.github.future0923.debug.tools.idea.ui.convert;
 
-import cn.hutool.json.JSONObject;
+import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiClassType;

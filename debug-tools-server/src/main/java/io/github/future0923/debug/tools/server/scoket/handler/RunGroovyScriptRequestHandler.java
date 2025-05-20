@@ -1,7 +1,7 @@
 package io.github.future0923.debug.tools.server.scoket.handler;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import groovy.lang.GroovyShell;
 import io.github.future0923.debug.tools.base.classloader.GroovyScriptClassLoader;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;

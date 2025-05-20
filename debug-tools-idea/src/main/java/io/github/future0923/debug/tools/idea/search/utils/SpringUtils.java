@@ -1,6 +1,6 @@
 package io.github.future0923.debug.tools.idea.search.utils;
 
-import cn.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.openapi.module.Module;
