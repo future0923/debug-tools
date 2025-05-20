@@ -1,17 +1,17 @@
 /*
- * Javassist, a Java-bytecode translator toolkit.
- * Copyright (C) 1999- Shigeru Chiba. All Rights Reserved.
+ * Copyright 2024-2025 the original author or authors.
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License.  Alternatively, the contents of this file may be used under
- * the terms of the GNU Lesser General Public License Version 2.1 or later,
- * or the Apache License Version 2.0.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.analysis;
 
@@ -28,10 +28,6 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Descript
 import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.ExceptionTable;
 import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.MethodInfo;
 import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Opcode;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.analysis.FramePrinter;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.analysis.IntQueue;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.analysis.SubroutineScanner;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.analysis.Type;
 
 /**
  * A data-flow analyzer that determines the type state of the stack and local
