@@ -140,6 +140,22 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 详细点击 [DynamicDatasource](dynamic-datasource.md) 查看
 
-### 3.7 其他
+### 3.7 HuTool
+
+支持 [hutool](https://hutool.cn) 热重载
+
+- `ReflectUtil` 反射工具类
+- `BeanDesc` bean描述符
+- `JSONUtil` json工具类
+
+### 3.8 Gson
+
+支持 [Gson](https://github.com/google/gson) 工具包热重载
+
+### 3.9 EasyExcel
+
+支持 [EasyExcel](https://github.com/alibaba/easyexcel) 热重载
+
+### 3.10 其他
 
 其他情况也可以热重载，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。
