@@ -143,6 +143,22 @@ Click [MyBatisPlus](hot-reload-mybatis-plus.md) for details
 
 Click [DynamicDatasource](dynamic-datasource.md) for details
 
-### 3.7 Others
+### 3.7 HuTool
+
+Support [hutool](https://hutool.cn) hot reload
+
+- `ReflectUtil` reflection tool class
+- `BeanDesc` bean descriptor
+- `JSONUtil` json tool class
+
+### 3.8 Gson
+
+Support [Gson](https://github.com/google/gson) toolkit hot reload
+
+### 3.9 EasyExcel
+
+Support [EasyExcel](https://github.com/alibaba/easyexcel) hot reload
+
+### 3.10 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.
