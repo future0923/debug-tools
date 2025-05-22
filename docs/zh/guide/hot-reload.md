@@ -156,6 +156,10 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 支持 [EasyExcel](https://github.com/alibaba/easyexcel) 热重载
 
-### 3.10 其他
+### 3.10 Jackson
+
+支持 [Jackson](https://github.com/FasterXML/jackson-databind) 热重载
+
+### 3.11 其他
 
 其他情况也可以热重载，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。
