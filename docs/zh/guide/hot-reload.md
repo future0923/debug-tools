@@ -160,6 +160,10 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 支持 [Jackson](https://github.com/FasterXML/jackson-databind) 热重载
 
-### 3.11 其他
+### 3.11 FastJson、FastJson2
 
-其他情况也可以热重载，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。
+支持 [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)热重载
+
+### 3.12 其他
+
+其他情况热重载尝试一下，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。

@@ -66,6 +66,11 @@
         </dependency>
         <dependency>
             <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-fastjson-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-hotswap-easyexcel-plugin</artifactId>
             <version>${revision}</version>
         </dependency>

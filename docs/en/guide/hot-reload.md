@@ -163,6 +163,10 @@ Support [EasyExcel](https://github.com/alibaba/easyexcel) hot reload
 
 Support [Jackson](https://github.com/FasterXML/jackson-databind) hot reload
 
-### 3.11 Others
+### 3.11 FastJson、FastJson2
+
+Support [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2) hot reload
+
+### 3.12 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.
