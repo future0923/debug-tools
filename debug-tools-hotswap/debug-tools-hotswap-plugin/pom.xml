@@ -19,6 +19,7 @@
         <module>debug-tools-hotswap-hutool-plugin</module>
         <module>debug-tools-hotswap-gson-plugin</module>
         <module>debug-tools-hotswap-easyexcel-plugin</module>
+        <module>debug-tools-hotswap-jackson-plugin</module>
     </modules>
 
 </project>
