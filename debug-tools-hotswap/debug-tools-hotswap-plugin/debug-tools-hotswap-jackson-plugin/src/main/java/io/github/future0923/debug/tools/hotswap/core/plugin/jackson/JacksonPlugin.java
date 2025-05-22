@@ -82,7 +82,7 @@ public class JacksonPlugin {
                 }
         );
         _findRootDeserializer.insertBefore("{" +
-                "   _rootDeserializers.remove($2)" +
+                "   _rootDeserializers.remove($2);" +
                 "}");
         logger.info("patch jackson ObjectMapper success");
     }
@@ -91,7 +91,7 @@ public class JacksonPlugin {
     public static void jsonDeserializerCacheClear(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtClass javaType = classPool.get("com.fasterxml.jackson.databind.JavaType");
 
-        CtMethod _findCachedDeserializer = ctClass.getDeclaredMethod("_findCachedDeserializer", new CtClass[]{});
+        CtMethod _findCachedDeserializer = ctClass.getDeclaredMethod("_findCachedDeserializer", new CtClass[]{javaType});
         _findCachedDeserializer.setBody("{" +
                 "   if (type == null) {" +
                 "       throw new java.langIllegalArgumentException(\"Null JavaType passed\");" +
