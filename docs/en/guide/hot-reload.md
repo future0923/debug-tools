@@ -159,6 +159,10 @@ Support [Gson](https://github.com/google/gson) toolkit hot reload
 
 Support [EasyExcel](https://github.com/alibaba/easyexcel) hot reload
 
-### 3.10 Others
+### 3.10 Jackson
+
+Support [Jackson](https://github.com/FasterXML/jackson-databind) hot reload
+
+### 3.11 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.

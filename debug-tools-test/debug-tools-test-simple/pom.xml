@@ -32,5 +32,9 @@
             <artifactId>easyexcel-core</artifactId>
             <version>4.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
     </dependencies>
 </project>
