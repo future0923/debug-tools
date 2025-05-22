@@ -93,8 +93,8 @@ public class JacksonPlugin {
 
         CtMethod _findCachedDeserializer = ctClass.getDeclaredMethod("_findCachedDeserializer", new CtClass[]{javaType});
         _findCachedDeserializer.setBody("{" +
-                "   if (type == null) {" +
-                "       throw new java.langIllegalArgumentException(\"Null JavaType passed\");" +
+                "   if ($1 == null) {" +
+                "       throw new java.lang.IllegalArgumentException(\"Null JavaType passed\");" +
                 "   }" +
                 "   return null;" +
                 "}");
