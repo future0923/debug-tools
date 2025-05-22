@@ -13,6 +13,7 @@ aside: false
 - 增加[hutool](https://hutool.cn)工具包热重载([#48](https://github.com/future0923/debug-tools/issues/48))
 - 增加[Gson](https://github.com/google/gson)工具包热重载([#49](https://github.com/future0923/debug-tools/issues/49))
 - 增加[EasyExcel](https://github.com/alibaba/easyexcel)工具包热重载([#46](https://github.com/future0923/debug-tools/issues/46))
+- 增加[FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)工具包热重载([#56](https://github.com/future0923/debug-tools/issues/56))
 - 增加[Jackson](https://github.com/FasterXML/jackson-databind)工具包热重载([#50](https://github.com/future0923/debug-tools/issues/50))
 - 重构调用方法功能，远程调用支持热部署后类
 - 支持调用两级以上内部类方法([#43](https://github.com/future0923/debug-tools/issues/43)).
