@@ -13,6 +13,7 @@ aside: false
 - Added [hutool](https://hutool.cn) hot reload([#48](https://github.com/future0923/debug-tools/issues/48))
 - Added [Gson](https://github.com/google/gson) hot reload([#49](https://github.com/future0923/debug-tools/issues/49))
 - Added [EasyExcel](https://github.com/alibaba/easyexcel) hot reload([#46](https://github.com/future0923/debug-tools/issues/46))
+- Added [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2) hot reload([#56](https://github.com/future0923/debug-tools/issues/56))
 - Added [Jackson](https://github.com/FasterXML/jackson-databind) hot reload([#50](https://github.com/future0923/debug-tools/issues/50))
 - Refactor the calling method function, remote calling supports hot deployment of classes
 - Supports calling internal class methods at more than two levels([#43](https://github.com/future0923/debug-tools/issues/43))
