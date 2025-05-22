@@ -17,6 +17,7 @@ aside: false
 - Added [Jackson](https://github.com/FasterXML/jackson-databind) hot reload([#50](https://github.com/future0923/debug-tools/issues/50))
 - Refactor the calling method function, remote calling supports hot deployment of classes
 - Supports calling internal class methods at more than two levels([#43](https://github.com/future0923/debug-tools/issues/43))
+- Automatically attach the application launched in the current project([#58](https://github.com/future0923/debug-tools/issues/58))
 - Optimized heartbeat logic
 - Optimize http timeout
 - Fixed the bug that RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only([#38](https://github.com/future0923/debug-tools/issues/38)).

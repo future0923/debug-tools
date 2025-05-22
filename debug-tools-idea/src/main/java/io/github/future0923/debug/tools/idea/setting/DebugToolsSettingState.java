@@ -115,6 +115,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private Boolean hotswap = false;
 
+    /**
+     * 是否自动附着当前项目启动的应用
+     */
+    private Boolean autoAttach = true;
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;

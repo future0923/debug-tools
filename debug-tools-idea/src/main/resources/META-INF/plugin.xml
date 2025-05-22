@@ -157,4 +157,9 @@
                     description="Hot deploy the changed files to the attached application"/>
         </group>
     </actions>
+
+    <applicationListeners>
+        <listener class="io.github.future0923.debug.tools.idea.listener.idea.DebugToolsExecutionListener"
+                  topic="com.intellij.execution.ExecutionListener"/>
+    </applicationListeners>
 </idea-plugin>

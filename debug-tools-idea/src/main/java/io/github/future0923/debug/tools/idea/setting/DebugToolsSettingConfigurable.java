@@ -75,6 +75,12 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (!settingState.getPrintSql() && settingPanel.getPrintSqlYes().isSelected()) {
             return true;
         }
+        if (settingState.getAutoAttach() && settingPanel.getAutoAttachNo().isSelected()) {
+            return true;
+        }
+        if (!settingState.getAutoAttach() && settingPanel.getAutoAttachYes().isSelected()) {
+            return true;
+        }
         if (!Objects.equals(settingState.getRemoveContextPath(), settingPanel.getRemoveContextPath().getText())) {
             return true;
         }
@@ -97,6 +103,11 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingPanel.getPrintSqlYes().setSelected(true);
         } else {
             settingPanel.getPrintSqlNo().setSelected(true);
+        }
+        if (settingState.getAutoAttach()) {
+            settingPanel.getAutoAttachYes().setSelected(true);
+        } else {
+            settingPanel.getAutoAttachNo().setSelected(true);
         }
         settingPanel.getRemoveContextPath().setText(settingState.getRemoveContextPath());
     }
@@ -121,6 +132,12 @@ public class DebugToolsSettingConfigurable implements Configurable {
         }
         if (settingPanel.getPrintSqlNo().isSelected()) {
             settingState.setPrintSql(false);
+        }
+        if (settingPanel.getAutoAttachYes().isSelected()) {
+            settingState.setAutoAttach(true);
+        }
+        if (settingPanel.getAutoAttachNo().isSelected()) {
+            settingState.setAutoAttach(false);
         }
         settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
     }

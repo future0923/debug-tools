@@ -16,7 +16,8 @@ aside: false
 - 增加[FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)工具包热重载([#56](https://github.com/future0923/debug-tools/issues/56))
 - 增加[Jackson](https://github.com/FasterXML/jackson-databind)工具包热重载([#50](https://github.com/future0923/debug-tools/issues/50))
 - 重构调用方法功能，远程调用支持热部署后类
-- 支持调用两级以上内部类方法([#43](https://github.com/future0923/debug-tools/issues/43)).
+- 支持调用两级以上内部类方法([#43](https://github.com/future0923/debug-tools/issues/43))
+- 自动附着当前项目启动应用([#58](https://github.com/future0923/debug-tools/issues/58))
 - 优化心跳逻辑
 - 优化 http 超时时间
 - 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG([#38](https://github.com/future0923/debug-tools/issues/38))
