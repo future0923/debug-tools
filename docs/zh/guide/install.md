@@ -138,6 +138,8 @@ Please install or use the JRE or JDK that contains these missing components.
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK 可以支持热部署/热重载。
 
+<span style="color: red;">请下载带有 dcevm 的 JDK。</span>
+
 建议使用最新版 [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
 :::
@@ -145,6 +147,8 @@ Please install or use the JRE or JDK that contains these missing components.
 ### 2.3 JDK 17/21 {#jdk17-21}
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK 可以支持热部署/热重载。
+
+<span style="color: red;">请下载带有 dcevm 的 JDK。</span>
 
 ::: info
 

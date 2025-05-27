@@ -140,13 +140,17 @@ Use [trava-jdk-11-dcevm](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/rele
 
 Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK can support hot deployment/hot reload.
 
+<span style = "color: red;" > Please download the JDK with dcevm. </span>
+
 It is recommended to use the latest version [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
 :::
 
 ### 2.3 JDK 17/21 {#jdk17-21}
 
-Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK can support hot deployment/hot reload.
+Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK can support hot deployment/hot reload. 
+
+<span style = "color: red;" > Please download the JDK with dcevm. </span>
 
 ::: info
 

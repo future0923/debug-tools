@@ -33,7 +33,7 @@ DebugTools 通过 `Java Agent` 技术来实现调试，所以调试时必须保�
 
 开启配置可以自动附着当前项目启动的应用，简化每次都需要选中应用进行附着操作。
 
-![img.png](/images/img.png){v-zoom}
+![auto_attach_config.png](/images/auto_attach_config.png){v-zoom}
 
 ### 4. 调用方法 {#invoke-method}
 
