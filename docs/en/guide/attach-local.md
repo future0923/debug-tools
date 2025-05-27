@@ -29,6 +29,12 @@ After successfully attaching the app, DebugTools displays the attachment state.
 
 ![attach_status](/images/attach_status.png){v-zoom}
 
+### Auto Attach
+
+Enabling the configuration can automatically attach the application launched in the current project, simplifying the need to select and attach the application each time.
+
+![auto_attach_config.png](/images/auto_attach_config.png){v-zoom}
+
 ### Invoke Method {#invoke-method}
 
 Wake up the context menu on the method to be invoked, click `Quick Debug` to wake up the [debug panel](./quick-debug).

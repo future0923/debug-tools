@@ -15,8 +15,8 @@
  */
 package io.github.future0923.debug.tools.idea.client;
 
-import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
 import io.github.future0923.debug.tools.client.DebugToolsSocketClient;
 import io.github.future0923.debug.tools.client.config.ClientConfig;
@@ -92,7 +92,7 @@ public class ApplicationProjectHolder {
         ClientConfig config = new ClientConfig();
         config.setHost(host);
         config.setPort(port);
-        config.setHeartbeatInterval(5);
+        config.setHeartbeatInterval(2);
         clientInfo.setClient(new DebugToolsSocketClient(config, IdeaPacketHandleService.INSTANCE));
         PROJECT_MAPPING.put(project, clientInfo);
         APPLICATION_MAPPING.put(applicationName, clientInfo);

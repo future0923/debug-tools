@@ -16,6 +16,7 @@
 package io.github.future0923.debug.tools.idea.ui.setting;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
@@ -48,6 +49,11 @@ public class SettingPanel {
     private final JBRadioButton printSqlYes = new JBRadioButton("Yes");
     @Getter
     private final JBRadioButton printSqlNo = new JBRadioButton("No");
+
+    @Getter
+    private final JBRadioButton autoAttachYes = new JBRadioButton("Yes");
+    @Getter
+    private final JBRadioButton autoAttachNo = new JBRadioButton("No");
 
     @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
@@ -85,9 +91,22 @@ public class SettingPanel {
         } else {
             printSqlNo.setSelected(true);
         }
+
+        JPanel autoAttachPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        autoAttachPanel.add(autoAttachYes);
+        autoAttachPanel.add(autoAttachNo);
+        ButtonGroup autoAttachButtonGroup = new ButtonGroup();
+        autoAttachButtonGroup.add(autoAttachYes);
+        autoAttachButtonGroup.add(autoAttachNo);
+        if (settingState.getAutoAttach()) {
+            autoAttachYes.setSelected(true);
+        } else {
+            autoAttachNo.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
-        Border border = BorderFactory.createLineBorder(Color.GRAY); // 创建灰色线条边框
+        Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
         removeContextPath.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(5, 5, 5, 5))); // 内外边框组合
         // 自动换行
         removeContextPath.setLineWrap(true);
@@ -101,6 +120,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Print pretty sql:"),
                         printSqlPanel
+                )
+                .addLabeledComponent(
+                        new JBLabel("Auto attach start application:"),
+                        autoAttachPanel
                 )
                 .addLabeledComponent(
                         new JBLabel("Remove context path:"),

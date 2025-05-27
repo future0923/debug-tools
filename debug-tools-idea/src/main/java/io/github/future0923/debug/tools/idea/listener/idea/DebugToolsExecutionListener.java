@@ -17,60 +17,68 @@ package io.github.future0923.debug.tools.idea.listener.idea;
 
 import com.intellij.execution.ExecutionListener;
 import com.intellij.execution.application.ApplicationConfiguration;
-import com.intellij.execution.configurations.RunProfile;
+import com.intellij.execution.process.KillableColoredProcessHandler;
+import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.thread.ThreadUtil;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 /**
  * @author future0923
- * @deprecated {@link io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher}
  */
-@Deprecated
 public class DebugToolsExecutionListener implements ExecutionListener {
 
+    private static final Logger log = Logger.getInstance(DebugToolsExecutionListener.class);
+
     @Override
-    public void processStartScheduled(@NotNull String executorId, @NotNull ExecutionEnvironment env) {
-        RunProfile runProfile = env.getRunProfile();
+    public void processStarted(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler) {
         Project project = env.getProject();
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        // 检查是否是一个 Java 运行配置
-        if (runProfile instanceof ApplicationConfiguration config) {
-            String jvmArg = "-javaagent:" + settingState.loadAgentPath(project);
-            // 获取当前的 VM options，并添加 -javaagent 参数
-            String existingOptions = config.getVMParameters();
-            if (StringUtils.isNotBlank(existingOptions)) {
-                existingOptions = IdeaPluginProjectConstants.AGENT_TMP_REGEX.matcher(existingOptions).replaceAll("");
-                if (settingState.getPrintSql()) {
-                    if (StringUtils.isNotBlank(existingOptions)) {
-                        config.setVMParameters(existingOptions + " " + jvmArg);
-                    } else {
-                        config.setVMParameters(jvmArg);
+        if (!settingState.getAutoAttach()) {
+            return;
+        }
+        String runClassName = env.getRunProfile().getClass().getName();
+        if (!StringUtils.endsWith(runClassName, "SpringBootApplicationRunConfiguration") && !StringUtils.endsWithIgnoreCase(runClassName, "ApplicationConfiguration")) {
+            return;
+        }
+        if (handler instanceof KillableColoredProcessHandler.Silent) {
+            String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
+            String agentPath = settingState.getAgentPath();
+            ThreadUtil.createThreadFactory("Auto-Attach").newThread(() -> {
+                String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
+                FileUtil.touch(file);
+                try (FileChannel channel = FileChannel.open(Paths.get(file), StandardOpenOption.READ)) {
+                    int index = 0;
+                    for (; ; ) {
+                        if (index++ > 30) {
+                            break;
+                        }
+                        ThreadUtil.sleep(1000);
+                        MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, 1);
+                        byte[] dataBytes = new byte[buffer.limit()];
+                        buffer.get(dataBytes);
+                        String data = new String(dataBytes);
+                        if ("1".equals(data)) {
+                            DebugToolsAttachUtils.attachLocal(project, pid, ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(), agentPath);
+                            break;
+                        }
                     }
-                } else {
-                    config.setVMParameters(existingOptions);
+                } catch (Exception e) {
+                    log.error("write {} error", e, file);
                 }
-            } else {
-                if (settingState.getPrintSql()) {
-                    config.setVMParameters(jvmArg);
-                } else {
-                    config.setVMParameters("");
-                }
-            }
+            }).start();
         }
     }
-
-    //@Override
-    //public void processStarted(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler) {
-    //    String runClassName = env.getRunProfile().getClass().getName();
-    //    if (!StringUtils.endsWith(runClassName, "SpringBootApplicationRunConfiguration") && !StringUtils.endsWithIgnoreCase(runClassName, "ApplicationConfiguration")) {
-    //        return;
-    //    }
-    //    if (handler instanceof KillableColoredProcessHandler.Silent) {
-    //        String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
-    //    }
-    //}
 }

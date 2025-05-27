@@ -24,11 +24,19 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * java参数Patcher
@@ -116,6 +124,17 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().toString());
+            agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
+            if (settingState.getAutoAttach()) {
+                String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
+                FileUtil.touch(file);
+                try (FileChannel channel = FileChannel.open(Paths.get(file), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                    MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1);
+                    buffer.put("0".getBytes(StandardCharsets.UTF_8));
+                } catch (Exception e) {
+                    log.error("write {} error", e, file);
+                }
+            }
             javaParameters.getVMParametersList().add("-javaagent:" + agentPath + "=" + agentArgs.format());
         }
     }
