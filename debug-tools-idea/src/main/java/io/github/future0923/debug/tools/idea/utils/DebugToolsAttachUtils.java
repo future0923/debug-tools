@@ -116,10 +116,11 @@ public class DebugToolsAttachUtils {
         settingState.setLocalHttpPort(httpPort);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
         if (info != null) {
-            if (settingState.isLocal() && !info.getClient().isClosed()) {
+            boolean connected = !info.getClient().isClosedNow();
+            if (settingState.isLocal() && connected) {
                 return;
             }
-            if (!settingState.isLocal() && !info.getClient().isClosed()) {
+            if (!settingState.isLocal() && connected) {
                 ApplicationProjectHolder.close(applicationName);
             }
         }
@@ -162,6 +163,8 @@ public class DebugToolsAttachUtils {
                         DebugToolsNotifierUtil.notifyError(project, "没有找到attach这个进程，请刷新重新attach");
                     } else if (Objects.equals(ioException.getMessage(), "Connection refused")) {
                         DebugToolsNotifierUtil.notifyError(project, "进程拒绝连接，请确认进程已经启动");
+                    } else if (Objects.equals(ioException.getMessage(), "File exists")) {
+                        // 可以忽略掉，项目重新启动时，开启自动附着和重新连接会同时尝试attach时会报File exists
                     } else {
                         log.error("attach agent error：", ioException);
                         DebugToolsNotifierUtil.notifyError(project, "attach agent error：" + ioException.getMessage());
