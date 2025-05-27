@@ -1,10 +1,10 @@
 # 附着本地应用 {#attach-local}
 
-### 启动应用 {#start-application}
+### 1. 启动应用 {#start-application}
 
 DebugTools 通过 `Java Agent` 技术来实现调试，所以调试时必须保证项目已经启动完成。
 
-### 附着应用 {#attach-application}
+### 2. 附着应用 {#attach-application}
 
 下面为本地方法，[附着远程](./attach-remote)点击查看。
 
@@ -29,7 +29,13 @@ DebugTools 通过 `Java Agent` 技术来实现调试，所以调试时必须保�
 
 连接成功后，可以唤醒[调试面板](./quick-debug)进行远程方法快捷调用并[查看结果](./run-result)，也可以使用[groovy控制台](./groovy-execute)。
 
-### 调用方法 {#invoke-method}
+### 3. 自动附着
+
+开启配置可以自动附着当前项目启动的应用，简化每次都需要选中应用进行附着操作。
+
+![img.png](/images/img.png){v-zoom}
+
+### 4. 调用方法 {#invoke-method}
 
 在要调用的方法上唤醒右键菜单，点击 `Quick Debug` 唤醒 [调试面板](./quick-debug)。
 
@@ -61,7 +67,7 @@ public class TestService {
 
 点击 `Run` 按钮调用方法。
 
-### 展示结果 {#show-result}
+### 5. 展示结果 {#show-result}
 
 调用成功后会在 DebugTools 窗口中展示 [运行结果](./run-result)（方法的返回值）。
 

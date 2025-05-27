@@ -80,6 +80,11 @@ public class AgentArgs {
     private String propertiesFilePath;
 
     /**
+     * 本地是否开启自动附着. true | false
+     */
+    private String autoAttach;
+
+    /**
      * 将agent上的string参数转为AgentArgs对象
      *
      * @param agentArgs key1=value1,key2=value2
@@ -115,6 +120,9 @@ public class AgentArgs {
         StringBuilder argsBuilder = new StringBuilder();
         Field[] fields = config.getClass().getDeclaredFields();
         for (Field field : fields) {
+            if (field.getName().equals("logger")) {
+                continue;
+            }
             try {
                 field.setAccessible(true);
                 Object value = field.get(config);

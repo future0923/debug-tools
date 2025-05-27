@@ -192,7 +192,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                     }
                 },
                 0,
-                1,
+                2,
                 TimeUnit.SECONDS
         );
     }

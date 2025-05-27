@@ -17,6 +17,7 @@ package io.github.future0923.debug.tools.attach;
 
 import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
@@ -25,10 +26,16 @@ import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.sql.SqlPrintByteCodeEnhance;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 /**
@@ -69,6 +76,9 @@ public class DebugToolsAttach {
         }
         if (Objects.equals(parse.getServer(), "true")) {
             startServer(parse, inst);
+        }
+        if (Objects.equals(parse.getAutoAttach(), "true")) {
+            autoAttach();
         }
     }
 
@@ -122,5 +132,16 @@ public class DebugToolsAttach {
      */
     private static void startServer(AgentArgs agentArgs, Instrumentation inst) {
         DebugToolsBootstrap.getInstance(inst).start(agentArgs);
+    }
+
+    private static void autoAttach() throws IOException {
+        String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
+        FileUtil.touch(file);
+        try (FileChannel channel = FileChannel.open(Paths.get(file), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1);
+            buffer.put("1".getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            logger.error("write {} error", e, file);
+        }
     }
 }
