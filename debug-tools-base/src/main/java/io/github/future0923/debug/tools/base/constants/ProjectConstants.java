@@ -31,4 +31,6 @@ public interface ProjectConstants {
     String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
 
     String CONFIG_FILE = "debug-tools.properties";
+
+    String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
 }

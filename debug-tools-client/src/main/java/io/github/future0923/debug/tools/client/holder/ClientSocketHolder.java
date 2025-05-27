@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.client.thread.ServerHandleThread;
 import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.handler.PacketHandleService;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -84,6 +85,21 @@ public class ClientSocketHolder {
 
     public boolean isClosed() {
         return socket == null || socket.isClosed() || closed || retry == FAIL;
+    }
+
+    public boolean isClosedNow() {
+        boolean isClosed = socket == null || socket.isClosed() || closed || retry == FAIL;
+        if (isClosed) {
+            return true;
+        }
+        try {
+            HeartBeatRequestPacket.INSTANCE.writeAndFlush(getOutputStream());
+            return false;
+        } catch (IOException e) {
+            closeSocket();
+            setRetry(ClientSocketHolder.FAIL);
+            return true;
+        }
     }
 
     public void connect() throws IOException {
