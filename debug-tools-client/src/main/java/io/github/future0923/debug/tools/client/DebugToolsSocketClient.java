@@ -65,4 +65,8 @@ public class DebugToolsSocketClient {
     public boolean isClosed() {
         return holder.isClosed();
     }
+
+    public boolean isClosedNow() {
+        return holder.isClosedNow();
+    }
 }

@@ -20,16 +20,27 @@ import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.process.KillableColoredProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.thread.ThreadUtil;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
 /**
  * @author future0923
  */
 public class DebugToolsExecutionListener implements ExecutionListener {
+
+    private static final Logger log = Logger.getInstance(DebugToolsExecutionListener.class);
 
     @Override
     public void processStarted(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler) {
@@ -44,8 +55,30 @@ public class DebugToolsExecutionListener implements ExecutionListener {
         }
         if (handler instanceof KillableColoredProcessHandler.Silent) {
             String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
-            String agentPath = settingState.loadAgentPath();
-            DebugToolsAttachUtils.attachLocal(project, pid, ((ApplicationConfiguration)env.getRunProfile()).getMainClassName(), agentPath);
+            String agentPath = settingState.getAgentPath();
+            ThreadUtil.createThreadFactory("Auto-Attach").newThread(() -> {
+                String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
+                FileUtil.touch(file);
+                try (FileChannel channel = FileChannel.open(Paths.get(file), StandardOpenOption.READ)) {
+                    int index = 0;
+                    for (; ; ) {
+                        if (index++ > 30) {
+                            break;
+                        }
+                        ThreadUtil.sleep(1000);
+                        MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, 1);
+                        byte[] dataBytes = new byte[buffer.limit()];
+                        buffer.get(dataBytes);
+                        String data = new String(dataBytes);
+                        if ("1".equals(data)) {
+                            DebugToolsAttachUtils.attachLocal(project, pid, ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(), agentPath);
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("write {} error", e, file);
+                }
+            }).start();
         }
     }
 }
