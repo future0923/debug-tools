@@ -36,6 +36,10 @@ public class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     private Map<String, String> filePathByteCodeMap = new HashMap<>();
 
+    private static final String CLASS_SEPARATOR = ";;";
+
+    private static final String CLASS_INFO_SEPARATOR = "::";
+
     /**
      * 类加载器
      */
@@ -53,15 +57,16 @@ public class RemoteCompilerHotDeployRequestPacket extends Packet {
         byteBuf.writeInt(identityInfo.length);
         byteBuf.writeBytes(identityInfo);
         StringBuilder fileHeaderInfo = new StringBuilder();
-        List<String> fileContentList = new ArrayList<>();
+        List<byte[]> fileContentList = new ArrayList<>();
         filePathByteCodeMap.forEach((filePath, fileContent) -> {
-            fileHeaderInfo.append(filePath).append(":").append(fileContent.length()).append(";");
-            fileContentList.add(fileContent);
+            byte[] fileContentBytes = fileContent.getBytes(StandardCharsets.UTF_8);
+            fileHeaderInfo.append(filePath).append(CLASS_INFO_SEPARATOR).append(fileContentBytes.length).append(CLASS_SEPARATOR);
+            fileContentList.add(fileContentBytes);
         });
         byte[] headerInfo = fileHeaderInfo.toString().getBytes(StandardCharsets.UTF_8);
         byteBuf.writeInt(headerInfo.length);
         byteBuf.writeBytes(headerInfo);
-        fileContentList.forEach(fileContent -> byteBuf.writeBytes(fileContent.getBytes(StandardCharsets.UTF_8)));
+        fileContentList.forEach(byteBuf::writeBytes);
         return byteBuf.toByteArray();
     }
 
@@ -76,9 +81,9 @@ public class RemoteCompilerHotDeployRequestPacket extends Packet {
         byte[] headerByte = new byte[headerLength];
         byteBuf.readBytes(headerByte);
         String headerInfo = new String(headerByte, StandardCharsets.UTF_8);
-        String[] split = headerInfo.split(";");
+        String[] split = headerInfo.split(CLASS_SEPARATOR);
         for (String item : split) {
-            String[] split1 = item.split(":");
+            String[] split1 = item.split(CLASS_INFO_SEPARATOR);
             if (split1.length != 2) {
                 continue;
             }
