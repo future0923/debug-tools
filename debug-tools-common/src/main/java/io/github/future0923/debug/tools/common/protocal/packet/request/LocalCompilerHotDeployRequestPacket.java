@@ -36,6 +36,10 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
 
     private Map<String, byte[]> filePathByteCodeMap = new HashMap<>();
 
+    private static final String CLASS_SEPARATOR = ";;";
+
+    private static final String CLASS_INFO_SEPARATOR = "::";
+
     /**
      * 类加载器
      */
@@ -55,7 +59,7 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
         StringBuilder fileHeaderInfo = new StringBuilder();
         List<byte[]> fileContent = new ArrayList<>();
         filePathByteCodeMap.forEach((filePath, byteCode) -> {
-            fileHeaderInfo.append(filePath).append(":").append(byteCode.length).append(";");
+            fileHeaderInfo.append(filePath).append(CLASS_INFO_SEPARATOR).append(byteCode.length).append(CLASS_SEPARATOR);
             fileContent.add(byteCode);
         });
         byte[] headerInfo = fileHeaderInfo.toString().getBytes(StandardCharsets.UTF_8);
@@ -76,9 +80,9 @@ public class LocalCompilerHotDeployRequestPacket extends Packet {
         byte[] headerByte = new byte[headerLength];
         byteBuf.readBytes(headerByte);
         String headerInfo = new String(headerByte, StandardCharsets.UTF_8);
-        String[] split = headerInfo.split(";");
+        String[] split = headerInfo.split(CLASS_SEPARATOR);
         for (String item : split) {
-            String[] split1 = item.split(":");
+            String[] split1 = item.split(CLASS_INFO_SEPARATOR);
             if (split1.length != 2) {
                 continue;
             }
