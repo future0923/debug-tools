@@ -25,8 +25,11 @@ import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.thread.ThreadUtil;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,7 +74,30 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                         buffer.get(dataBytes);
                         String data = new String(dataBytes);
                         if ("1".equals(data)) {
-                            DebugToolsAttachUtils.attachLocal(project, pid, ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(), agentPath);
+                            DebugToolsAttachUtils.attachLocal(
+                                    project,
+                                    pid,
+                                    ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(),
+                                    agentPath,
+                                    () -> {
+                                        try {
+                                            AllClassLoaderRes allClassLoaderRes = HttpClientUtils.allClassLoader(project, false);
+                                            if (allClassLoaderRes != null) {
+                                                AllClassLoaderRes.Item defaultClassLoader = null;
+                                                for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
+                                                    if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
+                                                        defaultClassLoader = item;
+                                                    }
+                                                }
+                                                if (defaultClassLoader != null) {
+                                                    StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            log.error("auto attach select default classloader error", e);
+                                        }
+                                    }
+                            );
                             break;
                         }
                     }
