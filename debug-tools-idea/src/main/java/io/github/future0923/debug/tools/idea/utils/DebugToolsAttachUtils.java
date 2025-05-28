@@ -109,6 +109,10 @@ public class DebugToolsAttachUtils {
     }
 
     public static void attachLocal(Project project, String pid, String applicationName, String agentPath) {
+        attachLocal(project, pid, applicationName, agentPath, null);
+    }
+
+    public static void attachLocal(Project project, String pid, String applicationName, String agentPath, Runnable onConnected) {
         HttpClientUtils.removeAllClassLoaderCache(project);
         int tcpPort = ApplicationProjectHolder.getTcpPort(applicationName);
         Integer httpPort = ApplicationProjectHolder.getHttpPort(applicationName);
@@ -136,6 +140,9 @@ public class DebugToolsAttachUtils {
             attach(() -> {
                 try {
                     client.start();
+                    if (onConnected != null) {
+                        onConnected.run();
+                    }
                 } catch (Exception ex) {
                     log.error("start client exception", ex);
                     DebugToolsNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");
