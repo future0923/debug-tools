@@ -164,6 +164,10 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 支持 [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)热重载
 
-### 3.12 其他
+### 3.12 hibernate-validator
+
+支持 [hibernate-validator](https://github.com/hibernate/hibernate-validator) 工具包热重载
+
+### 3.13 其他
 
 其他情况热重载尝试一下，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。
