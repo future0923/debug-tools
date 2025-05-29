@@ -58,17 +58,17 @@ https://gitee.com/future94/debug-tools/releases
 
 [https://github.com/future0923/debug-tools/releases/tag/dcevm-jdk-1.8.0_181](https://github.com/future0923/debug-tools/releases/tag/dcevm-jdk-1.8.0_181)
 
-- [windows-jdk-8u181.zip](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
+- [windows-jdk-8u181.zip](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
 - [mac-jdk-8u181.zip](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
-- [linux-x64-jdk-8u181.tar.gz](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
+- [linux-x64-jdk-8u181.tar.gz](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
 
 ::: details DebugTools官网下载
 
-- [windows-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
+- [windows-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
 - [mac-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
-- [linux-x64-jdk-8u181.tar.gz](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
+- [linux-x64-jdk-8u181.tar.gz](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
 
