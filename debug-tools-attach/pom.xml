@@ -74,6 +74,11 @@
             <artifactId>debug-tools-hotswap-easyexcel-plugin</artifactId>
             <version>${revision}</version>
         </dependency>
+·        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-hotswap-hibernate-validator-plugin</artifactId>
+            <version>${revision}</version>
+        </dependency>
         <dependency>
             <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-sql</artifactId>
