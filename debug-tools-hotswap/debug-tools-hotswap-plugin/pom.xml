@@ -21,6 +21,7 @@
         <module>debug-tools-hotswap-easyexcel-plugin</module>
         <module>debug-tools-hotswap-jackson-plugin</module>
         <module>debug-tools-hotswap-fastjson-plugin</module>
+        <module>debug-tools-hotswap-hibernate-validator-plugin</module>
     </modules>
 
 </project>

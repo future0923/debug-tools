@@ -167,6 +167,10 @@ Support [Jackson](https://github.com/FasterXML/jackson-databind) hot reload
 
 Support [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2) hot reload
 
-### 3.12 Others
+### 3.12 hibernate-validator
+
+Support [hibernate-validator](https://github.com/hibernate/hibernate-validator) hot reload
+
+### 3.13 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.
