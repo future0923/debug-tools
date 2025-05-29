@@ -15,6 +15,7 @@ aside: false
 - Added [EasyExcel](https://github.com/alibaba/easyexcel) hot reload([#46](https://github.com/future0923/debug-tools/issues/46))
 - Added [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2) hot reload([#56](https://github.com/future0923/debug-tools/issues/56))
 - Added [Jackson](https://github.com/FasterXML/jackson-databind) hot reload([#50](https://github.com/future0923/debug-tools/issues/50))
+- Added [hibernate-validator](https://github.com/hibernate/hibernate-validator) hot reload([#60](https://github.com/future0923/debug-tools/issues/60))
 - Refactor the calling method function, remote calling supports hot deployment of classes
 - Supports calling internal class methods at more than two levels([#43](https://github.com/future0923/debug-tools/issues/43))
 - Automatically attach the application launched in the current project([#58](https://github.com/future0923/debug-tools/issues/58))
