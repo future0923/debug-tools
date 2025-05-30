@@ -34,7 +34,6 @@ public abstract class Packet {
     @Setter
     @Getter
     private byte version;
-    private final byte[] ipBytes = new byte[15];
     @Setter
     @Getter
     private byte resultFlag = SUCCESS;
@@ -49,18 +48,6 @@ public abstract class Packet {
     public abstract byte[] binarySerialize();
 
     public abstract void binaryDeserialization(byte[] bytes);
-
-    public void setIpBytes(byte[] bytes) {
-        System.arraycopy(bytes, 0, this.ipBytes, 0, bytes.length);
-    }
-
-    public byte[] getIpBytes() {
-        return ipBytes;
-    }
-
-    public String getIp() {
-        return (new String(this.ipBytes)).replaceAll(EMPTY_BYTE, EMPTY_STRING);
-    }
 
     public boolean isSuccess() {
         return resultFlag == SUCCESS;

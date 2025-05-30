@@ -47,7 +47,7 @@ public class ServerHandleThread extends Thread {
                 break;
             }
             try {
-                Packet packet = PacketCodec.INSTANCE.getPacket(holder.getInputStream(), holder.getSocket());
+                Packet packet = PacketCodec.INSTANCE.getPacket(holder.getInputStream());
                 if (packet != null) {
                     packetHandleService.handle(holder.getOutputStream(), packet);
                 }
