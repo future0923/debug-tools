@@ -72,7 +72,7 @@ public class ClientHandleThread extends Thread {
         try {
             while(!isClosed) {
                 try {
-                    Packet packet = PacketCodec.INSTANCE.getPacket(inputStream, socket);
+                    Packet packet = PacketCodec.INSTANCE.getPacket(inputStream);
                     if (packet != null) {
                         refresh();
                         if (!socket.isClosed()) {

@@ -15,13 +15,15 @@
  */
 package io.github.future0923.debug.tools.common.protocal.packet;
 
+import io.github.future0923.debug.tools.base.hutool.core.io.IoUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
@@ -33,9 +35,6 @@ import io.github.future0923.debug.tools.common.protocal.serializer.Serializer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,15 +47,13 @@ public class PacketCodec {
 
     private static final Logger logger = Logger.getLogger(PacketCodec.class);
 
-    public static final int MAGIC_NUMBER = 305419896;
+    public static final int MAGIC_NUMBER = 20240508;
 
     public static final int MAGIC_BYTE_LENGTH = 4;
 
     public static final int VERSION_LENGTH = 1;
 
     public static final int COMMAND_LENGTH = 1;
-
-    public static final int IP_LENGTH = 15;
 
     public static final int SERIALIZER_ALGORITHM_BYTE_LENGTH = 1;
 
@@ -85,31 +82,23 @@ public class PacketCodec {
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 
-    public Packet getPacket(InputStream inputStream, Socket socket) throws IOException {
-        int totalBytes = inputStream.read(new byte[MAGIC_BYTE_LENGTH]);
-        if (totalBytes == -1) {
-            throw new RuntimeException("EOF socket close " + socket.toString());
+    public Packet getPacket(InputStream inputStream) throws IOException {
+        int magic = ByteBuf.ByteUtil.toInt(IoUtil.readBytes(inputStream, MAGIC_BYTE_LENGTH));
+        if (ObjectUtil.notEqual(MAGIC_NUMBER, magic)) {
+            logger.error("magic number not match {}.", magic);
+            return null;
         } else {
-            byte[] version = new byte[VERSION_LENGTH];
-            inputStream.read(version);
-            byte[] ipBytes = new byte[IP_LENGTH];
-            inputStream.read(ipBytes);
-            byte[] serializeAlgorithmByte = new byte[SERIALIZER_ALGORITHM_BYTE_LENGTH];
-            inputStream.read(serializeAlgorithmByte);
-            byte[] commandByte = new byte[COMMAND_LENGTH];
-            inputStream.read(commandByte);
+            byte[] version = IoUtil.readBytes(inputStream, VERSION_LENGTH);
+            byte[] serializeAlgorithmByte = IoUtil.readBytes(inputStream, SERIALIZER_ALGORITHM_BYTE_LENGTH);
+            byte[] commandByte = IoUtil.readBytes(inputStream, COMMAND_LENGTH);
             Class<? extends Packet> requestType = getRequestType(commandByte[0]);
             if (requestType == null) {
                 logger.error("requestType {} not found.", commandByte[0]);
                 return null;
             }
-            byte[] resultFlagByte = new byte[RESULT_FLAG_LENGTH];
-            inputStream.read(resultFlagByte);
-            byte[] lengthBytes = new byte[BODY_LENGTH];
-            inputStream.read(lengthBytes);
-            int length = ByteBuf.ByteUtil.toInt(lengthBytes);
-            byte[] contentByte = new byte[length];
-            inputStream.read(contentByte);
+            byte[] resultFlagByte = IoUtil.readBytes(inputStream, RESULT_FLAG_LENGTH);
+            byte[] lengthBytes = IoUtil.readBytes(inputStream, BODY_LENGTH);
+            byte[] contentByte =IoUtil.readBytes(inputStream, ByteBuf.ByteUtil.toInt(lengthBytes));
             Packet packet;
             try {
                 packet = requestType.newInstance();
@@ -118,7 +107,6 @@ public class PacketCodec {
                 return null;
             }
             packet.setVersion(version[0]);
-            packet.setIpBytes(ipBytes);
             packet.setResultFlag(resultFlagByte[0]);
             Serializer serializer = this.getSerializer(serializeAlgorithmByte[0]);
             if (serializer != null) {
@@ -143,23 +131,11 @@ public class PacketCodec {
         byte[] bodyBytes = Serializer.DEFAULT.serialize(packet);
         byteBuf.writeInt(MAGIC_NUMBER);
         byteBuf.writeByte(packet.getVersion());
-        String localIP = getLocalIP();
-        packet.setIpBytes(localIP.getBytes());
-        byteBuf.writeBytes(packet.getIpBytes());
         byteBuf.writeByte(Serializer.DEFAULT.getSerializerAlgorithm());
         byteBuf.writeByte(packet.getCommand());
         byteBuf.writeByte(packet.getResultFlag());
         byteBuf.writeInt(bodyBytes.length);
         byteBuf.writeBytes(bodyBytes);
         return byteBuf;
-    }
-
-    public static String getLocalIP() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            logger.error("get local ip error ", e);
-            return "";
-        }
     }
 }
