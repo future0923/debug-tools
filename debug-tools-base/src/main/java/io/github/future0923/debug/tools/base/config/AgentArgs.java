@@ -166,6 +166,9 @@ public class AgentArgs {
                 if (DebugToolsStringUtils.isBlank(printSql)) {
                     printSql = properties.getProperty("printSql", "false");
                 }
+                if (DebugToolsStringUtils.isBlank(applicationName)) {
+                    applicationName = properties.getProperty("applicationName");
+                }
             }
         } catch (Exception e) {
             logger.error("Error while loading external properties file " + propertiesFilePath, e);

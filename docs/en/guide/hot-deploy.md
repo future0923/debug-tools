@@ -43,19 +43,21 @@ Hot deployment requires a specific JDK to take effect. Please refer to [JDK Inst
 
 ### 2.2 Optional configuration
 
-| Optional key       | Meaning                                              | Value                              | Example                                            |
-|--------------------|------------------------------------------------------|------------------------------------|----------------------------------------------------|
-| hotswap            | Whether to enable hot reload/hot deployment          | true: Enable <br /> false: Disable | true                                               |
-| server             | Whether to start the server for client connections   | true: Enable <br /> false: Disable | true                                               |
-| tcpPort            | TCP port to listen to (valid only when server=true)  | Available ports                    | 12345                                              |
-| httpPort           | HTTP port to listen to (valid only when server=true) | Available ports                    | 22222                                              |
-| printSql           | Whether to print the executed SQL statement          | true: Enable <br /> false: Disable | true                                               |
-| propertiesFilePath | External configuration file path                     | Configuration file address         | /etc/debug-tools/conf/debug-tools-agent.properties |
+| Optional key       | Meaning                                              | Value                                                                            | Example                                            |
+|--------------------|------------------------------------------------------|----------------------------------------------------------------------------------|----------------------------------------------------|
+| applicationName    | Application name                                     | The name of the application, which can be obtained automatically without passing | DebugTools                                         |
+| hotswap            | Whether to enable hot reload/hot deployment          | true: Enable <br /> false: Disable                                               | true                                               |
+| server             | Whether to start the server for client connections   | true: Enable <br /> false: Disable                                               | true                                               |
+| tcpPort            | TCP port to listen to (valid only when server=true)  | Available ports                                                                  | 12345                                              |
+| httpPort           | HTTP port to listen to (valid only when server=true) | Available ports                                                                  | 22222                                              |
+| printSql           | Whether to print the executed SQL statement          | true: Enable <br /> false: Disable                                               | true                                               |
+| propertiesFilePath | External configuration file path                     | Configuration file address                                                       | /etc/debug-tools/conf/debug-tools-agent.properties |
 
 propertiesFilePath configuration
 
 | key                         | meaning                                                                                                                                                                                                                            | default value                                     |
 |-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| applicationName             | Application name (same as above)                                                                                                                                                                                                   | Automatically obtained according to rules         |
 | hotswap                     | whether to enable hot reload/hot deployment (same as above)                                                                                                                                                                        | true                                              |
 | server                      | whether to start the server for client connection (same as above)                                                                                                                                                                  | true                                              |
 | tcpPort                     | TCP port to listen on (valid only when server=true) (same as above)                                                                                                                                                                | default, start from 12345 to find available ports |
@@ -73,6 +75,29 @@ propertiesFilePath configuration
 | disabledPlugins             | Disabled plugins, multiple commas are separated                                                                                                                                                                                    | -                                                 |
 | autoHotswap                 | Whether to automatically hot reload. Reloads class definitions in a running application after watching for changed class files in the ClassLoader's resources path. It uses the Java Instrumentation API to reload class bytecode. | false                                             |
 | autoHotswap.port            | JPDA connection port, listens for changed files and performs hot reload, you need to specify the JPDA port when starting.                                                                                                          | -                                                 |
+
+default config file:
+
+```properties
+applicationName=
+hotswap=true
+server=true
+tcpPort=
+httpPort=
+printSql=false
+includedClassLoaderPatterns=
+excludedClassLoaderPatterns=
+pluginPackages=
+extraClasspath=/var/tmp/debug-tools/classes
+extraClasspathWin=c:/var/tmp/debug-tools/classes
+watchResources=/var/tmp/debug-tools/resources
+watchResourcesWin=c:/var/tmp/debug-tools/resources
+lombokJarPath=
+spring.basePackagePrefix=
+disabledPlugins=
+autoHotswap=false
+autoHotswap.port=
+```
 
 ## 3. Connecting to a remote service
 

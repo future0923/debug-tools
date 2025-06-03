@@ -15,6 +15,8 @@
  */
 package io.github.future0923.debug.tools.base.utils;
 
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -56,7 +58,7 @@ public class DebugToolsJvmUtils {
         if (sunJavaCommand != null) {
             int index = sunJavaCommand.indexOf(".jar");
             if (index != -1) {
-                return sunJavaCommand.substring(0, index);
+                return FileUtil.getName(sunJavaCommand);
             }
             return sunJavaCommand;
         }
