@@ -70,10 +70,11 @@ public class DynamicJavaFileManager extends ForwardingJavaFileManager<JavaFileMa
         return innerClass;
     }
 
-    @Override
-    public ClassLoader getClassLoader(JavaFileManager.Location location) {
-        return classLoader;
-    }
+    // 导致lombok无法编译的bug
+    //@Override
+    //public ClassLoader getClassLoader(JavaFileManager.Location location) {
+    //    return classLoader;
+    //}
 
     @Override
     public String inferBinaryName(Location location, JavaFileObject file) {

@@ -19,7 +19,6 @@ import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderExcepti
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.server.compiler.DynamicCompiler;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.server.utils.JavaParserUtils;
 
 import java.util.Map;
 
@@ -37,7 +36,7 @@ public class RemoteCompilerHotDeployRequestHandler extends AbstractHotDeployRequ
     @Override
     protected Map<String, byte[]> getByteCodes(RemoteCompilerHotDeployRequestPacket packet) throws DefaultClassLoaderException {
         DynamicCompiler compiler = new DynamicCompiler(getClassLoader(packet));
-        packet.getFilePathByteCodeMap().forEach((className, source) -> compiler.addSource(className, JavaParserUtils.process(source)));
+        packet.getFilePathByteCodeMap().forEach(compiler::addSource);
         return compiler.buildByteCodes();
     }
 
