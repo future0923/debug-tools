@@ -51,6 +51,7 @@
 - [Call any Java method](https://debug-tools.cc/en/guide/attach-local.html): There is no need to call it layer by layer after complex business verification from the Controller layer like API. The method can be directly called to test whether the result is achieved without writing test cases. Combined with hot reload, it can be modified quickly without restarting.
 - [Call remote method](https://debug-tools.cc/en/guide/attach-remote.html): Trigger the remote method to run with remote debug to achieve the purpose of remote debugging. Through hot deployment, you can quickly debug the application.
 - [SQL statements and time consumption](https://debug-tools.cc/en/guide/sql.html): Without modifying any application code, you can print the executed SQL statements and time consumption.
+- [Search Http Url](https://www.debug-tools.cc/guide/search-http.html)：Jump directly to the corresponding method definition location through the given URL information. Built-in powerful URL information extraction function, all forms of URLs can be accurately located.
 - [xxl-job](https://debug-tools.cc/en/guide/xxl-job.html): You can call client-side methods without going through xxl-job Server, and support context parameter passing.
 - [groovy](https://debug-tools.cc/en/guide/groovy-execute.html): Execute Groovy scripts, you can run code to obtain or modify attached application information for debugging.
 

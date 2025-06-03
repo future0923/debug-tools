@@ -43,19 +43,21 @@
 
 ### 2.2 可选配置
 
-| 可选key项             | 含义                                             | value取值                 | 取值示例                                               |
-|--------------------|------------------------------------------------|-------------------------|----------------------------------------------------|
-| hotswap            | 是否开启热重载/热部署                                    | true:开启 <br /> false:关闭 | ture                                               |
-| server             | 是否启动Server给客户端连接                               | true:开启 <br /> false:关闭 | ture                                               |
-| tcpPort            | 监听的TCP端口 (server=true时才生效)                     | 可用端口                    | 12345                                              |
-| httpPort           | 监听的HTTP端口  (server=true时才生效)                   | 可用端口                    | 22222                                              |
-| printSql           | 是否打印执行的SQL语句                                   | true:开启 <br /> false:关闭 | ture                                               |
-| propertiesFilePath | 外部配置文件路径                                       | 配置文件地址                  | /etc/debug-tools/conf/debug-tools-agent.properties |
+| 可选key项             | 含义                           | value取值                 | 取值示例                                               |
+|--------------------|------------------------------|-------------------------|----------------------------------------------------|
+| applicationName    | 应用名称                         | 附着应用的名称，不传也可以自动获取       | DebugTools                                         |
+| hotswap            | 是否开启热重载/热部署                  | true:开启 <br /> false:关闭 | ture                                               |
+| server             | 是否启动Server给客户端连接             | true:开启 <br /> false:关闭 | ture                                               |
+| tcpPort            | 监听的TCP端口 (server=true时才生效)   | 可用端口                    | 12345                                              |
+| httpPort           | 监听的HTTP端口  (server=true时才生效) | 可用端口                    | 22222                                              |
+| printSql           | 是否打印执行的SQL语句                 | true:开启 <br /> false:关闭 | ture                                               |
+| propertiesFilePath | 外部配置文件路径                     | 配置文件地址                  | /etc/debug-tools/conf/debug-tools-agent.properties |
 
 propertiesFilePath 配置
 
 | key                         | 含义                                                                                                    | 默认值                              |
 |-----------------------------|-------------------------------------------------------------------------------------------------------|----------------------------------|
+| applicationName             | 应用的名称(同上面)                                                                                            | 根据规则自动获取                         |
 | hotswap                     | 是否开启热重载/热部署 (同上面)                                                                                     | true                             |
 | server                      | 是否启动Server给客户端连接 (同上面)                                                                                | true                             |
 | tcpPort                     | 监听的TCP端口 (server=true时才生效) (同上面)                                                                      | 默认从 12345 开始递增寻找可用端口             |
@@ -73,6 +75,51 @@ propertiesFilePath 配置
 | disabledPlugins             | 禁用的插件，多个逗号分隔                                                                                          | -                                |
 | autoHotswap                 | 是否自动热重载。在 ClassLoader 的 resources 路径下监视更改的类文件后在运行中的应用程序中重新加载类定义。它使用Java Instrumentation API来重新加载类字节码。 | false                            |
 | autoHotswap.port            | JPDA连接端口，监听更改文件后进行热重载，启动时需要指定JPDA端口。                                                                  | -                                |
+
+默认配置文件示例：
+
+```properties
+# 应用名称
+applicationName=
+# 是否开启热重载/热部署
+hotswap=true
+# 是否启动Server给客户端连接
+server=true
+# 监听的TCP端口 (server=true时才生效)
+# 默认从 12345 开始递增寻找可用端口
+tcpPort=
+# 监听的HTTP端口  (server=true时才生效)
+# 默认从 22222 开始递增寻找可用端口
+httpPort=
+# 是否打印执行的SQL语句
+printSql=false
+# 要初始化重载/热部署的ClassLoader。 与 excludedClassLoaderPatterns 只能同时配置一个
+includedClassLoaderPatterns=
+# 要排除初始化重载/热部署的ClassLoader。 与 includedClassLoaderPatterns 只能同时配置一个
+excludedClassLoaderPatterns=
+# 扫描其它路径上编写的插件，多个路径逗号分隔
+pluginPackages=
+# 加载扩展的class文件路径
+extraClasspath=/var/tmp/debug-tools/classes
+extraClasspathWin=c:/var/tmp/debug-tools/classes
+# 监听资源路径，多个逗号分隔
+watchResources=/var/tmp/debug-tools/resources
+watchResourcesWin=c:/var/tmp/debug-tools/resources
+# lombok.jar 路径
+# 远程动态编译时如果使用了lombok需要指定才能编译
+lombokJarPath=
+# Spring基础package前缀，多个路径逗号分隔
+spring.basePackagePrefix=
+# 禁用的插件，多个逗号分隔
+disabledPlugins=
+# 自动热重载
+# 在 ClassLoader 的 resources 路径下监视更改的类文件后在运行中的应用程序中重新加载类定义。
+# 它使用Java Instrumentation API来重新加载类字节码。
+autoHotswap=false
+# JPDA连接端口，监听更改文件后进行热重载，启动时需要指定JPDA端口
+# <pre>java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000</pre>
+autoHotswap.port=
+```
 
 ## 3. 连接远程服务
 
