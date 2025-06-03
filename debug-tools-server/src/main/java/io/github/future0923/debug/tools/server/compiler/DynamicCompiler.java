@@ -108,8 +108,6 @@ public class DynamicCompiler {
         if (DebugToolsStringUtils.isNotBlank(pluginConfiguration.getLombokJarPath())) {
             options.add("-classpath");
             options.add(System.getProperty("java.class.path") + File.pathSeparator + pluginConfiguration.getLombokJarPath());
-            options.add("-processorpath");
-            options.add(pluginConfiguration.getLombokJarPath());
         }
         dynamicClassLoader = new DynamicClassLoader(classLoader);
     }
