@@ -51,6 +51,7 @@
 - [调用任意Java方法](https://debug-tools.cc/guide/attach-local.html)：无需像 Api 一样从 Controller 层进过复杂的业务校验后一层层调用进来，方法可以直接调用测试是否达到结果，不用写测试用例。结合热重载可以快速修改，无需重启。
 - [调用远程方法](https://debug-tools.cc/guide/attach-remote.html)：触发远程方法运行配合远程debug达到远程调试的目的，通过热部署可以快捷调试应用。
 - [SQL语句与耗时](https://debug-tools.cc/guide/sql.html)：不修改任何应用代码的情况下，可以打印执行的SQL语句与耗时。
+- [搜索HttpUrl](https://www.debug-tools.cc/guide/search-http.html)：通过给定的URL信息直接跳转到相应的方法定义位置。内置强大的URL信息提取功能，各种形式的URL都能精准定位。
 - [xxl-job](https://debug-tools.cc/guide/xxl-job.html)：不通过 xxl-job Server可以调用 client 端方法，并支持上下文传参。
 - [groovy](https://debug-tools.cc/guide/groovy-execute.html)：执行 Groovy 脚本，可以运行代码获取或修改附着应用信息调试。
 

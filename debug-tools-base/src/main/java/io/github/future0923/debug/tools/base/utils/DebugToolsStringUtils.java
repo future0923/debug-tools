@@ -24,22 +24,6 @@ import java.net.URL;
  */
 public class DebugToolsStringUtils {
 
-    public static String getShortClassName(String className) {
-        final String[] packages = className.split("\\.");
-        if (packages.length < 2) {
-            return className;
-        }
-
-        final int size = packages.length;
-        final StringBuilder result = new StringBuilder();
-        result.append(packages[0].charAt(0));
-        for (int i = 1; i < size - 1; i++) {
-            result.append(".").append(packages[i].charAt(0));
-        }
-        result.append(".").append(packages[size - 1]);
-        return result.toString();
-    }
-
     public static String getSimpleName(String className) {
         if (DebugToolsStringUtils.isBlank(className)) {
             return className;

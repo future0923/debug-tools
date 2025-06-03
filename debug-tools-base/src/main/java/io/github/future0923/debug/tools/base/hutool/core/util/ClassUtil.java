@@ -134,6 +134,12 @@ public class ClassUtil {
 	 * @since 4.1.9
 	 */
 	public static String getShortClassName(String className) {
+		if (StrUtil.isBlank(className)) {
+			return className;
+		}
+		if (className.contains(".jar")) {
+			return className;
+		}
 		final List<String> packages = StrUtil.split(className, CharUtil.DOT);
 		if (null == packages || packages.size() < 2) {
 			return className;

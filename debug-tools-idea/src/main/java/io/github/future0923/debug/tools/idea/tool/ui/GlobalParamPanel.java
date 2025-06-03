@@ -22,9 +22,9 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
@@ -169,7 +169,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                         local.setText(settingState.isLocal() ? "L" : "R");
                         local.setVisible(true);
                         if (!info.getClient().isClosed()) {
-                            textField.setText(DebugToolsClassUtils.getShortClassName(info.getApplicationName()));
+                            textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
                             textField.setVisible(true);
                             attached.setText("Connected");
                             attached.setBackground(JBColor.GREEN);

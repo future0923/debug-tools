@@ -15,7 +15,7 @@
  */
 package io.github.future0923.debug.tools.base.logging;
 
-import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -78,7 +78,7 @@ public class LoggerHandler {
         stringBuffer.append(" ");
         stringBuffer.append("[").append(Thread.currentThread().getName()).append("]");
         stringBuffer.append(" ");
-        stringBuffer.append(ColorConsole.getBlueGreen(DebugToolsStringUtils.getShortClassName(clazz.getName())));
+        stringBuffer.append(ColorConsole.getBlueGreen(ClassUtil.getShortClassName(clazz.getName())));
         stringBuffer.append(" ");
 
         // 获取当前堆栈跟踪信息

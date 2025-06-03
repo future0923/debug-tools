@@ -4,7 +4,7 @@ aside: false
 ---
 # ChangeLog
 
-## [4.0.0-SNAPSHOT](https://github.com/future0923/debug-tools/compare/v3.4.4...main)
+## [4.0.0](https://github.com/future0923/debug-tools/compare/v3.4.4...v4.0.0)(2025-06-03)
 
 - Added hot deployment function to achieve hot update of remote application code in seconds.
 - Added remote dynamic compilation function. When hot deploying and hot reloading, you can choose to compile the code with local Idea or dynamically compile the code with remote application.
