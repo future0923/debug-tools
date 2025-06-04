@@ -4,6 +4,10 @@ aside: false
 ---
 # ChangeLog
 
+## [4.0.1](https://github.com/future0923/debug-tools/compare/v4.0.0...v4.0.1) (2025-06-04)
+
+- Fixed the bug that Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug([#63](https://github.com/future0923/debug-tools/issues/63))
+
 ## [4.0.0](https://github.com/future0923/debug-tools/compare/v3.4.4...v4.0.0)(2025-06-03)
 
 - Added hot deployment function to achieve hot update of remote application code in seconds.

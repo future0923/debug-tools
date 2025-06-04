@@ -49,9 +49,8 @@ public class VmToolsUtils {
             return;
         }
         String jniPath = AgentConfig.INSTANCE.getJniLibraryPath();
-        String version = AgentConfig.INSTANCE.getVersion();
-        boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
-        if (!ProjectConstants.DEBUG && !isUpgrade && DebugToolsStringUtils.isNotBlank(jniPath) && DebugToolsFileUtils.exist(jniPath) && !load) {
+        // 不是调试模式 && 没有升级版本 && jniPath不为空 && 文件存在 && 未加载
+        if (!ProjectConstants.DEBUG && !AgentConfig.INSTANCE.isUpgrade() && DebugToolsStringUtils.isNotBlank(jniPath) && DebugToolsFileUtils.exist(jniPath) && !load) {
             initVmTool(jniPath);
             return;
         }
