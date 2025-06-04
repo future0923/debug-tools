@@ -53,6 +53,8 @@ public class AgentConfig {
 
     private final File propertiesFile;
 
+    private boolean isUpgrade;
+
     private AgentConfig() {
         String homeDir = System.getProperty("user.home");
         propertiesFile = new File(homeDir + File.separator + ProjectConstants.NAME + File.separator + FILE_NAME);
@@ -61,6 +63,7 @@ public class AgentConfig {
         }
         try {
             properties.load(propertiesFile.toURI().toURL().openStream());
+            processUpgrade();
             createExtensionJar();
         } catch (IOException e) {
             logger.error("load properties error", e);
@@ -68,28 +71,31 @@ public class AgentConfig {
 
     }
 
-    private void createExtensionJar() {
+    private void processUpgrade() {
         String version = getVersion();
-        boolean isUpgrade = !ProjectConstants.VERSION.equals(version);
+        isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
             setVersion(ProjectConstants.VERSION);
         }
-        createSpringJar(isUpgrade);
-        createXxlJobJar(isUpgrade);
+    }
+
+    private void createExtensionJar() {
+        createSpringJar();
+        createXxlJobJar();
         store();
     }
 
-    private void createSpringJar(boolean isUpgrade) {
-        File jarFile = loadJarFile(getSpringExtensionPath(), ProjectConstants.SPRING_EXTENSION_JAR_NAME, isUpgrade);
+    private void createSpringJar() {
+        File jarFile = loadJarFile(getSpringExtensionPath(), ProjectConstants.SPRING_EXTENSION_JAR_NAME);
         setSpringExtensionPath(jarFile.getAbsolutePath());
     }
 
-    private void createXxlJobJar(boolean isUpgrade) {
-        File jarFile = loadJarFile(getXxlJobExtensionPath(), ProjectConstants.XXMLJOB_EXTENSION_JAR_NAME, isUpgrade);
+    private void createXxlJobJar() {
+        File jarFile = loadJarFile(getXxlJobExtensionPath(), ProjectConstants.XXMLJOB_EXTENSION_JAR_NAME);
         setXxlJobExtensionPath(jarFile.getAbsolutePath());
     }
 
-    private File loadJarFile(String jarPath, String jarName, boolean isUpgrade) {
+    private File loadJarFile(String jarPath, String jarName) {
         File jarFile;
         if (ProjectConstants.DEBUG || jarPath == null || jarPath.isEmpty() || isUpgrade) {
             jarFile = DebugToolsFileUtils.getLibResourceJar(SpyAPI.class.getClassLoader(), jarName);
@@ -115,6 +121,14 @@ public class AgentConfig {
     public void setVersionAndStore(String version) {
         setVersion(version);
         store();
+    }
+
+    public boolean isUpgrade() {
+        return isUpgrade;
+    }
+
+    public void setUpgrade(boolean upgrade) {
+        isUpgrade = upgrade;
     }
 
     public String getSpringExtensionPath() {
