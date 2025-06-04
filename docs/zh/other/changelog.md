@@ -4,7 +4,11 @@ aside: false
 ---
 # 版本迭代记录
 
-## [4.0.0](https://github.com/future0923/debug-tools/compare/v3.4.4...v4.0.0)(2025-06-03)
+## [4.0.1](https://github.com/future0923/debug-tools/compare/v4.0.0...v4.0.1) (2025-06-04)
+
+- 修复 Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug([#63](https://github.com/future0923/debug-tools/issues/63))
+
+## [4.0.0](https://github.com/future0923/debug-tools/compare/v3.4.4...v4.0.0) (2025-06-03)
 
 - 增加热部署功能，实现秒级一键热更新远程应用代码。
 - 增加远程动态编译功能，热部署、热重载时可以选择本地Idea编译还是远程应用动态编译代码
