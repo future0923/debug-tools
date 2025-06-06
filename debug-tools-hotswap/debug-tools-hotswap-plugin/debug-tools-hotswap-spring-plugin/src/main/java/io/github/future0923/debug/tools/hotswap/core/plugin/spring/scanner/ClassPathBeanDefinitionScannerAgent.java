@@ -71,7 +71,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 public class ClassPathBeanDefinitionScannerAgent {
 
-    private static final Logger LOGGER = Logger.getLogger(ClassPathBeanDefinitionScannerAgent.class);
+    private static final Logger logger = Logger.getLogger(ClassPathBeanDefinitionScannerAgent.class);
 
     /**
      * Spring的ClassPathBeanDefinitionScanner与热重载处理它的ClassPathBeanDefinitionScannerAgent类的映射
@@ -264,7 +264,7 @@ public class ClassPathBeanDefinitionScannerAgent {
                 for (String beanName : beanNameSet) {
                     try {
                         defaultListableBeanFactory.removeBeanDefinition(beanName);
-                        LOGGER.info("remove bean name {} by delete path {}", beanName, path);
+                        logger.info("remove bean name {} by delete path {}", beanName, path);
                     } catch (NoSuchBeanDefinitionException ignored) {
 
                     }
@@ -307,7 +307,7 @@ public class ClassPathBeanDefinitionScannerAgent {
         ResetSpringStaticCaches.reset();
         List<ClassPathBeanDefinitionScannerAgent> scannerAgents = getInstances(basePackage);
         if (scannerAgents.isEmpty()) {
-            LOGGER.error("basePackage '{}' not associated with any scannerAgent", basePackage);
+            logger.error("basePackage '{}' not associated with any scannerAgent", basePackage);
             return;
         }
         for (ClassPathBeanDefinitionScannerAgent scannerAgent : scannerAgents) {
@@ -392,7 +392,7 @@ public class ClassPathBeanDefinitionScannerAgent {
                 }
                 ProxyReplacer.clearAllProxies();
                 freezeConfiguration();
-                LOGGER.reload("Registered Spring bean '{}'", beanName);
+                logger.reload("Registered Spring bean '{}'", beanName);
             }
         }
 
@@ -406,7 +406,7 @@ public class ClassPathBeanDefinitionScannerAgent {
      */
     private void removeIfExists(String beanName) {
         if (registry.containsBeanDefinition(beanName)) {
-            LOGGER.debug("Removing bean definition '{}'", beanName);
+            logger.debug("Removing bean definition '{}'", beanName);
             DefaultListableBeanFactory bf = maybeRegistryToBeanFactory();
             if (bf != null) {
                 ResetRequestMappingCaches.reset(bf);
@@ -452,14 +452,14 @@ public class ClassPathBeanDefinitionScannerAgent {
             sbd.setResource(resource);
             sbd.setSource(resource);
             if (isCandidateComponent(sbd)) {
-                LOGGER.debug("Identified candidate component class '{}'", metadataReader.getClassMetadata().getClassName());
+                logger.debug("Identified candidate component class '{}'", metadataReader.getClassMetadata().getClassName());
                 return sbd;
             } else {
-                LOGGER.debug("Ignored because not a concrete top-level class '{}'", metadataReader.getClassMetadata().getClassName());
+                logger.debug("Ignored because not a concrete top-level class '{}'", metadataReader.getClassMetadata().getClassName());
                 return null;
             }
         } else {
-            LOGGER.trace("Ignored because not matching any filter '{}' ", metadataReader.getClassMetadata().getClassName());
+            logger.trace("Ignored because not matching any filter '{}' ", metadataReader.getClassMetadata().getClassName());
             return null;
         }
     }
@@ -492,9 +492,9 @@ public class ClassPathBeanDefinitionScannerAgent {
             }
             if (metadataReaderCache != null) {
                 metadataReaderCache.clear();
-                LOGGER.trace("Cache cleared: CachingMetadataReaderFactory.clearCache()");
+                logger.trace("Cache cleared: CachingMetadataReaderFactory.clearCache()");
             } else {
-                LOGGER.warning("Cache NOT cleared: neither CachingMetadataReaderFactory.metadataReaderCache nor clearCache does not exist.");
+                logger.warning("Cache NOT cleared: neither CachingMetadataReaderFactory.metadataReaderCache nor clearCache does not exist.");
             }
         }
     }

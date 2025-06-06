@@ -13,31 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer;
-
+package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.signature.ClassSignatureComparer;
 
 import java.io.ByteArrayInputStream;
 
 /**
- * 解析是否需要Spring进行重新加载{@link #isReloadNeeded}
+ * 解析Class是否需要进行Bean重新加载{@link #isReloadNeeded}
  * <p>
  * 合成类或生成类不需要
  * <p>
  * 方法体的修改也不需要
  */
-public class SpringChangesAnalyzer {
-    private static final Logger LOGGER = Logger.getLogger(SpringPlugin.class);
+public class ClassChangesAnalyzer {
+
+    private static final Logger LOGGER = Logger.getLogger(ClassChangesAnalyzer.class);
 
     private final ClassPool classPool;
 
-    public SpringChangesAnalyzer(final ClassLoader classLoader) {
+    public ClassChangesAnalyzer(final ClassLoader classLoader) {
         this.classPool = new ClassPool() {
             @Override
             public ClassLoader getClassLoader() {
