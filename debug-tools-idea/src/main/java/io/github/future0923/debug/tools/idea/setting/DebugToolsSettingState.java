@@ -242,7 +242,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         map.put("host", getRemoteHost());
         map.put("tcpPort", getRemoteTcpPort());
         map.put("httpPort", getRemoteHttpPort());
-        String name  = StringUtils.isBlank(getRemoteName())? getRemoteHost()+"@"+getRemoteTcpPort() : getRemoteName();
+        String name = StringUtils.isBlank(getRemoteName())? getRemoteHost()+"@"+getRemoteTcpPort()+"@"+getRemoteHttpPort() : getRemoteName();
         map.put("name", name);
         getRemoteHosts().put(name, JSONUtil.toJsonStr(map));
     }
