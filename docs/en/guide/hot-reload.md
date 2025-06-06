@@ -1,7 +1,7 @@
 # Hot reload <Badge type="warning" text="beta" /> {#hot-reload}
 
 ::: info
-Hot reload is complex to implement and requires many compatibility scenarios. If this project helps you save development time, you might as well click <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>. Your recognition will make more people discover it, and your support is my motivation to update. If it doesn't work, please submit <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> for feedback.
+Hot reload is complex to implement and requires many compatibility scenarios. If this project helps you save development time, you might as well click <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools"><img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>. Your recognition will make more people discover it, and your support is my motivation to update. If it doesn't work, please submit <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/java-hot-deploy/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> for feedback.
 :::
 
 When writing code traditionally, you need to restart the application to take effect, while hot reload can make the written code take effect immediately without restarting the application, so that the code changes written by the developer can take effect instantly, greatly improving the iteration efficiency. Supports changes to properties and methods of classes (including proxy classes), Spring, Mybatis and other mainstream frameworks. At the same time, it is compatible with multiple JDK versions such as jdk8, jdk11, jdk17, jdk21, etc.
@@ -173,4 +173,4 @@ Support [hibernate-validator](https://github.com/hibernate/hibernate-validator) 
 
 ### 3.13 Others
 
-Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/future0923/debug-tools/issues) to give feedback.
+Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/java-hot-deploy/debug-tools/issues) to give feedback.

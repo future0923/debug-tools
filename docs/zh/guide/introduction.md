@@ -4,7 +4,7 @@
 DebugTools 是一款集成于 IntelliJ IDEA 的 Java 开发调试插件，专注于提升开发效率与缩短调试周期。
 
 <div class="tip custom-block" style="padding-top: 8px">
-插件实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。如果不生效麻烦提交 <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下。
+插件实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools"><img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。如果不生效麻烦提交 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/java-hot-deploy/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下。
 </div>
 
 ## 使用场景 {#use-cases}
@@ -18,4 +18,4 @@ DebugTools 是一款集成于 IntelliJ IDEA 的 Java 开发调试插件，专注
 - [groovy](groovy-execute)：执行 Groovy 脚本，可以运行代码获取或修改附着应用信息调试。
 - ......
 
-如果你有订制需要，可以提交 [issue](https://github.com/future0923/debug-tools/issues) 反馈。 
+如果你有订制需要，可以提交 [issue](https://github.com/java-hot-deploy/debug-tools/issues) 反馈。 
