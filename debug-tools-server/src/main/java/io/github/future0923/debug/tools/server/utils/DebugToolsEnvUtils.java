@@ -54,6 +54,7 @@ public class DebugToolsEnvUtils {
             }
             List<URL> urls = new LinkedList<>();
             Optional.ofNullable(AgentConfig.INSTANCE.getSpringExtensionURL()).ifPresent(urls::add);
+            Optional.ofNullable(AgentConfig.INSTANCE.getSolonExtensionURL()).ifPresent(urls::add);
             Optional.ofNullable(AgentConfig.INSTANCE.getXxlJobExtensionURL()).ifPresent(urls::add);
             extensionClassLoader = new DebugToolsExtensionClassLoader(urls.toArray(new URL[0]), classLoader);
             EXTENSION_CLASS_LOADER_MAP.put(classLoader, extensionClassLoader);
@@ -94,6 +95,17 @@ public class DebugToolsEnvUtils {
         }
     }
 
+    public static Class<?> getSolonEnvUtilClass() {
+        try {
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.solon.SolonEnvUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("SolonEnvUtil get error", e);
+            }
+            return null;
+        }
+    }
+
     public static Class<?> getXxlJobEnvUtil() {
         try {
             return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.xxljob.XxlJobEnvUtil");
@@ -127,14 +139,36 @@ public class DebugToolsEnvUtils {
         return (List<T>) getBeans.invoke(null, beanName);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getLastBean(Class<T> requiredType) throws Exception {
+        try {
+            T springLastBean = getSpringLastBean(requiredType);
+            if (springLastBean != null) {
+                return springLastBean;
+            }
+        } catch (Exception ignore) {
+        }
+        return getSolonLastBean(requiredType);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static  <T> T getSpringLastBean(Class<T> requiredType) throws Exception {
         Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
         DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
         Method getLastBean = springEnvUtil.getMethod("getLastBean", Class.class);
+        return (T) getLastBean.invoke(null, requiredType);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static  <T> T getSolonLastBean(Class<T> requiredType) throws Exception {
+        Class<?> solonEnvUtil = getSolonEnvUtilClass();
+        if (solonEnvUtil == null) {
+            return null;
+        }
+        DebugToolsClassUtils.loadDebugToolsClass("org.noear.solon.core.AppContext");
+        Method getLastBean = solonEnvUtil.getMethod("getLastBean", Class.class);
         return (T) getLastBean.invoke(null, requiredType);
     }
 

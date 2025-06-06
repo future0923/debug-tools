@@ -157,7 +157,7 @@
                         <version>2.43.0</version>
                         <configuration>
                             <java>
-                                <removeUnusedImports />
+                                <removeUnusedImports/>
                             </java>
                         </configuration>
                         <executions>
@@ -232,6 +232,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.noear</groupId>
+                <artifactId>solon-parent</artifactId>
+                <version>${solon.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
