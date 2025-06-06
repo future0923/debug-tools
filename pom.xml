@@ -64,6 +64,7 @@
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
         <groovy.version>4.0.22</groovy.version>
         <javaparser.version>3.26.4</javaparser.version>
+        <solon.version>3.3.1</solon.version>
     </properties>
 
     <modules>
