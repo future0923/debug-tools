@@ -199,7 +199,7 @@ public class SpringPlugin {
     }
 
     /**
-     * Controller初始化的时候getCandidateBeanNames获取ioc中所有的beanName，这里需要过滤掉被删除的beanName。<a href="https://github.com/future0923/debug-tools/issues/23">https://github.com/future0923/debug-tools/issues/23</a>
+     * Controller初始化的时候getCandidateBeanNames获取ioc中所有的beanName，这里需要过滤掉被删除的beanName。
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.web.servlet.handler.AbstractHandlerMethodMapping")
     public static void patchAbstractHandlerMethodMapping(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {

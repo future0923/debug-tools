@@ -2,7 +2,7 @@
 
 ## Issue
 
-提交 [Issue](https://github.com/future0923/debug-tools/issues)，看到了我会尽快处理。
+提交 [Issue](https://github.com/java-hot-deploy/debug-tools/issues)，看到了我会尽快处理。
 
 ## 邮箱
 
