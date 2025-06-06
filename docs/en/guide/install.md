@@ -25,7 +25,7 @@ https://download.debug-tools.cc/DebugToolsIdeaPlugin.zip
 ```
 
 ```sh [Manual build]
-git clone https://github.com/future0923/debug-tools.git
+git clone https://github.com/java-hot-deploy/debug-tools.git
 cd debug-tools
 # Maven packaging needs to use `java17+` version to build
 mvn clean install -T 2C -Dmaven.test.skip=true
@@ -39,7 +39,7 @@ cd debug-tools-idea
 ```
 
 ```text [github]
-https://github.com/future0923/debug-tools/releases
+https://github.com/java-hot-deploy/debug-tools/releases
 ```
 
 ```text [gitee]
@@ -58,11 +58,11 @@ Specific JDK support is only required when using the [hot-deploy](hot-deploy) an
 
 ::: details Download from github
 
-[https://github.com/future0923/debug-tools/releases/tag/dcevm-jdk-1.8.0_181](https://github.com/future0923/debug-tools/releases/tag/dcevm-jdk-1.8.0_181)
+[https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181)
 
-- [windows-jdk-8u181.zip](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
-- [mac-jdk-8u181.zip](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
-- [linux-x64-jdk-8u181.tar.gz](https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
+- [windows-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
+- [mac-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
+- [linux-x64-jdk-8u181.tar.gz](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
 
@@ -80,18 +80,18 @@ Specific JDK support is only required when using the [hot-deploy](hot-deploy) an
 
 Download the corresponding version of the .jar file. <span style="color: red;">Currently only the following versions of JDK are supported, please select the corresponding version. </span>
 
-| java version | download by debug tools                                                                                | [download by github](https://github.com/future0923/debug-tools/releases/tag/dcevm-installer)                                       |
+| java version | download by debug tools                                                                                | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-installer)                                       |
 |--------------|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
-| 1.8.0_181    | [DCEVM-8u181-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u181-installer.jar) | [DCEVM-8u181-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u181-installer.jar) |
-| 1.8.0_172    | [DCEVM-8u172-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u172-installer.jar) | [DCEVM-8u172-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u172-installer.jar) |
-| 1.8.0_152    | [DCEVM-8u152-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u152-installer.jar) | [DCEVM-8u152-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u152-installer.jar) |
-| 1.8.0_144    | [DCEVM-8u144-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u144-installer.jar) | [DCEVM-8u144-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u144-installer.jar) |
-| 1.8.0_112    | [DCEVM-8u112-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u112-installer.jar) | [DCEVM-8u112-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u112-installer.jar) |
-| 1.8.0_92     | [DCEVM-8u92-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u92-installer.jar)   | [DCEVM-8u92-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u92-installer.jar)   |
-| 1.8.0_74     | [DCEVM-8u74-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u74-installer.jar)   | [DCEVM-8u74-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u74-installer.jar)   |
-| 1.8.0_66     | [DCEVM-8u66-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u66-installer.jar)   | [DCEVM-8u66-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u66-installer.jar)   |
-| 1.8.0_51     | [DCEVM-8u51-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u51-installer.jar)   | [DCEVM-8u51-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u51-installer.jar)   |
-| 1.8.0_45     | [DCEVM-8u45-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u45-installer.jar)   | [DCEVM-8u45-installer.jar](https://github.com/future0923/debug-tools/releases/download/dcevm-installer/DCEVM-8u45-installer.jar)   |
+| 1.8.0_181    | [DCEVM-8u181-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u181-installer.jar) | [DCEVM-8u181-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u181-installer.jar) |
+| 1.8.0_172    | [DCEVM-8u172-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u172-installer.jar) | [DCEVM-8u172-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u172-installer.jar) |
+| 1.8.0_152    | [DCEVM-8u152-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u152-installer.jar) | [DCEVM-8u152-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u152-installer.jar) |
+| 1.8.0_144    | [DCEVM-8u144-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u144-installer.jar) | [DCEVM-8u144-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u144-installer.jar) |
+| 1.8.0_112    | [DCEVM-8u112-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u112-installer.jar) | [DCEVM-8u112-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u112-installer.jar) |
+| 1.8.0_92     | [DCEVM-8u92-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u92-installer.jar)   | [DCEVM-8u92-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u92-installer.jar)   |
+| 1.8.0_74     | [DCEVM-8u74-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u74-installer.jar)   | [DCEVM-8u74-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u74-installer.jar)   |
+| 1.8.0_66     | [DCEVM-8u66-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u66-installer.jar)   | [DCEVM-8u66-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u66-installer.jar)   |
+| 1.8.0_51     | [DCEVM-8u51-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u51-installer.jar)   | [DCEVM-8u51-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u51-installer.jar)   |
+| 1.8.0_45     | [DCEVM-8u45-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u45-installer.jar)   | [DCEVM-8u45-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u45-installer.jar)   |
 
 Run the corresponding `java -jar DCEVM-8uXX-installer.jar` file, find the corresponding version, and click the `Install DCEVM as altjvm` button.
 
@@ -110,16 +110,16 @@ Please install or use the JRE or JDK that contains these missing components.
 
 Download the corresponding version file and rename it to `libjvm.so` and put it in the directory extracted above.
 
-| java version | download by debug tools                                             | [download by github](https://github.com/future0923/debug-tools/releases/tag/libjvm.so)             |
+| java version | download by debug tools                                             | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/libjvm.so)             |
 |--------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| >= 1.8.0_181 | [libjvm181.so](https://download.debug-tools.cc/libjvm/libjvm181.so) | [libjvm181.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm181.so) |
-| 1.8.0_172    | [libjvm172.so](https://download.debug-tools.cc/libjvm/libjvm172.so) | [libjvm172.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm172.so) |
-| 1.8.0_152    | [libjvm152.so](https://download.debug-tools.cc/libjvm/libjvm152.so) | [libjvm152.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm152.so) |
-| 1.8.0_144    | [libjvm144.so](https://download.debug-tools.cc/libjvm/libjvm144.so) | [libjvm144.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm144.so) |
-| 1.8.0_112    | [libjvm112.so](https://download.debug-tools.cc/libjvm/libjvm112.so) | [libjvm112.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm112.so) |
-| 1.8.0_92     | [libjvm92.so](https://download.debug-tools.cc/libjvm/libjvm92.so)   | [libjvm92.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm92.so)   |
-| 1.8.0_74     | [libjvm74.so](https://download.debug-tools.cc/libjvm/libjvm74.so)   | [libjvm74.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm74.so)   |
-| <= 1.8.0_66  | [libjvm66.so](https://download.debug-tools.cc/libjvm/libjvm66.so)   | [libjvm66.so](https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm66.so)   |
+| >= 1.8.0_181 | [libjvm181.so](https://download.debug-tools.cc/libjvm/libjvm181.so) | [libjvm181.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm181.so) |
+| 1.8.0_172    | [libjvm172.so](https://download.debug-tools.cc/libjvm/libjvm172.so) | [libjvm172.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm172.so) |
+| 1.8.0_152    | [libjvm152.so](https://download.debug-tools.cc/libjvm/libjvm152.so) | [libjvm152.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm152.so) |
+| 1.8.0_144    | [libjvm144.so](https://download.debug-tools.cc/libjvm/libjvm144.so) | [libjvm144.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm144.so) |
+| 1.8.0_112    | [libjvm112.so](https://download.debug-tools.cc/libjvm/libjvm112.so) | [libjvm112.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm112.so) |
+| 1.8.0_92     | [libjvm92.so](https://download.debug-tools.cc/libjvm/libjvm92.so)   | [libjvm92.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm92.so)   |
+| 1.8.0_74     | [libjvm74.so](https://download.debug-tools.cc/libjvm/libjvm74.so)   | [libjvm74.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm74.so)   |
+| <= 1.8.0_66  | [libjvm66.so](https://download.debug-tools.cc/libjvm/libjvm66.so)   | [libjvm66.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm66.so)   |
 
 :::
 
@@ -171,7 +171,7 @@ https://download.debug-tools.cc/debug-tools-agent.jar
 ```
 
 ```sh [Manual build]
-git clone https://github.com/future0923/debug-tools.git
+git clone https://github.com/java-hot-deploy/debug-tools.git
 cd debug-tools
 # Currently, maven packaging needs to be built using the `java17+` version.
 mvn clean install -T 2C -Dmaven.test.skip=true
@@ -180,7 +180,7 @@ mvn clean install -T 2C -Dmaven.test.skip=true
 ```
 
 ```text [github]
-https://github.com/future0923/debug-tools/releases
+https://github.com/java-hot-deploy/debug-tools/releases
 ```
 
 ```text [gitee]
@@ -200,7 +200,7 @@ https://download.debug-tools.cc/debug-tools-boot.jar
 ```
 
 ```sh [Manual build]
-git clone https://github.com/future0923/debug-tools.git
+git clone https://github.com/java-hot-deploy/debug-tools.git
 cd debug-tools
 # Currently, maven packaging needs to be built using the `java17+` version.
 mvn clean install -T 2C -Dmaven.test.skip=true
@@ -209,7 +209,7 @@ mvn clean install -T 2C -Dmaven.test.skip=true
 ```
 
 ```text [github]
-https://github.com/future0923/debug-tools/releases
+https://github.com/java-hot-deploy/debug-tools/releases
 ```
 
 ```text [gitee]
