@@ -28,6 +28,8 @@ public interface ProjectConstants {
 
     String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
 
+    String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
+
     String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
 
     String CONFIG_FILE = "debug-tools.properties";
