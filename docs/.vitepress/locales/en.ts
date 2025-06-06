@@ -18,7 +18,7 @@ export const en = defineConfig({
       level: 'deep',
     },
     editLink: {
-      pattern: 'https://github.com/future0923/debug-tools/edit/main/docs/:path',
+      pattern: 'https://github.com/java-hot-deploy/debug-tools/edit/main/docs/:path',
       text: 'Edit this page on GitHub'
     },
     sidebar: {
@@ -32,11 +32,11 @@ export const en = defineConfig({
       }
     },
     socialLinks: [
-      {icon: 'github', link: 'https://github.com/future0923/debug-tools'},
+      {icon: 'github', link: 'https://github.com/java-hot-deploy/debug-tools'},
       {icon: 'gitee', link: 'https://gitee.com/future94/debug-tools'},
     ],
     footer: {
-      message: `Released under the Apache License | Copyright © 2024-${new Date().getFullYear()} <a href="https://github.com/future0923/" target="_blank">Future0923</a>`,
+      message: `Released under the Apache License | Copyright © 2024-${new Date().getFullYear()} <a href="https://github.com/java-hot-deploy/" target="_blank">Future0923</a>`,
       copyright: '<a href="https://beian.miit.gov.cn/" target="_blank">Ji ICP No.2024021764-1</a> | <img src="/icon/beian.png" alt="" style="display: inline-block; width: 18px; height: 18px; vertical-align: middle;" /> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=22010302000528" rel="noreferrer" target="_blank">Ji internet security 22010302000528</a>'
     },
   }
@@ -66,7 +66,7 @@ function nav(): DefaultTheme.NavItem[] {
         },
         {
           text: 'DeepWiki',
-          link: 'https://deepwiki.com/future0923/debug-tools'
+          link: 'https://deepwiki.com/java-hot-deploy/debug-tools'
         }
       ]
     }

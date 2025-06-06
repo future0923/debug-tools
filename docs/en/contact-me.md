@@ -2,7 +2,7 @@
 
 ## Issue
 
-Submit [Issue](https://github.com/future0923/debug-tools/issues), I will handle it as soon as I see it.
+Submit [Issue](https://github.com/java-hot-deploy/debug-tools/issues), I will handle it as soon as I see it.
 
 ## Email
 

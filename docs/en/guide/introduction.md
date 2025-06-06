@@ -3,7 +3,7 @@
 DebugTools is a Java development and debugging plug-in integrated into IntelliJ IDEA, focusing on improving development efficiency and shortening debugging cycles.
 
 <div class="tip custom-block" style="padding-top: 8px">
-The plug-in is complex to implement and requires a lot of compatibility. If this project helps you save development time, you might as well click <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>. Your recognition will make more people discover it, and your support is my motivation for updating. If it doesn't work, please submit <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> to give us some feedback.
+The plug-in is complex to implement and requires a lot of compatibility. If this project helps you save development time, you might as well click <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools"><img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>. Your recognition will make more people discover it, and your support is my motivation for updating. If it doesn't work, please submit <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/java-hot-deploy/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> to give us some feedback.
 </div>
 
 ## Use cases {#use-cases}
@@ -17,4 +17,4 @@ The plug-in is complex to implement and requires a lot of compatibility. If this
 - [groovy](groovy-execute): Execute Groovy scripts, you can run code to get or modify attached application information for debugging.
 - ......
 
-If you have customization needs, you can submit [issue](https://github.com/future0923/debug-tools/issues) feedback.
+If you have customization needs, you can submit [issue](https://github.com/java-hot-deploy/debug-tools/issues) feedback.
