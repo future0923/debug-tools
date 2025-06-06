@@ -30,7 +30,7 @@
 
 ## 让项目运行起来
 
-访问 [GitHub](https://github.com/future0923/debug-tools) 仓库 fork 本项目，然后 clone 到本地。
+访问 [GitHub](https://github.com/java-hot-deploy/debug-tools) 仓库 fork 本项目，然后 clone 到本地。
 
 项目依赖
 - Java 17+
@@ -40,4 +40,4 @@
 
 ## 提交项目
 
-在 fork 项目开发完成后提交 [Pull Request](https://github.com/future0923/debug-tools/pulls) 即可 
+在 fork 项目开发完成后提交 [Pull Request](https://github.com/java-hot-deploy/debug-tools/pulls) 即可 
