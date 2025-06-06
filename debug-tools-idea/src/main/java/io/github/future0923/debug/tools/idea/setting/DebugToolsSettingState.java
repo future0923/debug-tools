@@ -22,6 +22,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
@@ -33,11 +34,12 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import q.q.f.S;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -119,6 +121,16 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      * 是否自动附着当前项目启动的应用
      */
     private Boolean autoAttach = false;
+
+
+    /**
+     * 远程应用名称
+     */
+    private String remoteName;
+    /**
+     * 远程应用列表
+     */
+    private Map<String, String> remoteHosts = new LinkedHashMap<>();
 
     @Override
     public @Nullable DebugToolsSettingState getState() {
@@ -222,5 +234,20 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     public String getUrl(String uri, boolean local) {
         return  "http://" + (local ? "127.0.0.1" : getRemoteHost()) + ":" + (local ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
+    }
+
+
+    public void saveHost() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("host", getRemoteHost());
+        map.put("tcpPort", getRemoteTcpPort());
+        map.put("httpPort", getRemoteHttpPort());
+        String name  = StringUtils.isBlank(getRemoteName())? getRemoteHost()+"@"+getRemoteTcpPort() : getRemoteName();
+        map.put("name", name);
+        getRemoteHosts().put(name, JSONUtil.toJsonStr(map));
+    }
+
+    public void delAllHost() {
+        getRemoteHosts().clear();
     }
 }
