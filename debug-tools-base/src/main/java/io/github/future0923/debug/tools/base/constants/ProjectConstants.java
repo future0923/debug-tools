@@ -20,11 +20,11 @@ package io.github.future0923.debug.tools.base.constants;
  */
 public interface ProjectConstants {
 
-    Boolean DEBUG = false;
+    Boolean DEBUG = true;
 
     String NAME = "DebugTools";
 
-    String VERSION = "4.0.0";
+    String VERSION = "4.1.0-SNAPSHOT";
 
     String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
 

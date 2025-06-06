@@ -1,7 +1,7 @@
 # 热重载 <Badge type="warning" text="beta" /> {#hot-reload} 
 
 ::: info
-热重载实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。如果不生效麻烦提交 <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下。
+热重载实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools"><img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。如果不生效麻烦提交 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/java-hot-deploy/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下。
 :::
 
 传统编写代码时，需要重启应用才能生效，而热重载可以在不重启应用下让编写的代码生效立刻，让开发者编写的代码改动瞬间生效，极大提升迭代效率。支持类(包括代理类)的属性和方法变动、Spring、Mybatis等主流框架。同时适配 jdk8、jdk11、jdk17、jdk21 等多个JDK版本。
@@ -170,4 +170,4 @@ MyBatisPlus 目前支持在 `Spring` 环境下，其他情况未知。
 
 ### 3.13 其他
 
-其他情况热重载尝试一下，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/future0923/debug-tools/issues) 反馈一下。
+其他情况热重载尝试一下，这里不一一举例了，如果不能生效麻烦提交个 [issues](https://github.com/java-hot-deploy/debug-tools/issues) 反馈一下。

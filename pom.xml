@@ -11,7 +11,7 @@
 
     <name>debug-tools</name>
     <description>Debug tools.</description>
-    <url>https://github.com/future0923/debug-tools</url>
+    <url>https://github.com/java-hot-deploy/debug-tools</url>
 
     <licenses>
         <license>
@@ -22,27 +22,27 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/future0923/debug-tools</url>
-        <connection>scm:git:https://github.com/future0923/debug-tools.git</connection>
-        <developerConnection>scm:git:https://github.com/future0923/debug-tools.git</developerConnection>
+        <url>https://github.com/java-hot-deploy/debug-tools</url>
+        <connection>scm:git:https://github.com/java-hot-deploy/debug-tools.git</connection>
+        <developerConnection>scm:git:https://github.com/java-hot-deploy/debug-tools.git</developerConnection>
         <tag>${project.version}</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/future0923/debug-tools/issues</url>
+        <url>https://github.com/java-hot-deploy/debug-tools/issues</url>
     </issueManagement>
 
     <developers>
         <developer>
             <id>future0923</id>
-            <name>wei lai</name>
+            <name>future0923</name>
             <url>https://github.com/future0923</url>
         </developer>
     </developers>
 
     <properties>
-        <revision>4.0.0</revision>
+        <revision>4.1.0-SNAPSHOT</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -4,80 +4,84 @@ aside: false
 ---
 # 版本迭代记录
 
-## [4.0.0](https://github.com/future0923/debug-tools/compare/v3.4.4...v4.0.0)(2025-06-03)
+## [4.0.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.0...v4.0.1) (2025-06-04)
+
+- 修复 Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug
+
+## [4.0.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.4...v4.0.0) (2025-06-03)
 
 - 增加热部署功能，实现秒级一键热更新远程应用代码。
 - 增加远程动态编译功能，热部署、热重载时可以选择本地Idea编译还是远程应用动态编译代码
 - 增加默认类加载器选择功能，执行热部署、热重载、Groovy脚本时可以选择类加载器
-- 增加[dynamic-datasource](https://github.com/baomidou/dynamic-datasource)动态数据源 `@DS` 注解热重载([#8](https://github.com/future0923/debug-tools/issues/8))
-- 增加[hutool](https://hutool.cn)工具包热重载([#48](https://github.com/future0923/debug-tools/issues/48))
-- 增加[Gson](https://github.com/google/gson)工具包热重载([#49](https://github.com/future0923/debug-tools/issues/49))
-- 增加[EasyExcel](https://github.com/alibaba/easyexcel)工具包热重载([#46](https://github.com/future0923/debug-tools/issues/46))
-- 增加[FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)工具包热重载([#56](https://github.com/future0923/debug-tools/issues/56))
-- 增加[Jackson](https://github.com/FasterXML/jackson-databind)工具包热重载([#50](https://github.com/future0923/debug-tools/issues/50))
-- 增加[hibernate-validator](https://github.com/hibernate/hibernate-validator)工具包热重载([#60](https://github.com/future0923/debug-tools/issues/60))
+- 增加[dynamic-datasource](https://github.com/baomidou/dynamic-datasource)动态数据源 `@DS` 注解热重载
+- 增加[hutool](https://hutool.cn)工具包热重载
+- 增加[Gson](https://github.com/google/gson)工具包热重载
+- 增加[EasyExcel](https://github.com/alibaba/easyexcel)工具包热重载
+- 增加[FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://github.com/alibaba/fastjson2)工具包热重载
+- 增加[Jackson](https://github.com/FasterXML/jackson-databind)工具包热重载
+- 增加[hibernate-validator](https://github.com/hibernate/hibernate-validator)工具包热重载
 - 重构调用方法功能，远程调用支持热部署后类
-- 支持调用两级以上内部类方法([#43](https://github.com/future0923/debug-tools/issues/43))
-- 自动附着当前项目启动应用([#58](https://github.com/future0923/debug-tools/issues/58))
+- 支持调用两级以上内部类方法
+- 自动附着当前项目启动应用
 - 优化心跳逻辑
 - 优化 http 超时时间
-- 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG([#38](https://github.com/future0923/debug-tools/issues/38))
+- 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG
 
-## [3.4.4](https://github.com/future0923/debug-tools/compare/v3.4.3...v3.4.4) (2025-04-22)
+## [3.4.4](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.3...v3.4.4) (2025-04-22)
 
-- 支持 intellij idea 2025.1 版本([#37](https://github.com/future0923/debug-tools/issues/37)).
+- 支持 intellij idea 2025.1 版本
 
-## [3.4.3](https://github.com/future0923/debug-tools/compare/v3.4.2...v3.4.3) (2025-04-01)
+## [3.4.3](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.2...v3.4.3) (2025-04-01)
 
-- 修复文件夹下只有一个 Controller 文件时改名热重载失败的BUG([#31](https://github.com/future0923/debug-tools/issues/31)).
-- 修改 JDK21 热重载启动失败的BUG([#30](https://github.com/future0923/debug-tools/issues/30)).
-- 修改 WebFlux 无法调用的BUB([#29](https://github.com/future0923/debug-tools/issues/29)).
+- 修复文件夹下只有一个 Controller 文件时改名热重载失败的BUG
+- 修改 JDK21 热重载启动失败的BUG
+- 修改 WebFlux 无法调用的BUB
 
-## [3.4.2](https://github.com/future0923/debug-tools/compare/v3.4.1...v3.4.2) (2025-03-17)
+## [3.4.2](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.1...v3.4.2) (2025-03-17)
 
-- 增加按钮触发编译 XML 文件以触发([#21](https://github.com/future0923/debug-tools/issues/21)).
-- 修复 Controller 文件重命名时无法触发热重载的BUG([#23](https://github.com/future0923/debug-tools/issues/23)).
-- 修复连接远程应用失败的BUG([#27](https://github.com/future0923/debug-tools/issues/27)).
+- 增加按钮触发编译 XML 文件以触发
+- 修复 Controller 文件重命名时无法触发热重载的BUG
+- 修复连接远程应用失败的BUG
 
-## [3.4.1](https://github.com/future0923/debug-tools/compare/v3.4.0...v3.4.1) (2025-02-27)
+## [3.4.1](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.0...v3.4.1) (2025-02-27)
 
-- 修复多个 MyBatis Mapper 热重载时 ConcurrentModificationException 的BUG([#20](https://github.com/future0923/debug-tools/issues/20)).
+- 修复多个 MyBatis Mapper 热重载时 ConcurrentModificationException 的BUG
 
-## [3.4.0](https://github.com/future0923/debug-tools/compare/v3.3.0...v3.4.0) (2025-02-20)
+## [3.4.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.3.0...v3.4.0) (2025-02-20)
 
-- 热重载支持支持 static 变量、static final 变量、static 代码块([#10](https://github.com/future0923/debug-tools/issues/10)).
-- 热重载支持支持 Enum([#10](https://github.com/future0923/debug-tools/issues/10))
-- 修复在Spring环境中无法调用非Bean类的BUG([#16](https://github.com/future0923/debug-tools/issues/16)).
+- 热重载支持支持 static 变量、static final 变量、static 代码块
+- 热重载支持支持 Enum
+- 修复在Spring环境中无法调用非Bean类的BUG
 
-## [3.3.0](https://github.com/future0923/debug-tools/compare/v3.2.0...v3.3.0) (2025-02-11)
+## [3.3.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.2.0...v3.3.0) (2025-02-11)
 
 - 热重载支持 MyBatis Plus 增加Entity、修改Entity、增加Mapper、修改Mapper、增加xml、修改xml.
 - 热重载支持 MyBatis 增加Mapper、修改Mapper、增加xml、修改xml.
-- 增加通过默认类加载器执行上一次功能([#12](https://github.com/future0923/debug-tools/issues/12)).
-- 修复开启SQL打印时无法执行Maven命令的BUG([#7](https://github.com/future0923/debug-tools/issues/7)).
+- 增加通过默认类加载器执行上一次功能
+- 修复开启SQL打印时无法执行Maven命令的BUG
 
-## [3.2.0](https://github.com/future0923/debug-tools/compare/v3.1.2...v3.2.0) (2025-01-09)
+## [3.2.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.1.2...v3.2.0) (2025-01-09)
 
 - 增加热重载功能，无需重启应用即可使编写的代码生效。
 
-## [3.1.2](https://github.com/future0923/debug-tools/compare/v3.1.1...v3.1.2) (2024-12-30)
+## [3.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v3.1.1...v3.1.2) (2024-12-30)
 
-- 修复移除 ContextPath 失败的BUG([#3](https://github.com/future0923/debug-tools/issues/3)).
-- 修复多个项目共享一个附加按钮的 bug([#4](https://github.com/future0923/debug-tools/issues/4)).
+- 修复移除 ContextPath 失败的BUG
+- 修复多个项目共享一个附加按钮的 bug
 
-## [3.1.1](https://github.com/future0923/debug-tools/compare/v3.1.0...v3.1.1) (2024-12-18)
+## [3.1.1](https://github.com/java-hot-deploy/debug-tools/compare/v3.1.0...v3.1.1) (2024-12-18)
 
 - 搜索 http url时可以移除 ContextPath 信息
 - 修复没有 http(s) 时无法匹配域名的BUG
 
-## [3.1.0](https://github.com/future0923/debug-tools/compare/v3.0.1...v3.1.0) (2024-12-17)
+## [3.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.0.1...v3.1.0) (2024-12-17)
 
 - 增加搜索 http url功能.
 - 修复远程应用时 Groovy 执行时无法获取默认类加载器的BUG.
 - 修复 DebugToolsClassLoader 重复加载 AppClassLoader 基础包导致使用 DefaultClassLoader 抛出异常的BUG。
-- 优化日志打印([#2](https://github.com/future0923/debug-tools/issues/2))
+- 优化日志打印
 
-## [3.0.1](https://github.com/future0923/debug-tools/compare/v3.0.0...v3.0.1) (2024-12-12)
+## [3.0.1](https://github.com/java-hot-deploy/debug-tools/compare/v3.0.0...v3.0.1) (2024-12-12)
 
 - 支持 intellij idea 2024.3 版本.
 - 修复远程应用时 Groovy 执行时无法获取默认类加载器的BUG.
