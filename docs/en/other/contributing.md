@@ -30,7 +30,7 @@ Even small corrections to typos or corrections to 404 links are very welcome :)
 
 ## Get the project running
 
-Visit the [GitHub](https://github.com/future0923/debug-tools) repository to fork this project, and then clone it locally.
+Visit the [GitHub](https://github.com/java-hot-deploy/debug-tools) repository to fork this project, and then clone it locally.
 
 Project Dependencies
 - Java 17+
@@ -40,4 +40,4 @@ Project Dependencies
 
 ## Submit Project
 
-Submit [Pull Request](https://github.com/future0923/debug-tools/pulls) after the fork project is developed
+Submit [Pull Request](https://github.com/java-hot-deploy/debug-tools/pulls) after the fork project is developed

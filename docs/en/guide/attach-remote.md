@@ -11,7 +11,7 @@ https://download.debug-tools.cc/debug-tools-boot.jar
 ```
 
 ```sh [Build manually]
-git clone https://github.com/future0923/debug-tools.git
+git clone https://github.com/java-hot-deploy/debug-tools.git
 cd debug-tools
 mvn clean install -T 2C -Dmaven.test.skip=true
 # dist dir
@@ -19,7 +19,7 @@ mvn clean install -T 2C -Dmaven.test.skip=true
 ```
 
 ```text [github]
-https://github.com/future0923/debug-tools/releases
+https://github.com/java-hot-deploy/debug-tools/releases
 ```
 
 ```text [gitee]
