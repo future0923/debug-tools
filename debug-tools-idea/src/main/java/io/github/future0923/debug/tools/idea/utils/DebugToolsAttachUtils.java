@@ -74,7 +74,7 @@ public class DebugToolsAttachUtils {
     public static void attachRemote(Project project, String host, int tcpPort) {
         HttpClientUtils.removeAllClassLoaderCache(project);
         try {
-            String applicationName = HttpClientUtils.getApplicationName(project, true);
+            String applicationName = HttpClientUtils.getApplicationName(project, false);
             DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {

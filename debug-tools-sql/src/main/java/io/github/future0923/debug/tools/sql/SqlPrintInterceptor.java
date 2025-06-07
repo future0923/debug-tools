@@ -125,6 +125,7 @@ public class SqlPrintInterceptor {
         } else {
             resultSql = sql;
         }
-        logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, SqlFormatter.format(resultSql));
+//        logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, SqlFormatter.format(resultSql));
+        logger.info("Execute consume Time: {} ms; Execute SQL: {}", consume, resultSql);
     }
 }
