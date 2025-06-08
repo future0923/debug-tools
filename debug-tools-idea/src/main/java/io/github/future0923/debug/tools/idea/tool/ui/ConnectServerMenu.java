@@ -143,10 +143,8 @@ public class ConnectServerMenu extends JBPopupMenu {
     }
 
     private void showLastHosts2(DebugToolsSettingState settingState) {
-        // 主面板使用垂直Box布局
         historyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         historyPanel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 1000));
-        // 添加滚动面板
         JScrollPane scrollPane = new JBScrollPane(historyPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -187,14 +185,11 @@ public class ConnectServerMenu extends JBPopupMenu {
             }
         });
 
-        // 文本标签
         JLabel label = new JLabel(entry.getKey());
 
-        // 按钮面板
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
-        // 编辑按钮
-        JButton editButton = new JButton("连接");
+        JButton editButton = new JButton("Connect");
         editButton.addActionListener(e -> {
             settingState.setRemoteName(entry.getValue());
             settingState.setRemoteHost(hostInfo.getStr("host"));
@@ -209,8 +204,7 @@ public class ConnectServerMenu extends JBPopupMenu {
             this.setVisible(false);
         });
 
-        // 删除按钮
-        JButton deleteButton = new JButton("删除");
+        JButton deleteButton = new JButton("Remove");
         deleteButton.addActionListener(e -> {
             settingState.getRemoteHosts().remove(entry.getKey());
             parent.remove(panel);
