@@ -83,6 +83,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     private Boolean printSql = false;
 
     /**
+     * 打印SQL类型 0 not 1 pretty 2 compress
+     */
+    private Integer printSqlType = 0;
+
+    /**
      * 是否附着的本地应用
      */
     private boolean local;
