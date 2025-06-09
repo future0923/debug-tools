@@ -20,6 +20,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -69,10 +70,13 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (GenParamType.ALL.equals(settingState.getDefaultGenParamType()) && !settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             return true;
         }
-        if (settingState.getPrintSql() && settingPanel.getPrintSqlNo().isSelected()) {
+        if ((PrintSqlType.PRETTY.equals(settingState.getPrintSql()) || PrintSqlType.YES.equals(settingState.getPrintSql())) && !settingPanel.getPrintPrettySql().isSelected()) {
             return true;
         }
-        if (!settingState.getPrintSql() && settingPanel.getPrintSqlYes().isSelected()) {
+        if (PrintSqlType.COMPRESS.equals(settingState.getPrintSql()) && !settingPanel.getPrintCompressSql().isSelected()) {
+            return true;
+        }
+        if (PrintSqlType.NO.equals(settingState.getPrintSql()) && !settingPanel.getPrintNoSql().isSelected()) {
             return true;
         }
         if (settingState.getAutoAttach() && settingPanel.getAutoAttachNo().isSelected()) {
@@ -99,11 +103,17 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (GenParamType.ALL.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeAll().setSelected(true);
         }
-        if (settingState.getPrintSql()) {
-            settingPanel.getPrintSqlYes().setSelected(true);
-        } else {
-            settingPanel.getPrintSqlNo().setSelected(true);
+
+        if (PrintSqlType.PRETTY.equals(settingState.getPrintSql()) || PrintSqlType.YES.equals(settingState.getPrintSql())) {
+            settingPanel.getPrintPrettySql().setSelected(true);
         }
+        if (PrintSqlType.COMPRESS.equals(settingState.getPrintSql())) {
+            settingPanel.getPrintCompressSql().setSelected(true);
+        }
+        if (PrintSqlType.NO.equals(settingState.getPrintSql())) {
+            settingPanel.getPrintNoSql().setSelected(true);
+        }
+
         if (settingState.getAutoAttach()) {
             settingPanel.getAutoAttachYes().setSelected(true);
         } else {
@@ -124,15 +134,21 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.ALL);
         }
-        if (settingPanel.getPrintSqlYes().isSelected()) {
-            if (!settingState.getPrintSql()) {
-                DebugToolsNotifierUtil.notifyInfo(project, "To start printing SQL statements, you need to restart App Service.");
-            }
-            settingState.setPrintSql(true);
+
+
+        if (settingPanel.getPrintPrettySql().isSelected() && !PrintSqlType.PRETTY.equals(settingState.getPrintSql())) {
+            settingState.setPrintSql(PrintSqlType.PRETTY);
+                DebugToolsNotifierUtil.notifyInfo(project, "You've set it to pretty sql, you need to restart App Service.");
         }
-        if (settingPanel.getPrintSqlNo().isSelected()) {
-            settingState.setPrintSql(false);
+        if (settingPanel.getPrintCompressSql().isSelected() && !PrintSqlType.COMPRESS.equals(settingState.getPrintSql())) {
+            settingState.setPrintSql(PrintSqlType.COMPRESS);
+            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to compress sql, you need to restart App Service.");
         }
+        if (settingPanel.getPrintNoSql().isSelected() && !PrintSqlType.NO.equals(settingState.getPrintSql())) {
+            settingState.setPrintSql(PrintSqlType.NO);
+            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to no print sql, you need to restart App Service.");
+        }
+
         if (settingPanel.getAutoAttachYes().isSelected()) {
             settingState.setAutoAttach(true);
         }
