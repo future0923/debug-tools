@@ -22,6 +22,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
@@ -78,7 +79,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 是否打印SQL
      */
-    private Boolean printSql = false;
+    private PrintSqlType printSql;
 
     /**
      * 是否附着的本地应用
@@ -215,6 +216,15 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         clearGlobalHeaderCache();
     }
 
+    /**
+     * 从string YES | NO 升级为 PrintSqlType，默认为 NO
+     */
+    public PrintSqlType getPrintSql() {
+        if (printSql == null) {
+            setPrintSql(PrintSqlType.NO);
+        }
+        return printSql;
+    }
 
     public String getUrl(String uri) {
         return getUrl(uri, isLocal());

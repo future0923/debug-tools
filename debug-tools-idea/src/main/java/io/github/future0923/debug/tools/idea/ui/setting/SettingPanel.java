@@ -21,6 +21,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import lombok.Getter;
@@ -46,9 +47,11 @@ public class SettingPanel {
     private final JBRadioButton defaultGenParamTypeAll = new JBRadioButton(GenParamType.ALL.getType());
 
     @Getter
-    private final JBRadioButton printSqlYes = new JBRadioButton("Yes");
+    private final JBRadioButton printPrettySql = new JBRadioButton(PrintSqlType.PRETTY.getType());
     @Getter
-    private final JBRadioButton printSqlNo = new JBRadioButton("No");
+    private final JBRadioButton printCompressSql = new JBRadioButton(PrintSqlType.COMPRESS.getType());
+    @Getter
+    private final JBRadioButton printNoSql = new JBRadioButton(PrintSqlType.NO.getType());
 
     @Getter
     private final JBRadioButton autoAttachYes = new JBRadioButton("Yes");
@@ -81,15 +84,19 @@ public class SettingPanel {
         }
 
         JPanel printSqlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        printSqlPanel.add(printSqlYes);
-        printSqlPanel.add(printSqlNo);
+        printSqlPanel.add(printPrettySql);
+        printSqlPanel.add(printCompressSql);
+        printSqlPanel.add(printNoSql);
         ButtonGroup printSqlButtonGroup = new ButtonGroup();
-        printSqlButtonGroup.add(printSqlYes);
-        printSqlButtonGroup.add(printSqlNo);
-        if (settingState.getPrintSql()) {
-            printSqlYes.setSelected(true);
+        printSqlButtonGroup.add(printPrettySql);
+        printSqlButtonGroup.add(printCompressSql);
+        printSqlButtonGroup.add(printNoSql);
+        if (PrintSqlType.PRETTY.equals(settingState.getPrintSql()) || PrintSqlType.YES.equals(settingState.getPrintSql())) {
+            printPrettySql.setSelected(true);
+        } else if (PrintSqlType.COMPRESS.equals(settingState.getPrintSql())) {
+            printCompressSql.setSelected(true);
         } else {
-            printSqlNo.setSelected(true);
+            printNoSql.setSelected(true);
         }
 
         JPanel autoAttachPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -118,7 +125,7 @@ public class SettingPanel {
                         defaultGenParamType
                 )
                 .addLabeledComponent(
-                        new JBLabel("Print pretty sql:"),
+                        new JBLabel("Print sql:"),
                         printSqlPanel
                 )
                 .addLabeledComponent(

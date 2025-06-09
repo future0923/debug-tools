@@ -28,6 +28,7 @@ import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -79,7 +80,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         log.debug("Applying HotSwapAgent to configuration " + (configuration != null ? configuration.getName() : ""));
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         String agentPath = settingState.loadAgentPath(project);
-        if (settingState.getPrintSql() || settingState.getHotswap()) {
+        if (!PrintSqlType.NO.equals(settingState.getPrintSql()) || settingState.getHotswap()) {
             AgentArgs agentArgs = new AgentArgs();
             agentArgs.setServer(Boolean.FALSE.toString());
             if (settingState.getHotswap()) {
@@ -123,7 +124,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                     }
                 }
             }
-            agentArgs.setPrintSql(settingState.getPrintSql().toString());
+            agentArgs.setPrintSql(settingState.getPrintSql().getType());
             agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
             if (settingState.getAutoAttach()) {
                 String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
