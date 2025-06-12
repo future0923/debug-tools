@@ -15,6 +15,9 @@
  */
 package io.github.future0923.debug.tools.base.utils;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -512,6 +515,13 @@ public class DebugToolsFileUtils {
             throw new RuntimeException(e);
         }
         return file;
+    }
+
+    /**
+     * 获取自动附加文件
+     */
+    public static File getAutoAttachFile() {
+        return FileUtil.touch(FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE);
     }
 
 }

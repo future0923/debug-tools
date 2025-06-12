@@ -17,9 +17,11 @@ package io.github.future0923.debug.tools.attach;
 
 import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
@@ -31,11 +33,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 /**
@@ -68,8 +65,8 @@ public class DebugToolsAttach {
         if (parse.getLogLevel() != null) {
             Logger.setLevel(parse.getLogLevel());
         }
-        if (Objects.equals(parse.getPrintSql(), "true")) {
-            SqlPrintByteCodeEnhance.enhance(inst);
+        if (PrintSqlType.isPrint(parse.getPrintSql())) {
+            SqlPrintByteCodeEnhance.enhance(inst, parse.getPrintSql());
         }
         if (Objects.equals(parse.getHotswap(), "true")) {
             HotswapAgent.init(parse, inst);
@@ -135,13 +132,6 @@ public class DebugToolsAttach {
     }
 
     private static void autoAttach() throws IOException {
-        String file = FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE;
-        FileUtil.touch(file);
-        try (FileChannel channel = FileChannel.open(Paths.get(file), StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1);
-            buffer.put("1".getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            logger.error("write {} error", e, file);
-        }
+        FileUtil.writeUtf8String("1", DebugToolsFileUtils.getAutoAttachFile());
     }
 }
