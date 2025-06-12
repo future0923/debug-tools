@@ -15,6 +15,7 @@
  */
 package io.github.future0923.debug.tools.sql;
 
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -45,6 +46,12 @@ public class SqlPrintInterceptor {
     private static final String STATEMENT_PREFIXES = "com.mysql.jdbc.ClientPreparedStatement:";
 
     private static final String CJ_STATEMENT_PREFIXES = "com.mysql.cj.jdbc.ClientPreparedStatement:";
+
+    private static PrintSqlType printSqlType;
+
+    public static void setPrintSqlType(String printSqlType) {
+        SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);;
+    }
 
     @RuntimeType
     public static Object intercept(
@@ -125,6 +132,9 @@ public class SqlPrintInterceptor {
         } else {
             resultSql = sql;
         }
-        logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, SqlFormatter.format(resultSql));
+        if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
+            resultSql = SqlFormatter.format(resultSql);
+        }
+        logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
     }
 }

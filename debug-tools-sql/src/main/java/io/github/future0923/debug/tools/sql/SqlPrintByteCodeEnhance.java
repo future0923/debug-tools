@@ -41,9 +41,11 @@ public class SqlPrintByteCodeEnhance {
     /**
      * 增加字节码让其打印SQL
      *
-     * @param inst instrumentation
+     * @param inst     instrumentation
+     * @param printSql 打印类型
      */
-    public static void enhance(Instrumentation inst) {
+    public static void enhance(Instrumentation inst, String printSql) {
+        SqlPrintInterceptor.setPrintSqlType(printSql);
         new AgentBuilder.Default()
                 .type(ElementMatchers.named("com.mysql.jdbc.NonRegisteringDriver")
                         .or(ElementMatchers.named("com.mysql.cj.jdbc.NonRegisteringDriver"))
