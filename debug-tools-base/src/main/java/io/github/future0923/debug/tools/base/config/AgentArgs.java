@@ -15,6 +15,7 @@
  */
 package io.github.future0923.debug.tools.base.config;
 
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsProperties;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -60,7 +61,7 @@ public class AgentArgs {
     private String applicationName;
 
     /**
-     * 是否打印执行的SQL语句
+     * 是否打印执行的SQL语句 {@link PrintSqlType}
      */
     private String printSql;
 
@@ -164,7 +165,7 @@ public class AgentArgs {
                     server = properties.getProperty("server", "true");
                 }
                 if (DebugToolsStringUtils.isBlank(printSql)) {
-                    printSql = properties.getProperty("printSql", "false");
+                    printSql = properties.getProperty("printSql", PrintSqlType.NO.getType());
                 }
                 if (DebugToolsStringUtils.isBlank(applicationName)) {
                     applicationName = properties.getProperty("applicationName");
