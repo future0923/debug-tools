@@ -135,6 +135,7 @@ public class SqlPrintInterceptor {
         if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
             resultSql = SqlFormatter.format(resultSql);
         }
+
         logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
     }
 }
