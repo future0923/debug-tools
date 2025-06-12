@@ -125,7 +125,7 @@ public class ConnectServerMenu extends JBPopupMenu {
                     settingState.getRemoteTcpPort()
             );
             settingState.setLocal(false);
-            settingState.saveHost();
+            settingState.saveRemoteHost();
         });
 
         JButton delAllBtn = new JButton("DelAll");

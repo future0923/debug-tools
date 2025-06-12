@@ -248,7 +248,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     }
 
 
-    public void saveHost() {
+    public void saveRemoteHost() {
         Map<String, Object> map = new HashMap<>();
         map.put("host", getRemoteHost());
         map.put("tcpPort", getRemoteTcpPort());

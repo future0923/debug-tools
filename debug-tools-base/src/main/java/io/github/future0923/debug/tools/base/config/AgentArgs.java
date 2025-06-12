@@ -171,10 +171,10 @@ public class AgentArgs {
                     applicationName = properties.getProperty("applicationName");
                 }
                 if (DebugToolsStringUtils.isBlank(tcpPort)) {
-                    tcpPort = properties.getProperty("tcpPort", "12345");
+                    tcpPort = properties.getProperty("tcpPort");
                 }
                 if (DebugToolsStringUtils.isBlank(httpPort)) {
-                    httpPort = properties.getProperty("httpPort", "22222");
+                    httpPort = properties.getProperty("httpPort");
                 }
             }
         } catch (Exception e) {
