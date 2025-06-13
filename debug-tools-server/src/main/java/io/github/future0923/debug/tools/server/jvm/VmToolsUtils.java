@@ -82,7 +82,7 @@ public class VmToolsUtils {
     }
 
     public static Object getInstance(Class<?> targetClass, Method targetMethod) {
-        Object instance = VmToolsUtils.getSpringInstance(targetClass);
+        Object instance = getInstance(targetClass);
         if (!Modifier.isPublic(targetMethod.getModifiers())) {
             return DebugToolsEnvUtils.getTargetObject(instance);
         } else {
@@ -97,10 +97,11 @@ public class VmToolsUtils {
     /**
      * 获取实例对象
      * <p>优先通过spring 上下文获取
+     * <p>获取不到从solon 上下文获取
      * <p>获取不到从jvm中获取，如果有多个取第最后一个
      * <p>获取不到调用构造方法创建
      */
-    public static Object getSpringInstance(Class<?> clazz) {
+    public static Object getInstance(Class<?> clazz) {
         try {
             Object firstBean = DebugToolsEnvUtils.getLastBean(clazz);
             if (firstBean != null) {

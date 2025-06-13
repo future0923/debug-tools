@@ -82,7 +82,7 @@ public class SpringParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return VmToolsUtils.getSpringInstance(parameter.getParameterType());
+            return VmToolsUtils.getInstance(parameter.getParameterType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getParameterType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugToolsLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());

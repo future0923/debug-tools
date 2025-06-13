@@ -13,26 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.base.constants;
+package io.github.future0923.debug.tools.test.solon.aop;
+
+import org.noear.solon.annotation.Around;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author future0923
  */
-public interface ProjectConstants {
-
-    Boolean DEBUG = true;
-
-    String NAME = "DebugTools";
-
-    String VERSION = "4.1.0-SNAPSHOT";
-
-    String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
-
-    String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
-
-    String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
-
-    String CONFIG_FILE = "debug-tools.properties";
-
-    String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Around(TestAopInterceptor.class)
+public @interface TestAop {
 }

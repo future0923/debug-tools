@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
-
+package io.github.future0923.debug.tools.hotswap.core.plugin.solon.command;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.EventMergeableCommand;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
-import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
+import io.github.future0923.debug.tools.hotswap.core.plugin.solon.agent.AppContextAgent;
+import io.github.future0923.debug.tools.hotswap.core.plugin.solon.transformer.SolonBeanClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.plugin.solon.transformer.SolonBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * 通过byte[]或者URI刷新SpringBean命令，相同的可以merge
- * <ul>
- * <li>新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
- * <li>修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
+ * 类路径下的bean刷新命令
+ *
+ * @author future0923
  */
 public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPathBeanRefreshCommand> {
 
@@ -48,7 +46,7 @@ public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPath
     private byte[] classDefinition;
 
     /**
-     * 修改的类通过{@link SpringBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
+     * 修改的类通过{@link SolonBeanClassFileTransformer#transform}创建ClassPathBeanRefreshCommand命令
      */
     public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, byte[] classDefinition) {
         this.appClassLoader = appClassLoader;
@@ -58,7 +56,7 @@ public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPath
     }
 
     /**
-     * 新增的类通过{@link SpringBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
+     * 新增的类通过{@link SolonBeanWatchEventListener#onEvent(WatchFileEvent)}来解析{@link FileEvent#CREATE}创建ClassPathBeanRefreshCommand命令
      */
     public ClassPathBeanRefreshCommand(ClassLoader appClassLoader, String basePackage, String className, WatchFileEvent event) {
         this.appClassLoader = appClassLoader;
@@ -73,31 +71,24 @@ public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPath
     }
 
     /**
-     * 反射调用{@link ClassPathBeanDefinitionScannerAgent#refreshClass(String, byte[], String)}刷新spring bean class
+     * 反射调用{@link AppContextAgent#refreshClass(String, Class, String)}刷新Solon bean class
      */
     @Override
     public void executeCommand() {
         if (isDeleteEvent()) {
-            logger.trace("Skip Spring reload for delete event on class '{}'", className);
+            logger.trace("Skip Solon reload for delete event on class '{}'", className);
             return;
         }
         try {
-            if (classDefinition == null) {
-                try {
-                    this.classDefinition = IOUtils.toByteArray(event.getURI());
-                } catch (IllegalArgumentException e) {
-                    logger.debug("File {} not found on filesystem (deleted?). Unable to refresh associated Spring bean.", event.getURI());
-                    return;
-                }
-            }
-            logger.debug("Executing ClassPathBeanDefinitionScannerAgent.refreshClass('{}')", className);
-            Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent", true, appClassLoader);
-            Method method = clazz.getDeclaredMethod("refreshClass", String.class, byte[].class, String.class);
+            Class<?> refreshClass = appClassLoader.loadClass(className);
+            logger.debug("Executing AppContextAgent.refreshClass('{}')", className);
+            Class<?> clazz = Class.forName("io.github.future0923.debug.tools.hotswap.core.plugin.solon.agent.AppContextAgent", true, appClassLoader);
+            Method method = clazz.getDeclaredMethod("refreshClass", String.class, Class.class, String.class);
             String path = null;
             if (event != null) {
                 path = event.getURI().getPath();
             }
-            method.invoke(null, basePackage, classDefinition, path);
+            method.invoke(null, basePackage, refreshClass, path);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Plugin error, method not found", e);
         } catch (InvocationTargetException e) {
@@ -105,7 +96,7 @@ public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPath
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Plugin error, illegal access", e);
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("Plugin error, Spring class not found in application classloader", e);
+            throw new IllegalStateException("Plugin error, Solon class not found in application classloader", e);
         }
 
     }
@@ -138,5 +129,4 @@ public class ClassPathBeanRefreshCommand extends EventMergeableCommand<ClassPath
                 ", className='" + className + '\'' +
                 '}';
     }
-
 }
