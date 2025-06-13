@@ -16,7 +16,7 @@
 package io.github.future0923.debug.tools.server.groovy;
 
 import groovy.lang.Script;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 
 import java.lang.reflect.Array;
@@ -45,7 +45,7 @@ public abstract class DebugToolsGroovyScript extends Script {
      * @return 实例数组
      */
     public <T> T[] getInstances(Class<T> targetClass) {
-        return VmToolsUtils.getInstances(targetClass);
+        return BeanInstanceUtils.getInstances(targetClass);
     }
 
     /**

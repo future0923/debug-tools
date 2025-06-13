@@ -11,4 +11,11 @@
 
     <artifactId>debug-tools-vm</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-base</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 </project>
