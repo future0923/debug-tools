@@ -13,26 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.base.constants;
+package io.github.future0923.debug.tools.test.solon;
+
+import org.noear.solon.Solon;
+import org.noear.solon.annotation.SolonMain;
 
 /**
  * @author future0923
  */
-public interface ProjectConstants {
+@SolonMain
+public class SolonApplication {
 
-    Boolean DEBUG = true;
-
-    String NAME = "DebugTools";
-
-    String VERSION = "4.1.0-SNAPSHOT";
-
-    String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
-
-    String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
-
-    String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
-
-    String CONFIG_FILE = "debug-tools.properties";
-
-    String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
+    public static void main(String[] args) {
+        Solon.start(SolonApplication.class, args);
+    }
 }

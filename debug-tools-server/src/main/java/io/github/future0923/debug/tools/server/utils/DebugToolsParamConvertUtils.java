@@ -65,7 +65,7 @@ public class DebugToolsParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return VmToolsUtils.getSpringInstance(parameter.getType());
+            return VmToolsUtils.getInstance(parameter.getType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugToolsLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getParameterizedType());

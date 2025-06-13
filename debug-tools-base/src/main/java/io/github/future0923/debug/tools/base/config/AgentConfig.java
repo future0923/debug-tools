@@ -43,6 +43,8 @@ public class AgentConfig {
 
     private static final String SPRING_EXTENSION_PATH = "debug.tools.extension.spring.path";
 
+    private static final String SOLON_EXTENSION_PATH = "debug.tools.extension.solon.path";
+
     private static final String XXLJOB_EXTENSION_PATH = "debug.tools.extension.xxljob.path";
 
     private static final String JNI_LIBRARY_PATH = "debug.tools.jni.library.path";
@@ -81,6 +83,7 @@ public class AgentConfig {
 
     private void createExtensionJar() {
         createSpringJar();
+        createSolonJar();
         createXxlJobJar();
         store();
     }
@@ -88,6 +91,11 @@ public class AgentConfig {
     private void createSpringJar() {
         File jarFile = loadJarFile(getSpringExtensionPath(), ProjectConstants.SPRING_EXTENSION_JAR_NAME);
         setSpringExtensionPath(jarFile.getAbsolutePath());
+    }
+
+    private void createSolonJar() {
+        File jarFile = loadJarFile(getSolonExtensionPath(), ProjectConstants.SOLON_EXTENSION_JAR_NAME);
+        setSolonExtensionPath(jarFile.getAbsolutePath());
     }
 
     private void createXxlJobJar() {
@@ -153,6 +161,31 @@ public class AgentConfig {
 
     public void setSpringExtensionPathAndStore(String corePath) {
         setSpringExtensionPath(corePath);
+        store();
+    }
+
+    public String getSolonExtensionPath() {
+        return properties.getProperty(SOLON_EXTENSION_PATH);
+    }
+
+    public URL getSolonExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getSolonExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load solon extension error", e);
+            }
+            return null;
+        }
+    }
+
+
+    public void setSolonExtensionPath(String path) {
+        properties.setProperty(SOLON_EXTENSION_PATH, path);
+    }
+
+    public void setSolonExtensionPathAndStore(String corePath) {
+        setSolonExtensionPath(corePath);
         store();
     }
 

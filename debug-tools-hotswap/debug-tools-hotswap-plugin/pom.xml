@@ -22,6 +22,7 @@
         <module>debug-tools-hotswap-jackson-plugin</module>
         <module>debug-tools-hotswap-fastjson-plugin</module>
         <module>debug-tools-hotswap-hibernate-validator-plugin</module>
+        <module>debug-tools-hotswap-solon-plugin</module>
     </modules>
 
 </project>
