@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.server.jvm;
+package io.github.future0923.debug.tools.vm;
 
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
-import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
-import io.github.future0923.debug.tools.vm.VmTool;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * @author future0923
  */
-public class VmToolsUtils {
+public class JvmToolsUtils {
 
     private static VmTool instance;
 
@@ -66,10 +58,10 @@ public class VmToolsUtils {
         }
 
         String libPath = "lib/" + libName;
-        URL jniLibraryUrl = VmToolsUtils.class.getClassLoader().getResource(libPath);
+        URL jniLibraryUrl = JvmToolsUtils.class.getClassLoader().getResource(libPath);
         if (jniLibraryUrl == null) {
             throw new IllegalArgumentException("can not getResources " + libName + " from classloader: "
-                    + VmToolsUtils.class.getClassLoader());
+                    + JvmToolsUtils.class.getClassLoader());
         }
         File jniLibraryFile;
         try {
@@ -81,70 +73,8 @@ public class VmToolsUtils {
         AgentConfig.INSTANCE.setJniLibraryPathAndStore(jniLibraryFile.getAbsolutePath());
     }
 
-    public static Object getInstance(Class<?> targetClass, Method targetMethod) {
-        Object instance = getInstance(targetClass);
-        if (!Modifier.isPublic(targetMethod.getModifiers())) {
-            return DebugToolsEnvUtils.getTargetObject(instance);
-        } else {
-            return instance;
-        }
-    }
-
     public static <T> T[] getInstances(Class<T> targetClass) {
         return instance.getInstances(targetClass);
-    }
-
-    /**
-     * 获取实例对象
-     * <p>优先通过spring 上下文获取
-     * <p>获取不到从solon 上下文获取
-     * <p>获取不到从jvm中获取，如果有多个取第最后一个
-     * <p>获取不到调用构造方法创建
-     */
-    public static Object getInstance(Class<?> clazz) {
-        try {
-            Object firstBean = DebugToolsEnvUtils.getLastBean(clazz);
-            if (firstBean != null) {
-                return firstBean;
-            }
-        } catch (Throwable ignored) {
-            // 加载不到从JVM中获取
-        }
-        Object[] instances = instance.getInstances(clazz);
-        if (instances.length == 0) {
-            return instantiate(clazz);
-        } else {
-            return instances[instances.length - 1];
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T instantiate(Class<T> clazz) {
-        if (clazz == null || clazz.isInterface()) {
-            throw new IllegalArgumentException("Specified class is null or interface. " + clazz);
-        }
-        Optional<Constructor<?>> noArgConstructorOpt = Arrays.stream(clazz.getDeclaredConstructors())
-                .filter(constructor -> constructor.getParameterCount() == 0).findFirst();
-        Object obj;
-        try {
-            if (noArgConstructorOpt.isPresent()) {
-                Constructor<?> constructor = noArgConstructorOpt.get();
-                if (!constructor.isAccessible()) {
-                    constructor.setAccessible(true);
-                }
-                obj = constructor.newInstance();
-            } else {
-                Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
-                if (!constructor.isAccessible()) {
-                    constructor.setAccessible(true);
-                }
-                Object[] objects = IntStream.range(0, constructor.getParameterCount()).mapToObj(i -> null).toArray();
-                obj = constructor.newInstance(objects);
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("instantiate Exception" + clazz, e);
-        }
-        return (T) obj;
     }
 
     private static void initVmTool(String libPath) {

@@ -13,29 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.test.simple;
+package io.github.future0923.debug.tools.test.simple.json;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author future0923
  */
-public class GsonTest {
+public class JacksonTest {
 
-    private static final Gson gson = new Gson();
+    public static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static class DTO {
 
         private String name;
 
-        private Integer age;
+        private Integer test;
 
-        public Integer getAge() {
-            return age;
+        public Integer getTest() {
+            return test;
         }
 
-        public void setAge(Integer age) {
-            this.age = age;
+        public void setTest(Integer test) {
+            this.test = test;
         }
 
         public String getName() {
@@ -47,14 +51,24 @@ public class GsonTest {
         }
     }
 
+
+
     public static class Test {
-        public static String test() {
+        public static String test() throws JsonProcessingException {
             DTO dto = new DTO();
             dto.setName("Gson");
-            dto.setAge(18);
-            String jsonStr = gson.toJson(dto);
+            dto.setTest(18);
+            String jsonStr = objectMapper.writeValueAsString(dto);
             System.out.println(jsonStr);
             return jsonStr;
+        }
+
+        public static void node() throws JsonProcessingException {
+            List<Node> list = Arrays.<Node>asList(new Node(new TestNode("testNode1", 1, null), "node1"), new Node(new TestNode("testNode2", 2,null), "node2"));
+            TestNode testNode = new TestNode("testNode", 0, list);
+            String jsonStr = objectMapper.writeValueAsString(testNode);
+            objectMapper.readValue(jsonStr, TestNode.class);
+            System.out.println(jsonStr);
         }
 
     }

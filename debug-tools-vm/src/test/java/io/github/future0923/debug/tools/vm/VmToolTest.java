@@ -15,6 +15,8 @@
  */
 package io.github.future0923.debug.tools.vm;
 
+import java.util.Arrays;
+
 /**
  * @author future0923
  */
@@ -29,6 +31,6 @@ public class VmToolTest {
         //String path = "/Users/weilai/Documents/debug-tools/debug-tools-server/src/main/resources/lib/libJniLibrary.dylib";
         String path = "D:\\debug-tools\\debug-tools-server\\src\\main\\resources\\lib\\libJniLibrary-x64.dll";
         VmTool[] instances = VmTool.getInstance(path).getInstances(VmTool.class);
-        System.out.println(instances);
+        System.out.println(Arrays.toString(instances));
     }
 }

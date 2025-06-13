@@ -24,7 +24,7 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
 import io.github.future0923.debug.tools.extension.spring.request.MockMultipartFile;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
@@ -82,7 +82,7 @@ public class SpringParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return VmToolsUtils.getInstance(parameter.getParameterType());
+            return BeanInstanceUtils.getInstance(parameter.getParameterType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getParameterType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugToolsLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());

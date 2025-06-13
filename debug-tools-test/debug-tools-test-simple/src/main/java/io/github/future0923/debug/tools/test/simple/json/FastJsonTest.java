@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.test.simple;
+package io.github.future0923.debug.tools.test.simple.json;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author future0923
@@ -77,6 +81,15 @@ public class FastJsonTest {
             //dto.setDas(18);
             String jsonStr = JSON.toJSONString(dto);
             System.out.println(jsonStr);
+            return jsonStr;
+        }
+
+        public static String node() throws JsonProcessingException {
+            List<Node> list = Arrays.<Node>asList(new Node(new TestNode("testNode1", 1, null), "node1"), new Node(new TestNode("testNode2", 2,null), "node2"));
+            TestNode testNode = new TestNode("testNode", 0, list);
+            String jsonStr = JSON.toJSONString(testNode);
+            System.out.println(jsonStr);
+            JSON.parseObject(jsonStr, TestNode.class);
             return jsonStr;
         }
     }

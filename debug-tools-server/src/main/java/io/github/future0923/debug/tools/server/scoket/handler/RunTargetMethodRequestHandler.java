@@ -31,7 +31,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.response.RunTarge
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 
@@ -97,7 +97,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         if (DebugToolsStringUtils.isNotBlank(runDTO.getXxlJobParam())) {
             DebugToolsEnvUtils.setXxlJobParam(runDTO.getXxlJobParam());
         }
-        Object instance = VmToolsUtils.getInstance(targetClass, targetMethod);
+        Object instance = BeanInstanceUtils.getInstance(targetClass, targetMethod);
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
