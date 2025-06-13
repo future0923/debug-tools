@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.sql.SqlPrintByteCodeEnhance;
+import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +66,7 @@ public class DebugToolsAttach {
         if (parse.getLogLevel() != null) {
             Logger.setLevel(parse.getLogLevel());
         }
+        JvmToolsUtils.init();
         if (PrintSqlType.isPrint(parse.getPrintSql())) {
             SqlPrintByteCodeEnhance.enhance(inst, parse.getPrintSql());
         }

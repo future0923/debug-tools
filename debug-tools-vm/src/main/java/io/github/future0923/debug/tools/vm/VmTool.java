@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author future0923
  */
-public class VmTool {
+class VmTool {
 
     /**
      * 不要修改jni-lib的名称

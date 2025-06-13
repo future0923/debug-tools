@@ -22,7 +22,6 @@ import io.github.future0923.debug.tools.common.enums.RunContentType;
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.File;
@@ -65,7 +64,7 @@ public class DebugToolsParamConvertUtils {
             return null;
         }
         if (RunContentType.BEAN.getType().equals(runContentDTO.getType())) {
-            return VmToolsUtils.getInstance(parameter.getType());
+            return BeanInstanceUtils.getInstance(parameter.getType());
         } else if (RunContentType.LAMBDA.getType().equals(runContentDTO.getType())) {
             if (runContentDTO.getContent() != null && parameter.getType().isInterface() && (runContentDTO.getContent().toString().contains("->") || runContentDTO.getContent().toString().contains("::"))) {
                 return DebugToolsLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getParameterizedType());

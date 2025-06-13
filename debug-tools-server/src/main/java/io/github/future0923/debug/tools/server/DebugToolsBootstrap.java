@@ -22,9 +22,9 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.server.config.ServerConfig;
 import io.github.future0923.debug.tools.server.http.DebugToolsHttpServer;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
 import io.github.future0923.debug.tools.server.scoket.DebugToolsSocketServer;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
+import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
@@ -55,7 +55,7 @@ public class DebugToolsBootstrap {
 
     private DebugToolsBootstrap(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
-        VmToolsUtils.init();
+        JvmToolsUtils.init();
     }
 
     public static synchronized DebugToolsBootstrap getInstance(Instrumentation instrumentation) {

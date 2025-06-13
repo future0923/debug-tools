@@ -17,7 +17,7 @@ package io.github.future0923.debug.tools.extension.solon;
 
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 import org.noear.solon.core.AppContext;
 
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class SolonEnvUtil {
         if (!init) {
             synchronized (SolonEnvUtil.class) {
                 if (!init) {
-                    appContexts = Arrays.asList(VmToolsUtils.getInstances(AppContext.class));
+                    appContexts = Arrays.asList(JvmToolsUtils.getInstances(AppContext.class));
                     init = true;
                 }
             }

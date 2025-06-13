@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.test.simple;
+package io.github.future0923.debug.tools.test.simple.json;
 
 import cn.hutool.core.bean.BeanDescCache;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.json.JSONUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author future0923
@@ -60,6 +63,14 @@ public class HuToolJson {
             return jsonStr;
         }
 
+        public static String node() throws JsonProcessingException {
+            List<Node> list = Arrays.<Node>asList(new Node(new TestNode("testNode1", 1, null), "node1"), new Node(new TestNode("testNode2", 2,null), "node2"));
+            TestNode testNode = new TestNode("testNode", 0, list);
+            String jsonStr = JSONUtil.toJsonStr(testNode);
+            System.out.println(jsonStr);
+            JSONUtil.toBean(jsonStr, TestNode.class);
+            return jsonStr;
+        }
     }
 
     public static void main(String[] args) throws InterruptedException {

@@ -15,14 +15,12 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.jackson;
 
-import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
+import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
+import io.github.future0923.debug.tools.hotswap.core.plugin.jackson.command.JacksonReloadCommand;
 
 /**
  * @author future0923
@@ -34,82 +32,11 @@ import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException
 )
 public class JacksonPlugin {
 
-    private static final Logger logger = Logger.getLogger(JacksonPlugin.class);
+    @Init
+    static Scheduler scheduler;
 
-    @OnClassLoadEvent(classNameRegexp = "com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap")
-    public static void patchReadOnlyClassToSerializerMap(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        extracted(ctClass, classPool);
-        logger.info("patch jackson ReadOnlyClassToSerializerMap success");
-    }
-
-    @OnClassLoadEvent(classNameRegexp = "com.fasterxml.jackson.databind.ser.SerializerCache")
-    public static void patchSerializerCache(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        extracted(ctClass, classPool);
-        logger.info("patch jackson SerializerCache success");
-    }
-
-    private static void extracted(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtClass javaType = classPool.get("com.fasterxml.jackson.databind.JavaType");
-        CtClass classCtClass = classPool.get("java.lang.Class");
-
-        CtMethod typedValueSerializerByJavaType = ctClass.getDeclaredMethod("typedValueSerializer", new CtClass[]{javaType});
-        typedValueSerializerByJavaType.setBody("{" +
-                "   return null;" +
-                "}");
-
-        CtMethod typedValueSerializerByClass = ctClass.getDeclaredMethod("typedValueSerializer", new CtClass[]{classCtClass});
-        typedValueSerializerByClass.setBody("{" +
-                "   return null;" +
-                "}");
-
-        CtMethod untypedValueSerializerByJavaType = ctClass.getDeclaredMethod("untypedValueSerializer", new CtClass[]{javaType});
-        untypedValueSerializerByJavaType.setBody("{" +
-                "   return null;" +
-                "}");
-
-        CtMethod untypedValueSerializerByClass = ctClass.getDeclaredMethod("untypedValueSerializer", new CtClass[]{classCtClass});
-        untypedValueSerializerByClass.setBody("{" +
-                "   return null;" +
-                "}");
-    }
-
-    @OnClassLoadEvent(classNameRegexp = "com.fasterxml.jackson.databind.ObjectMapper")
-    public static void patchObjectMapper(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod _findRootDeserializer = ctClass.getDeclaredMethod("_findRootDeserializer",
-                new CtClass[]{
-                        classPool.get("com.fasterxml.jackson.databind.DeserializationContext"),
-                        classPool.get("com.fasterxml.jackson.databind.JavaType")
-                }
-        );
-        _findRootDeserializer.insertBefore("{" +
-                "   _rootDeserializers.remove($2);" +
-                "}");
-        logger.info("patch jackson ObjectMapper success");
-    }
-
-    @OnClassLoadEvent(classNameRegexp = "com.fasterxml.jackson.databind.deser.DeserializerCache")
-    public static void jsonDeserializerCacheClear(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtClass javaType = classPool.get("com.fasterxml.jackson.databind.JavaType");
-
-        CtMethod _findCachedDeserializer = ctClass.getDeclaredMethod("_findCachedDeserializer", new CtClass[]{javaType});
-        _findCachedDeserializer.setBody("{" +
-                "   if ($1 == null) {" +
-                "       throw new java.lang.IllegalArgumentException(\"Null JavaType passed\");" +
-                "   }" +
-                "   return null;" +
-                "}");
-
-        CtMethod _createAndCacheValueDeserializer = ctClass.getDeclaredMethod("_createAndCacheValueDeserializer",
-                new CtClass[]{
-                        classPool.get("com.fasterxml.jackson.databind.DeserializationContext"),
-                        classPool.get("com.fasterxml.jackson.databind.deser.DeserializerFactory"),
-                        javaType
-                }
-        );
-        _createAndCacheValueDeserializer.insertBefore("{" +
-                "   _incompleteDeserializers.remove($3);" +
-                "}");
-
-        logger.info("patch jackson DeserializerCache success");
+    @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
+    public static void redefineClass(final Class<?> clazz) {
+        scheduler.scheduleCommand(new JacksonReloadCommand(clazz), 500);
     }
 }

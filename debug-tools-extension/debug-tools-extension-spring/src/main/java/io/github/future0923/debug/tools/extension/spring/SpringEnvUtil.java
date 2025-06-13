@@ -21,7 +21,7 @@ import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.extension.spring.method.SpringParamConvertUtils;
-import io.github.future0923.debug.tools.server.jvm.VmToolsUtils;
+import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import org.springframework.aop.SpringProxy;
 import org.springframework.aop.TargetClassAware;
 import org.springframework.aop.framework.Advised;
@@ -67,8 +67,8 @@ public class SpringEnvUtil {
         if (!init) {
             synchronized (SpringEnvUtil.class) {
                 if (!init) {
-                    beanFactories = Arrays.asList(VmToolsUtils.getInstances(BeanFactory.class));
-                    applicationContexts = sort(VmToolsUtils.getInstances(ApplicationContext.class));
+                    beanFactories = Arrays.asList(BeanInstanceUtils.getInstances(BeanFactory.class));
+                    applicationContexts = sort(BeanInstanceUtils.getInstances(ApplicationContext.class));
                     init = true;
                 }
             }
