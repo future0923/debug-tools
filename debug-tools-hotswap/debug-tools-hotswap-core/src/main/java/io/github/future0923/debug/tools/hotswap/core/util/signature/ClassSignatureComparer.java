@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.spring.signature;
+package io.github.future0923.debug.tools.hotswap.core.util.signature;
+
 
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureComparerHelper;
-import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureElement;
 
 /**
  * 插件类签名是否发生变化，变化了Spring需要重新加载类

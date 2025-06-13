@@ -13,26 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.future0923.debug.tools.base.constants;
+package io.github.future0923.debug.tools.test.solon.controller;
 
-/**
- * @author future0923
- */
-public interface ProjectConstants {
+import io.github.future0923.debug.tools.test.solon.service.DemoService;
+import org.noear.solon.annotation.Controller;
+import org.noear.solon.annotation.Get;
+import org.noear.solon.annotation.Inject;
+import org.noear.solon.annotation.Mapping;
 
-    Boolean DEBUG = true;
+@Controller
+public class DemoController {
 
-    String NAME = "DebugTools";
+    @Inject
+    private DemoService demoService;
 
-    String VERSION = "4.1.0-SNAPSHOT";
+    @Get
+    @Mapping("/demo1")
+    public String demo1() {
+        return demoService.hello3211("solon1");
+    }
 
-    String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
+    @Get
+    @Mapping("/demo2")
+    public String dem1o2() {
+        return "demo2";
+    }
 
-    String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
-
-    String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
-
-    String CONFIG_FILE = "debug-tools.properties";
-
-    String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
 }

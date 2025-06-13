@@ -16,6 +16,7 @@
     <modules>
         <module>debug-tools-extension-spring</module>
         <module>debug-tools-extension-xxljob</module>
+        <module>debug-tools-extension-solon</module>
     </modules>
 
 
