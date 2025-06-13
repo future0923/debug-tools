@@ -170,6 +170,12 @@ public class AgentArgs {
                 if (DebugToolsStringUtils.isBlank(applicationName)) {
                     applicationName = properties.getProperty("applicationName");
                 }
+                if (DebugToolsStringUtils.isBlank(tcpPort)) {
+                    tcpPort = properties.getProperty("tcpPort");
+                }
+                if (DebugToolsStringUtils.isBlank(httpPort)) {
+                    httpPort = properties.getProperty("httpPort");
+                }
             }
         } catch (Exception e) {
             logger.error("Error while loading external properties file " + propertiesFilePath, e);
