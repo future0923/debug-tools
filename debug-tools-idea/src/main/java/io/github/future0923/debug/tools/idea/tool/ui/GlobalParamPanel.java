@@ -163,7 +163,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                 () -> {
                     ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
                     if (info == null || info.getClient() == null) {
-                        classLoaderComboBox.clearOneTimeStatus();
                         unAttached();
                     } else {
                         local.setText(settingState.isLocal() ? "L" : "R");
@@ -175,7 +174,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             attached.setBackground(JBColor.GREEN);
                             attachButtonPanel.setVisible(true);
                             classLoaderPanel.setVisible(true);
-                            classLoaderComboBox.getAllClassLoaderOneTime(false);
+                            classLoaderComboBox.getAllClassLoader();
                         } else {
                             if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
                                 attached.setText("Fail");
@@ -187,7 +186,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             attached.setBackground(JBColor.RED);
                             textField.setVisible(true);
                             attachButtonPanel.setVisible(true);
-                            classLoaderComboBox.clearOneTimeStatus();
                         }
                     }
                 },
