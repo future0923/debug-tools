@@ -99,10 +99,10 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private void initLayout() {
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        getAllClassLoader(true);
+        getAllClassLoader();
         refreshButton.addActionListener( e -> {
             classLoaderComboBox.removeAllItems();
-            getAllClassLoader(false);
+            getAllClassLoader();
             classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
         });
         classLoaderJPanel.add(classLoaderComboBox);
@@ -170,8 +170,8 @@ public class MainPanel extends JBPanel<MainPanel> {
         this.add(editor, gbc);
     }
 
-    private void getAllClassLoader(boolean cache) {
-        classLoaderComboBox.getAllClassLoader(cache);
+    private void getAllClassLoader() {
+        classLoaderComboBox.getAllClassLoader();
         classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
     }
 

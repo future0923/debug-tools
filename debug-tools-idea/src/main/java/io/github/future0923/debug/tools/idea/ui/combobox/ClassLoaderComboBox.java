@@ -31,8 +31,6 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
 
     private final Project project;
 
-    private volatile boolean init = false;
-
     public ClassLoaderComboBox(Project project) {
         this(project, -1, true);
     }
@@ -63,11 +61,11 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
         }
     }
 
-    public void getAllClassLoader(boolean cache) {
+    public void getAllClassLoader() {
         removeAllItems();
         AllClassLoaderRes allClassLoaderRes;
         try {
-            allClassLoaderRes = HttpClientUtils.allClassLoader(project, cache);
+            allClassLoaderRes = HttpClientUtils.allClassLoader(project);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -81,17 +79,6 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
         if (defaultClassLoader != null) {
             setSelectedItem(defaultClassLoader);
         }
-    }
-
-    public void getAllClassLoaderOneTime(boolean cache) {
-        if (!init) {
-            getAllClassLoader(cache);
-        }
-        init = true;
-    }
-
-    public void clearOneTimeStatus() {
-        init = false;
     }
 
     public void setSelectedClassLoader(AllClassLoaderRes.Item identity) {
