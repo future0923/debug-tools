@@ -73,7 +73,7 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                                 agentPath,
                                 () -> {
                                     try {
-                                        AllClassLoaderRes allClassLoaderRes = HttpClientUtils.allClassLoader(project, false);
+                                        AllClassLoaderRes allClassLoaderRes = HttpClientUtils.allClassLoader(project);
                                         if (allClassLoaderRes != null) {
                                             AllClassLoaderRes.Item defaultClassLoader = null;
                                             for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {

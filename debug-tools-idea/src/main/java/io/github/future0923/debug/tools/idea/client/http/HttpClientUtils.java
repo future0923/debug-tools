@@ -27,8 +27,6 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author future0923
@@ -44,8 +42,6 @@ public class HttpClientUtils {
     private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
 
     private static final int TIMEOUT = 5000;
-
-    private static final Map<Project, AllClassLoaderRes> allClassLoaderResCache = new ConcurrentHashMap<>();
 
     public static String resultType(Project project, String offsetPath, String printResultType) {
         RunResultTypeReq req = new RunResultTypeReq();
@@ -75,19 +71,9 @@ public class HttpClientUtils {
         return DebugToolsJsonUtils.toRunResultDTOList(body);
     }
 
-    public static AllClassLoaderRes allClassLoader(Project project, boolean cache) throws IOException, InterruptedException {
-        AllClassLoaderRes allClassLoaderRes = allClassLoaderResCache.get(project);
-        if (allClassLoaderRes == null || !cache) {
-            String body = HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(ALL_CLASS_LOADER_URI), TIMEOUT);
-            AllClassLoaderRes res = DebugToolsJsonUtils.toBean(body, AllClassLoaderRes.class);
-            allClassLoaderResCache.put(project, res);
-            return res;
-        }
-        return allClassLoaderRes;
-    }
-
-    public static void removeAllClassLoaderCache(Project project) {
-        allClassLoaderResCache.remove(project);
+    public static AllClassLoaderRes allClassLoader(Project project) throws IOException, InterruptedException {
+        String body = HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(ALL_CLASS_LOADER_URI), TIMEOUT);
+        return DebugToolsJsonUtils.toBean(body, AllClassLoaderRes.class);
     }
 
     public static String getApplicationName(Project project, boolean local) throws IOException, InterruptedException {
