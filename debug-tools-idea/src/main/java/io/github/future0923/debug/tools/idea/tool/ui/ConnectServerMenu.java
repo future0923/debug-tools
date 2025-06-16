@@ -17,7 +17,10 @@ package io.github.future0923.debug.tools.idea.tool.ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
+import com.intellij.openapi.util.text.HtmlChunk;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.PortField;
+import com.intellij.ui.components.JBBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextField;
@@ -50,7 +53,7 @@ public class ConnectServerMenu extends JBPopupMenu {
 
     private final PortField httpPortField = new PortField(22222);
 
-    Box historyPanel = Box.createVerticalBox();
+    private final JBBox historyPanel = JBBox.createVerticalBox();
 
     public ConnectServerMenu(Project project) {
         super();
@@ -68,18 +71,32 @@ public class ConnectServerMenu extends JBPopupMenu {
         if (settingState.getRemoteHttpPort() != null) {
             httpPortField.setNumber(settingState.getRemoteHttpPort());
         }
+        JBColor jbColor = JBColor.namedColor("TextField.errorOutline", JBColor.RED);
+        String redHex = String.format("#%02x%02x%02x", jbColor.getRed(), jbColor.getGreen(), jbColor.getBlue());
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
-                        new JBLabel("Host:"),
+                        new JBLabel(HtmlChunk.html()
+                                .children(
+                                        HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
+                                        HtmlChunk.text("Host:")
+                                ).toString()),
                         hostField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Tcp port:"),
+                        new JBLabel(HtmlChunk.html()
+                                .children(
+                                        HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
+                                        HtmlChunk.text("Tcp port:")
+                                ).toString()),
                         tcpPortField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Http port:"),
+                        new JBLabel(HtmlChunk.html()
+                                .children(
+                                        HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
+                                        HtmlChunk.text("Http port:")
+                                ).toString()),
                         httpPortField
                 )
                 .addLabeledComponent(
@@ -163,8 +180,8 @@ public class ConnectServerMenu extends JBPopupMenu {
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(76, 79, 85),2,true),
-                BorderFactory.createEmptyBorder(3, 5, 3, 3)
+                BorderFactory.createLineBorder(new JBColor(new Color(195, 197, 208), new Color(76, 79, 85)),1,true),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)
         ));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
         panel.addMouseListener(new MouseAdapter() {
@@ -186,6 +203,7 @@ public class ConnectServerMenu extends JBPopupMenu {
         });
 
         JLabel label = new JLabel(entry.getKey());
+        label.setToolTipText(hostInfo.getStr("host") + "@" + hostInfo.getInt("tcpPort") + "@" + hostInfo.getInt("httpPort"));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
