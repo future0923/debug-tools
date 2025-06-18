@@ -124,6 +124,10 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 FileUtil.writeUtf8String("0", DebugToolsFileUtils.getAutoAttachFile());
             }
             javaParameters.getVMParametersList().add("-javaagent:" + agentPath + "=" + agentArgs.format());
+        } else {
+            if (settingState.getAutoAttach()) {
+                FileUtil.writeUtf8String("1", DebugToolsFileUtils.getAutoAttachFile());
+            }
         }
     }
 
