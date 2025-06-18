@@ -17,8 +17,6 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.SuperCall;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -28,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * 打印SQL字节码拦截器
@@ -50,41 +47,34 @@ public class SqlPrintInterceptor {
     private static PrintSqlType printSqlType;
 
     public static void setPrintSqlType(String printSqlType) {
-        SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);;
+        SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
+        ;
     }
 
-    @RuntimeType
-    public static Object intercept(
-            @SuperCall Callable<?> callable
-    ) {
-        Object result = null;
-        try {
-            result = callable.call();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        } finally {
-            result = proxyConnection((Connection) result);
-        }
-        return result;
-    }
-
-    private static Connection proxyConnection(final Connection connection) {
-        Object c = Proxy.newProxyInstance(SqlPrintByteCodeEnhance.class.getClassLoader()
-                , new Class[]{Connection.class}, new ConnectionHandler(connection));
+    public static Connection proxyConnection(final Connection connection) {
+        Object c = Proxy.newProxyInstance(
+                SqlPrintByteCodeEnhance.class.getClassLoader(),
+                new Class[]{Connection.class},
+                new ConnectionHandler(connection)
+        );
         return (Connection) c;
     }
 
 
     private static PreparedStatement proxyPreparedStatement(final PreparedStatement statement) {
-        Object c = Proxy.newProxyInstance(SqlPrintByteCodeEnhance.class.getClassLoader()
-                , new Class[]{PreparedStatement.class}, new PreparedStatementHandler(statement));
+        Object c = Proxy.newProxyInstance(
+                SqlPrintByteCodeEnhance.class.getClassLoader(),
+                new Class[]{PreparedStatement.class},
+                new PreparedStatementHandler(statement)
+        );
         return (PreparedStatement) c;
     }
 
     /**
      * connection 代理处理
      */
-    public static class ConnectionHandler implements InvocationHandler {
+    private static class ConnectionHandler implements InvocationHandler {
+
         private final Connection connection;
 
         private ConnectionHandler(Connection connection) {
@@ -103,7 +93,8 @@ public class SqlPrintInterceptor {
     /**
      * PreparedStatement 代理处理
      */
-    public static class PreparedStatementHandler implements InvocationHandler {
+    private static class PreparedStatementHandler implements InvocationHandler {
+
         private final PreparedStatement statement;
 
         public PreparedStatementHandler(PreparedStatement statement) {
@@ -122,12 +113,12 @@ public class SqlPrintInterceptor {
         }
     }
 
-    public static void printSql(long consume, Statement sta) {
+    private static void printSql(long consume, Statement sta) {
         final String sql = sta.toString().replace("** BYTE ARRAY DATA **", "NULL");
         String resultSql;
         if (sql.startsWith(STATEMENT_PREFIXES)) {
             resultSql = sql.replace(STATEMENT_PREFIXES, "");
-        } else if (sql.startsWith(CJ_STATEMENT_PREFIXES)){
+        } else if (sql.startsWith(CJ_STATEMENT_PREFIXES)) {
             resultSql = sql.replace(CJ_STATEMENT_PREFIXES, "");
         } else {
             resultSql = sql;

@@ -28,7 +28,6 @@ import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
-import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -72,6 +71,21 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
 
     private void applyForConfiguration(RunProfile configuration, JavaParameters javaParameters, Project project) {
         log.debug("Applying HotSwapAgent to configuration " + (configuration != null ? configuration.getName() : ""));
+        String jdkPath;
+        try {
+            jdkPath = javaParameters.getJdkPath();
+        } catch (CantRunException e) {
+            DebugToolsNotifierUtil.notifyError(project, e.getMessage());
+            return;
+        }
+        String jdkVersion = DcevmUtils.getJdkVersion(jdkPath);
+        if (jdkVersion == null) {
+            DebugToolsNotifierUtil.notifyError(project, "Failed to obtain the running version of jdk.");
+            return;
+        }
+        if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+            javaParameters.getVMParametersList().add("-XX:+EnableDynamicAgentLoading");
+        }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         String agentPath = settingState.loadAgentPath(project);
         if (!PrintSqlType.NO.equals(settingState.getPrintSql()) || settingState.getHotswap()) {
@@ -80,42 +94,28 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             if (settingState.getHotswap()) {
                 //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
                 //rootManager.getProjectSdk();
-                String jdkPath;
-                try {
-                    jdkPath = javaParameters.getJdkPath();
-                } catch (CantRunException e) {
-                    DebugToolsNotifierUtil.notifyError(project, e.getMessage());
-                    return;
-                }
-                if (DebugToolsStringUtils.isNotBlank(jdkPath)) {
-                    String jdkVersion = DcevmUtils.getJdkVersion(jdkPath);
-                    if (jdkVersion == null) {
-                        DebugToolsNotifierUtil.notifyError(project, "Failed to obtain the running version of jdk.");
-                        return;
-                    }
-                    if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+                if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+                    agentArgs.setHotswap(Boolean.TRUE.toString());
+                    javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
+                    addVm(javaParameters);
+                } else if (jdkVersion.startsWith("11")) {
+                    agentArgs.setHotswap(Boolean.TRUE.toString());
+                    addVm(javaParameters);
+                } else if (jdkVersion.startsWith("1.8")) {
+                    if (DcevmUtils.isDcevmInstalledLikeAltJvm(jdkPath)) {
                         agentArgs.setHotswap(Boolean.TRUE.toString());
-                        javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
-                        addVm(javaParameters);
-                    } else if (jdkVersion.startsWith("11")) {
-                        agentArgs.setHotswap(Boolean.TRUE.toString());
-                        addVm(javaParameters);
-                    } else if (jdkVersion.startsWith("1.8")) {
-                        if (DcevmUtils.isDcevmInstalledLikeAltJvm(jdkPath)) {
-                            agentArgs.setHotswap(Boolean.TRUE.toString());
-                            javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
-                        }
-                        if (!DcevmUtils.isDCEVMPresent(jdkPath)) {
-                            DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
-                        }
-                        try {
-                            DebugToolsExecUtils.findToolsJarNoCheckVersion(jdkPath);
-                        } catch (Exception e) {
-                            DebugToolsNotifierUtil.notifyError(project, "Can't find tools.jar. Please run it in the JDK environment.");
-                        }
-                    } else {
-                        DebugToolsNotifierUtil.notifyError(project, "hotswap not support " + jdkVersion + " version");
+                        javaParameters.getVMParametersList().add("-XXaltjvm=dcevm");
                     }
+                    if (!DcevmUtils.isDCEVMPresent(jdkPath)) {
+                        DebugToolsNotifierUtil.notifyError(project, "DCEVM is not installed");
+                    }
+                    try {
+                        DebugToolsExecUtils.findToolsJarNoCheckVersion(jdkPath);
+                    } catch (Exception e) {
+                        DebugToolsNotifierUtil.notifyError(project, "Can't find tools.jar. Please run it in the JDK environment.");
+                    }
+                } else {
+                    DebugToolsNotifierUtil.notifyError(project, "hotswap not support " + jdkVersion + " version");
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());

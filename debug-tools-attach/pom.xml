@@ -17,8 +17,6 @@
         <agent.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</agent.class>
         <can.redefine.classes>true</can.redefine.classes>
         <can.retransform.classes>true</can.retransform.classes>
-        <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
-        <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
         <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
         <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.pl.joegreen.lambdaFromString.source}</shade.pl.joegreen.lambdaFromString.target>
     </properties>
@@ -158,22 +156,10 @@
                             </transformers>
                             <relocations>
                                 <relocation>
-                                    <pattern>${shade.net.bytebuddy.source}</pattern>
-                                    <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
-                                </relocation>
-                                <relocation>
                                     <pattern>${shade.pl.joegreen.lambdaFromString.source}</pattern>
                                     <shadedPattern>${shade.pl.joegreen.lambdaFromString.target}</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <filters>
-                                <filter>
-                                    <artifact>net.bytebuddy:byte-buddy</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/versions/9/module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
                         </configuration>
                     </execution>
                 </executions>

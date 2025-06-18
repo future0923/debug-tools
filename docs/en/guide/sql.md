@@ -4,7 +4,7 @@
 
 **Pain point:** When we test the business, we need to view the actual SQL execution and time consumption. Many upper-level drivers have multiple ways to enable printing, and many of them require code modification or configuration modification for printing.
 
-DebugTools uses [bytebuddy](https://bytebuddy.net/#/) to print SQL and time consumption at runtime by `modifying the database driver bytecode` at the [jdbc](https://www.oracle.com/database/technologies/appdev/jdbc.html) layer, thereby avoiding the impact of different upper-level database connection pools on SQL printing.
+DebugTools to print SQL and time consumption at runtime by `modifying the database driver bytecode` at the [jdbc](https://www.oracle.com/database/technologies/appdev/jdbc.html) layer, thereby avoiding the impact of different upper-level database connection pools on SQL printing.
 
 **Theoretically supports all database drivers connected through Jdbc:**
 
