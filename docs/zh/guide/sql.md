@@ -4,7 +4,7 @@
 
 **痛点：** 当我们测试业务的时候，需要查看实际执行的SQL与耗时时间，很多上层的驱动会有多种开启打印的方式，很多都需要修改代码或修改配置打印。
 
-DebugTools 通过 [bytebuddy](https://bytebuddy.net/#/) 在 [jdbc](https://www.oracle.com/database/technologies/appdev/jdbc.html) 层通过 `修改数据库驱动字节码` 实现在运行时打印SQL与耗时，从而避免上层数据库链接池的不同影响SQL的打印。
+DebugTools 通过在 [jdbc](https://www.oracle.com/database/technologies/appdev/jdbc.html) 层通过 `修改数据库驱动字节码` 实现在运行时打印SQL与耗时，从而避免上层数据库链接池的不同影响SQL的打印。
 
 **理论上支持所有通过Jdbc链接的数据库驱动：**
 

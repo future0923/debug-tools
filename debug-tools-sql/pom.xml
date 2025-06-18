@@ -14,12 +14,8 @@
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
-            <artifactId>debug-tools-base</artifactId>
+            <artifactId>debug-tools-hotswap-core</artifactId>
             <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
         </dependency>
     </dependencies>
 </project>
