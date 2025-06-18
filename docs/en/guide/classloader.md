@@ -6,7 +6,7 @@ DebugTools uses Java Agent to implement debugging, which is **completely isolate
 
 ::: details DebugTools Isolation Logic
 - Debug Tools internal classes are isolated from the classes of the attached application through a custom class loader `DebugToolsClassloader`.
-- The dependent third-party libraries are renamed and isolated from the classes of the attached applications through the `relocations` function provided by [maven-shade-plugin](https://maven.apache.org/plugins/maven-shade-plugin/). For example, the `net.bytebuddy` package is renamed to `io.github.future0923.debug.tools.dependencies.net.bytebuddy`.
+- The dependent third-party libraries are renamed and isolated from the classes of the attached applications through the `relocations` function provided by [maven-shade-plugin](https://maven.apache.org/plugins/maven-shade-plugin/).
 :::
 
 ## Attach Application ClassLoader {#attach-app-classloader}

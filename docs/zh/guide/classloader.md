@@ -6,7 +6,7 @@ DebugTools 采用 Java Agent 来实现调试，**与附着应用完全隔离**�
 
 ::: details DebugTools 隔离逻辑
 - 内部的类通过自定义类加载器 `DebugToolsClassloader` 实现与附着应用的类隔离。
-- 依赖的第三方类库通过 [maven-shade-plugin](https://maven.apache.org/plugins/maven-shade-plugin/) 提供的 `relocations` 功能进行包重命名与附着应用的类隔离。如：`net.bytebuddy` 包重命名为 `io.github.future0923.debug.tools.dependencies.net.bytebuddy`。
+- 依赖的第三方类库通过 [maven-shade-plugin](https://maven.apache.org/plugins/maven-shade-plugin/) 提供的 `relocations` 功能进行包重命名与附着应用的类隔离。
 :::
 
 ## 附着应用类加载器 {#attach-app-classloader}
