@@ -66,8 +66,8 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
         AllClassLoaderRes allClassLoaderRes;
         try {
             allClassLoaderRes = HttpClientUtils.allClassLoader(project);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return;
         }
         AllClassLoaderRes.Item defaultClassLoader = null;
         for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {

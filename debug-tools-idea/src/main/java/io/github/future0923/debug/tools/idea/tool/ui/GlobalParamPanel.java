@@ -161,33 +161,35 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleWithFixedDelay(
                 () -> {
-                    ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-                    if (info == null || info.getClient() == null) {
-                        unAttached();
-                    } else {
-                        local.setText(settingState.isLocal() ? "L" : "R");
-                        local.setVisible(true);
-                        if (!info.getClient().isClosed()) {
-                            textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
-                            textField.setVisible(true);
-                            attached.setText("Connected");
-                            attached.setBackground(JBColor.GREEN);
-                            attachButtonPanel.setVisible(true);
-                            classLoaderPanel.setVisible(true);
-                            classLoaderComboBox.getAllClassLoader();
+                    try {
+                        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+                        if (info == null || info.getClient() == null) {
+                            unAttached();
                         } else {
-                            if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
-                                attached.setText("Fail");
-                            } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
-                                attached.setText("Reconnect");
-                            } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
-                                attached.setText("connecting");
+                            local.setText(settingState.isLocal() ? "L" : "R");
+                            local.setVisible(true);
+                            if (!info.getClient().isClosed()) {
+                                textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
+                                textField.setVisible(true);
+                                attached.setText("Connected");
+                                attached.setBackground(JBColor.GREEN);
+                                attachButtonPanel.setVisible(true);
+                                classLoaderPanel.setVisible(true);
+                                classLoaderComboBox.getAllClassLoader();
+                            } else {
+                                if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
+                                    attached.setText("Fail");
+                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
+                                    attached.setText("Reconnect");
+                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
+                                    attached.setText("connecting");
+                                }
+                                attached.setBackground(JBColor.RED);
+                                textField.setVisible(true);
+                                attachButtonPanel.setVisible(true);
                             }
-                            attached.setBackground(JBColor.RED);
-                            textField.setVisible(true);
-                            attachButtonPanel.setVisible(true);
                         }
-                    }
+                    } catch (Exception ignored) {}
                 },
                 0,
                 2,
