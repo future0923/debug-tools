@@ -16,6 +16,7 @@
 package io.github.future0923.debug.tools.server;
 
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
@@ -66,8 +67,8 @@ public class DebugToolsBootstrap {
     }
 
     public void start(AgentArgs agentArgs) {
-        int tcpPort = agentArgs.getTcpPort() == null ? DebugToolsIOUtils.getAvailablePort(12345) : Integer.parseInt(agentArgs.getTcpPort());
-        int httpPort = agentArgs.getHttpPort() == null ? DebugToolsIOUtils.getAvailablePort(22222) : Integer.parseInt(agentArgs.getHttpPort());
+        int tcpPort = StrUtil.isBlank(agentArgs.getTcpPort()) ? DebugToolsIOUtils.getAvailablePort(12345) : Integer.parseInt(agentArgs.getTcpPort());
+        int httpPort = StrUtil.isBlank(agentArgs.getHttpPort()) ? DebugToolsIOUtils.getAvailablePort(22222) : Integer.parseInt(agentArgs.getHttpPort());
         serverConfig.setApplicationName(getApplicationName(agentArgs));
         serverConfig.setTcpPort(tcpPort);
         serverConfig.setHttpPort(httpPort);

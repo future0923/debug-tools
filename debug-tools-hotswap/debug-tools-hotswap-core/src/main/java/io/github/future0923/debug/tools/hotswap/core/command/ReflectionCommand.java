@@ -22,7 +22,6 @@ import lombok.Setter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,17 +47,21 @@ public class ReflectionCommand extends MergeableCommand {
      */
     @Getter
     private final String methodName;
+    /**
+     * 运行方法的参数类型
+     */
+    private final Class<?>[] paramTypes;
 
     /**
      * 运行方法时传入的参数
      */
     @Getter
-    private List<Object> params = new ArrayList<>();
+    private final List<Object> params;
 
     /**
      * 解析目标类的插件对象(可能null)
      */
-    private Object plugin;
+    private final Object plugin;
 
     /**
      * 执行命令的应用程序类加载器。如果为null，则使用代理类加载器。
@@ -73,27 +76,19 @@ public class ReflectionCommand extends MergeableCommand {
     @Setter
     private CommandExecutionListener commandExecutionListener;
 
-    public ReflectionCommand(Object plugin, String className, String methodName, ClassLoader targetClassLoader, Object... params) {
+    public ReflectionCommand(ClassLoader targetClassLoader,
+                             Object plugin,
+                             String className,
+                             String methodName,
+                             List<Class<?>> paramTypes,
+                             Object... params) {
         this.plugin = plugin;
         this.className = className;
         this.methodName = methodName;
         this.targetClassLoader = targetClassLoader;
+        this.paramTypes = paramTypes.toArray(new Class[0]);
         this.params = Arrays.asList(params);
     }
-
-    public ReflectionCommand(Object plugin, String className, String methodName) {
-        this.plugin = plugin;
-        this.className = className;
-        this.methodName = methodName;
-    }
-
-    public ReflectionCommand(Object target, String methodName, Object... params) {
-        this.target = target;
-        this.className = target == null ? "NULL" : target.getClass().getName();
-        this.methodName = methodName;
-        this.params = Arrays.asList(params);
-    }
-
 
     @Override
     public String toString() {
@@ -162,22 +157,9 @@ public class ReflectionCommand extends MergeableCommand {
      */
     protected Object doExecuteReflectionCommand(ClassLoader targetClassLoader, String className, Object target, String method, List<Object> params) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
         Class<?> classInAppClassLoader = Class.forName(className, true, targetClassLoader);
-
         LOGGER.trace("Executing command: requestedClassLoader={}, resolvedClassLoader={}, class={}, method={}, params={}",
                 targetClassLoader, classInAppClassLoader.getClassLoader(), classInAppClassLoader, method, params);
-
-        Class<?>[] paramTypes = new Class<?>[params.size()];
-        int i = 0;
-        for (Object param : params) {
-            if (param == null)
-                throw new IllegalArgumentException("Cannot execute for null parameter value." + className + method);
-            else {
-                paramTypes[i++] = param.getClass();
-            }
-        }
-
         Method m = classInAppClassLoader.getDeclaredMethod(method, paramTypes);
-
         return m.invoke(target, params.toArray());
     }
 
@@ -193,7 +175,8 @@ public class ReflectionCommand extends MergeableCommand {
         if (!params.equals(that.params)) return false;
         if (plugin != null ? !plugin.equals(that.plugin) : that.plugin != null) return false;
         if (target != null ? !target.equals(that.target) : that.target != null) return false;
-        if (targetClassLoader != null ? !targetClassLoader.equals(that.targetClassLoader) : that.targetClassLoader != null) return false;
+        if (targetClassLoader != null ? !targetClassLoader.equals(that.targetClassLoader) : that.targetClassLoader != null)
+            return false;
 
         return true;
     }
