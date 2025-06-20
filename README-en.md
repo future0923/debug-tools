@@ -55,6 +55,25 @@
 - [xxl-job](https://debug-tools.cc/en/guide/xxl-job.html): You can call client-side methods without going through xxl-job Server, and support context parameter passing.
 - [groovy](https://debug-tools.cc/en/guide/groovy-execute.html): Execute Groovy scripts, you can run code to obtain or modify attached application information for debugging.
 
+## Demonstration of the effect.
+
+- 热部署
+
+![hot_deploy.gif](/docs/public/gif/hot_deploy.gif)
+
+- 热重载
+
+![hot_reload.gif](/docs/public/gif/hot_reload.gif)
+
+- 调用任意Java方法
+
+![quick_debug.gif](/docs/public/gif/quick_debug.gif)
+
+- 搜索HttpUrl
+
+![search_url.gif](/docs/public/gif/search_url.gif)
+
+
 ## Quick Start
 
 ### Installation
