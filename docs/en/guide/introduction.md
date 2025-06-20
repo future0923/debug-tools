@@ -18,3 +18,29 @@ The plug-in is complex to implement and requires a lot of compatibility. If this
 - ......
 
 If you have customization needs, you can submit [issue](https://github.com/java-hot-deploy/debug-tools/issues) feedback.
+
+## Demonstration of the effect.
+
+- hot deploy
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/hot_deploy.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_deploy.mp4
+</video>
+
+- hot reload
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/hot_reload.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_reload.mp4
+</video>
+
+- call any Java method
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/quick_debug.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/quick_debug.mp4
+</video>
+
+- search HttpUrl
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/search_url.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/search_url.mp4
+</video>
