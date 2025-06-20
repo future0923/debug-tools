@@ -131,6 +131,7 @@ public class IBatisPatcher {
         CtConstructor constructor = ctClass.getDeclaredConstructor(constructorParams);
         String src = "{" +
                 PluginManagerInvoker.buildInitializePlugin(MyBatisPlugin.class) +
+                PluginManagerInvoker.buildCallPluginMethod(MyBatisPlugin.class, "init", "org.apache.ibatis.builder.xml.XMLMapperBuilder.class.getClassLoader()", ClassLoader.class.getName()) +
                 PluginManagerInvoker.buildCallPluginMethod(
                         MyBatisPlugin.class,
                         "registerConfigurationFile",

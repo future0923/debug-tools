@@ -17,6 +17,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
@@ -26,6 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -68,7 +70,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
             }
             if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes, event.getURI().getPath()), 500);
+                scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisPlusMapperReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class, byte[].class, String.class), appClassLoader, clazz, bytes, event.getURI().getPath()));
             }
         }
     }

@@ -33,6 +33,8 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,9 +60,25 @@ public class MyBatisPlugin {
     Scheduler scheduler;
 
     @Init
-    ClassLoader appClassLoader;
+    static ClassLoader appClassLoader;
+
+    /**
+     * 不能使用注解，因为注解只能获取AppClassLoader
+     */
+    private static ClassLoader userClassLoader;
 
     private final Map<String, Object> configurationMap = new HashMap<>();
+
+    /**
+     * 打印Solon信息
+     */
+    public void init(ClassLoader classLoader) {
+        MyBatisPlugin.userClassLoader = classLoader;
+    }
+
+    public static ClassLoader getUserClassLoader() {
+        return userClassLoader == null ? appClassLoader : userClassLoader;
+    }
 
     /**
      * 在{@link IBatisPatcher#patchXMLMapperBuilder}处调用时生成mapper文件信息
@@ -83,7 +101,7 @@ public class MyBatisPlugin {
         }
         if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(url.getPath()))
                 || ((FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(url.getPath())))) {
-            scheduler.scheduleCommand(new ReflectionCommand(this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, url), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", Collections.singletonList(URL.class), url), 500);
         }
     }
 }

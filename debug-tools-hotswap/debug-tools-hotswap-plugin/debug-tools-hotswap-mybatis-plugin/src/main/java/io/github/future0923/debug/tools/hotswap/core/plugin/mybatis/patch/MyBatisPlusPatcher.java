@@ -19,16 +19,22 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtNewMethod;
 import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusEntityReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
+
+import java.util.Arrays;
 
 /**
  * @author future0923
@@ -40,11 +46,16 @@ public class MyBatisPlusPatcher {
     @Init
     static Scheduler scheduler;
 
-    @Init
-    static ClassLoader appClassLoader;
-
     @OnClassLoadEvent(classNameRegexp = "com.baomidou.mybatisplus.core.MybatisConfiguration")
     public static void patchMybatisConfiguration(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        StringBuilder src = new StringBuilder("{");
+        src.append(PluginManagerInvoker.buildInitializePlugin(MyBatisPlugin.class));
+        src.append(PluginManagerInvoker.buildCallPluginMethod(MyBatisPlugin.class, "init", "org.mybatis.spring.SqlSessionFactoryBean.class.getClassLoader()", ClassLoader.class.getName()));
+        src.append("}");
+        CtConstructor[] constructors = ctClass.getConstructors();
+        for (CtConstructor constructor : constructors) {
+            constructor.insertAfter(src.toString());
+        }
         CtMethod removeMappedStatementMethod = CtNewMethod.make("public void $$removeMappedStatement(String statementName) {" +
                 "   if(mappedStatements.containsKey(statementName)){" +
                 "       mappedStatements.remove(statementName);" +
@@ -71,12 +82,13 @@ public class MyBatisPlusPatcher {
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public static void watchResourceRedefineMyBatisClass(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisPlus, className:{}", clazz.getName());
-        if (MyBatisUtils.isMyBatisPlus(appClassLoader)) {
-            if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
-                scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
+        ClassLoader userClassLoader = MyBatisPlugin.getUserClassLoader();
+        if (MyBatisUtils.isMyBatisPlus(userClassLoader)) {
+            if (MyBatisUtils.isMyBatisPlusEntity(userClassLoader, clazz)) {
+                scheduler.scheduleCommand(new ReflectionCommand(userClassLoader, null, MyBatisPlusEntityReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class), userClassLoader, clazz));
             }
-            if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes, null), 500);
+            if (MyBatisUtils.isMyBatisMapper(userClassLoader, clazz)) {
+                scheduler.scheduleCommand(new ReflectionCommand(userClassLoader, null, MyBatisPlusMapperReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class, byte[].class, String.class), userClassLoader, clazz, bytes, ""));
             }
         }
     }

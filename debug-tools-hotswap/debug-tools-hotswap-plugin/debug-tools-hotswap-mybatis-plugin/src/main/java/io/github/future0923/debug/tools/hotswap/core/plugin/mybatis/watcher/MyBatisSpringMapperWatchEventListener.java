@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -68,9 +69,9 @@ public class MyBatisSpringMapperWatchEventListener implements WatchEventListener
                 logger.warning("not found class", e);
                 return;
             }
-            if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+            if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, className, bytes, event.getURI().getPath()), 500);
+                scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", Arrays.asList(String.class, byte[].class, String.class), className, bytes, event.getURI().getPath()));
             }
         }
     }

@@ -17,6 +17,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
+import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusEntityReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
@@ -26,6 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -67,7 +69,7 @@ public class MyBatisPlusEntityWatchEventListener implements WatchEventListener {
                 return;
             }
             if (MyBatisUtils.isMyBatisPlusEntity(appClassLoader, clazz)) {
-                scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(appClassLoader, clazz), 500);
+                scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisPlusEntityReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class), appClassLoader, clazz));
             }
         }
     }

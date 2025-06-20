@@ -28,6 +28,7 @@ import java.lang.annotation.Annotation;
 /**
  * @author future0923
  */
+@SuppressWarnings("unchecked")
 public class MyBatisUtils {
 
     private static final Logger logger = Logger.getLogger(MyBatisUtils.class);
@@ -131,7 +132,7 @@ public class MyBatisUtils {
                 logger.debug("classBeingRedefined is not isInterface");
                 return false;
             }
-            if (clazz.getAnnotation(Mapper.class) != null) {
+            if (clazz.getAnnotation((Class<? extends Annotation>) loader.loadClass("org.apache.ibatis.annotations.Mapper")) != null) {
                 return true;
             }
             Class<?> baseMapperClass = loader.loadClass("com.baomidou.mybatisplus.core.mapper.BaseMapper");
