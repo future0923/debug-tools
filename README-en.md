@@ -57,19 +57,19 @@
 
 ## Demonstration of the effect.
 
-- 热部署
+- hot deploy
 
 ![hot_deploy.gif](/docs/public/gif/hot_deploy.gif)
 
-- 热重载
+- hot reload
 
 ![hot_reload.gif](/docs/public/gif/hot_reload.gif)
 
-- 调用任意Java方法
+- call any Java method
 
 ![quick_debug.gif](/docs/public/gif/quick_debug.gif)
 
-- 搜索HttpUrl
+- search http url
 
 ![search_url.gif](/docs/public/gif/search_url.gif)
 
