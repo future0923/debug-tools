@@ -22,25 +22,25 @@ DebugTools 是一款集成于 IntelliJ IDEA 的 Java 开发调试插件，专注
 
 ## 效果演示
 
-- hot deploy
+- 热部署
 
 <video controls width="640">
   <source src="https://download.debug-tools.cc/mp4/hot_deploy.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_deploy.mp4
 </video>
 
-- hot reload
+- 热重载
 
 <video controls width="640">
   <source src="https://download.debug-tools.cc/mp4/hot_reload.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_reload.mp4
 </video>
 
-- call any Java method
+- 调用任意Java方法
 
 <video controls width="640">
   <source src="https://download.debug-tools.cc/mp4/quick_debug.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/quick_debug.mp4
 </video>
 
-- search HttpUrl
+- 搜索HttpUrl
 
 <video controls width="640">
   <source src="https://download.debug-tools.cc/mp4/search_url.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/search_url.mp4
