@@ -20,6 +20,8 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
+import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
+import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.jackson.command.JacksonReloadCommand;
 
 /**
@@ -35,8 +37,17 @@ public class JacksonPlugin {
     @Init
     static Scheduler scheduler;
 
+    private static boolean isJacksonEnv = false;
+
+    @OnClassLoadEvent(classNameRegexp = "com.fasterxml.jackson.databind.ObjectMapper")
+    public static void register(ClassLoader classLoader) throws NotFoundException, CannotCompileException {
+        isJacksonEnv = true;
+    }
+
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void redefineClass(final Class<?> clazz) {
-        scheduler.scheduleCommand(new JacksonReloadCommand(clazz), 500);
+    public static void redefineClass(final Class<?> clazz, final ClassLoader appClassLoader) {
+        if (isJacksonEnv) {
+            scheduler.scheduleCommand(new JacksonReloadCommand(clazz, appClassLoader), 500);
+        }
     }
 }

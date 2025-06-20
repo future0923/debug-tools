@@ -15,40 +15,61 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.jackson.command;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
-import com.fasterxml.jackson.databind.ser.SerializerCache;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassLoaderUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * @author future0923
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JacksonReloadCommand extends MergeableCommand {
 
     private static final Logger logger = Logger.getLogger(JacksonReloadCommand.class);
 
     private final Class<?> clazz;
 
-    public JacksonReloadCommand(Class<?> clazz) {
+    private final ClassLoader appClassLoader;
+
+    public JacksonReloadCommand(Class<?> clazz, ClassLoader appClassLoader) {
         this.clazz = clazz;
+        this.appClassLoader = appClassLoader;
     }
 
     @Override
     public void executeCommand() {
-        JavaType javaType = new ObjectMapper().constructType(clazz);
+        Class<?> objectMapperClass = ClassLoaderUtil.loadClass("com.fasterxml.jackson.databind.ObjectMapper", appClassLoader, true);
+        Class deserializerCacheClass;
+        try {
+            deserializerCacheClass = appClassLoader.loadClass("com.fasterxml.jackson.databind.deser.DeserializerCache");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        Class serializerCacheClass;
+        try {
+            serializerCacheClass = appClassLoader.loadClass("com.fasterxml.jackson.databind.ser.SerializerCache");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+        Object[] objectMappers = JvmToolsUtils.getInstances(objectMapperClass);
+        if (objectMappers == null || objectMappers.length == 0) {
+            return;
+        }
+        Object javaType;
+        try {
+            Object ob = objectMapperClass.getConstructor().newInstance();
+            javaType = ReflectUtil.invoke(ob, "constructType", clazz);
+        } catch (Exception e) {
+            javaType = ReflectUtil.invoke(objectMappers[0], "constructType", clazz);
+        }
         boolean changed = false;
-        ObjectMapper[] objectMappers = JvmToolsUtils.getInstances(ObjectMapper.class);
-        for (ObjectMapper objectMapper : objectMappers) {
-            ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers = (ConcurrentHashMap<JavaType, JsonDeserializer<Object>>) ReflectionHelper.getNoException(objectMapper, ObjectMapper.class, "_rootDeserializers");
+        for (Object objectMapper : objectMappers) {
+            Map _rootDeserializers = (Map) ReflectionHelper.getNoException(objectMapper, objectMapperClass, "_rootDeserializers");
             if (_rootDeserializers != null) {
                 boolean remove = _rootDeserializers.remove(javaType) != null;
                 if (!changed && remove) {
@@ -56,17 +77,17 @@ public class JacksonReloadCommand extends MergeableCommand {
                 }
             }
         }
-        DeserializerCache[] deserializerCaches = JvmToolsUtils.getInstances(DeserializerCache.class);
-        for (DeserializerCache deserializerCache : deserializerCaches) {
-            deserializerCache.flushCachedDeserializers();
-            HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers = (HashMap<JavaType, JsonDeserializer<Object>>) ReflectionHelper.getNoException(deserializerCache, DeserializerCache.class, "_incompleteDeserializers");
+        Object[] deserializerCaches = JvmToolsUtils.getInstances(deserializerCacheClass);
+        for (Object deserializerCache : deserializerCaches) {
+            ReflectUtil.invoke(deserializerCache, "flushCachedDeserializers");
+            Map _incompleteDeserializers = (Map) ReflectionHelper.getNoException(deserializerCache, deserializerCacheClass, "_incompleteDeserializers");
             if (_incompleteDeserializers != null) {
                 _incompleteDeserializers.remove(javaType);
             }
         }
-        SerializerCache[] serializerCaches = JvmToolsUtils.getInstances(SerializerCache.class);
-        for (SerializerCache serializerCache : serializerCaches) {
-            serializerCache.flush();
+        Object[] serializerCaches = JvmToolsUtils.getInstances(serializerCacheClass);
+        for (Object serializerCache : serializerCaches) {
+            ReflectUtil.invoke(serializerCache, "flush");
         }
         if (changed) {
             logger.reload("Class '{}' has been reloaded.", clazz.getName());
