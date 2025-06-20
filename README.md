@@ -55,6 +55,24 @@
 - [xxl-job](https://debug-tools.cc/guide/xxl-job.html)：不通过 xxl-job Server可以调用 client 端方法，并支持上下文传参。
 - [groovy](https://debug-tools.cc/guide/groovy-execute.html)：执行 Groovy 脚本，可以运行代码获取或修改附着应用信息调试。
 
+## 效果演示
+
+- 热部署
+
+![hot_deploy.gif](/docs/public/gif/hot_deploy.gif)
+
+- 热重载
+
+![hot_reload.gif](/docs/public/gif/hot_reload.gif)
+
+- 调用任意Java方法
+
+![quick_debug.gif](/docs/public/gif/quick_debug.gif)
+
+- 搜索HttpUrl
+
+![search_url.gif](/docs/public/gif/search_url.gif)
+
 ## 快速开始
 
 ### 安装

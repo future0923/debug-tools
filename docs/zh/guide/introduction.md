@@ -18,4 +18,30 @@ DebugTools 是一款集成于 IntelliJ IDEA 的 Java 开发调试插件，专注
 - [groovy](groovy-execute)：执行 Groovy 脚本，可以运行代码获取或修改附着应用信息调试。
 - ......
 
-如果你有订制需要，可以提交 [issue](https://github.com/java-hot-deploy/debug-tools/issues) 反馈。 
+如果你有订制需要，可以提交 [issue](https://github.com/java-hot-deploy/debug-tools/issues) 反馈。
+
+## 效果演示
+
+- hot deploy
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/hot_deploy.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_deploy.mp4
+</video>
+
+- hot reload
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/hot_reload.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_reload.mp4
+</video>
+
+- call any Java method
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/quick_debug.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/quick_debug.mp4
+</video>
+
+- search HttpUrl
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/search_url.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/search_url.mp4
+</video>
