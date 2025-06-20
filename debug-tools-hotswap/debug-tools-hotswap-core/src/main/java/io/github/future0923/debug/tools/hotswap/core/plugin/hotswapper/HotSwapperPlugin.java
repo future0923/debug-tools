@@ -125,8 +125,7 @@ public class HotSwapperPlugin {
      */
     public void initHotswapCommand(ClassLoader appClassLoader, String port) {
         if (port != null && !port.isEmpty()) {
-            hotswapCommand = new ReflectionCommand(this, HotSwapperCommand.class.getName(), "hotswap", appClassLoader,
-                    port, reloadMap);
+            hotswapCommand = new ReflectionCommand(appClassLoader, this, HotSwapperCommand.class.getName(), "hotswap", Arrays.asList(String.class, HashMap.class), port, reloadMap);
         } else {
             hotswapCommand = new Command() {
                 @Override

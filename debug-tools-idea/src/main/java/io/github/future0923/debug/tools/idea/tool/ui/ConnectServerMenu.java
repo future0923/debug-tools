@@ -171,7 +171,7 @@ public class ConnectServerMenu extends JBPopupMenu {
         for (Map.Entry<String, String> entry : entries) {
             JPanel itemPanel = createListItemPanel(entry, historyPanel);
             historyPanel.add(itemPanel);
-            historyPanel.add(Box.createVerticalStrut(5)); // 添加间距
+            historyPanel.add(JBBox.createVerticalStrut(5)); // 添加间距
         }
     }
     private JPanel createListItemPanel(Map.Entry<String, String> entry, Container parent) {
@@ -183,7 +183,7 @@ public class ConnectServerMenu extends JBPopupMenu {
                 BorderFactory.createLineBorder(new JBColor(new Color(195, 197, 208), new Color(76, 79, 85)),1,true),
                 BorderFactory.createEmptyBorder(3, 3, 3, 3)
         ));
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -205,7 +205,7 @@ public class ConnectServerMenu extends JBPopupMenu {
         JLabel label = new JLabel(entry.getKey());
         label.setToolTipText(hostInfo.getStr("host") + "@" + hostInfo.getInt("tcpPort") + "@" + hostInfo.getInt("httpPort"));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 1, 1));
 
         JButton editButton = new JButton("Connect");
         editButton.addActionListener(e -> {

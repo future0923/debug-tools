@@ -62,9 +62,6 @@ public class MyBatisSpringPatcher {
     private static final Logger logger = Logger.getLogger(MyBatisSpringPatcher.class);
 
     @Init
-    static ClassLoader appClassLoader;
-
-    @Init
     static Scheduler scheduler;
 
     @Init
@@ -90,10 +87,13 @@ public class MyBatisSpringPatcher {
     public static void patchSqlSessionFactoryBean(CtClass ctClass, ClassPool classPool) throws Exception {
         logger.debug("org.mybatis.spring.SqlSessionFactoryBean patched.");
         // @OnResourceFileEvent只能在主插件作用与实例对象，所以要初始化插件对象
-        String src = "{" + PluginManagerInvoker.buildInitializePlugin(MyBatisPlugin.class) + "}";
+        StringBuilder src = new StringBuilder("{");
+        src.append(PluginManagerInvoker.buildInitializePlugin(MyBatisPlugin.class));
+        src.append(PluginManagerInvoker.buildCallPluginMethod(MyBatisPlugin.class, "init", "org.mybatis.spring.SqlSessionFactoryBean.class.getClassLoader()", ClassLoader.class.getName()));
+        src.append("}");
         CtConstructor[] constructors = ctClass.getConstructors();
         for (CtConstructor constructor : constructors) {
-            constructor.insertAfter(src);
+            constructor.insertAfter(src.toString());
         }
         CtMethod afterPropertiesSet = ctClass.getDeclaredMethod("afterPropertiesSet");
         afterPropertiesSet.insertAfter(MyBatisSpringResourceManager.class.getName() + ".registerConfiguration(this.sqlSessionFactory.getConfiguration());");
@@ -151,7 +151,7 @@ public class MyBatisSpringPatcher {
         try {
             resourceUrls = ClassLoaderHelper.getResources(MyBatisSpringPatcher.class.getClassLoader(), classNameRegExp);
         } catch (IOException e) {
-            logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, appClassLoader);
+            logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, MyBatisPlugin.getUserClassLoader());
             return;
         }
         while (resourceUrls.hasMoreElements()) {
@@ -159,8 +159,8 @@ public class MyBatisSpringPatcher {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("mybatis mapper basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, appClassLoader, basePackage));
-                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisSpringMapperWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(MyBatisPlugin.getUserClassLoader(), basePackage, basePackageURL, new MyBatisPlusMapperWatchEventListener(scheduler, MyBatisPlugin.getUserClassLoader(), basePackage));
+                watcher.addEventListener(MyBatisPlugin.getUserClassLoader(), basePackage, basePackageURL, new MyBatisSpringMapperWatchEventListener(scheduler, MyBatisPlugin.getUserClassLoader(), basePackage));
             }
         }
     }
@@ -182,7 +182,7 @@ public class MyBatisSpringPatcher {
         try {
             resourceUrls = ClassLoaderHelper.getResources(MyBatisSpringPatcher.class.getClassLoader(), classNameRegExp);
         } catch (IOException e) {
-            logger.error("Unable to resolve entity base package {} in classloader {}.", classNameRegExp, appClassLoader);
+            logger.error("Unable to resolve entity base package {} in classloader {}.", classNameRegExp, MyBatisPlugin.getUserClassLoader());
             return;
         }
         while (resourceUrls.hasMoreElements()) {
@@ -190,18 +190,18 @@ public class MyBatisSpringPatcher {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("mybatis entity basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(appClassLoader, basePackage, basePackageURL, new MyBatisPlusEntityWatchEventListener(scheduler, appClassLoader, basePackage));
+                watcher.addEventListener(MyBatisPlugin.getUserClassLoader(), basePackage, basePackageURL, new MyBatisPlusEntityWatchEventListener(scheduler, MyBatisPlugin.getUserClassLoader(), basePackage));
             }
         }
     }
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void redefineMyBatisSpringMapper(final Class<?> clazz, final byte[] bytes) {
+    public static void redefineMyBatisSpringMapper(final Class<?> clazz, final ClassLoader appClassLoader, final byte[] bytes) {
         if (ProjectConstants.DEBUG) {
             logger.info("redefine class {}", clazz.getName());
         }
         if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new ReflectionCommand(null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", appClassLoader, clazz.getName(), bytes, ""), 500);
+            scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", Arrays.asList(String.class, byte[].class, String.class), clazz.getName(), bytes, ""));
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
@@ -195,7 +196,7 @@ public class ClassPathBeanDefinitionScannerAgent {
     }
 
     private static void resolvePath(String path, String beanName) {
-        if (path != null) {
+        if (StrUtil.isNotBlank(path)) {
             Set<String> beanNameList = pathBeanNameMapping.computeIfAbsent(path, k -> new HashSet<>());
             beanNameList.add(beanName);
         }
@@ -379,7 +380,7 @@ public class ClassPathBeanDefinitionScannerAgent {
             }
             removeIfExists(beanName);
             if (checkCandidate(beanName, candidate)) {
-                if (path != null) {
+                if (StrUtil.isNotBlank(path)) {
                     resolvePath(path, beanName);
                 }
                 removeDeleteBeanNameSet(beanName);
