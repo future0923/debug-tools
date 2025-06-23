@@ -20,21 +20,21 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.dto;
  */
 public class MyBatisPlusEntityReloadDTO {
 
-    private ClassLoader appClassLoader;
+    private ClassLoader userClassLoader;
 
     private Class<?> clazz;
 
-    public MyBatisPlusEntityReloadDTO(ClassLoader appClassLoader, Class<?> clazz) {
-        this.appClassLoader = appClassLoader;
+    public MyBatisPlusEntityReloadDTO(ClassLoader userClassLoader, Class<?> clazz) {
+        this.userClassLoader = userClassLoader;
         this.clazz = clazz;
     }
 
-    public ClassLoader getAppClassLoader() {
-        return appClassLoader;
+    public ClassLoader getUserClassLoader() {
+        return userClassLoader;
     }
 
-    public void setAppClassLoader(ClassLoader appClassLoader) {
-        this.appClassLoader = appClassLoader;
+    public void setUserClassLoader(ClassLoader userClassLoader) {
+        this.userClassLoader = userClassLoader;
     }
 
     public Class<?> getClazz() {

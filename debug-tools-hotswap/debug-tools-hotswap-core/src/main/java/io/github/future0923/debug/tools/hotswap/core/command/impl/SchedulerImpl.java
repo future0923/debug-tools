@@ -39,7 +39,7 @@ public class SchedulerImpl implements Scheduler {
     /**
      * 默认超时时间
      */
-    int DEFAULT_SCHEDULING_TIMEOUT = 100;
+    int DEFAULT_SCHEDULING_TIMEOUT = 500;
 
     /**
      * 投递进来的命令（无序）
@@ -68,7 +68,7 @@ public class SchedulerImpl implements Scheduler {
 
     @Override
     public void scheduleCommand(Command command, int timeout) {
-        scheduleCommand(command, timeout, DuplicateSheduleBehaviour.WAIT_AND_RUN_AFTER);
+        scheduleCommand(command, timeout, DuplicateSheduleBehaviour.SKIP);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class JacksonPlugin {
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public static void redefineClass(final Class<?> clazz, final ClassLoader appClassLoader) {
         if (isJacksonEnv) {
-            scheduler.scheduleCommand(new JacksonReloadCommand(clazz, appClassLoader), 500);
+            scheduler.scheduleCommand(new JacksonReloadCommand(clazz, appClassLoader), 1000);
         }
     }
 }

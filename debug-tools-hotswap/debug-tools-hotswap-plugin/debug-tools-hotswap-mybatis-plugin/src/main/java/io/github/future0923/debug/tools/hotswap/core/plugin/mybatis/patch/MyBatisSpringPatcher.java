@@ -21,7 +21,6 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
@@ -172,7 +171,7 @@ public class MyBatisSpringPatcher {
         method.insertAfter(
                 "if (this instanceof org.springframework.context.annotation.ClassPathBeanDefinitionScanner) {" +
                         MyBatisSpringPatcher.class.getName() + ".registerEntityTransformer($1);" +
-                    "}"
+                        "}"
         );
     }
 
@@ -201,7 +200,7 @@ public class MyBatisSpringPatcher {
             logger.info("redefine class {}", clazz.getName());
         }
         if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", Arrays.asList(String.class, byte[].class, String.class), clazz.getName(), bytes, ""));
+            scheduler.scheduleCommand(new MyBatisSpringMapperReloadCommand(appClassLoader, clazz.getName(), bytes, ""), 1000);
         }
     }
 }

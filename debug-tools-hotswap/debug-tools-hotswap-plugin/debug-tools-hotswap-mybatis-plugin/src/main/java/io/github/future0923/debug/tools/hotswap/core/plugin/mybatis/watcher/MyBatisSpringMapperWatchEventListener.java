@@ -17,7 +17,6 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
-import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
@@ -27,7 +26,6 @@ import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -71,7 +69,7 @@ public class MyBatisSpringMapperWatchEventListener implements WatchEventListener
             }
             if (MyBatisUtils.isMyBatisSpring(appClassLoader) && MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, null, MyBatisSpringMapperReloadCommand.class.getName(), "reloadConfiguration", Arrays.asList(String.class, byte[].class, String.class), className, bytes, event.getURI().getPath()));
+                scheduler.scheduleCommand(new MyBatisSpringMapperReloadCommand(appClassLoader, className, bytes, event.getURI().getPath(), event), 1000);
             }
         }
     }

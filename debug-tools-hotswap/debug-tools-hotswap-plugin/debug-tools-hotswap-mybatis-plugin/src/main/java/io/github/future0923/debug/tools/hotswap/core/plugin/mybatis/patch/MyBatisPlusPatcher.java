@@ -19,7 +19,6 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
 import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
@@ -33,8 +32,6 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBa
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
-
-import java.util.Arrays;
 
 /**
  * @author future0923
@@ -80,15 +77,15 @@ public class MyBatisPlusPatcher {
     }
 
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
-    public static void watchResourceRedefineMyBatisClass(final Class<?> clazz, final byte[] bytes) {
+    public static void redefineMyBatisClass(final Class<?> clazz, final byte[] bytes) {
         logger.debug("redefineMyBatisPlus, className:{}", clazz.getName());
         ClassLoader userClassLoader = MyBatisPlugin.getUserClassLoader();
         if (MyBatisUtils.isMyBatisPlus(userClassLoader)) {
             if (MyBatisUtils.isMyBatisPlusEntity(userClassLoader, clazz)) {
-                scheduler.scheduleCommand(new ReflectionCommand(userClassLoader, null, MyBatisPlusEntityReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class), userClassLoader, clazz));
+                scheduler.scheduleCommand(new MyBatisPlusEntityReloadCommand(userClassLoader, clazz), 1000);
             }
             if (MyBatisUtils.isMyBatisMapper(userClassLoader, clazz)) {
-                scheduler.scheduleCommand(new ReflectionCommand(userClassLoader, null, MyBatisPlusMapperReloadCommand.class.getName(), "doReload", Arrays.asList(ClassLoader.class, Class.class, byte[].class, String.class), userClassLoader, clazz, bytes, ""));
+                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(userClassLoader, clazz, bytes, ""), 1000);
             }
         }
     }

@@ -15,7 +15,6 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.jackson.command;
 
-import io.github.future0923.debug.tools.base.hutool.core.util.ClassLoaderUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
@@ -43,7 +42,12 @@ public class JacksonReloadCommand extends MergeableCommand {
 
     @Override
     public void executeCommand() {
-        Class<?> objectMapperClass = ClassLoaderUtil.loadClass("com.fasterxml.jackson.databind.ObjectMapper", appClassLoader, true);
+        Class<?> objectMapperClass;
+        try {
+            objectMapperClass = appClassLoader.loadClass("com.fasterxml.jackson.databind.ObjectMapper");
+        } catch (ClassNotFoundException e) {
+            return;
+        }
         Class deserializerCacheClass;
         try {
             deserializerCacheClass = appClassLoader.loadClass("com.fasterxml.jackson.databind.deser.DeserializerCache");
