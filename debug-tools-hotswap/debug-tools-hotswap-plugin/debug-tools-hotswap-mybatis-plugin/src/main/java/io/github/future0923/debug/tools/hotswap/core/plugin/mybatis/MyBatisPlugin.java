@@ -20,7 +20,6 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringXmlReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.DynamicPatcher;
@@ -33,8 +32,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,7 +98,7 @@ public class MyBatisPlugin {
         }
         if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(url.getPath()))
                 || ((FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(url.getPath())))) {
-            scheduler.scheduleCommand(new ReflectionCommand(appClassLoader, this, MyBatisSpringXmlReloadCommand.class.getName(), "reloadConfiguration", Collections.singletonList(URL.class), url), 500);
+            scheduler.scheduleCommand(new MyBatisSpringXmlReloadCommand(appClassLoader, url), 1000);
         }
     }
 }
