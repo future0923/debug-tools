@@ -15,10 +15,10 @@
  */
 package io.github.future0923.debug.tools.server.scoket.handler;
 
+import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
-import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
@@ -97,7 +97,18 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         if (DebugToolsStringUtils.isNotBlank(runDTO.getXxlJobParam())) {
             DebugToolsEnvUtils.setXxlJobParam(runDTO.getXxlJobParam());
         }
-        Object instance = BeanInstanceUtils.getInstance(targetClass, targetMethod);
+        Object instance = null;
+        if (!targetMethod.isSynthetic()) {
+            try {
+                instance = BeanInstanceUtils.getInstance(targetClass, targetMethod);
+            } catch (Exception e) {
+                ArgsParseException exception = new ArgsParseException("获取目标实例失败", e);
+                String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
+                DebugToolsResultUtils.putCache(offsetPath, exception);
+                writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+                return;
+            }
+        }
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());

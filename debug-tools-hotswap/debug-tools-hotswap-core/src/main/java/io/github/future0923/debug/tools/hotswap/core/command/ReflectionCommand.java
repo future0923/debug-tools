@@ -90,14 +90,6 @@ public class ReflectionCommand extends MergeableCommand {
         this.params = Arrays.asList(params);
     }
 
-    @Override
-    public String toString() {
-        return "Command{" +
-                "class='" + getClassName() + '\'' +
-                ", methodName='" + getMethodName() + '\'' +
-                '}';
-    }
-
     public String getClassName() {
         if (className == null && target != null) {
             return target.getClass().getName();
@@ -190,5 +182,18 @@ public class ReflectionCommand extends MergeableCommand {
         result = 31 * result + (plugin != null ? plugin.hashCode() : 0);
         result = 31 * result + (targetClassLoader != null ? targetClassLoader.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ReflectionCommand{" +
+                "target=" + target +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", paramTypes=" + Arrays.toString(paramTypes) +
+                ", params=" + params +
+                ", plugin=" + plugin +
+                ", targetClassLoader=" + targetClassLoader +
+                '}';
     }
 }

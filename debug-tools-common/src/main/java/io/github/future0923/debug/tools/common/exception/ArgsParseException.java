@@ -24,6 +24,10 @@ public class ArgsParseException extends DebugToolsRuntimeException {
         super(message);
     }
 
+    public ArgsParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public ArgsParseException(Throwable cause) {
         super(cause);
     }

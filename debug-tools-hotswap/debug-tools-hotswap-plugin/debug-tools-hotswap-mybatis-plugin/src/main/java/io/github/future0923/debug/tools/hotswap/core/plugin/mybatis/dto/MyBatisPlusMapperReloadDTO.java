@@ -20,7 +20,7 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.dto;
  */
 public class MyBatisPlusMapperReloadDTO {
 
-    private final ClassLoader appClassLoader;
+    private final ClassLoader userClassLoader;
 
     private final Class<?> clazz;
 
@@ -28,15 +28,15 @@ public class MyBatisPlusMapperReloadDTO {
 
     private final String path;
 
-    public MyBatisPlusMapperReloadDTO(ClassLoader appClassLoader, Class<?> clazz, byte[] bytes, String path) {
-        this.appClassLoader = appClassLoader;
+    public MyBatisPlusMapperReloadDTO(ClassLoader userClassLoader, Class<?> clazz, byte[] bytes, String path) {
+        this.userClassLoader = userClassLoader;
         this.clazz = clazz;
         this.bytes = bytes;
         this.path = path;
     }
 
-    public ClassLoader getAppClassLoader() {
-        return appClassLoader;
+    public ClassLoader getUserClassLoader() {
+        return userClassLoader;
     }
 
     public Class<?> getClazz() {

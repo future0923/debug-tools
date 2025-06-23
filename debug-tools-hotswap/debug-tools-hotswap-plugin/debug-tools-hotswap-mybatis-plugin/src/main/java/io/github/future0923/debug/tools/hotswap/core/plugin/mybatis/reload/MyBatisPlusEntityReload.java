@@ -68,7 +68,7 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
             }
             return;
         }
-        ClassLoader classLoader = dto.getAppClassLoader();
+        ClassLoader classLoader = dto.getUserClassLoader();
         try {
             logger.debug("reload class: {}", className);
             ClassPathMapperScanner mapperScanner = MyBatisSpringResourceManager.getMapperScanner();
