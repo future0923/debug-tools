@@ -12,7 +12,7 @@ hero:
       link: /guide/introduction
     - theme: alt
       text: 快速开始
-      link: /guide/quick-start
+      link: /guide/install
     - theme: alt
       text: GitHub
       link: https://github.com/java-hot-deploy/debug-tools

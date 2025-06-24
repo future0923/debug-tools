@@ -1,6 +1,6 @@
 {
   "name": "debugtools",
-  "version": "4.1.0-SNAPSHOT",
+  "version": "4.1.0",
   "devDependencies": {
     "vitepress": "^1.5.0"
   },

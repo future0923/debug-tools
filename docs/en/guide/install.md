@@ -52,9 +52,20 @@ https://gitee.com/future94/debug-tools/releases
 
 Specific JDK support is only required when using the [hot-deploy](hot-deploy) and [hot-reload](hot-reload) functions.
 
+To simplify the hot deployment installation steps, Linux supports one-click installation, using the following command:
+
+```shell
+wget https://download.debug-tools.cc/install/linux-install.tar.gz -O linux-install.tar.gz && tar zxf linux-install.tar.gz && cd linux-install && ./install.sh
+```
+
+Installation location.
+
+- jdk: `/usr/local/java`
+- debug-tools: `/usr/local/debug-tools`
+
 ### 2.1 JDK 8 {#jdk8}
 
-#### 2.1.1 Use the packaged JDK package directly
+#### 2.1.1 Use the packaged JDK package directly （Recommend）
 
 ::: details Download from github
 
@@ -81,7 +92,7 @@ Specific JDK support is only required when using the [hot-deploy](hot-deploy) an
 Download the corresponding version of the .jar file. <span style="color: red;">Currently only the following versions of JDK are supported, please select the corresponding version. </span>
 
 | java version | download by debug tools                                                                                | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-installer)                                       |
-|--------------|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+|--------------|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | 1.8.0_181    | [DCEVM-8u181-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u181-installer.jar) | [DCEVM-8u181-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u181-installer.jar) |
 | 1.8.0_172    | [DCEVM-8u172-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u172-installer.jar) | [DCEVM-8u172-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u172-installer.jar) |
 | 1.8.0_152    | [DCEVM-8u152-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u152-installer.jar) | [DCEVM-8u152-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u152-installer.jar) |
@@ -111,7 +122,7 @@ Please install or use the JRE or JDK that contains these missing components.
 Download the corresponding version file and rename it to `libjvm.so` and put it in the directory extracted above.
 
 | java version | download by debug tools                                             | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/libjvm.so)             |
-|--------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+|--------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | >= 1.8.0_181 | [libjvm181.so](https://download.debug-tools.cc/libjvm/libjvm181.so) | [libjvm181.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm181.so) |
 | 1.8.0_172    | [libjvm172.so](https://download.debug-tools.cc/libjvm/libjvm172.so) | [libjvm172.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm172.so) |
 | 1.8.0_152    | [libjvm152.so](https://download.debug-tools.cc/libjvm/libjvm152.so) | [libjvm152.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm152.so) |
@@ -131,16 +142,16 @@ Use [trava-jdk-11-dcevm](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/rele
 
 - MacOS latest version [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-mac-x64.tar.gz) Download address
 - Windows latest version [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-windows-x64.zip) Download address
-- Windows latest version [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-linux-x64.tar.gz) Download address
+- Linux latest version [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-linux-x64.tar.gz) Download address
 - Other versions can be downloaded from [https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases).
 
 :::
 
-::: details JetBrainsRuntime
+::: details JetBrainsRuntime（Recommend）
 
 Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK can support hot deployment/hot reload.
 
-<span style = "color: red;" > Please download the JDK with dcevm. </span>
+<span style="color: red;">Please download the SDK version with JBR with JCEF, both DCEVM and fastdebug are OK. </span>
 
 It is recommended to use the latest version [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
@@ -150,7 +161,11 @@ It is recommended to use the latest version [11_0_15-b2043.56](https://github.co
 
 Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK can support hot deployment/hot reload. 
 
-<span style = "color: red;" > Please download the JDK with dcevm. </span>
+<span style="color: red;">Please download the SDK version with JBR with JCEF with fastdebug. </span>
+
+For Java 17, we recommend using the latest version [17.0.14b1367.22](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-17.0.14b1367.22)
+
+For Java 21, we recommend using the [latest version](https://github.com/JetBrains/JetBrainsRuntime/releases)
 
 ::: info
 

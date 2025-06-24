@@ -14,6 +14,7 @@ cur_dir=$(pwd)
 . include/dependencies.sh
 . include/selection.sh
 . include/jdk.sh
+. include/agent.sh
 . include/check.sh
 
 Get_Dist_Name
@@ -47,6 +48,7 @@ DebugTools_Install() {
     elif [ "${JdkSelect}" = "4" ] && ! Check_Jdk21_Install; then
         Install_Jdk_21
     fi
+    Install_Debug_Tools
     Check_DebugTools_Install
 }
 
