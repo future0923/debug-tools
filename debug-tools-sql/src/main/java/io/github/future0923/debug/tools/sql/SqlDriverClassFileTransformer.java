@@ -38,6 +38,9 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
+            if (className == null) {
+                return null;
+            }
             String dotClassName = className.replace('/', '.');
             if (!isTargetDriver(dotClassName)) {
                 return null;
