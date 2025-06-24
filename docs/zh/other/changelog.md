@@ -4,6 +4,24 @@ aside: false
 ---
 # 版本迭代记录
 
+## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-xx-xx)
+
+- 热部署支持修改 MyBatis Mapper文件
+- 热部署支持修改 MyBatis Plus Entity/Mapper文件
+- 热重载支持 [Solon](https://solon.noear.org/) 应用
+- 调用Java方法支持 [Solon](https://solon.noear.org/) Bean 方法
+- 增加远程连接配置功能 by [@anweicloud](https://github.com/anweicloud)
+- 增加打印压缩SQL选项配置（Pretty、Compress、No）
+- 优化调用静态方法执行逻辑
+- 优化自动附着启动应用逻辑
+- 优化命令执行逻辑
+- 修复在Jdk21下无法打印SQL语句的bug
+- 修复Jackson反序列化嵌套class时StackOverflowError的bug
+- 修复关闭ToolWindow切换附着项目类加载器列表不刷新的bug
+- 修复只开启自动附着时附着应用失败的bug
+- 修复远程连接断开时状态无法更新的bug
+- 修复应用项目在jdk21下无法打包的bug
+
 ## [4.0.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.0...v4.0.1) (2025-06-04)
 
 - 修复 Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug
@@ -25,7 +43,7 @@ aside: false
 - 自动附着当前项目启动应用
 - 优化心跳逻辑
 - 优化 http 超时时间
-- 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG
+- 修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG by [@Aa580](https://github.com/Aa580)
 
 ## [3.4.4](https://github.com/java-hot-deploy/debug-tools/compare/v3.4.3...v3.4.4) (2025-04-22)
 
@@ -51,7 +69,7 @@ aside: false
 
 - 热重载支持支持 static 变量、static final 变量、static 代码块
 - 热重载支持支持 Enum
-- 修复在Spring环境中无法调用非Bean类的BUG
+- 修复在Spring环境中无法调用非Bean类的BUG by [@yutimothy666](https://github.com/yutimothy666)
 
 ## [3.3.0](https://github.com/java-hot-deploy/debug-tools/compare/v3.2.0...v3.3.0) (2025-02-11)
 

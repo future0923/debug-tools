@@ -50,9 +50,20 @@ https://gitee.com/future94/debug-tools/releases
 
 只有使用[热部署](hot-deploy)、[热重载](hot-reload)功能时才需要特定的JDK支持。
 
+为了简化热部署安装步骤，linux支持一键安装，使用如下命令
+
+```shell
+wget https://download.debug-tools.cc/install/linux-install.tar.gz -O linux-install.tar.gz && tar zxf linux-install.tar.gz && cd linux-install && ./install.sh
+```
+
+安装位置
+
+- jdk: `/usr/local/java`
+- debug-tools: `/usr/local/debug-tools`
+
 ### 2.1 JDK 8 {#jdk8}
 
-#### 2.1.1 直接使用打包好的JDK包
+#### 2.1.1 直接使用打包好的JDK包 （推荐）
 
 ::: details 通过github下载
 
@@ -79,7 +90,7 @@ https://gitee.com/future94/debug-tools/releases
 下载对应版本的 .jar 文件。<span style="color: red;">目前只支持下面版本的JDK，请选择对应版本的。</span>
 
 | java version | download by debug tools                                                                                | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-installer)                                       |
-|--------------|--------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+|--------------|--------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
 | 1.8.0_181    | [DCEVM-8u181-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u181-installer.jar) | [DCEVM-8u181-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u181-installer.jar) |
 | 1.8.0_172    | [DCEVM-8u172-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u172-installer.jar) | [DCEVM-8u172-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u172-installer.jar) |
 | 1.8.0_152    | [DCEVM-8u152-installer.jar](https://download.debug-tools.cc/dcevm-installer/DCEVM-8u152-installer.jar) | [DCEVM-8u152-installer.jar](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-installer/DCEVM-8u152-installer.jar) |
@@ -109,7 +120,7 @@ Please install or use the JRE or JDK that contains these missing components.
 下载对应版本的文件并改名为 `libjvm.so` 到上面提取的目录下即可。
 
 | java version | download by debug tools                                             | [download by github](https://github.com/java-hot-deploy/debug-tools/releases/tag/libjvm.so)             |
-|--------------|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+|--------------|---------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | >= 1.8.0_181 | [libjvm181.so](https://download.debug-tools.cc/libjvm/libjvm181.so) | [libjvm181.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm181.so) |
 | 1.8.0_172    | [libjvm172.so](https://download.debug-tools.cc/libjvm/libjvm172.so) | [libjvm172.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm172.so) |
 | 1.8.0_152    | [libjvm152.so](https://download.debug-tools.cc/libjvm/libjvm152.so) | [libjvm152.so](https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm152.so) |
@@ -129,16 +140,16 @@ Please install or use the JRE or JDK that contains these missing components.
 
 - MacOS最新版本 [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-mac-x64.tar.gz) 下载地址
 - Windows最新版本 [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-windows-x64.zip) 下载地址
-- Windows最新版本 [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-linux-x64.tar.gz) 下载地址
+- Linux最新版本 [Dcevm-11.0.15+1](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases/download/dcevm-11.0.15%2B1/Openjdk11u-dcevm-linux-x64.tar.gz) 下载地址
 - 其他版本访问 [https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/releases) 下载。
 
 :::
 
-::: details JetBrainsRuntime
+::: details JetBrainsRuntime （推荐）
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK 可以支持热部署/热重载。
 
-<span style="color: red;">请下载带有 dcevm 的 JDK。</span>
+<span style="color: red;">请下载带有 JBR with JCEF 的 SDK 版本，DCEVM 与 fastdebug 都可以。</span>
 
 建议使用最新版 [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
@@ -148,7 +159,11 @@ Please install or use the JRE or JDK that contains these missing components.
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK 可以支持热部署/热重载。
 
-<span style="color: red;">请下载带有 dcevm 的 JDK。</span>
+<span style="color: red;">请下载带有 JBR with JCEF 带有 fastdebug 的 SDK 版本。</span>
+
+Java 17 建议使用最新版 [17.0.14b1367.22](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-17.0.14b1367.22)
+
+Java 21 建议使用 [最新版](https://github.com/JetBrains/JetBrainsRuntime/releases) 即可
 
 ::: info
 
