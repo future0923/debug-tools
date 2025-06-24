@@ -16,29 +16,65 @@
     <description><![CDATA[
     focusing on improving development efficiency and shortening debugging cycles. <a href="https://debug-tools.cc">Official Website</a>.
     <ul>
-        <li>Hot deployment in seconds: The traditional deployment process is generally to submit code -> pull code -> package -> deploy -> restart the project before the written code can take effect. Hot deployment can skip this tedious process. After the developer modifies the code, there is no need to manually trigger packaging or restart the service. The application can load the new logic in real time and run, greatly shortening the feedback cycle. After we introduced hot deployment in development/testing environments, the overall development efficiency of the team can be greatly improved, especially for high-frequency iteration scenarios in agile development mode.</li>
-        <li>Hot reload in seconds: When writing code in the traditional way, you need to restart the application to make it effective. However, hot reload can make the written code effective immediately without restarting the application, so that the code changes written by the developer can take effect instantly, greatly improving the iteration efficiency. Supports changes in properties and methods of classes (including proxy classes), Spring, Mybatis and other mainstream frameworks.</li>
-        <li>Call any Java method: There is no need to call it layer by layer after complex business verification from the Controller layer like API. The method can be directly called to test whether the result is achieved without writing test cases. Combined with hot reload, it can be modified quickly without restarting.</li>
-        <li>SQL statements and time consumption: Without modifying any application code, you can print the executed SQL statements and time consumption.</li>
-        <li>Search Http Url: Jump directly to the corresponding method definition location through the given URL information. Built-in powerful URL information extraction function, all forms of URLs can be accurately located.</li>
-        <li>Groovy: Execute Groovy scripts, you can run code to obtain or modify attached application information for debugging.</li>
+        <li>Hot deployment in seconds: Deploy remote applications (dev/test environments) with one click. </li>
+        <li>Hot reload in seconds: Code changes take effect immediately without restarting the application. </li>
+        <li>Call any Java method: Call any Java method with one click. </li>
+        <li>SQL statements and time consumption: The executed SQL statements and time consumption can be printed without modifying any application code. </li>
+        <li>Search HttpUrl: Jump directly to the corresponding method definition location through the given URL information. </li>
+        <li>Groovy: Execute Groovy scripts. </li>
     </ul>
     专注于提升开发效率与缩短调试周期。<a href="https://debug-tools.cc">官网</a>。
     <ul>
-        <li>秒级热部署: 传统的部署流程一般为提交代码->拉取代码->打包->部署->重启项目后才能让编写的代码生效。而热部署可以跳过这繁琐的流程，开发者修改代码后无需手动触发打包或重启服务，应用即可实时加载新逻辑并运行，极大缩短反馈周期。我们开发/测试等环境引入热部署后，团队整体开发效率可提升大大提升，尤其适用于敏捷开发模式下的高频迭代场景。</li>
-        <li>秒级热重载: 传统编写代码时，需要重启应用才能生效，而热重载可以在不重启应用下让编写的代码生效立刻，让开发者编写的代码改动瞬间生效，极大提升迭代效率。支持类(包括代理类)的属性和方法变动、Spring、Mybatis等主流框架。</li>
-        <li>调用任意Java方法: 无需像 Api 一样从 Controller 层进过复杂的业务校验后一层层调用进来，方法可以直接调用测试是否达到结果，不用写测试用例。结合热重载可以快速修改，无需重启。</li>
-        <li>SQL语句与耗时: 不修改任何应用代码的情况下，可以打印执行的SQL语句与耗时。</li>
-        <li>搜索HttpUrl: 通过给定的URL信息直接跳转到相应的方法定义位置。内置强大的URL信息提取功能，各种形式的URL都能精准定位。</li>
-        <li>Groovy: 执行 Groovy 脚本，可以运行代码获取或修改附着应用信息调试。</li>
+        <li>秒级热部署: 代码一键即可部署远程应用(开发/测试环境)。</li>
+        <li>秒级热重载: 无需重启应用代码修改后立即生效。</li>
+        <li>调用任意Java方法: 一键调用任意java方法。</li>
+        <li>SQL语句与耗时: 不修改任何应用代码的情况下可以打印执行的SQL语句与耗时。</li>
+        <li>搜索HttpUrl: 通过给定的URL信息直接跳转到相应的方法定义位置。</li>
+        <li>Groovy: 执行Groovy脚本。</li>
     </ul>
   ]]></description>
 
     <change-notes>
         <![CDATA[
+        <strong>4.1.0</strong>
+        <ul>
+            <li>热部署支持修改 MyBatis Mapper文件</li>
+            <li>热部署支持修改 MyBatis Plus Entity/Mapper文件</li>
+            <li>热重载支持 Solon 应用</li>
+            <li>调用Java方法支持 Solon Bean 方法</li>
+            <li>增加远程连接配置功能</li>
+            <li>增加打印压缩SQL选项配置（Pretty、Compress、No）</li>
+            <li>优化自动附着启动应用逻辑</li>
+            <li>优化命令执行逻辑</li>
+            <li>修复在Jdk21下无法打印SQL语句的bug</li>
+            <li>修复Jackson反序列化嵌套class时StackOverflowError的bug</li>
+            <li>修复关闭ToolWindow切换附着项目类加载器列表不刷新的bug</li>
+            <li>修复只开启自动附着时附着应用失败的bug</li>
+            <li>修复远程连接断开时状态无法更新的bug</li>
+            <li>修复应用项目在jdk21下无法打包的bug</li>
+        </ul>
         <strong>4.0.1</strong>
         <ul>
-            <li>修复Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject;的BUG</li>
+            <li>修复 Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug<li>
+        </ul>
+        <strong>4.0.0</strong>
+        <ul>
+            <li>增加热部署功能，实现秒级一键热更新远程应用代码。</li>
+            <li>增加远程动态编译功能，热部署、热重载时可以选择本地Idea编译还是远程应用动态编译代码</li>
+            <li>增加默认类加载器选择功能，执行热部署、热重载、Groovy脚本时可以选择类加载器</li>
+            <li>增加 dynamic-datasource 动态数据源 `@DS` 注解热重载</li>
+            <li>增加 hutool 工具包热重载</li>
+            <li>增加 Gson 工具包热重载</li>
+            <li>增加 EasyExcel 工具包热重载</li>
+            <li>增加 FastJson 、FastJson2 工具包热重载</li>
+            <li>增加 Jackson 工具包热重载</li>
+            <li>增加 hibernate-validator 工具包热重载</li>
+            <li>重构调用方法功能，远程调用支持热部署后类</li>
+            <li>支持调用两级以上内部类方法</li>
+            <li>自动附着当前项目启动应用</li>
+            <li>优化心跳逻辑</li>
+            <li>优化 http 超时时间</li>
+            <li>修复RuntimeExceptionWithAttachments：Read access is allowed from inside read-action only的BUG by</li>
         </ul>
         ]]>
     </change-notes>

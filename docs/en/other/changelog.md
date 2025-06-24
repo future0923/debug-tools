@@ -4,6 +4,24 @@ aside: false
 ---
 # ChangeLog
 
+## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-xx-xx)
+
+- Hot deployment supports modifying MyBatis Mapper files
+- Hot deployment supports modifying MyBatis Plus Entity/Mapper files
+- Hot reload supports [Solon](https://solon.noear.org/) applications
+- Calling Java methods supports [Solon](https://solon.noear.org/) Bean methods
+- Add remote connection configuration function by [@anweicloud](https://github.com/anweicloud)
+- Add printing compression SQL option configuration (Pretty, Compress, No)
+- Optimize the logic of calling static methods.
+- Optimize the logic of automatic attachment startup application
+- Optimize command execution logic
+- Fixed the bug that SQL statements cannot be printed under Jdk21
+- Fixed the bug of StackOverflowError when Jackson deserializes nested classes
+- Fixed the bug that the list of attached project class loaders does not refresh when closing ToolWindow
+- Fixed the bug that application attachment fails when only automatic attachment is enabled
+- Fixed the bug that the status cannot be updated when the remote connection is disconnected
+- Fixed the bug that the application project cannot be packaged under jdk21
+
 ## [4.0.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.0...v4.0.1) (2025-06-04)
 
 - Fixed the bug that Exception in thread java.lang.UnsatisfiedLinkError: io.github.future0923.debug.tools.vm.VmTool.getInstances0(Ljava/lang/Class;I)[Ljava/lang/0bject; 的bug([#63](https://github.com/java-hot-deploy/debug-tools/issues/63))

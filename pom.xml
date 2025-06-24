@@ -15,8 +15,8 @@
 
     <licenses>
         <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <name>GNU General Public License (GPL)</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>4.1.0-SNAPSHOT</revision>
+        <revision>4.1.0</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -104,8 +104,7 @@
                         <configuration>
                             <properties>
                                 <owner>the original author or authors.</owner>
-                                <email/>
-                                <year>2024</year>
+                                <year>2025</year>
                             </properties>
                             <quiet>true</quiet>
                             <header>HEADER</header>

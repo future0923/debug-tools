@@ -24,6 +24,21 @@ Check_Download()
 {
     Echo_Blue "[+] 下载所需文件"
     cd ${cur_dir}/src
+    Download_File https://download.debug-tools.cc/${Debug_Tools_Properties_File_Name} ${Debug_Tools_Properties_File_Name}
+    Download_File https://download.debug-tools.cc/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
+    if [ $? -ne 0 ]; then
+        Download_File https://github.com/java-hot-deploy/debug-tools/releases/latest/download/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
+        if [ $? -ne 0 ]; then
+            Download_File https://gitee.com/future94/debug-tools/releases/download/latest/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
+        fi
+    fi
+    Download_File https://download.debug-tools.cc/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
+    if [ $? -ne 0 ]; then
+        Download_File https://github.com/java-hot-deploy/debug-tools/releases/latest/download/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
+        if [ $? -ne 0 ]; then
+            Download_File https://gitee.com/future94/debug-tools/releases/download/latest/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
+        fi
+    fi
     if [[ "${JdkSelect}" = "1" ]] && ! Check_Jdk8_Dcevm_Install; then
         if [[ "${Jdk8Select}" = "1" ]]; then
             Download_File https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/${Jdk_8_File_Name} ${Jdk_8_File_Name}
