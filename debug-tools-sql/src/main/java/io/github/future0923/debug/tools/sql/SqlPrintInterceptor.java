@@ -127,6 +127,9 @@ public class SqlPrintInterceptor {
         if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
             resultSql = SqlFormatter.format(resultSql);
         }
+        if (PrintSqlType.COMPRESS.equals(printSqlType)) {
+            resultSql = SqlCompressor.compressSql(resultSql);
+        }
         logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
     }
 }
