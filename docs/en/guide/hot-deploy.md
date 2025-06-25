@@ -10,6 +10,10 @@ The traditional deployment process is generally `submit code->pull code->package
 
 Hot deployment can skip this tedious process. After the developer modifies the code, there is no need to manually trigger packaging or restart the service. The application can load the new logic and run in seconds, greatly shortening the feedback cycle.
 
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/hot_deploy.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/hot_deploy.mp4
+</video>
+
 Hot deployment is based on [hot reload](hot-reload). Hot reload only supports local environment, while hot deployment allows remote applications to be hot reloaded.
 
 ## 2. Enable hot deployment

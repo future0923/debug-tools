@@ -78,7 +78,6 @@ public class MyBatisPlusMapperReloadCommand extends EventMergeableCommand<MyBati
             logger.trace("Skip reload for delete event on class '{}'", clazz.getName());
             return;
         }
-        System.out.println("aaaaaaaaa:" + System.currentTimeMillis());
         try {
             ClassLoader orginalClassLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(userClassLoader);
@@ -100,8 +99,6 @@ public class MyBatisPlusMapperReloadCommand extends EventMergeableCommand<MyBati
 
     @Override
     public int hashCode() {
-        int i = Objects.hashCode(clazz);
-        System.out.println("123213213213213 " + i);
-        return i;
+        return Objects.hashCode(clazz);
     }
 }

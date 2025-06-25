@@ -1,5 +1,11 @@
 # Attach Local Application {#attach-local}
 
+Effect Demonstration
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/quick_debug.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/quick_debug.mp4
+</video>
+
 ## Start Debug {#start-debugging}
 
 ### Start Application {#start-application}
