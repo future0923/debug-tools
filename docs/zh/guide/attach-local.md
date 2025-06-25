@@ -1,5 +1,11 @@
 # 附着本地应用 {#attach-local}
 
+效果演示
+
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/quick_debug.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/quick_debug.mp4
+</video>
+
 ### 1. 启动应用 {#start-application}
 
 DebugTools 通过 `Java Agent` 技术来实现调试，所以调试时必须保证项目已经启动完成。
