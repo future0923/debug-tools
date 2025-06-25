@@ -4,6 +4,10 @@
 
 When we develop a project, we define multiple methods through Spring's Mapping annotation and generate the final URL. It is very inconvenient when we search for the corresponding code location through the URL.
 
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/search_url.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/search_url.mp4
+</video>
+
 ## use {#use}
 
 ### Shortcut keys 

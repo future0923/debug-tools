@@ -32,7 +32,7 @@ features:
   - icon:
       src: /icon/hotswap_on.svg
     title: Hot Reload
-    details: Traditionally, when writing code, you need to restart the application to make it effective. However, hot reload can make the written code effective immediately without restarting the application, making the code changes written by developers take effect instantly, greatly improving iteration efficiency. Supports changes to properties and methods of classes (including proxy classes), Spring, Mybatis and other mainstream frameworks. At the same time, it is compatible with multiple JDK versions such as jdk8, jdk11, jdk17, jdk21, etc.
+    details: Traditionally, when writing code, you need to restart the application to make it effective. However, hot reload can make the written code effective immediately without restarting the application, making the code changes written by developers take effect instantly, greatly improving iteration efficiency. Supports changes to properties and methods of classes (including proxy classes), Spring, Solon, Mybatis and other mainstream frameworks. At the same time, it is compatible with multiple JDK versions such as jdk8, jdk11, jdk17, jdk21, etc.
     link: /en/guide/hot-reload
   - icon: 🚗
     title: Call any Java method

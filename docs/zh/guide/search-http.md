@@ -4,6 +4,10 @@
 
 当我们开发项目时，通过 Spring 的 Mapping 注解定义了多个方法，生成最终了 url，当我们通过 url 搜索对应的代码位置时十分的不方便。
 
+<video controls width="640">
+  <source src="https://download.debug-tools.cc/mp4/search_url.mp4" type="video/mp4">https://download.debug-tools.cc/mp4/search_url.mp4
+</video>
+
 ## 使用 {#use}
 
 ### 快捷键
