@@ -4,7 +4,7 @@ aside: false
 ---
 # 版本迭代记录
 
-## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-xx-xx)
+## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-06-27)
 
 - 热部署支持修改 MyBatis Mapper文件
 - 热部署支持修改 MyBatis Plus Entity/Mapper文件
