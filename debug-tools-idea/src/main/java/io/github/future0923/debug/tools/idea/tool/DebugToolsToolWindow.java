@@ -26,6 +26,7 @@ import com.intellij.ui.JBSplitter;
 import io.github.future0923.debug.tools.idea.tool.action.AttachAction;
 import io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction;
 import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
+import io.github.future0923.debug.tools.idea.tool.action.SettingAction;
 import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
 
 /**
@@ -50,6 +51,8 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         defaultActionGroup.add(new AttachAction());
         defaultActionGroup.add(new ConnectAction());
         defaultActionGroup.add(new ClearCacheAction());
+        defaultActionGroup.addSeparator();
+        defaultActionGroup.add(new SettingAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(ActionManager.getInstance().getAction("DebugToolsTool.EvaluateGroovy"));
         defaultActionGroup.addSeparator();
