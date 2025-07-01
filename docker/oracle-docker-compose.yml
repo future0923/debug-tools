@@ -1,0 +1,28 @@
+services:
+  oracle11g:
+    image: registry.cn-hangzhou.aliyuncs.com/helowin/oracle_11g
+    container_name: oracle11g
+    ports:
+      - "1521:1521"
+    environment:
+      TZ: "$TZ"
+    networks:
+      - default
+
+# su 切换root用户 (密码helowin)
+# vi /etc/profile 增加oracle的环境变量
+#   export ORACLE_HOME=/home/oracle/app/oracle/product/11.2.0/dbhome_2
+#   export ORACLE_SID=helowin
+#   export PATH=$ORACLE_HOME/bin:$PATH
+# source /etc/profile 刷新环境变量
+# ln -s $ORACLE_HOME/bin/sqlplus /usr/bin 创建软连接
+# exit 退出root用户
+# sqlplus / as sysdba 登录sysdba，执行下面sql语句
+#   alter user system identified by 123456;
+#   alter user sys identified by 123456;
+#   ALTER PROFILE DEFAULT LIMIT PASSWORD_LIFE_TIME UNLIMITED;
+# jdbc连接
+#          driver-class-name: oracle.jdbc.OracleDriver
+#          url: jdbc:oracle:thin:@//127.0.0.1:1521/helowin
+#          username: system
+#          password: 123456
