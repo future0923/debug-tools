@@ -1,0 +1,12 @@
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    volumes:
+      - ./conf/my.cnf:/etc/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=123456"
+      - "MYSQL_DATABASE=root"
+      - "TZ=Asia/Shanghai"
+    ports:
+      - 3306:3306

@@ -8,6 +8,21 @@ spring:
           url: jdbc:mysql://192.168.0.12:3306/debug-tools?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&
           username: root
           password: 123456Aa
+#        debut-tools:
+#          driver-class-name: org.postgresql.Driver
+#          url: jdbc:postgresql://127.0.0.1:5432/debug-tools?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&
+#          username: root
+#          password: 123456
+#        debut-tools:
+#          driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+#          url: jdbc:p6spy:sqlserver://localhost:1433;databaseName=debug-tools;encrypt=false
+#          username: sa
+#          password: qWeR124563
+#        debut-tools:
+#          driver-class-name: oracle.jdbc.OracleDriver
+#          url: jdbc:oracle:thin:@//127.0.0.1:1521/helowin
+#          username: system
+#          password: 123456
   application:
     name: testSpringApplication
   profiles:

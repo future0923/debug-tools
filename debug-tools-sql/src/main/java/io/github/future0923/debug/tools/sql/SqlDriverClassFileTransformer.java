@@ -66,7 +66,7 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
                 || className.equals("org.postgresql.Driver")
                 || className.equals("com.microsoft.sqlserver.jdbc.SQLServerDriver")
                 || className.equals("ru.yandex.clickhouse.ClickHouseDriver")
-                || className.equals("oracle.jdbc.OracleDriver");
+                || className.equals("oracle.jdbc.driver.OracleDriver");
     }
 
     private String getSqlDriverType(String className) {

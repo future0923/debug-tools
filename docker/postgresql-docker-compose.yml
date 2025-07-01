@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    environment:
+      - POSTGRES_DB=spring_ai_alibaba_postgres
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - "5432:5432"

@@ -1,0 +1,9 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=qWeR124563
+    ports:
+      - "1433:1433"
