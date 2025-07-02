@@ -66,7 +66,10 @@ public class MainToolBar extends ToolBar {
         genButton("Gen Param With Default All", DebugToolsIcons.ExampleAll, DebugToolsIcons.ExampleAll, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
         });
-        genButton("设置", DebugToolsIcons.Setting, DebugToolsIcons.Setting, actionEvent -> {
+        genButton("Settings", DebugToolsIcons.Setting, DebugToolsIcons.Setting, actionEvent -> {
+            ShowSettingsUtil.getInstance().showSettingsDialog(project, "DebugToolsTool.Setting");
+        });
+        genButton("Help", DebugToolsIcons.Help, DebugToolsIcons.Help, actionEvent -> {
             ShowSettingsUtil.getInstance().showSettingsDialog(project, "DebugToolsTool.Setting");
         });
     }
