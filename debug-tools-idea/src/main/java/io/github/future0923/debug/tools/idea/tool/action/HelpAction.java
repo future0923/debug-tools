@@ -16,14 +16,12 @@
  */
 package io.github.future0923.debug.tools.idea.tool.action;
 
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URI;
 
 /**
  * @author caoayu
@@ -40,7 +38,7 @@ public class HelpAction extends BaseToolAction {
         try {
             Desktop.getDesktop().browse(new java.net.URI("https://debug-tools.cc/"));
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "无法自动打开浏览器,请手动访问: https://debug-tools.cc/", "提示", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "The browser could not be opened automatically. Please open it manually: https://debug-tools.cc/", "提示", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 } 
