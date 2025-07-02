@@ -22,7 +22,7 @@ import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 
 /**
- * @author future0923
+ * @author caoayu
  */
 public class SettingAction extends BaseToolAction {
 
