@@ -36,11 +36,16 @@ public class DynamicPatcher {
     @OnClassLoadEvent(classNameRegexp = "com.baomidou.dynamic.datasource.support.DataSourceClassResolver")
     public static void patchDataSourceClassResolver(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtMethod findKey = ctClass.getDeclaredMethod("findKey");
+        CtMethod computeDatasource = ctClass.getDeclaredMethod("computeDatasource");
+        String computeDatasourceCode = "computeDatasource($1, $2);";
+        if (computeDatasource.getParameterTypes().length>2) {
+            computeDatasourceCode = "computeDatasource($1, $2, $3);";
+        }
         findKey.setBody("{" +
                 "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
                 "       return \"\";" +
                 "   }" +
-                "   java.lang.String ds = computeDatasource($1, $2);" +
+                "   java.lang.String ds = " + computeDatasourceCode +
                 "   if (ds == null) {" +
                 "       return \"\";" +
                 "   }" +
