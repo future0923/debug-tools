@@ -16,6 +16,8 @@
  */
 package io.github.future0923.debug.tools.idea.ui.main;
 
+import com.intellij.openapi.options.ShowSettingsUtil;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.panels.HorizontalBox;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.event.ConvertDataEvent;
@@ -34,10 +36,12 @@ import javax.swing.*;
 public class MainToolBar extends ToolBar {
 
     private final MulticasterEventPublisher publisher;
+    private final Project project;
 
-    public MainToolBar(MulticasterEventPublisher publisher) {
+    public MainToolBar(MulticasterEventPublisher publisher, Project project) {
         super();
         this.publisher = publisher;
+        this.project = project;
         this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, this.getBackground().darker()));
         initButtons();
         super.add(new HorizontalBox());
@@ -61,6 +65,12 @@ public class MainToolBar extends ToolBar {
         });
         genButton("Gen Param With Default All", DebugToolsIcons.ExampleAll, DebugToolsIcons.ExampleAll, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
+        });
+        genButton("Settings", DebugToolsIcons.Setting, DebugToolsIcons.Setting, actionEvent -> {
+            ShowSettingsUtil.getInstance().showSettingsDialog(project, "DebugToolsTool.Setting");
+        });
+        genButton("Help", DebugToolsIcons.Help, DebugToolsIcons.Help, actionEvent -> {
+            ShowSettingsUtil.getInstance().showSettingsDialog(project, "DebugToolsTool.Setting");
         });
     }
 }
