@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.test.solon.service;
 
 import io.github.future0923.debug.tools.test.solon.aop.TestAop;
+import io.github.future0923.debug.tools.test.solon.config.TestConfig;
 import org.noear.solon.annotation.Component;
 import org.noear.solon.annotation.Inject;
 
@@ -29,6 +30,9 @@ public class DemoService {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private TestConfig.TestConfigBean testConfigBean;
 
     @TestAop
     public String hello3211(String name) {
