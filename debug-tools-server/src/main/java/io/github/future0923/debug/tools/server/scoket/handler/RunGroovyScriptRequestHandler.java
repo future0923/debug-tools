@@ -51,9 +51,13 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
         configuration.setScriptBaseClass(DebugToolsGroovyScript.class.getName());
         String applicationName = DebugToolsBootstrap.serverConfig.getApplicationName();
         GroovyScriptClassLoader groovyScriptClassLoader = GroovyScriptClassLoader.init(AllClassLoaderHttpHandler.getDebugToolsClassLoader());
+        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            groovyScriptClassLoader.setDefaultClassLoader(AllClassLoaderHttpHandler.getClassLoader(packet.getIdentity()));
+            ClassLoader defaultClassLoader = AllClassLoaderHttpHandler.getClassLoader(packet.getIdentity());
+            groovyScriptClassLoader.setDefaultClassLoader(defaultClassLoader);
+            Thread.currentThread().setContextClassLoader(groovyScriptClassLoader);
         } catch (DefaultClassLoaderException e) {
+            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
             writeAndFlushNotException(outputStream, RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName));
@@ -64,11 +68,13 @@ public class RunGroovyScriptRequestHandler extends BasePacketHandler<RunGroovySc
         try {
             evaluateResult = groovyShell.evaluate(packet.getScript());
         } catch (Exception e) {
+            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
             writeAndFlushNotException(outputStream, RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName));
             return;
         }
+        Thread.currentThread().setContextClassLoader(oldContextClassLoader);
         RunGroovyScriptResponsePacket responsePacket = new RunGroovyScriptResponsePacket();
         responsePacket.setApplicationName(applicationName);
         if (evaluateResult == null) {
