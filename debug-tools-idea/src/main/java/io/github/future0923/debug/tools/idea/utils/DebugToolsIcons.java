@@ -41,6 +41,8 @@ public class DebugToolsIcons {
     public static final Icon Last_ClassLoader = IconLoader.getIcon("/icon/last_classloader.svg", DebugToolsIcons.class);
     public static final Icon Connect = IconLoader.getIcon("/icon/connect.svg", DebugToolsIcons.class);
     public static final Icon Search = IconLoader.getIcon("/icon/search.svg", DebugToolsIcons.class);
+    public static final Icon Setting = IconLoader.getIcon("/icon/setting.svg", DebugToolsIcons.class);
+    public static final Icon Help = IconLoader.getIcon("/icon/help.svg", DebugToolsIcons.class);
 
     public static final class HttpMethod {
         public static final Icon Delete = IconLoader.getIcon("/icon/request/delete.png", DebugToolsIcons.class);
