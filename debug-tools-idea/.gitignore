@@ -16,3 +16,4 @@ gradle-app.setting
 **/target/
 idea-sandbox
 .intellijPlatform
+.xcodemap/

@@ -89,7 +89,7 @@ public class MainPanel extends JBPanel<MainPanel> {
         }
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
-        this.toolBar = new MainToolBar(publisher);
+        this.toolBar = new MainToolBar(publisher, project);
         // json编辑器
         this.editor = new MainJsonEditor(methodDataContext.getCache().formatContent(), methodDataContext.getParamList(), project);
         publisher.addListener(new SimpleDataListener(editor));
