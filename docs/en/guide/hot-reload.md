@@ -175,6 +175,17 @@ Support [FastJson](https://github.com/alibaba/fastjson)、[FastJson2](https://gi
 
 Support [hibernate-validator](https://github.com/hibernate/hibernate-validator) hot reload
 
-### 3.13 Others
+### 3.13 Solon
+
+Support [Solon](https://solon.noear.org) class and container hot overload
+
+- `Controller`
+- `Component`
+- `Configuration`
+- ...
+
+Click [Solon](hot-reload-solon.md) for details
+
+### 3.14 Others
 
 Hot reload can also be used in other situations. I won’t give examples here. If it doesn’t work, please submit an [issue](https://github.com/java-hot-deploy/debug-tools/issues) to give feedback.

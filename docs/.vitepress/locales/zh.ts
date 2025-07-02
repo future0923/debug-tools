@@ -113,6 +113,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         {text: 'SpringBoot', link: 'hot-reload-springboot'},
         {text: 'Mybatis', link: 'hot-reload-mybatis'},
         {text: 'MybatisPlus', link: 'hot-reload-mybatis-plus'},
+        {text: 'Solon', link: 'hot-reload-solon'},
       ]
     },
     {
