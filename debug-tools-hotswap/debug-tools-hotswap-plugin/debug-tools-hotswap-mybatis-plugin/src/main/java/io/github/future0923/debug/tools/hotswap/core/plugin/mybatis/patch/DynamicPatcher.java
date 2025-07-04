@@ -35,21 +35,35 @@ public class DynamicPatcher {
      */
     @OnClassLoadEvent(classNameRegexp = "com.baomidou.dynamic.datasource.support.DataSourceClassResolver")
     public static void patchDataSourceClassResolver(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod findKey = ctClass.getDeclaredMethod("findKey");
-        CtMethod computeDatasource = ctClass.getDeclaredMethod("computeDatasource");
-        String computeDatasourceCode = "computeDatasource($1, $2);";
-        if (computeDatasource.getParameterTypes().length>2) {
-            computeDatasourceCode = "computeDatasource($1, $2, $3);";
+        CtClass methodCtClass = classPool.get("java.lang.reflect.Method");
+        CtClass objectCtClass = classPool.get("java.lang.Object");
+        CtClass classCtClass = classPool.get("java.lang.Class");
+        try {
+            // ds 4.1
+            CtMethod findKey = ctClass.getDeclaredMethod("findKey", new CtClass[]{methodCtClass, objectCtClass});
+            findKey.setBody("{" +
+                    "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
+                    "       return \"\";" +
+                    "   }" +
+                    "   java.lang.String ds = computeDatasource($1, $2);" +
+                    "   if (ds == null) {" +
+                    "       return \"\";" +
+                    "   }" +
+                    "   return ds;" +
+                    "}");
+        } catch (NotFoundException e) {
+            // ds 4.3
+            CtMethod findKey = ctClass.getDeclaredMethod("findKey", new CtClass[]{methodCtClass, objectCtClass, classCtClass});
+            findKey.setBody("{" +
+                    "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
+                    "       return \"\";" +
+                    "   }" +
+                    "   java.lang.String ds = computeDatasource($1, $2, $3);" +
+                    "   if (ds == null) {" +
+                    "       return \"\";" +
+                    "   }" +
+                    "   return ds;" +
+                    "}");
         }
-        findKey.setBody("{" +
-                "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
-                "       return \"\";" +
-                "   }" +
-                "   java.lang.String ds = " + computeDatasourceCode +
-                "   if (ds == null) {" +
-                "       return \"\";" +
-                "   }" +
-                "   return ds;" +
-                "}");
     }
 }
