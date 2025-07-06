@@ -49,7 +49,7 @@ public class JvmToolsUtils {
         }
         String libName;
         if (DebugToolsOSUtils.isMac()) {
-            libName = "libJniLibrary.dylib";
+            libName = DebugToolsOSUtils.isArm64() ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
             libName = "libJniLibrary-x64.so";
         } else if (DebugToolsOSUtils.isWindows()) {
