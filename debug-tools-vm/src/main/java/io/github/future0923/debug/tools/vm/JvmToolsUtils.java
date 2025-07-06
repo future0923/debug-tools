@@ -48,10 +48,8 @@ public class JvmToolsUtils {
             return;
         }
         String libName;
-        String arch = System.getProperty("os.arch").toLowerCase();
-        boolean isArm = arch.contains("aarch64") || arch.contains("arm64"); // 兼容不同JVM下的arm64标识
         if (DebugToolsOSUtils.isMac()) {
-            libName = isArm ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
+            libName = DebugToolsOSUtils.isArm64() ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
             libName = "libJniLibrary-x64.dll";
         } else if (DebugToolsOSUtils.isWindows()) {
