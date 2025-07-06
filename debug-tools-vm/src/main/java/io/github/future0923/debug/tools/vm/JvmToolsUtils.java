@@ -48,12 +48,14 @@ public class JvmToolsUtils {
             return;
         }
         String libName;
+        String arch = System.getProperty("os.arch").toLowerCase();
+        boolean isArm = arch.contains("aarch64") || arch.contains("arm64"); // 兼容不同JVM下的arm64标识
         if (DebugToolsOSUtils.isMac()) {
-            libName = "libJniLibrary.dylib";
+            libName = isArm ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
-            libName = "libJniLibrary-x64.so";
+            libName = isArm ? "libJniLibrary-arm64.so" : "libJniLibrary-x64.so";
         } else if (DebugToolsOSUtils.isWindows()) {
-            libName = "libJniLibrary-x64.dll";
+            libName = isArm ? "libJniLibrary-arm64.dll" : "libJniLibrary-x64.dll";
         } else {
             throw new IllegalStateException("unsupported os");
         }
