@@ -53,9 +53,9 @@ public class JvmToolsUtils {
         if (DebugToolsOSUtils.isMac()) {
             libName = isArm ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
-            libName = isArm ? "libJniLibrary-arm64.so" : "libJniLibrary-x64.so";
+            libName = "libJniLibrary-x64.dll";
         } else if (DebugToolsOSUtils.isWindows()) {
-            libName = isArm ? "libJniLibrary-arm64.dll" : "libJniLibrary-x64.dll";
+            libName = "libJniLibrary-x64.dll";
         } else {
             throw new IllegalStateException("unsupported os");
         }
