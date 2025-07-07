@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.idea.ui.editor;
 import com.intellij.json.JsonFileType;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +50,6 @@ public class JsonEditor extends BaseEditor {
 
     @Override
     public void setText(@Nullable String text) {
-        setText(text, JSON_FILE_TYPE);
+        setText(DebugToolsJsonUtils.toJsonPrettyStr(text), JSON_FILE_TYPE);
     }
 }
