@@ -31,7 +31,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.EditorTextField;
 import com.intellij.util.LocalTimeCounter;
 import com.intellij.util.ui.JBUI;
@@ -67,13 +66,7 @@ public abstract class BaseEditor extends EditorTextField {
         setDocument(document);
         PsiFile psiFile = PsiDocumentManager.getInstance(getProject()).getPsiFile(document);
         if (psiFile != null) {
-            WriteCommandAction.runWriteCommandAction(
-                    getProject(),
-                    () -> {
-                        CodeStyleManager.getInstance(getProject()).reformat(psiFile);
-                        moveToTop();
-                    }
-            );
+            WriteCommandAction.runWriteCommandAction(getProject(), this::moveToTop);
         }
     }
 
