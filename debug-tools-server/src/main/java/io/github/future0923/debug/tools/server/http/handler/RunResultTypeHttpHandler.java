@@ -48,7 +48,7 @@ public class RunResultTypeHttpHandler extends BaseHttpHandler<RunResultTypeReq, 
         }
         if (PrintResultType.JSON.getType().equals(req.getPrintResultType())) {
             try {
-                return DebugToolsJsonUtils.toJsonPrettyStr(valueByOffset);
+                return DebugToolsJsonUtils.toJsonStr(valueByOffset);
             } catch (Exception e) {
                 return "{\n\"result\": \"" + e.getMessage()+"\"\n}";
             }
