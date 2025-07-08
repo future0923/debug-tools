@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.idea.tool.action;
 
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 
@@ -33,6 +34,6 @@ public class SettingAction extends BaseToolAction {
 
     @Override
     protected void doActionPerformed(Project project, DebugToolsToolWindow toolWindow) {
-        ShowSettingsUtil.getInstance().showSettingsDialog(project, "DebugToolsTool.Setting");
+        ShowSettingsUtil.getInstance().showSettingsDialog(project, DebugToolsSettingConfigurable.class);
     }
 } 
