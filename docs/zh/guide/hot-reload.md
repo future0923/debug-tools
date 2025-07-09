@@ -31,22 +31,14 @@
 
 ## 2. 触发热重载
 
-在大飞机的状态下启动应用，项目输出如下日志，并打印载入的热重载插件。
+在大飞机的状态下通过 `debug` 方式启动应用，项目输出如下日志，并打印载入的热重载插件。
 
 ```text
 DebugTools: 2025-01-07 16:41:07.909    INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.3.0}
 DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistry 132 : Discovered plugins: [JdkPlugin, ClassInitPlugin, AnonymousClassPatch, WatchResources, HotSwapper, Proxy, Spring, MyBatis]
 ```
 
-### 2.1 编译项目 {#compile-project}
-
-应用启动后可以通过编译构建的方式触发热重载
-
-![build_project.png](/images/build_project.png){v-zoom}
-
-### 2.2 Debug热更新 {#compile-reload-file}
-
-如果应用通过 `Debug` 的方式启动，则可以通过下面方式触发热重载，同时还可以更新断点信息。
+### 2.1 Debug热更新 {#compile-reload-file}
 
 - 通过右键菜单的 `Compile and Reload Modified Files` 按钮.
   
@@ -56,23 +48,23 @@ DebugTools: 2025-01-07 16:41:08.498    INFO [main] i.g.f.d.t.h.c.c.PluginRegistr
 
 ![compile_code_changed.png](/images/compile_code_changed.png){v-zoom}
 
-### 2.3 热部署
+### 2.2 热部署
 
 <!--@include: ./parts/hot-deploy-muti-file.md-->
 
 ::: tip
-热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式2](#compile-reload-file)
+热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式1](#compile-reload-file)
 :::
 
-### 2.4 单文件远程编译[install.md](install.md)
+### 2.3 单文件远程编译
 
 <!--@include: ./parts/hot-deploy-one-file.md-->
 
 ::: tip
-热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式2](#compile-reload-file)
+热部署时idea可能有时无法获取到最新的断点信息，如果需要及时更新断点请使用[方式1](#compile-reload-file)
 :::
 
-### 2.5 单XML文件
+### 2.4 单XML文件
 
 变动的 `xml` 文件可以还可以通过右键菜单的 `Compile 'xxx.xml' to Target` 方式单独触发热重载.
 
