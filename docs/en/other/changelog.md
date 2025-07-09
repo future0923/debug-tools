@@ -4,7 +4,18 @@ aside: false
 ---
 # ChangeLog
 
-## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-xx-xx)
+## [4.1.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.0...v4.1.1) (2025-07-09)
+
+- Add ToolWindow quick jump settings and document buttons by [@ayuayue](https://github.com/ayuayue)
+- Add support for hot reload of JDK8 under MacOS aarch64 (M chip) [@yaoxinghuo](https://github.com/yaoxinghuo)
+- Fix the bug that the project cannot be used under MacOS aarch64 (M chip) by [@yaoxinghuo](https://github.com/yaoxinghuo)
+- Fix the bug that hot reload [dynamic-datasource](https://github.com/baomidou/dynamic-datasource) is invalid under 4.3+ by [@anweicloud](https://github.com/anweicloud)
+- Fix hot reload [MyBatisPlus](https://baomidou.com/) 3.5.6+ lambdaQuery() failed to obtain when inheriting ServiceImpl
+- Fixed the bug that oracle and sqlserver failed to print sql
+- Fixed the bug that Spring Class information could not be found in Groovy
+- Fixed the bug that the UI was stuck when viewing large json in the return result json mode
+
+## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-06-27)
 
 - Hot deployment supports modifying MyBatis Mapper files
 - Hot deployment supports modifying MyBatis Plus Entity/Mapper files
