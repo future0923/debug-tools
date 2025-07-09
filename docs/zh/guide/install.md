@@ -70,7 +70,8 @@ wget https://download.debug-tools.cc/install/linux-install.tar.gz -O linux-insta
 [https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181)
 
 - [windows-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
-- [mac-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
+- [mac-x64-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-x64-jdk-8u181.zip)
+- [mac-aarch64-jdk-8u282.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-aarch64-jdk-8u282.zip)
 - [linux-x64-jdk-8u181.tar.gz](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
@@ -78,7 +79,8 @@ wget https://download.debug-tools.cc/install/linux-install.tar.gz -O linux-insta
 ::: details DebugTools官网下载
 
 - [windows-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
-- [mac-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
+- [mac-x64-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-x64-jdk-8u181.zip)
+- [mac-aarch64-jdk-8u282.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-aarch64-jdk-8u282.zip)
 - [linux-x64-jdk-8u181.tar.gz](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
@@ -149,7 +151,7 @@ Please install or use the JRE or JDK that contains these missing components.
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK 可以支持热部署/热重载。
 
-<span style="color: red;">请下载带有 JBR with JCEF 的 SDK 版本，DCEVM 与 fastdebug 都可以。</span>
+<span style="color: red;">请下载带有 JBR with JCEF (DCEVM) 或者 JBR with JCEF (fastdebug)。</span>
 
 建议使用最新版 [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
@@ -159,7 +161,7 @@ Please install or use the JRE or JDK that contains these missing components.
 
 使用 [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK 可以支持热部署/热重载。
 
-<span style="color: red;">请下载带有 JBR with JCEF 带有 fastdebug 的 SDK 版本。</span>
+<span style="color: red;">请下载带有 JBRSDK with JCEF 版本。</span>
 
 Java 17 建议使用最新版 [17.0.14b1367.22](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-17.0.14b1367.22)
 
