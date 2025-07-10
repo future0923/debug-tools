@@ -169,6 +169,10 @@ For Java 17, we recommend using the latest version [17.0.14b1367.22](https://git
 
 For Java 21, we recommend using the [latest version](https://github.com/JetBrains/JetBrainsRuntime/releases)
 
+You can also download the JDK in Project Structure and select JetBrains Runtime (JCEF)  
+![jdk_download_idea](/images/jdk_download_idea.png){v-zoom}
+
+
 ::: info
 
 If the Apple system prompts that the JDK is damaged or the developer cannot be verified after downloading the JDK, you can enter `sudo xattr -r -d com.apple.quarantine /$jdkPath`, **$jdkPath** is your jdk directory
