@@ -17,7 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import javassist.ClassPool;
 
 /**
  * 插件类签名是否发生变化，变化了Spring需要重新加载类

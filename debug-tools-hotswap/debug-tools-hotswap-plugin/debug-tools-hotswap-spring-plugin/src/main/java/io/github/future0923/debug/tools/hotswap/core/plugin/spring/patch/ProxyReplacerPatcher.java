@@ -17,12 +17,12 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch;
 
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtNewMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CannotCompileException;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 
 /**
  * SpringBean代理转换，返回被代理之后的bean，代理之后可以重置或重新载入。
