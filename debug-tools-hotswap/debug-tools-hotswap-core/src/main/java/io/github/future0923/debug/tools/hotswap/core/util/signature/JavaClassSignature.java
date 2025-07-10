@@ -16,7 +16,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.Descriptor;
+import javassist.bytecode.Descriptor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

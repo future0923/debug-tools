@@ -17,7 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.util;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import javassist.ClassPool;
 import org.xml.sax.InputSource;
 
 import java.io.ByteArrayOutputStream;

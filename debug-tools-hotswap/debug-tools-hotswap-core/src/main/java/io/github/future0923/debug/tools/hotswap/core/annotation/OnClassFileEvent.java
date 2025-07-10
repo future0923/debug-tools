@@ -18,8 +18,8 @@ package io.github.future0923.debug.tools.hotswap.core.annotation;
 
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchEventCommand;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.WatchHandler;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.ClassPool;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
 
 import java.lang.annotation.Documented;

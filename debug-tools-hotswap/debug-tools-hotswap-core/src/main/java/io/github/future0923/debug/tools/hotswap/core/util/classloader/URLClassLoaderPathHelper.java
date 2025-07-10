@@ -18,10 +18,10 @@ package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.MethodHandler;
-import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.Proxy;
-import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.ProxyFactory;
-import io.github.future0923.debug.tools.hotswap.core.javassist.util.proxy.ProxyObject;
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.Proxy;
+import javassist.util.proxy.ProxyFactory;
+import javassist.util.proxy.ProxyObject;
 import lombok.Getter;
 
 import java.io.IOException;
