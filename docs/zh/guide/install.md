@@ -167,6 +167,10 @@ Java 17 建议使用最新版 [17.0.14b1367.22](https://github.com/JetBrains/Jet
 
 Java 21 建议使用 [最新版](https://github.com/JetBrains/JetBrainsRuntime/releases) 即可
 
+还可以在 Project Structure 中下载jdk,选择JetBrains Runtime (JCEF)  
+![jdk_download_idea](/images/jdk_download_idea.png){v-zoom}
+
+
 ::: info
 
 苹果系统如果下载JDK后提示已损坏或无法验证开发者等原因不能启动JDK，输入 `sudo xattr -r -d com.apple.quarantine /$jdkPath` 即可， **$jdkPath** 是你的jdk目录
