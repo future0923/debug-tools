@@ -16,11 +16,11 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -83,7 +83,7 @@ public class CtClassSignature extends ClassSignatureBase {
         }
 
         if (hasElement(ClassSignatureElement.SUPER_CLASS)) {
-            String superclassName = ctClass.getSuperclassName();
+            String superclassName = ctClass.getClassFile2().getSuperclass();
             if (superclassName != null && !superclassName.equals(Object.class.getName()))
                 strings.add(superclassName);
         }
