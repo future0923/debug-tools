@@ -23,12 +23,6 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-import javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisSpringMapperReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
@@ -40,6 +34,12 @@ import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
@@ -112,15 +112,35 @@ public class MyBatisSpringPatcher {
      * 获取{@link MapperScan}信息
      */
     @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.annotation.MapperScannerRegistrar")
-    public static void patchMapperScannerRegistrar(CtClass ctClass, ClassPool classPool) {
+    public static void patchMapperScannerRegistrar(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         try {
-            CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod("registerBeanDefinitions", new CtClass[]{classPool.get("org.springframework.core.type.AnnotationMetadata"), classPool.get("org.springframework.core.annotation.AnnotationAttributes"), classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"), classPool.get("java.lang.String")});
+            CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
+                    "registerBeanDefinitions",
+                    new CtClass[]{
+                            classPool.get("org.springframework.core.type.AnnotationMetadata"),
+                            classPool.get("org.springframework.core.annotation.AnnotationAttributes"),
+                            classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
+                            classPool.get("java.lang.String")
+                    }
+            );
             registerBeanDefinitions.insertAfter("{" +
                     MyBatisSpringPatcher.class.getName() + ".baseMapperPackage($1, $2);" +
                     "}");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (NotFoundException e) {
+            // mybatis-spring 2.0.2
+            CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
+                    "registerBeanDefinitions",
+                    new CtClass[]{
+                            classPool.get("org.springframework.core.annotation.AnnotationAttributes"),
+                            classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
+                            classPool.get("java.lang.String")
+                    }
+            );
+            registerBeanDefinitions.insertAfter("{" +
+                    MyBatisSpringPatcher.class.getName() + ".baseMapperPackage(null, $1);" +
+                    "}");
         }
+
     }
 
     /**
@@ -129,15 +149,17 @@ public class MyBatisSpringPatcher {
      */
     public static void baseMapperPackage(Object annoMetaObj, Object annoAttrsObj) {
         // 插件启动时会扫描 {@link Plugin}相关所有类的属性和方法，参数直接写如果没有对应的类文件会报错，所以这里用 Object接收
-        if (annoMetaObj instanceof AnnotationMetadata && annoAttrsObj instanceof AnnotationAttributes) {
-            AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
+        if (annoAttrsObj instanceof AnnotationAttributes) {
             AnnotationAttributes annoAttrs = (AnnotationAttributes) annoAttrsObj;
             Set<String> basePackages = new HashSet<>();
             basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
             basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
             basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
             if (basePackages.isEmpty()) {
-                basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
+                if (annoMetaObj instanceof AnnotationMetadata) {
+                    AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
+                    basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
+                }
             }
             for (String basePackage : basePackages) {
                 registerMapperTransformer(basePackage);
