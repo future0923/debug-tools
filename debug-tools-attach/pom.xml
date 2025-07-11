@@ -17,6 +17,8 @@
         <agent.class>io.github.future0923.debug.tools.attach.DebugToolsAttach</agent.class>
         <can.redefine.classes>true</can.redefine.classes>
         <can.retransform.classes>true</can.retransform.classes>
+        <shade.javassist.source>javassist</shade.javassist.source>
+        <shade.javassist.target>${shade.package}.${shade.javassist.source}</shade.javassist.target>
         <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
         <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.pl.joegreen.lambdaFromString.source}</shade.pl.joegreen.lambdaFromString.target>
     </properties>
@@ -155,6 +157,10 @@
                                 </transformer>
                             </transformers>
                             <relocations>
+                                <relocation>
+                                    <pattern>${shade.javassist.source}</pattern>
+                                    <shadedPattern>${shade.javassist.target}</shadedPattern>
+                                </relocation>
                                 <relocation>
                                     <pattern>${shade.pl.joegreen.lambdaFromString.source}</pattern>
                                     <shadedPattern>${shade.pl.joegreen.lambdaFromString.target}</shadedPattern>
