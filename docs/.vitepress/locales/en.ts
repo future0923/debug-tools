@@ -63,10 +63,6 @@ function nav(): DefaultTheme.NavItem[] {
         {
           text: 'Contributing',
           link: 'zh/other/contributing.md'
-        },
-        {
-          text: 'DeepWiki',
-          link: 'https://deepwiki.com/java-hot-deploy/debug-tools'
         }
       ]
     }

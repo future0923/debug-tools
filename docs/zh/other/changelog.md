@@ -4,6 +4,17 @@ aside: false
 ---
 # 版本迭代记录
 
+## [4.1.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.0...v4.1.1) (2025-07-09)
+
+- 增加ToolWindow快捷跳转设置与文档按钮 by [@ayuayue](https://github.com/ayuayue)
+- 新增对 MacOS aarch64（M 芯片）下 JDK8 热重载的支持 [@yaoxinghuo](https://github.com/yaoxinghuo)
+- 修复项目在MacOS aarch64（M芯片）下无法使用的bug by [@yaoxinghuo](https://github.com/yaoxinghuo)
+- 修复热重载 [dynamic-datasource](https://github.com/baomidou/dynamic-datasource) 4.3+下失效的bug by [@anweicloud](https://github.com/anweicloud)
+- 修复热重载 [MyBatisPlus](https://baomidou.com/) 3.5.6+继承 ServiceImpl 时 lambdaQuery() 获取失败的bug
+- 修复oracle、sqlserver打印sql失败的bug
+- 修复Groovy中找不到Spring的Class信息的bug
+- 修复返回结果json方式查看大json时UI卡顿的bug
+
 ## [4.1.0](https://github.com/java-hot-deploy/debug-tools/compare/v4.0.1...v4.1.0) (2025-06-27)
 
 - 热部署支持修改 MyBatis Mapper文件
