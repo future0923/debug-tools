@@ -17,13 +17,13 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtNewMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
+import javassist.NotFoundException;
 import org.springframework.cglib.core.DefaultNamingPolicy;
 import org.springframework.core.SpringVersion;
 

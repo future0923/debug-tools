@@ -18,8 +18,8 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner;
 
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.ClassPool;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetBeanPostProcessorCaches;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.cache.ResetRequestMappingCaches;

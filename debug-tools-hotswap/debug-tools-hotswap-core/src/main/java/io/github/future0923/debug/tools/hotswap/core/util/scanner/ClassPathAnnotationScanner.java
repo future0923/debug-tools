@@ -17,9 +17,9 @@
 package io.github.future0923.debug.tools.hotswap.core.util.scanner;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.AnnotationsAttribute;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.ClassFile;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.annotation.Annotation;
 
 import java.io.DataInputStream;
 import java.io.IOException;

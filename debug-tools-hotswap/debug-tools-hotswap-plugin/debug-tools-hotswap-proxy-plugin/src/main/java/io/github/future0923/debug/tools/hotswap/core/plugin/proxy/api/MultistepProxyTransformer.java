@@ -17,7 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.api;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
+import javassist.ClassPool;
 import io.github.future0923.debug.tools.hotswap.core.plugin.proxy.command.RedefinitionScheduler;
 
 import java.util.Map;
