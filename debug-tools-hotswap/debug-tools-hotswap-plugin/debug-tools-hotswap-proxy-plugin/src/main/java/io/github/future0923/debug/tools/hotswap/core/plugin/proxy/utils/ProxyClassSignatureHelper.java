@@ -17,8 +17,8 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.utils;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.ClassPool;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureComparerHelper;
 import io.github.future0923.debug.tools.hotswap.core.util.signature.ClassSignatureElement;
 

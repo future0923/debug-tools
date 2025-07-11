@@ -20,7 +20,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 
 import java.util.Map;

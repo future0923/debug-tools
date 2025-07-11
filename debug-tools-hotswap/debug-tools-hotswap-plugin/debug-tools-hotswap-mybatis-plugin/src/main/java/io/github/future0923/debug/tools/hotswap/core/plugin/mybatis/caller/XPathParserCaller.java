@@ -16,8 +16,8 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.caller;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.ClassPool;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import org.apache.ibatis.parsing.XPathParser;
