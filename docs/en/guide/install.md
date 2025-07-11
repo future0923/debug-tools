@@ -72,7 +72,8 @@ Installation location.
 [https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181](https://github.com/java-hot-deploy/debug-tools/releases/tag/dcevm-jdk-1.8.0_181)
 
 - [windows-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
-- [mac-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
+- [mac-x64-jdk-8u181.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-x64-jdk-8u181.zip)
+- [mac-aarch64-jdk-8u282.zip](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/mac-aarch64-jdk-8u282.zip)
 - [linux-x64-jdk-8u181.tar.gz](https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
@@ -80,7 +81,8 @@ Installation location.
 ::: details DebugTools official website download
 
 - [windows-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/windows-jdk-8u181.zip)
-- [mac-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-jdk-8u181.zip)
+- [mac-x64-jdk-8u181.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-x64-jdk-8u181.zip)
+- [mac-aarch64-jdk-8u282.zip](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/mac-aarch64-jdk-8u282.zip)
 - [linux-x64-jdk-8u181.tar.gz](https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/linux-x64-jdk-8u181.tar.gz)
 
 :::
@@ -151,7 +153,7 @@ Use [trava-jdk-11-dcevm](https://github.com/TravaOpenJDK/trava-jdk-11-dcevm/rele
 
 Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime/tree/jbr11) JDK can support hot deployment/hot reload.
 
-<span style="color: red;">Please download the SDK version with JBR with JCEF, both DCEVM and fastdebug are OK. </span>
+<span style="color: red;">Please download the SDK version with JBR with JCEF (DCEVM) or JBR with JCEF (fastdebug). </span>
 
 It is recommended to use the latest version [11_0_15-b2043.56](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr11_0_15b2043.56)
 
@@ -161,11 +163,15 @@ It is recommended to use the latest version [11_0_15-b2043.56](https://github.co
 
 Using [JetBrainsRuntime](https://github.com/JetBrains/JetBrainsRuntime) JDK can support hot deployment/hot reload. 
 
-<span style="color: red;">Please download the SDK version with JBR with JCEF with fastdebug. </span>
+<span style="color: red;">Please download the SDK version with JBRSDK with JCEF. </span>
 
 For Java 17, we recommend using the latest version [17.0.14b1367.22](https://github.com/JetBrains/JetBrainsRuntime/releases/tag/jbr-release-17.0.14b1367.22)
 
 For Java 21, we recommend using the [latest version](https://github.com/JetBrains/JetBrainsRuntime/releases)
+
+You can also download the JDK in Project Structure and select JetBrains Runtime (JCEF)  
+![jdk_download_idea](/images/jdk_download_idea.png){v-zoom}
+
 
 ::: info
 

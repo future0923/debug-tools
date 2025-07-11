@@ -31,20 +31,14 @@ Hot reload requires a specific JDK to take effect. Please refer to [JDK installa
 
 ## 2. Trigger hot reload
 
-Start the application in the state of the big plane, the project outputs the following log, and prints the loaded hot reload plug-in.
+Start the application in debug mode in the state of the big plane. The project outputs the following log and prints the loaded hot reload plug-in.
 
 ```text
 DebugTools: 2025-01-07 16:41:07.909 INFO [main] i.g.f.d.t.h.c.HotswapAgent 44 : open hot reload unlimited runtime class redefinition.{3.3.0}
 DebugTools: 2025-01-07 16:41:08.498 INFO [main] i.g.f.d.t.h.c.c.PluginRegistry 132: Discovered plugins: [JdkPlugin, ClassInitPlugin, AnonymousClassPatch, WatchResources, HotSwapper, Proxy, Spring, Solon, Mybatis]
 ```
 
-### 2.1 Compile project {#compile-project}
-
-After the application is started, hot reload can be triggered by compiling and building
-
-![build_project.png](/images/build_project.png){v-zoom}
-
-### 2.2 Debug hot update {#compile-reload-file}
+### 2.1 Debug hot update {#compile-reload-file}
 
 If the application is started by `Debug`, hot reload can be triggered by the following method, and breakpoint information can also be updated.
 
@@ -56,23 +50,23 @@ If the application is started by `Debug`, hot reload can be triggered by the fol
 
 ![compile_code_changed.png](/images/compile_code_changed.png){v-zoom}
 
-### 2.3 Hot deployment
+### 2.2 Hot deployment
 
 <!--@include: ./parts/hot-deploy-muti-file.md-->
 
 ::: tip
-During hot deployment, idea may sometimes fail to obtain the latest breakpoint information. If you need to update the breakpoint in time, please use [method 2](#compile-reload-file)
+During hot deployment, idea may sometimes fail to obtain the latest breakpoint information. If you need to update the breakpoint in time, please use [method 1](#compile-reload-file)
 :::
 
-### 2.4 Single file remote compilation
+### 2.3 Single file remote compilation
 
 <!--@include: ./parts/hot-deploy-one-file.md-->
 
 ::: tip
-During hot deployment, idea may sometimes fail to obtain the latest breakpoint information. If you need to update the breakpoint in time, please use [Method 2](#compile-reload-file)
+During hot deployment, idea may sometimes fail to obtain the latest breakpoint information. If you need to update the breakpoint in time, please use [Method 1](#compile-reload-file)
 :::
 
-### 2.5 Single XML file
+### 2.4 Single XML file
 
 The changed `xml` file can also trigger hot reload separately through the `Compile 'xxx.xml' to Target` method in the right-click menu.
 

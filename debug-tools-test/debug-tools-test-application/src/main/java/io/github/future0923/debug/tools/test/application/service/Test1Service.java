@@ -16,15 +16,20 @@
  */
 package io.github.future0923.debug.tools.test.application.service;
 
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.github.future0923.debug.tools.test.application.dao.UserDao;
+import io.github.future0923.debug.tools.test.application.domain.entity.User;
 import org.springframework.stereotype.Service;
 
 /**
  * @author future0923
  */
 @Service
-public class Test1Service {
+public class Test1Service extends ServiceImpl<UserDao, User> implements IService<User> {
 
     public void test() {
-        System.out.println("test1");
+        User one = lambdaQuery().eq(User::getName, 1).one();
+        System.out.println(one);
     }
 }
