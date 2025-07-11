@@ -36,6 +36,17 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.1.1</strong>
+        <ul>
+            <li>增加ToolWindow快捷跳转设置与文档按钮</li>
+            <li>新增对 MacOS aarch64（M 芯片）下 JDK8 热重载的支持</li>
+            <li>修复项目在MacOS aarch64（M芯片）下无法使用的bug</li>
+            <li>修复热重载 dynamic-datasource 4.3+下失效的bug</li>
+            <li>修复热重载 MyBatisPlus 3.5.6+继承 ServiceImpl 时 lambdaQuery() 获取失败的bug</li>
+            <li>修复oracle、sqlserver打印sql失败的bug</li>
+            <li>修复Groovy中找不到Spring的Class信息的bug</li>
+            <li>修复返回结果json方式查看大json时UI卡顿的bug</li>
+        </ul>
         <strong>4.1.0</strong>
         <ul>
             <li>热部署支持修改 MyBatis Mapper文件</li>

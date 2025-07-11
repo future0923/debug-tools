@@ -25,9 +25,6 @@
     <a href="https://debug-tools.cc/en" >
       <img src="https://img.shields.io/badge/Document-English-blue.svg" alt="EN docs" />
     </a>
-    <a target="_blank" href="https://deepwiki.com/java-hot-deploy/debug-tools" >
-      <img src="https://img.shields.io/badge/DeepWiki-English-blue.svg" alt="Deepwiki docs" />
-    </a>
 </p>
 
 <p align="center">
