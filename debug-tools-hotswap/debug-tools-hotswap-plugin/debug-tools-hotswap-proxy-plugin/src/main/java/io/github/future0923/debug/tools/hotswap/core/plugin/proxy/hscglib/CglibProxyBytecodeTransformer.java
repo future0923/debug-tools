@@ -16,9 +16,9 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.hscglib;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
 import io.github.future0923.debug.tools.hotswap.core.plugin.proxy.api.AbstractProxyBytecodeTransformer;
 
 /**

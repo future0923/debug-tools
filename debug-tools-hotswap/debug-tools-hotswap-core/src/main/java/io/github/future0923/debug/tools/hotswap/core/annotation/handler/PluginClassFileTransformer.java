@@ -20,10 +20,10 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.LoaderClassPath;
 import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
 
 import java.io.ByteArrayInputStream;

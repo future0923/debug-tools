@@ -20,11 +20,11 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @Plugin(
         name = "FastJson",
         description = "Reload FastJson cache after class definition/change.",
-        testedVersions = {"1.2.83", "2.0.6", "2.0.31"}
+        testedVersions = {"1.2.83", "2.0.6", "2.0.31", "2.0.51"}
 )
 public class FastJsonPlugin {
 
@@ -259,12 +259,16 @@ public class FastJsonPlugin {
             // fastjson 2+ 没有这个方法
         }
 
-        CtMethod getKotlinConstructor = ctClass.getDeclaredMethod("getKotlinConstructor", new CtClass[]{classCtClass, classPool.get("com.alibaba.fastjson2.codec.BeanInfo")});
-        getKotlinConstructor.insertBefore("{" +
-                "   if ($1 != null) {" +
-                "       constructorCache.remove($1);" +
-                "   }" +
-                "}");
+        try {
+            CtMethod getKotlinConstructor = ctClass.getDeclaredMethod("getKotlinConstructor", new CtClass[]{classCtClass, classPool.get("com.alibaba.fastjson2.codec.BeanInfo")});
+            getKotlinConstructor.insertBefore("{" +
+                    "   if ($1 != null) {" +
+                    "       constructorCache.remove($1);" +
+                    "   }" +
+                    "}");
+        } catch (NotFoundException e) {
+            // 高版本(如2.0.51)版本没有这个方法
+        }
 
         CtMethod constructor = ctClass.getDeclaredMethod("constructor", new CtClass[]{classCtClass, consumerCtClass});
         constructor.insertBefore("{" +

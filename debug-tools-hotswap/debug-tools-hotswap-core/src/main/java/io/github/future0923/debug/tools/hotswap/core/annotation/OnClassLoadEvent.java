@@ -20,8 +20,8 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.handler.OnClassL
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginAnnotation;
 import io.github.future0923.debug.tools.hotswap.core.annotation.handler.PluginClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.ClassPool;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 
 import java.lang.annotation.Documented;

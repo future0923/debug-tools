@@ -16,11 +16,11 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.api;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.Modifier;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.Modifier;
 
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
