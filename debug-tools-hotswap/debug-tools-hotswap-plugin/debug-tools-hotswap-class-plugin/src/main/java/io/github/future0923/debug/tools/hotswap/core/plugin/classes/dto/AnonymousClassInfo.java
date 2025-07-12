@@ -16,10 +16,10 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.classes.dto;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtField;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.NotFoundException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -83,7 +83,7 @@ public class AnonymousClassInfo {
     public AnonymousClassInfo(CtClass c) {
         try {
             this.className = c.getName();
-            StringBuilder classSignature = new StringBuilder(c.getSuperclassName());
+            StringBuilder classSignature = new StringBuilder(c.getClassFile2().getSuperclass());
             for (CtClass interfaceCtClass : c.getInterfaces()) {
                 classSignature.append(";");
                 classSignature.append(interfaceCtClass.getName());

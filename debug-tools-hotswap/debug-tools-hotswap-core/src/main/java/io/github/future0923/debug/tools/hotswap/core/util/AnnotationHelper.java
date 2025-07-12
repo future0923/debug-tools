@@ -16,8 +16,8 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util;
 
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.AnnotationsAttribute;
+import javassist.CtClass;
+import javassist.bytecode.AnnotationsAttribute;
 
 import java.lang.annotation.Annotation;
 
@@ -51,7 +51,7 @@ public class AnnotationHelper {
         AnnotationsAttribute attribute = (AnnotationsAttribute) clazz.getClassFile2().
                 getAttribute(AnnotationsAttribute.visibleTag);
         if (attribute != null) {
-            for (io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.annotation.Annotation annot : attribute.getAnnotations()) {
+            for (javassist.bytecode.annotation.Annotation annot : attribute.getAnnotations()) {
                 if (annot.getTypeName().equals(annotationClass)) {
                     return true;
                 }

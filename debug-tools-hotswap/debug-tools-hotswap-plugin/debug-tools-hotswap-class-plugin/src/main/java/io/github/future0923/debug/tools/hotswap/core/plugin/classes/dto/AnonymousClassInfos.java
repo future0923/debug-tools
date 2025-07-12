@@ -17,9 +17,9 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.classes.dto;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.NotFoundException;
 
 import java.io.File;
 import java.lang.reflect.Method;
