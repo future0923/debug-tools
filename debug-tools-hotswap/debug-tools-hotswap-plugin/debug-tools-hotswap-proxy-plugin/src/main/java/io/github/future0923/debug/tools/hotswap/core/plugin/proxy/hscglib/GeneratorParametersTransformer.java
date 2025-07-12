@@ -17,10 +17,10 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.hscglib;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.Modifier;
-import io.github.future0923.debug.tools.hotswap.core.javassist.bytecode.MethodInfo;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.Modifier;
+import javassist.bytecode.MethodInfo;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 
 import java.lang.ref.WeakReference;

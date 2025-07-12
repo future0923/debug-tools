@@ -18,9 +18,9 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
+import javassist.CtClass;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;

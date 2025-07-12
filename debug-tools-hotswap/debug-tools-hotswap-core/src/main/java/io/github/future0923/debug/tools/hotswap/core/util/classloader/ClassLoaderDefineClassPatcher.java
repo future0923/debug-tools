@@ -17,11 +17,11 @@
 package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.ClassPool;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.LoaderClassPath;
+import javassist.NotFoundException;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ClassPathScanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.Scanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ScannerVisitor;

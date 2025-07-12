@@ -27,8 +27,8 @@ import io.github.future0923.debug.tools.hotswap.core.command.ReflectionCommand;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
+import javassist.CannotCompileException;
+import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 

@@ -21,12 +21,12 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CannotCompileException;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtClass;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtConstructor;
-import io.github.future0923.debug.tools.hotswap.core.javassist.CtMethod;
-import io.github.future0923.debug.tools.hotswap.core.javassist.Modifier;
-import io.github.future0923.debug.tools.hotswap.core.javassist.NotFoundException;
+import javassist.CannotCompileException;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.Modifier;
+import javassist.NotFoundException;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
