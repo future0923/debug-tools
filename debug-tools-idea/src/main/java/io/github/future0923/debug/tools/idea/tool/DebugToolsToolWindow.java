@@ -48,6 +48,7 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         defaultActionGroup.add(new AttachAction());
         defaultActionGroup.add(new ConnectAction());
         defaultActionGroup.add(new ClearCacheAction());
+        defaultActionGroup.add(new SqlHistoryAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(new SettingAction());
         defaultActionGroup.add(new HelpAction());

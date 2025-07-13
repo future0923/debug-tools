@@ -89,7 +89,7 @@ public class CopyAsJsonAction extends AnAction {
             CopyPasteManager.getInstance().setContents(new StringSelection(json));
             NotificationGroupManager.getInstance()
                     .getNotificationGroup("DebugTools")
-                    .createNotification("Copied as JSON", "", NotificationType.INFORMATION)
+                    .createNotification("Copy as json success!", json, NotificationType.INFORMATION)
                     .notify(project);
         } catch (Exception ex) {
             Messages.showErrorDialog(project, "Failed to convert to JSON: " + ex.getMessage(), "Copy As JSON");
