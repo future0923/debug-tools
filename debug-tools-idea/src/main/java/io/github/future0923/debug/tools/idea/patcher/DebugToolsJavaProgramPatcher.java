@@ -121,6 +121,8 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
             agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
+            agentArgs.setAutoSaveSql(settingState.getAutoSaveSql().toString());
+            agentArgs.setSqlRetentionDays(settingState.getSqlRetentionDays());
             if (settingState.getAutoAttach()) {
                 FileUtil.writeUtf8String("0", DebugToolsFileUtils.getAutoAttachFile());
             }
