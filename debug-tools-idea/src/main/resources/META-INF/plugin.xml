@@ -194,6 +194,8 @@
             <action class="io.github.future0923.debug.tools.idea.tool.action.ConnectAction"/>
             <action class="io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction"/>
             <separator text="Separator"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction"/>
+            <separator text="Separator"/>
             <reference ref="DebugToolsTool.EvaluateGroovy"/>
             <separator text="Separator"/>
             <reference ref="DebugTools.HttpUrl"/>

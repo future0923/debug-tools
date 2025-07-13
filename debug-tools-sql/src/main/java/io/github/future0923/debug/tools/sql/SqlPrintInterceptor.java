@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.utils.SqlFileWriter;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -84,6 +85,7 @@ public class SqlPrintInterceptor {
             this.connection = connection;
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Object result = method.invoke(connection, args);
             if (CONNECTION_AGENT_METHODS.equals(method.getName())) {
@@ -107,6 +109,7 @@ public class SqlPrintInterceptor {
 
         }
 
+        @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             long startTime = System.currentTimeMillis();
             Object result = method.invoke(statement, args);
@@ -127,13 +130,15 @@ public class SqlPrintInterceptor {
     private static void printSql(long consume, Statement sta, Object[] parameters) {
         String resultSql;
         String className = sta.getClass().getName();
-        if (className.startsWith("com.microsoft.sqlserver")) {
+        String dbType = getDbType(className);
+        
+        if ("SQLServer".equals(dbType)) {
             resultSql = printSQLServer(sta);
-        } else if (className.startsWith("com.mysql")) {
+        } else if ("MySQL".equals(dbType)) {
             resultSql = printMySQL(sta);
-        } else if (className.startsWith("org.postgresql")) {
+        } else if ("PostgreSQL".equals(dbType)) {
             resultSql = printPostgresql(sta);
-        } else if (className.startsWith("oracle.jdbc")) {
+        } else if ("Oracle".equals(dbType)) {
             resultSql = printOracle(sta, parameters);
         } else {
             resultSql = sta.toString();
@@ -145,6 +150,30 @@ public class SqlPrintInterceptor {
             resultSql = SqlCompressor.compressSql(resultSql);
         }
         logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
+        
+        // 写入SQL记录到文件
+        try {
+            SqlFileWriter.writeSqlRecord(resultSql, consume, dbType);
+        } catch (Exception e) {
+            logger.error("Failed to write SQL record to file", e);
+        }
+    }
+    
+    /**
+     * 获取数据库类型
+     */
+    private static String getDbType(String className) {
+        if (className.startsWith("com.microsoft.sqlserver")) {
+            return "SQLServer";
+        } else if (className.startsWith("com.mysql")) {
+            return "MySQL";
+        } else if (className.startsWith("org.postgresql")) {
+            return "PostgreSQL";
+        } else if (className.startsWith("oracle.jdbc")) {
+            return "Oracle";
+        } else {
+            return "Unknown";
+        }
     }
 
     private static String printPostgresql(Statement sta) {

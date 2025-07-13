@@ -18,7 +18,10 @@ package io.github.future0923.debug.tools.test.spring.boot.mybatis.service;
 
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.User1Mapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author future0923
@@ -38,9 +41,9 @@ public class UserService {
 
     public String c() {
         System.out.println("11111111");
-        return userMapper.aaa().toString();
+        List<User> aaa = userMapper.aaa();
+        return aaa.toString();
     }
-
     public String a() {
         System.out.println(2222222);
         return "1";
