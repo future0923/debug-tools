@@ -69,7 +69,7 @@ public class DebugToolsAttach {
         }
         JvmToolsUtils.init();
         if (PrintSqlType.isPrint(parse.getPrintSql())) {
-            SqlPrintByteCodeEnhance.enhance(inst, parse.getPrintSql());
+            SqlPrintByteCodeEnhance.enhance(inst, parse.getPrintSql(),parse.getAutoSaveSql(),parse.getSqlRetentionDays());
         }
         if (Objects.equals(parse.getHotswap(), "true")) {
             HotswapAgent.init(parse, inst);
