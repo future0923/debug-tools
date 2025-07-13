@@ -31,8 +31,10 @@ public class SqlPrintByteCodeEnhance {
      * @param inst     instrumentation
      * @param printSql 打印类型
      */
-    public static void enhance(Instrumentation inst, String printSql) {
+    public static void enhance(Instrumentation inst, String printSql,String saveFlag,Integer saveDays) {
         SqlPrintInterceptor.setPrintSqlType(printSql);
+        SqlPrintInterceptor.setAutoSaveSql("true".equalsIgnoreCase(saveFlag));
+        SqlPrintInterceptor.setSqlRetentionDays(saveDays);
         inst.addTransformer(new SqlDriverClassFileTransformer(), true);
     }
 }

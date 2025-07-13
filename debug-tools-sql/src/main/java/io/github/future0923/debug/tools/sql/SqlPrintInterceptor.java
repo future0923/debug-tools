@@ -50,9 +50,19 @@ public class SqlPrintInterceptor {
     private static final String CJ_STATEMENT_PREFIXES = "com.mysql.cj.jdbc.ClientPreparedStatement:";
 
     private static PrintSqlType printSqlType;
+    private static boolean autoSaveSql = false;
+    private static int sqlRetentionDays = 7;
 
     public static void setPrintSqlType(String printSqlType) {
         SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
+    }
+
+    public static void setAutoSaveSql(boolean autoSave) {
+        autoSaveSql = autoSave;
+    }
+
+    public static void setSqlRetentionDays(int days) {
+        sqlRetentionDays = days;
     }
 
     public static Connection proxyConnection(final Connection connection) {
@@ -151,11 +161,13 @@ public class SqlPrintInterceptor {
         }
         logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
         
-        // 写入SQL记录到文件
-        try {
-            SqlFileWriter.writeSqlRecord(resultSql, consume, dbType);
-        } catch (Exception e) {
-            logger.error("Failed to write SQL record to file", e);
+        // 根据配置写入SQL记录到文件
+        if (autoSaveSql) {
+            try {
+                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType, sqlRetentionDays);
+            } catch (Exception e) {
+                logger.error("Failed to write SQL record to file", e);
+            }
         }
     }
     
