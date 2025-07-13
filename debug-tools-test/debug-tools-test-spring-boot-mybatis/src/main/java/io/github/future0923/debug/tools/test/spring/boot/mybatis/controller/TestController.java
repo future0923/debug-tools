@@ -42,6 +42,6 @@ public class TestController {
 
     @GetMapping("/c")
     public String c() {
-        return "c";
+        return user1Mapper.c().toString();
     }
 }

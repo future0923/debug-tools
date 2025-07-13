@@ -21,6 +21,8 @@ import com.intellij.openapi.util.IconLoader;
 import javax.swing.*;
 
 /**
+ * DebugTools图标工具类
+ *
  * @author future0923
  */
 public class DebugToolsIcons {
@@ -44,6 +46,7 @@ public class DebugToolsIcons {
     public static final Icon Setting = IconLoader.getIcon("/icon/setting.svg", DebugToolsIcons.class);
     public static final Icon Help = IconLoader.getIcon("/icon/help.svg", DebugToolsIcons.class);
     public static final Icon Json = IconLoader.getIcon("/icon/json.svg", DebugToolsIcons.class);
+    public static final Icon SqlHistory = IconLoader.getIcon("/icon/sql_history.svg", DebugToolsIcons.class);
 
     public static final class HttpMethod {
         public static final Icon Delete = IconLoader.getIcon("/icon/request/delete.png", DebugToolsIcons.class);
