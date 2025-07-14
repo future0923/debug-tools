@@ -36,6 +36,14 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.1.2</strong>
+        <ul>
+            <li>修复dynamic-datasource4.2+启动失败的bug</li>
+            <li>修复mybatis-spring2.0.2启动失败的bug</li>
+            <li>修复fastjson2高版本获取不到getKotlinConstructor方法的bug</li>
+            <li>修复无法切换类加载器</li>
+            <li>修复启动java.lang.NullPointerException: Cannot read field "string" because "utf" is null的bug</li>
+        </ul>
         <strong>4.1.1</strong>
         <ul>
             <li>增加ToolWindow快捷跳转设置与文档按钮</li>
