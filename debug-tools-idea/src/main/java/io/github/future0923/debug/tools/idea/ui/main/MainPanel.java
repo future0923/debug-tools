@@ -172,7 +172,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     private void getAllClassLoader() {
-        classLoaderComboBox.getAllClassLoader();
+        classLoaderComboBox.refreshClassLoader(false);
         classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
     }
 

@@ -53,7 +53,7 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
             }
         });
         if (isDefault) {
-            addActionListener(e-> {
+            addActionListener(e -> {
                 AllClassLoaderRes.Item selectedItem = (AllClassLoaderRes.Item) getSelectedItem();
                 if (selectedItem != null) {
                     StateUtils.setProjectDefaultClassLoader(project, selectedItem);
@@ -62,7 +62,12 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
         }
     }
 
-    public void getAllClassLoader() {
+    /**
+     * 刷新ClassLoader下拉框
+     *
+     * @param changeDefaultClassLoader 是否修改默认ClassLoader
+     */
+    public void refreshClassLoader(boolean changeDefaultClassLoader) {
         removeAllItems();
         AllClassLoaderRes allClassLoaderRes;
         try {
@@ -77,8 +82,9 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
             }
             addItem(item);
         }
-        if (defaultClassLoader != null) {
+        if (changeDefaultClassLoader && defaultClassLoader != null) {
             setSelectedItem(defaultClassLoader);
+            StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
         }
     }
 
