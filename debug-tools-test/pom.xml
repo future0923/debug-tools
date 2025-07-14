@@ -18,6 +18,7 @@
         <module>debug-tools-test-agent</module>
         <module>debug-tools-test-spring-boot-three</module>
         <module>debug-tools-test-solon</module>
+        <module>debug-tools-test-tomcat</module>
     </modules>
 
 </project>
