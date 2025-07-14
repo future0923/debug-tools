@@ -162,6 +162,10 @@ tasks.named("buildPlugin") {
     finalizedBy("movePluginZip")
 }
 
+tasks.named("clean") {
+    finalizedBy("cleanPluginZip")
+}
+
 fun prop(name: String): String {
     return extra.properties[name] as? String ?: error("Property `$name` is not defined in gradle.properties")
 }

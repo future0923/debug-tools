@@ -71,7 +71,7 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                                 ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(),
                                 agentPath,
                                 () -> {
-                                    StateUtils.getClassLoaderComboBox(project).refreshClassLoader(true);
+                                    StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
                                     settingState.setLocal(true);
                                 }
                         );
