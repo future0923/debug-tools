@@ -16,19 +16,26 @@
  */
 package io.github.future0923.debug.tools.idea.ui.combobox;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import io.github.future0923.debug.tools.base.utils.DebugToolsThreadUtils;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author future0923
  */
 public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
+
+    private static final Logger logger = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
     private final Project project;
 
@@ -67,12 +74,26 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
      *
      * @param changeDefaultClassLoader 是否修改默认ClassLoader
      */
+    public void refreshClassLoaderLater(boolean changeDefaultClassLoader) {
+        ApplicationManager.getApplication().invokeLater(() -> refreshClassLoader(changeDefaultClassLoader));
+    }
+
     public void refreshClassLoader(boolean changeDefaultClassLoader) {
         removeAllItems();
-        AllClassLoaderRes allClassLoaderRes;
-        try {
-            allClassLoaderRes = HttpClientUtils.allClassLoader(project);
-        } catch (Exception ignored) {
+        AllClassLoaderRes allClassLoaderRes = null;
+        int retryCount = 0;
+        while (!Thread.currentThread().isInterrupted() && retryCount < 20) {
+            try {
+                allClassLoaderRes = HttpClientUtils.allClassLoader(project);
+                break;
+            } catch (Exception e) {
+                retryCount++;
+            }
+            if (!DebugToolsThreadUtils.sleep(1, TimeUnit.SECONDS)) {
+                return;
+            }
+        }
+        if (allClassLoaderRes == null) {
             return;
         }
         AllClassLoaderRes.Item defaultClassLoader = null;
