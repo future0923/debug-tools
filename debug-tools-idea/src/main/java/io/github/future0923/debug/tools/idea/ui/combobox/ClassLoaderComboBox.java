@@ -74,37 +74,39 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
      *
      * @param changeDefaultClassLoader 是否修改默认ClassLoader
      */
+    public void refreshClassLoaderLater(boolean changeDefaultClassLoader) {
+        ApplicationManager.getApplication().invokeLater(() -> refreshClassLoader(changeDefaultClassLoader));
+    }
+
     public void refreshClassLoader(boolean changeDefaultClassLoader) {
         removeAllItems();
-        ApplicationManager.getApplication().invokeLater(() -> {
-            AllClassLoaderRes allClassLoaderRes = null;
-            int retryCount = 0;
-            while (!Thread.currentThread().isInterrupted() && retryCount < 20) {
-                try {
-                    allClassLoaderRes = HttpClientUtils.allClassLoader(project);
-                    break;
-                } catch (Exception e) {
-                    retryCount++;
-                }
-                if (!DebugToolsThreadUtils.sleep(1, TimeUnit.SECONDS)) {
-                    return;
-                }
+        AllClassLoaderRes allClassLoaderRes = null;
+        int retryCount = 0;
+        while (!Thread.currentThread().isInterrupted() && retryCount < 20) {
+            try {
+                allClassLoaderRes = HttpClientUtils.allClassLoader(project);
+                break;
+            } catch (Exception e) {
+                retryCount++;
             }
-            if (allClassLoaderRes == null) {
+            if (!DebugToolsThreadUtils.sleep(1, TimeUnit.SECONDS)) {
                 return;
             }
-            AllClassLoaderRes.Item defaultClassLoader = null;
-            for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
-                if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
-                    defaultClassLoader = item;
-                }
-                addItem(item);
+        }
+        if (allClassLoaderRes == null) {
+            return;
+        }
+        AllClassLoaderRes.Item defaultClassLoader = null;
+        for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
+            if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
+                defaultClassLoader = item;
             }
-            if (changeDefaultClassLoader && defaultClassLoader != null) {
-                setSelectedItem(defaultClassLoader);
-                StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
-            }
-        });
+            addItem(item);
+        }
+        if (changeDefaultClassLoader && defaultClassLoader != null) {
+            setSelectedItem(defaultClassLoader);
+            StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
+        }
     }
 
     public void setSelectedClassLoader(AllClassLoaderRes.Item identity) {
