@@ -31,6 +31,7 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
@@ -87,7 +88,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         attachStatusPanel.add(attached);
         attachStatusPanel.add(textField);
 
-        ClassLoaderComboBox classLoaderComboBox = new ClassLoaderComboBox(project);
+        ClassLoaderComboBox classLoaderComboBox = StateUtils.getClassLoaderComboBox(project);
         classLoaderPanel.add(new JBLabel("Default classLoader:"), BorderLayout.WEST);
         classLoaderPanel.add(classLoaderComboBox);
         JButton closeButton = new JButton("Close");
@@ -176,7 +177,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                                 attached.setBackground(JBColor.GREEN);
                                 attachButtonPanel.setVisible(true);
                                 classLoaderPanel.setVisible(true);
-                                classLoaderComboBox.getAllClassLoader();
                             } else {
                                 if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
                                     attached.setText("Fail");
