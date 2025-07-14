@@ -24,6 +24,7 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,6 +67,7 @@ public class AttachServerMenu extends JBPopupMenu {
                 String agentPath = settingState.loadAgentPath();
                 if (DebugToolsStringUtils.isNotBlank(agentPath)) {
                     DebugToolsAttachUtils.attachLocal(project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), agentPath);
+                    StateUtils.getClassLoaderComboBox(project).refreshClassLoader(true);
                 }
                 settingState.setLocal(true);
             }

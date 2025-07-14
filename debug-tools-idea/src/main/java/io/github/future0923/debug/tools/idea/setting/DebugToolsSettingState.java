@@ -88,7 +88,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 是否附着的本地应用
      */
-    private boolean local;
+    private boolean local = true;
 
     /**
      * 本地的http端口
