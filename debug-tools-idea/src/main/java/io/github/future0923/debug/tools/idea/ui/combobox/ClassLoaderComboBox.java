@@ -16,19 +16,26 @@
  */
 package io.github.future0923.debug.tools.idea.ui.combobox;
 
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import io.github.future0923.debug.tools.base.utils.DebugToolsThreadUtils;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author future0923
  */
 public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
+
+    private static final Logger logger = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
     private final Project project;
 
@@ -69,23 +76,35 @@ public class ClassLoaderComboBox extends ComboBox<AllClassLoaderRes.Item> {
      */
     public void refreshClassLoader(boolean changeDefaultClassLoader) {
         removeAllItems();
-        AllClassLoaderRes allClassLoaderRes;
-        try {
-            allClassLoaderRes = HttpClientUtils.allClassLoader(project);
-        } catch (Exception ignored) {
-            return;
-        }
-        AllClassLoaderRes.Item defaultClassLoader = null;
-        for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
-            if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
-                defaultClassLoader = item;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            AllClassLoaderRes allClassLoaderRes = null;
+            int retryCount = 0;
+            while (!Thread.currentThread().isInterrupted() && retryCount < 20) {
+                try {
+                    allClassLoaderRes = HttpClientUtils.allClassLoader(project);
+                    break;
+                } catch (Exception e) {
+                    retryCount++;
+                }
+                if (!DebugToolsThreadUtils.sleep(1, TimeUnit.SECONDS)) {
+                    return;
+                }
             }
-            addItem(item);
-        }
-        if (changeDefaultClassLoader && defaultClassLoader != null) {
-            setSelectedItem(defaultClassLoader);
-            StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
-        }
+            if (allClassLoaderRes == null) {
+                return;
+            }
+            AllClassLoaderRes.Item defaultClassLoader = null;
+            for (AllClassLoaderRes.Item item : allClassLoaderRes.getItemList()) {
+                if (item.getIdentity().equals(allClassLoaderRes.getDefaultIdentity())) {
+                    defaultClassLoader = item;
+                }
+                addItem(item);
+            }
+            if (changeDefaultClassLoader && defaultClassLoader != null) {
+                setSelectedItem(defaultClassLoader);
+                StateUtils.setProjectDefaultClassLoader(project, defaultClassLoader);
+            }
+        });
     }
 
     public void setSelectedClassLoader(AllClassLoaderRes.Item identity) {
