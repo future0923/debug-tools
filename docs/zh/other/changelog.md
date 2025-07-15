@@ -4,6 +4,14 @@ aside: false
 ---
 # 版本迭代记录
 
+## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-14)
+
+- 修复dynamic-datasource4.2+启动失败的bug
+- 修复mybatis-spring2.0.2启动失败的bug
+- 修复fastjson2高版本获取不到getKotlinConstructor方法的bug
+- 修复无法切换类加载器
+- 修复启动java.lang.NullPointerException: Cannot read field "string" because "utf" is null的bug
+
 ## [4.1.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.0...v4.1.1) (2025-07-09)
 
 - 增加ToolWindow快捷跳转设置与文档按钮 by [@ayuayue](https://github.com/ayuayue)
