@@ -4,7 +4,7 @@ aside: false
 ---
 # 版本迭代记录
 
-## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-14)
+## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-15)
 
 - 修复dynamic-datasource4.2+启动失败的bug
 - 修复mybatis-spring2.0.2启动失败的bug
