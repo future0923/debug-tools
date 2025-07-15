@@ -4,7 +4,7 @@ aside: false
 ---
 # ChangeLog
 
-## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-14)
+## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-15)
 
 - Fixed the bug of dynamic-datasource4.2+ startup failure
 - Fixed the bug of mybatis-spring2.0.2 startup failure
