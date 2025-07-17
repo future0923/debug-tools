@@ -4,6 +4,14 @@ aside: false
 ---
 # ChangeLog
 
+## [4.1.2](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.1...v4.1.2) (2025-07-15)
+
+- Fixed the bug of dynamic-datasource4.2+ startup failure
+- Fixed the bug of mybatis-spring2.0.2 startup failure
+- Fixed the bug of fastjson2 high version not getting getKotlinConstructor method
+- Fixed the bug of unable to switch class loader
+- Fixed the bug of startup java.lang.NullPointerException: Cannot read field "string" because "utf" is null
+
 ## [4.1.1](https://github.com/java-hot-deploy/debug-tools/compare/v4.1.0...v4.1.1) (2025-07-09)
 
 - Add ToolWindow quick jump settings and document buttons by [@ayuayue](https://github.com/ayuayue)
