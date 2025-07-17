@@ -19,7 +19,7 @@ package io.github.future0923.debug.tools.hotswap.core.config;
 
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsLibUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsProperties;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
@@ -317,7 +317,9 @@ public class PluginConfiguration {
      * 获取额外的ClassPath
      */
     public URL[] getExtraClasspath() {
-        return convertToURL(DebugToolsOSUtils.isWindows() ? getProperty("extraClasspathWin") : getProperty("extraClasspath"));
+       //  String path = DebugToolsOSUtils.isWindows() ? getProperty("extraClasspathWin") : getProperty("extraClasspath");
+        String path = FileUtil.mkdir(DebugToolsLibUtils.getDebugToolsCacheDir() + "/" + "classes").getPath();
+        return convertToURL(path);
     }
 
     /**
@@ -327,7 +329,8 @@ public class PluginConfiguration {
      * @see OnResourceFileEvent
      */
     public URL[] getWatchResources() {
-        return convertToURL(DebugToolsOSUtils.isWindows() ? getProperty("watchResourcesWin") : getProperty("watchResources"));
+        String path = FileUtil.mkdir(DebugToolsLibUtils.getDebugToolsCacheDir() + "/" + "resources").getPath();
+        return convertToURL(path);
     }
 
     /**
