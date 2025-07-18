@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.idea.client.http;
 
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.hutool.http.HttpUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
@@ -37,6 +38,8 @@ public class HttpClientUtils {
     private static final String RESULT_TYPE_URI = "/result/type";
 
     private static final String RESULT_DETAIL_URI = "/result/detail";
+
+    private static final String RESULT_TRACE_URI = "/result/trace";
 
     private static final String ALL_CLASS_LOADER_URI = "/allClassLoader";
 
@@ -70,6 +73,13 @@ public class HttpClientUtils {
         req.setOffsetPath(fieldOffset);
         String body = HttpUtil.post(DebugToolsSettingState.getInstance(project).getUrl(RESULT_DETAIL_URI), DebugToolsJsonUtils.toJsonStr(req), TIMEOUT);
         return DebugToolsJsonUtils.toRunResultDTOList(body);
+    }
+
+    public static List<MethodTreeNode> resultTrace(Project project, String fieldOffset) {
+        RunResultDetailReq req = new RunResultDetailReq();
+        req.setOffsetPath(fieldOffset);
+        String body = HttpUtil.post(DebugToolsSettingState.getInstance(project).getUrl(RESULT_TRACE_URI), DebugToolsJsonUtils.toJsonStr(req), TIMEOUT);
+        return DebugToolsJsonUtils.toMethodTreeList(body);
     }
 
     public static AllClassLoaderRes allClassLoader(Project project) throws IOException, InterruptedException {

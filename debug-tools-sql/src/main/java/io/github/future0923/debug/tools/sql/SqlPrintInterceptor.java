@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.trace.MethodTrace;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -138,6 +139,8 @@ public class SqlPrintInterceptor {
         } else {
             resultSql = sta.toString();
         }
+        MethodTrace.enterSql(resultSql);
+        MethodTrace.exit(consume);
         if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
             resultSql = SqlFormatter.format(resultSql);
         }

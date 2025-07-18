@@ -24,8 +24,8 @@ import io.github.future0923.debug.tools.common.enums.ResultClassType;
  */
 public class RunResult extends ResultTabbedPane{
 
-    public RunResult(Project project, String printResult, String offsetPath, ResultClassType resultClassType) {
-        super(project, printResult, offsetPath, resultClassType);
+    public RunResult(Project project, String printResult, String offsetPath, String traceOffsetPath, ResultClassType resultClassType) {
+        super(project, printResult, offsetPath, traceOffsetPath, resultClassType);
     }
 
     @Override
@@ -35,6 +35,11 @@ public class RunResult extends ResultTabbedPane{
 
     @Override
     protected boolean debugTab() {
+        return true;
+    }
+
+    @Override
+    protected boolean traceTab() {
         return true;
     }
 }

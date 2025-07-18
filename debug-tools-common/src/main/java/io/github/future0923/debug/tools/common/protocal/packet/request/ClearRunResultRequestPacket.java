@@ -16,9 +16,10 @@
  */
 package io.github.future0923.debug.tools.common.protocal.packet.request;
 
-import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -31,13 +32,18 @@ import java.nio.charset.StandardCharsets;
 @EqualsAndHashCode(callSuper = true)
 public class ClearRunResultRequestPacket extends Packet {
 
+    private static final Logger logger = Logger.getLogger(ClearRunResultRequestPacket.class);
+
     private String fieldOffset;
+
+    private String traceOffset;
 
     public ClearRunResultRequestPacket() {
     }
 
-    public ClearRunResultRequestPacket(String fieldOffset) {
+    public ClearRunResultRequestPacket(String fieldOffset, String traceOffset) {
         this.fieldOffset = fieldOffset;
+        this.traceOffset = traceOffset;
     }
 
     @Override
@@ -47,11 +53,7 @@ public class ClearRunResultRequestPacket extends Packet {
 
     @Override
     public byte[] binarySerialize() {
-        if (DebugToolsStringUtils.isBlank(fieldOffset)) {
-            return new byte[0];
-        } else {
-            return fieldOffset.getBytes(StandardCharsets.UTF_8);
-        }
+        return DebugToolsJsonUtils.toJsonStr(this).getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -59,6 +61,13 @@ public class ClearRunResultRequestPacket extends Packet {
         if (bytes == null || bytes.length == 0) {
             return;
         }
-        fieldOffset = new String(bytes, StandardCharsets.UTF_8);
+        String jsonString = new String(bytes, StandardCharsets.UTF_8);
+        if (!DebugToolsJsonUtils.isTypeJSON(jsonString)) {
+            logger.warning("The data ClearRunResultRequestPacket received is not JSON, {}", jsonString);
+            return;
+        }
+        ClearRunResultRequestPacket packet = DebugToolsJsonUtils.toBean(jsonString, ClearRunResultRequestPacket.class);
+        this.setFieldOffset(packet.getFieldOffset());
+        this.setTraceOffset(packet.getTraceOffset());
     }
 }
