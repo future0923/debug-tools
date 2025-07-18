@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHa
 import io.github.future0923.debug.tools.server.http.handler.GetApplicationNameHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.IndexHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultDetailHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.RunResultTraceHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultTypeHttpHandler;
 import lombok.Getter;
 
@@ -57,6 +58,7 @@ public class DebugToolsHttpServer {
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
         httpServer.createContext(GetApplicationNameHttpHandler.PATH, GetApplicationNameHttpHandler.INSTANCE);
+        httpServer.createContext(RunResultTraceHttpHandler.PATH, RunResultTraceHttpHandler.INSTANCE);
     }
 
     public void start() {

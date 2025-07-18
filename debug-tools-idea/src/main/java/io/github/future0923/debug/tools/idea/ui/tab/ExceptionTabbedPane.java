@@ -16,8 +16,6 @@
  */
 package io.github.future0923.debug.tools.idea.ui.tab;
 
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -26,13 +24,11 @@ import com.intellij.ui.components.JBTabbedPane;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
-import io.github.future0923.debug.tools.common.enums.ResultClassType;
-import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.ui.console.MyConsolePanel;
-import io.github.future0923.debug.tools.idea.ui.tree.ResultTreePanel;
-import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTreeNode;
+import io.github.future0923.debug.tools.idea.ui.tree.ResultDebugTreePanel;
+import io.github.future0923.debug.tools.idea.ui.tree.node.ResultDebugTreeNode;
 
 import java.awt.*;
 
@@ -51,7 +47,7 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
 
     private MyConsolePanel consoleView;
 
-    private ResultTreePanel debugTab;
+    private ResultDebugTreePanel debugTab;
 
     private boolean loadDebug = false;
 
@@ -72,7 +68,7 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
         consoleView.print(throwable, ConsoleViewContentType.ERROR_OUTPUT);
         tabPane.addTab("console", consoleView);
 
-        debugTab = new ResultTreePanel(project);
+        debugTab = new ResultDebugTreePanel(project);
         tabPane.addTab("debug", debugTab);
 
 
@@ -94,7 +90,7 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
     private void changeDebug() {
         String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
         if (DebugToolsStringUtils.isNotBlank(body)) {
-            debugTab.setRoot(new ResultTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
+            debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
             loadDebug = true;
         } else {
             Messages.showErrorDialog(project, "The request failed, please try again later", "Exception Result");

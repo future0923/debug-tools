@@ -30,12 +30,12 @@ import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
  */
 public class SocketSendUtils {
 
-    public static void clearRunResult(String applicationName, String filedOffset) {
+    public static void clearRunResult(String applicationName, String filedOffset, String traceOffset) {
         if (DebugToolsStringUtils.isNotBlank(filedOffset)) {
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {
                 try {
-                    info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset));
+                    info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset, traceOffset));
                 } catch (Exception ignored) {
                 }
             }

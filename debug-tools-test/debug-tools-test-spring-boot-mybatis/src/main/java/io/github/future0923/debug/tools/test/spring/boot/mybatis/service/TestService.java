@@ -14,26 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.base.constants;
+package io.github.future0923.debug.tools.test.spring.boot.mybatis.service;
 
 /**
  * @author future0923
  */
-public interface ProjectConstants {
-
-    Boolean DEBUG = true;
-
-    String NAME = "DebugTools";
-
-    String VERSION = "4.1.2";
-
-    String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
-
-    String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
-
-    String XXMLJOB_EXTENSION_JAR_NAME = "debug-tools-extension-xxljob";
-
-    String CONFIG_FILE = "debug-tools.properties";
-
-    String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
+public interface TestService {
+    String c();
 }

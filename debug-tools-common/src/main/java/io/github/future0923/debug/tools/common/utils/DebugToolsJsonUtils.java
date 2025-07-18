@@ -24,6 +24,7 @@ import io.github.future0923.debug.tools.base.hutool.json.JSONConfig;
 import io.github.future0923.debug.tools.base.hutool.json.JSONNull;
 import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
@@ -60,6 +61,11 @@ public class DebugToolsJsonUtils extends JSONUtil {
 
     public static List<RunResultDTO> toRunResultDTOList(String jsonInput) {
         return toBean(jsonInput, new TypeReference<List<RunResultDTO>>() {
+        }, true);
+    }
+
+    public static List<MethodTreeNode> toMethodTreeList(String jsonInput) {
+        return toBean(jsonInput, new TypeReference<List<MethodTreeNode>>() {
         }, true);
     }
 

@@ -84,7 +84,7 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
 
             @Override
             public void dispose() {
-                SocketSendUtils.clearRunResult(packet.getApplicationName(), packet.getOffsetPath());
+                SocketSendUtils.clearRunResult(packet.getApplicationName(), packet.getOffsetPath(), null);
             }
         };
     }

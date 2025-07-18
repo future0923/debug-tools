@@ -38,7 +38,8 @@ public class UserService {
 
     public String c() {
         System.out.println("11111111");
-        return userMapper.aaa().toString();
+        userMapper.aaa();
+        return null;
     }
 
     public String a() {

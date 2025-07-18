@@ -58,6 +58,7 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     private String offsetPath;
 
+    private String traceOffsetPath;
 
     @Override
     public Byte getCommand() {
@@ -89,6 +90,7 @@ public class RunTargetMethodResponsePacket extends Packet {
         this.setPrintResult(packet.getPrintResult());
         this.setThrowable(packet.getThrowable());
         this.setOffsetPath(packet.getOffsetPath());
+        this.setTraceOffsetPath(packet.getTraceOffsetPath());
     }
 
     public static RunTargetMethodResponsePacket of(RunDTO runDTO, Throwable throwable, String offsetPath, String applicationName) {
