@@ -19,8 +19,9 @@ package io.github.future0923.debug.tools.server.scoket.handler;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
-import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
@@ -32,6 +33,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.response.RunTarge
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
+import io.github.future0923.debug.tools.server.trace.MethodTraceClassFileTransformer;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
@@ -40,6 +42,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 
 /**
  * @author future0923
@@ -111,7 +114,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             }
         }
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
-        ReflectUtil.setAccessible(bridgedMethod);
+        MethodTraceClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, 1);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO, outputStream);
         Thread.currentThread().setContextClassLoader(orgClassLoader);
@@ -164,6 +167,10 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
                 DebugToolsResultUtils.putCache(offsetPath, result);
             }
         }
+        List<MethodTreeNode> traceResult = MethodTrace.getResult();
+        String offsetPath = RunResultDTO.genOffsetPathRandom(traceResult);
+        DebugToolsResultUtils.putCache(offsetPath, traceResult);
+        packet.setTraceOffsetPath(offsetPath);
         writeAndFlushNotException(outputStream, packet);
     }
 

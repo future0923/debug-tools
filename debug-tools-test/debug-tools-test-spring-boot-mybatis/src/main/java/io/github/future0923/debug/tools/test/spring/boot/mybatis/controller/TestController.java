@@ -16,32 +16,35 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
-import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.User1Mapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 
 /**
  * @author future0923
  */
 @RestController
+@RequiredArgsConstructor
 public class TestController {
 
-    private final User1Mapper user1Mapper;
-
-    public TestController(User1Mapper user1Mapper) {
-    this.user1Mapper = user1Mapper;
-    }
+    private final UserService userService;
+    private final TestService testService;
 
     @GetMapping("/a")
-    public String a() {
-        return Arrays.toString(UserService.class.getDeclaredMethods());
+    public User a() {
+        testService.c();
+        userService.a();
+        return new User();
     }
 
     @GetMapping("/c")
     public String c() {
+        testService.c();
+        userService.a();
         return "c";
     }
 }

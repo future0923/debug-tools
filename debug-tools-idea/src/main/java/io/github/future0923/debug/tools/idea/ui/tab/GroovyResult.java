@@ -25,7 +25,7 @@ import io.github.future0923.debug.tools.common.enums.ResultClassType;
 public class GroovyResult extends ResultTabbedPane{
 
     public GroovyResult(Project project, String printResult, String offsetPath, ResultClassType resultClassType) {
-        super(project, printResult, offsetPath, resultClassType);
+        super(project, printResult, offsetPath, null, resultClassType);
     }
 
     @Override

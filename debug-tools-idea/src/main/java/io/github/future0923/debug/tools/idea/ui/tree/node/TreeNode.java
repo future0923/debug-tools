@@ -1,12 +1,12 @@
 package io.github.future0923.debug.tools.idea.ui.tree.node;
 
 import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
-import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 
 /**
  * @author future0923
  */
-public abstract class TreeNode extends PatchedDefaultMutableTreeNode {
+@SuppressWarnings("unchecked")
+public abstract class TreeNode<T> extends PatchedDefaultMutableTreeNode {
 
     public TreeNode() {
     }
@@ -16,7 +16,7 @@ public abstract class TreeNode extends PatchedDefaultMutableTreeNode {
     }
 
     @Override
-    public RunResultDTO getUserObject() {
-        return (RunResultDTO) super.getUserObject();
+    public T getUserObject() {
+        return (T) super.getUserObject();
     }
 }

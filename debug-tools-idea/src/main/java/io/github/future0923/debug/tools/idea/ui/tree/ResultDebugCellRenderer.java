@@ -32,7 +32,7 @@ import java.awt.*;
 /**
  * @author future0923
  */
-public class ResultCellRenderer extends ColoredTreeCellRenderer {
+public class ResultDebugCellRenderer extends ColoredTreeCellRenderer {
 
     private static final Color ORANGE = new JBColor(new Color(0x753F3E), new Color(0xE6AE87));
 
@@ -40,9 +40,10 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
 
     private static final Color GRAY = new JBColor(new Color(0x818593), new Color(0x707379));
 
+    @SuppressWarnings("unchecked")
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        RunResultDTO runResultDTO = ((TreeNode) value).getUserObject();
+        RunResultDTO runResultDTO = ((TreeNode<RunResultDTO>) value).getUserObject();
         if (runResultDTO == null) {
             return;
         }

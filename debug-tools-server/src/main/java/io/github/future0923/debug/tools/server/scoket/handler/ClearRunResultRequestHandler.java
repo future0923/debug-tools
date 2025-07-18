@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.server.scoket.handler;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
@@ -35,6 +36,11 @@ public class ClearRunResultRequestHandler extends BasePacketHandler<ClearRunResu
 
     @Override
     public void handle(OutputStream outputStream, ClearRunResultRequestPacket packet) throws Exception {
-        DebugToolsResultUtils.removeCache(packet.getFieldOffset());
+        if (StrUtil.isNotBlank(packet.getFieldOffset())) {
+            DebugToolsResultUtils.removeCache(packet.getFieldOffset());
+        }
+        if (StrUtil.isNotBlank(packet.getTraceOffset())) {
+            DebugToolsResultUtils.removeCache(packet.getTraceOffset());
+        }
     }
 }
