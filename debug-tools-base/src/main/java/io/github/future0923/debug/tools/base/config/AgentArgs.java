@@ -87,6 +87,16 @@ public class AgentArgs {
     private String autoAttach;
 
     /**
+     * 是否自动保存SQL日志 true|false
+     */
+    private String autoSaveSql;
+
+    /**
+     * SQL日志保留天数
+     */
+    private Integer sqlRetentionDays;
+
+    /**
      * 将agent上的string参数转为AgentArgs对象
      *
      * @param agentArgs key1=value1,key2=value2
@@ -102,7 +112,11 @@ public class AgentArgs {
                     try {
                         Field field = AgentArgs.class.getDeclaredField(keyValue[0]);
                         field.setAccessible(true);
-                        field.set(config, keyValue[1]);
+                        if (field.getType() == Integer.class) {
+                            field.set(config, Integer.valueOf(keyValue[1]));
+                        } else {
+                            field.set(config, keyValue[1]);
+                        }
                     } catch (Exception ignored) {
                     }
                 }

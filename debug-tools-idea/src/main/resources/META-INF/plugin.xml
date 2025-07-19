@@ -103,7 +103,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
     <depends>com.intellij.modules.json</depends>
-
+    <depends>com.intellij.modules.xdebugger</depends>
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
@@ -202,6 +202,8 @@
             <action class="io.github.future0923.debug.tools.idea.tool.action.ConnectAction"/>
             <action class="io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction"/>
             <separator text="Separator"/>
+            <action class="io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction"/>
+            <separator text="Separator"/>
             <reference ref="DebugToolsTool.EvaluateGroovy"/>
             <separator text="Separator"/>
             <reference ref="DebugTools.HttpUrl"/>
@@ -219,6 +221,11 @@
                     text="Hot Deployment"
                     description="Hot deploy the changed files to the attached application"/>
         </group>
+        <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyAsJsonAction"
+                text="Copy as JSON">
+            <add-to-group group-id="XDebugger.ValueGroup" anchor="before" relative-to-action="XDebugger.CopyValue"/>
+
+        </action>
     </actions>
 
     <applicationListeners>
