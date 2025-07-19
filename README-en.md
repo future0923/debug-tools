@@ -58,19 +58,19 @@
 
 - hot deploy
 
-![hot_deploy.gif](/docs/public/gif/hot_deploy.gif)
+![hot_deploy.gif](/images/gif/hot_deploy.gif)
 
 - hot reload
 
-![hot_reload.gif](/docs/public/gif/hot_reload.gif)
+![hot_reload.gif](/images/gif/hot_reload.gif)
 
 - call any Java method
 
-![quick_debug.gif](/docs/public/gif/quick_debug.gif)
+![quick_debug.gif](/images/gif/quick_debug.gif)
 
 - search http url
 
-![search_url.gif](/docs/public/gif/search_url.gif)
+![search_url.gif](/images/gif/search_url.gif)
 
 
 ## Quick Start
@@ -104,4 +104,4 @@ If you are interested in DebugTools, you are sincerely invited to join the Debug
 - QQ group: [518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - WeChat
 
-![wechat.png](docs/public/wechat.png)
+![wechat.png](images/wechat.png)

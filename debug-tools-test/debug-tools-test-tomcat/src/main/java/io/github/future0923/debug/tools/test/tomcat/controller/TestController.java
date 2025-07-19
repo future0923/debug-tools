@@ -14,27 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.sql;
+package io.github.future0923.debug.tools.test.tomcat.controller;
 
-import java.lang.instrument.Instrumentation;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 字节码增强打印SQL
- *
  * @author future0923
  */
-public class SqlPrintByteCodeEnhance {
+@RestController
+public class TestController {
 
-    /**
-     * 增加字节码让其打印SQL
-     *
-     * @param inst     instrumentation
-     * @param printSql 打印类型
-     */
-    public static void enhance(Instrumentation inst, String printSql,String saveFlag,Integer saveDays) {
-        SqlPrintInterceptor.setPrintSqlType(printSql);
-        SqlPrintInterceptor.setAutoSaveSql("true".equalsIgnoreCase(saveFlag));
-        SqlPrintInterceptor.setSqlRetentionDays(saveDays);
-        inst.addTransformer(new SqlDriverClassFileTransformer(), true);
+    @GetMapping
+    public String test(String name, Integer age) {
+        return "name = " + name + ", age = " + age;
+    }
+
+    @GetMapping("/b")
+    public String test2() {
+        return "b";
     }
 }
