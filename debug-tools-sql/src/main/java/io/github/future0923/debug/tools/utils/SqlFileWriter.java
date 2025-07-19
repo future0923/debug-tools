@@ -69,7 +69,7 @@ public class SqlFileWriter {
     /**
      * 写入SQL记录到文件，支持保留天数和0天清空逻辑
      */
-    public static void writeSqlRecordWithRetention(String sql, long consumeTime, String dbType, int days) {
+    public static void writeSqlRecordWithRetention(String sql, long consumeTime, String dbType, Integer days) {
         lock.lock();
         try {
             LocalDateTime now = LocalDateTime.now();

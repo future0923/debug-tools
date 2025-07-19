@@ -16,7 +16,10 @@
  */
 package io.github.future0923.debug.tools.server.trace;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 import javassist.ClassPool;
@@ -71,12 +74,17 @@ public class MethodTraceClassFileTransformer {
     @Getter
     private static final Set<String> IGNORED_CLASS_SET = new HashSet<>();
 
-    public static void traceMethod(ClassLoader classLoader, Class<?> targetClass, Method targetMethod, Integer maxDepth) throws Exception {
+    private static final String TRACE_MYBATIS_CLASS_NAME = "org.apache.ibatis.binding.MapperProxy";
+
+    private static final String TRACE_MYBATIS_METHOD_NAME = "invoke";
+
+    public static void traceMethod(ClassLoader classLoader, Class<?> targetClass, Method targetMethod, TraceMethodDTO traceMethodDTO) throws Exception {
         ClassPool classPool = getClassPool();
         CtClass ctClass = classPool.get(targetClass.getName());
         String methodDescription = getDescriptor(classPool, targetMethod);
-        redefineMethod(classLoader, classPool, ctClass, targetMethod.getName(), methodDescription, maxDepth == null ? 1 : maxDepth);
-        redefineMyBatisMethod(classLoader, classPool);
+        redefineMethod(classLoader, classPool, ctClass, targetMethod.getName(), methodDescription, traceMethodDTO.getTraceMaxDepth() == null ? 1 : traceMethodDTO.getTraceMaxDepth());
+        redefineMyBatisMethod(classLoader, classPool, traceMethodDTO.getTraceMyBatis());
+        MethodTrace.setTraceSqlStatus(traceMethodDTO.getTraceSQL());
     }
 
     public static void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
@@ -89,15 +97,22 @@ public class MethodTraceClassFileTransformer {
         IGNORED_METHOD_SET.add(qualifierNameKey);
     }
 
-    private static void redefineMyBatisMethod(ClassLoader classLoader, ClassPool classPool) throws Exception {
-        String className = "org.apache.ibatis.binding.MapperProxy";
-        Class<?> clazz = classLoader.loadClass(className);
-        String methodName = "invoke";
-        String methodDescription = getDescriptor(classPool, ReflectUtil.getMethodByName(clazz, "invoke"));
-        RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
-                getQualifierNameKey(className, methodName, methodDescription),
-                key -> redefineClass(className, methodName, methodDescription)
-        );
+    private static void redefineMyBatisMethod(ClassLoader classLoader, ClassPool classPool, Boolean traceMyBatis) throws Exception {
+        Class<?> clazz = classLoader.loadClass(TRACE_MYBATIS_CLASS_NAME);
+        String methodDescription = getDescriptor(classPool, ReflectUtil.getMethodByName(clazz, TRACE_MYBATIS_METHOD_NAME));
+        String qualifierNameKey = getQualifierNameKey(TRACE_MYBATIS_CLASS_NAME, TRACE_MYBATIS_METHOD_NAME, methodDescription);
+        if (BooleanUtil.isTrue(traceMyBatis)) {
+            RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
+                    qualifierNameKey,
+                    key -> redefineClass(TRACE_MYBATIS_CLASS_NAME, TRACE_MYBATIS_METHOD_NAME, methodDescription)
+            );
+        } else {
+            RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
+                transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+                // 返回 null 表示移除
+                return null;
+            });
+        }
     }
 
     private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, int maxDepth) throws Exception {

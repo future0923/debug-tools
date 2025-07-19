@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.model;
 
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,9 +29,6 @@ import java.util.Map;
 /**
  * @author future0923
  */
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Data
 public class ParamCache {
 
@@ -39,6 +37,8 @@ public class ParamCache {
     private String paramContent;
 
     private String xxlJobParam;
+
+    private TraceMethodDTO traceMethodDTO;
 
     public static final ParamCache NULL = new ParamCache();
 
