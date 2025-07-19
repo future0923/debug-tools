@@ -29,6 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Objects;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 
 /**
  * @author future0923
@@ -89,6 +91,21 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (!Objects.equals(settingState.getRemoveContextPath(), settingPanel.getRemoveContextPath().getText())) {
             return true;
         }
+        // 新增 saveSql 配置项判断
+        if (!Objects.equals(settingState.getAutoSaveSql(), settingPanel.getSaveSqlCheckBox().isSelected())) {
+            return true;
+        }
+        // 新增 saveSqlDays 配置项判断（只有开启时才判断）
+        if (settingPanel.getSaveSqlCheckBox().isSelected()) {
+            try {
+                int days = Integer.parseInt(settingPanel.getSaveSqlDaysField().getText().trim());
+                if (!Objects.equals(settingState.getSqlRetentionDays(), days)) {
+                    return true;
+                }
+            } catch (Exception ignore) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -121,11 +138,16 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingPanel.getAutoAttachNo().setSelected(true);
         }
         settingPanel.getRemoveContextPath().setText(settingState.getRemoveContextPath());
+        // 新增 saveSql 配置项重置
+        settingPanel.getSaveSqlCheckBox().setSelected(Boolean.TRUE.equals(settingState.getAutoSaveSql()));
+        settingPanel.getSaveSqlDaysField().setText(String.valueOf(settingState.getSqlRetentionDays()));
+        settingPanel.getSaveSqlDaysField().setEnabled(settingPanel.getSaveSqlCheckBox().isSelected());
     }
 
     @Override
     public void apply() throws ConfigurationException {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        boolean oldAutoSaveSql = Boolean.TRUE.equals(settingState.getAutoSaveSql());
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.SIMPLE);
         }
@@ -157,6 +179,27 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingState.setAutoAttach(false);
         }
         settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
+        // 新增 saveSql 配置项保存
+        boolean newAutoSaveSql = settingPanel.getSaveSqlCheckBox().isSelected();
+        settingState.setAutoSaveSql(newAutoSaveSql);
+        if (newAutoSaveSql) {
+            try {
+                int days = Integer.parseInt(settingPanel.getSaveSqlDaysField().getText().trim());
+                if (days < 1) days = 0;
+                settingState.setSqlRetentionDays(days);
+            } catch (Exception ignore) {
+                settingState.setSqlRetentionDays(7);
+            }
+        }
+        // 只有开关状态发生变化时才提示
+        if (oldAutoSaveSql != newAutoSaveSql) {
+            DebugToolsNotifierUtil.notifyInfo(project, "You've changed the auto save sql setting, you need to restart App Service.");
+        }
+        // 配置保存后刷新 ToolWindow 按钮
+        DebugToolsToolWindow toolWindow = DebugToolsToolWindowFactory.getToolWindow(project);
+        if (toolWindow != null) {
+            toolWindow.refreshToolBar();
+        }
     }
 
     @Override
