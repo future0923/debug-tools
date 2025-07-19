@@ -58,19 +58,19 @@
 
 - 热部署
 
-![hot_deploy.gif](/docs/public/gif/hot_deploy.gif)
+![hot_deploy.gif](/images/gif/hot_deploy.gif)
 
 - 热重载
 
-![hot_reload.gif](/docs/public/gif/hot_reload.gif)
+![hot_reload.gif](/images/gif/hot_reload.gif)
 
 - 调用任意Java方法
 
-![quick_debug.gif](/docs/public/gif/quick_debug.gif)
+![quick_debug.gif](/images/gif/quick_debug.gif)
 
 - 搜索HttpUrl
 
-![search_url.gif](/docs/public/gif/search_url.gif)
+![search_url.gif](/images/gif/search_url.gif)
 
 ## 快速开始
 
@@ -103,4 +103,4 @@
 - QQ群：[518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - 微信
 
-<img src="docs/public/wechat.png" width="400" height="400" v-zoom  alt=""/>
+<img src="images/wechat.png" width="400" height="400" v-zoom  alt=""/>
