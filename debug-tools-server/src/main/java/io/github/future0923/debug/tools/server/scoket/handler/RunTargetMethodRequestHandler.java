@@ -25,6 +25,7 @@ import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.exception.ArgsParseException;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
@@ -114,26 +115,30 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             }
         }
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
-        MethodTraceClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, 1);
+        TraceMethodDTO traceMethodDTO = runDTO.getTraceMethodDTO();
+        boolean traceMethod = traceMethodDTO != null && traceMethodDTO.getTraceMethod();
+        if (traceMethod) {
+            MethodTraceClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
+        }
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
-        run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO, outputStream);
+        run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
         Thread.currentThread().setContextClassLoader(orgClassLoader);
     }
 
-    private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
+    private void run(Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream, Boolean traceMethod) throws Exception {
         boolean voidType = void.class.isAssignableFrom(bridgedMethod.getReturnType()) || Void.class.isAssignableFrom(bridgedMethod.getReturnType());
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugToolsEnvUtils.isAopProxy(invocationHandler)) {
                 try {
-                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType);
+                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
                     return;
                 } catch (Throwable ignored) {
                 }
             }
         }
         try {
-            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType);
+            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
             Throwable cause = throwable.getCause();
@@ -146,7 +151,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         }
     }
 
-    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType) {
+    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType, boolean traceMethod) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, DebugToolsBootstrap.serverConfig.getApplicationName());
         if (voidType) {
@@ -167,10 +172,12 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
                 DebugToolsResultUtils.putCache(offsetPath, result);
             }
         }
-        List<MethodTreeNode> traceResult = MethodTrace.getResult();
-        String offsetPath = RunResultDTO.genOffsetPathRandom(traceResult);
-        DebugToolsResultUtils.putCache(offsetPath, traceResult);
-        packet.setTraceOffsetPath(offsetPath);
+        if (traceMethod) {
+            List<MethodTreeNode> traceResult = MethodTrace.getResult();
+            String offsetPath = RunResultDTO.genOffsetPathRandom(traceResult);
+            DebugToolsResultUtils.putCache(offsetPath, traceResult);
+            packet.setTraceOffsetPath(offsetPath);
+        }
         writeAndFlushNotException(outputStream, packet);
     }
 

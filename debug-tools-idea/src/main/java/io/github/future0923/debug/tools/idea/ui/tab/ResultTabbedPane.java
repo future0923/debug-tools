@@ -104,7 +104,8 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             tabPane.addTab("debug", debugTab);
         }
 
-        if (traceTab()) {
+        if (StrUtil.isNotBlank(traceOffsetPath)
+                && traceTab()) {
             traceTab = new ResultTraceTreePanel(project);
             tabPane.addTab("trace", traceTab);
         }
