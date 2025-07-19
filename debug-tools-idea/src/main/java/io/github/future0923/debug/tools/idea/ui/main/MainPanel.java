@@ -61,6 +61,9 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private final JBTextField methodNameField = new JBTextField();
 
+    @Getter
+    private final TraceMethodPanel traceMethodPanel;
+
     private final Map<JBTextField, JBTextField> headerItemMap = new HashMap<>();
 
     @Getter
@@ -73,7 +76,7 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     public MainPanel(Project project, MethodDataContext methodDataContext) {
         super(new GridBagLayout());
-        setPreferredSize(new JBDimension(800, 600));
+        setPreferredSize(new JBDimension(800, 700));
         this.project = project;
         this.classLoaderComboBox = new ClassLoaderComboBox(project, 600, false);
         this.methodDataContext = methodDataContext;
@@ -84,14 +87,17 @@ public class MainPanel extends JBPanel<MainPanel> {
             classNameField.setText(DebugToolsIdeaClassUtil.tryInnerClassName(psiClass));
             methodNameField.setText(psiMethod.getName());
         }
-        if (StringUtils.isNotBlank(methodDataContext.getCache().getXxlJobParam())) {
-            xxlJobParamField.setText(methodDataContext.getCache().getXxlJobParam());
+        ParamCache paramCache = methodDataContext.getCache();
+        if (StringUtils.isNotBlank(paramCache.getXxlJobParam())) {
+            xxlJobParamField.setText(paramCache.getXxlJobParam());
         }
+        traceMethodPanel = new TraceMethodPanel();
+        traceMethodPanel.processDefaultInfo(project, paramCache.getTraceMethodDTO());
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
         this.toolBar = new MainToolBar(publisher, project);
         // json编辑器
-        this.editor = new MainJsonEditor(methodDataContext.getCache().formatContent(), methodDataContext.getParamList(), project);
+        this.editor = new MainJsonEditor(paramCache.formatContent(), methodDataContext.getParamList(), project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
         publisher.addListener(new ConvertDataListener(project, editor));
@@ -126,6 +132,10 @@ public class MainPanel extends JBPanel<MainPanel> {
                 .addLabeledComponent(
                         new JBLabel("Xxl-job param:"),
                         xxlJobParamField
+                )
+                .addLabeledComponent(
+                        new JBLabel("Trace method:"),
+                        traceMethodPanel.getComponent()
                 )
                 .addLabeledComponent(
                         new JBLabel("Header:"),

@@ -22,6 +22,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -106,6 +108,24 @@ public class DebugToolsSettingConfigurable implements Configurable {
                 return true;
             }
         }
+        if (settingState.getTraceMethodDTO() == null) {
+            return true;
+        }
+        if (!Objects.equals(settingState.getTraceMethodDTO().getTraceMethod(), settingPanel.getTraceMethodPanel().isTraceMethod())) {
+            return true;
+        }
+        if (!Objects.equals(settingState.getTraceMethodDTO().getTraceMaxDepth(), settingPanel.getTraceMethodPanel().getMaxDepth())) {
+            return true;
+        }
+        if (!Objects.equals(settingState.getTraceMethodDTO().getTraceMyBatis(), settingPanel.getTraceMethodPanel().isTraceMyBatis())) {
+            return true;
+        }
+        if (!Objects.equals(settingState.getTraceMethodDTO().getTraceSQL(), settingPanel.getTraceMethodPanel().isTraceSql())) {
+            return true;
+        }
+        if (!Objects.equals(settingState.getTraceMethodDTO().getTraceIgnorePackage(), settingPanel.getTraceMethodPanel().getTraceIgnorePackage())) {
+            return true;
+        }
         return false;
     }
 
@@ -142,6 +162,13 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingPanel.getSaveSqlCheckBox().setSelected(Boolean.TRUE.equals(settingState.getAutoSaveSql()));
         settingPanel.getSaveSqlDaysField().setText(String.valueOf(settingState.getSqlRetentionDays()));
         settingPanel.getSaveSqlDaysField().setEnabled(settingPanel.getSaveSqlCheckBox().isSelected());
+
+        TraceMethodDTO traceMethodDTO = ObjectUtil.defaultIfNull(settingState.getTraceMethodDTO(), new TraceMethodDTO());
+        settingPanel.getTraceMethodPanel().setTraceMethod(traceMethodDTO.getTraceMethod());
+        settingPanel.getTraceMethodPanel().setMaxDepth(traceMethodDTO.getTraceMaxDepth());
+        settingPanel.getTraceMethodPanel().setTraceMyBatis(traceMethodDTO.getTraceMyBatis());
+        settingPanel.getTraceMethodPanel().setTraceSql(traceMethodDTO.getTraceSQL());
+        settingPanel.getTraceMethodPanel().setTraceIgnorePackage(traceMethodDTO.getTraceIgnorePackage());
     }
 
     @Override
@@ -200,6 +227,14 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (toolWindow != null) {
             toolWindow.refreshToolBar();
         }
+
+        TraceMethodDTO traceMethodDTO = new TraceMethodDTO();
+        traceMethodDTO.setTraceMethod(settingPanel.getTraceMethodPanel().isTraceMethod());
+        traceMethodDTO.setTraceMaxDepth(settingPanel.getTraceMethodPanel().getMaxDepth());
+        traceMethodDTO.setTraceMyBatis(settingPanel.getTraceMethodPanel().isTraceMyBatis());
+        traceMethodDTO.setTraceSQL(settingPanel.getTraceMethodPanel().isTraceSql());
+        traceMethodDTO.setTraceIgnorePackage(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
+        settingState.setTraceMethodDTO(traceMethodDTO);
     }
 
     @Override

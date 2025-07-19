@@ -16,6 +16,8 @@
  */
 package io.github.future0923.debug.tools.base.trace;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -37,6 +39,8 @@ public class MethodTrace {
      * 结果
      */
     private static final ThreadLocal<List<MethodTreeNode>> resultList = ThreadLocal.withInitial(ArrayList::new);
+
+    private static final ThreadLocal<Boolean> traceSqlStatus = ThreadLocal.withInitial(() -> false);
 
     public static void enterMethod(String className, String classSimpleName, String method) {
         enter(MethodTraceType.METHOD, className, classSimpleName, method, null);
@@ -111,6 +115,14 @@ public class MethodTrace {
     private static void clear() {
         stack.remove();
         resultList.remove();
+    }
+
+    public static void setTraceSqlStatus(Boolean sql) {
+        traceSqlStatus.set(BooleanUtil.isTrue(sql));
+    }
+
+    public static Boolean getTraceSqlStatus() {
+        return traceSqlStatus.get();
     }
 
 }

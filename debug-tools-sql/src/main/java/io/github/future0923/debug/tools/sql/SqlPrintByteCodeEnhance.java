@@ -16,6 +16,8 @@
  */
 package io.github.future0923.debug.tools.sql;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -33,7 +35,7 @@ public class SqlPrintByteCodeEnhance {
      */
     public static void enhance(Instrumentation inst, String printSql,String saveFlag,Integer saveDays) {
         SqlPrintInterceptor.setPrintSqlType(printSql);
-        SqlPrintInterceptor.setAutoSaveSql("true".equalsIgnoreCase(saveFlag));
+        SqlPrintInterceptor.setAutoSaveSql(BooleanUtil.toBoolean(saveFlag));
         SqlPrintInterceptor.setSqlRetentionDays(saveDays);
         inst.addTransformer(new SqlDriverClassFileTransformer(), true);
     }

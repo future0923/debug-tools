@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
@@ -51,8 +52,8 @@ public class SqlPrintInterceptor {
     private static final String CJ_STATEMENT_PREFIXES = "com.mysql.cj.jdbc.ClientPreparedStatement:";
 
     private static PrintSqlType printSqlType;
-    private static boolean autoSaveSql = false;
-    private static int sqlRetentionDays = 7;
+    private static Boolean autoSaveSql = false;
+    private static Integer sqlRetentionDays = 7;
 
     public static void setPrintSqlType(String printSqlType) {
         SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
@@ -62,8 +63,10 @@ public class SqlPrintInterceptor {
         autoSaveSql = autoSave;
     }
 
-    public static void setSqlRetentionDays(int days) {
-        sqlRetentionDays = days;
+    public static void setSqlRetentionDays(Integer days) {
+        if (days != null) {
+            sqlRetentionDays = days;
+        }
     }
 
     public static Connection proxyConnection(final Connection connection) {
@@ -154,8 +157,10 @@ public class SqlPrintInterceptor {
         } else {
             resultSql = sta.toString();
         }
-        MethodTrace.enterSql(resultSql);
-        MethodTrace.exit(consume);
+        if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
+            MethodTrace.enterSql(resultSql);
+            MethodTrace.exit(consume);
+        }
         if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
             resultSql = SqlFormatter.format(resultSql);
         }
@@ -165,7 +170,7 @@ public class SqlPrintInterceptor {
         logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
 
         // 根据配置写入SQL记录到文件
-        if (autoSaveSql) {
+        if (BooleanUtil.isTrue(autoSaveSql)) {
             try {
                 SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType, sqlRetentionDays);
             } catch (Exception e) {

@@ -25,6 +25,7 @@ import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
+import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -36,7 +37,10 @@ import java.awt.*;
  */
 public class SettingPanel {
 
+    private final Project project;
+
     private final DebugToolsSettingState settingState;
+
     @Getter
     private JPanel settingPanel;
 
@@ -68,7 +72,11 @@ public class SettingPanel {
     @Getter
     private final JTextField saveSqlDaysField = new JTextField(5);
 
+    @Getter
+    private final TraceMethodPanel traceMethodPanel = new TraceMethodPanel();
+
     public SettingPanel(Project project) {
+        this.project = project;
         this.settingState = DebugToolsSettingState.getInstance(project);
         initLayout();
     }
@@ -163,6 +171,9 @@ public class SettingPanel {
         removeContextPath.setLineWrap(true);
         // 按单词边界换行
         removeContextPath.setWrapStyleWord(true);
+
+        traceMethodPanel.processDefaultInfo(project);
+
         settingPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
                         new JBLabel("Entity class default param:"),
@@ -187,6 +198,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Remove context path:"),
                         removeContextPath
+                )
+                .addLabeledComponent(
+                        new JBLabel("Trace method:"),
+                        traceMethodPanel.getComponent()
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

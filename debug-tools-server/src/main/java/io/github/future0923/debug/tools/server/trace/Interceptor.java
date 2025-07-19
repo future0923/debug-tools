@@ -32,7 +32,6 @@ public class Interceptor {
                                        @Advice.AllArguments Object[] args) {
         if ("org.apache.ibatis.binding.MapperProxy".equals(clazz.getName())) {
             Method invokeMethod = (Method) args[1];
-            System.out.println("1232:"+invokeMethod.getDeclaringClass());
             if (!Object.class.equals(invokeMethod.getDeclaringClass())) {
                 Class<?> declaringClass = invokeMethod.getDeclaringClass();
                 MethodTrace.enterMyBatis(declaringClass.getName(), declaringClass.getSimpleName(), invokeMethod.getName());
