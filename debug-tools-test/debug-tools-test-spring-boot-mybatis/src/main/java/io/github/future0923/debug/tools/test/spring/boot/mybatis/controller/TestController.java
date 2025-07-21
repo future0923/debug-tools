@@ -36,15 +36,15 @@ public class TestController {
 
     @GetMapping("/a")
     public User a() {
-        testService.c();
-        userService.a();
+        testService.c("a");
+        userService.a(null);
         return new User();
     }
 
     @GetMapping("/c")
     public String c() {
-        testService.c();
-        userService.a();
+        testService.c("a");
+        userService.a(null);
         return "c";
     }
 }

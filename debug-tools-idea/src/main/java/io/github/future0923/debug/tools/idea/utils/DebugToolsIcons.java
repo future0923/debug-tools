@@ -74,4 +74,10 @@ public class DebugToolsIcons {
         public static final Icon Clear = IconLoader.getIcon("/icon/action/clear.svg", DebugToolsIcons.class);
         public static final Icon Reset = IconLoader.getIcon("/icon/action/reset.svg", DebugToolsIcons.class);
     }
+
+    public static final class Trace {
+        public static final Icon Time = IconLoader.getIcon("/icon/trace/time.svg", DebugToolsIcons.class);
+        public static final Icon MyBatis = IconLoader.getIcon("/icon/trace/mybatis.svg", DebugToolsIcons.class);
+        public static final Icon Database = IconLoader.getIcon("/icon/trace/database.svg", DebugToolsIcons.class);
+    }
 }

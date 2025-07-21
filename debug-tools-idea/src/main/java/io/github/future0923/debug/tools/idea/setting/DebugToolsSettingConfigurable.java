@@ -22,8 +22,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -31,8 +34,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Objects;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 
 /**
  * @author future0923
@@ -99,12 +100,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         }
         // 新增 saveSqlDays 配置项判断（只有开启时才判断）
         if (settingPanel.getSaveSqlCheckBox().isSelected()) {
-            try {
-                int days = Integer.parseInt(settingPanel.getSaveSqlDaysField().getText().trim());
-                if (!Objects.equals(settingState.getSqlRetentionDays(), days)) {
-                    return true;
-                }
-            } catch (Exception ignore) {
+            if (!Objects.equals(settingState.getSqlRetentionDays(), settingPanel.getSaveSqlDaysField().getNumber())) {
                 return true;
             }
         }
@@ -158,10 +154,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingPanel.getAutoAttachNo().setSelected(true);
         }
         settingPanel.getRemoveContextPath().setText(settingState.getRemoveContextPath());
-        // 新增 saveSql 配置项重置
-        settingPanel.getSaveSqlCheckBox().setSelected(Boolean.TRUE.equals(settingState.getAutoSaveSql()));
-        settingPanel.getSaveSqlDaysField().setText(String.valueOf(settingState.getSqlRetentionDays()));
-        settingPanel.getSaveSqlDaysField().setEnabled(settingPanel.getSaveSqlCheckBox().isSelected());
+
+        settingPanel.getSaveSqlCheckBox().setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
+        settingPanel.getSaveSqlDaysField().setNumber(settingState.getSqlRetentionDays());
 
         TraceMethodDTO traceMethodDTO = ObjectUtil.defaultIfNull(settingState.getTraceMethodDTO(), new TraceMethodDTO());
         settingPanel.getTraceMethodPanel().setTraceMethod(traceMethodDTO.getTraceMethod());
@@ -174,7 +169,6 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        boolean oldAutoSaveSql = Boolean.TRUE.equals(settingState.getAutoSaveSql());
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.SIMPLE);
         }
@@ -185,10 +179,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingState.setDefaultGenParamType(GenParamType.ALL);
         }
 
-
         if (settingPanel.getPrintPrettySql().isSelected() && !PrintSqlType.PRETTY.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.PRETTY);
-                DebugToolsNotifierUtil.notifyInfo(project, "You've set it to pretty sql, you need to restart App Service.");
+            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to pretty sql, you need to restart App Service.");
         }
         if (settingPanel.getPrintCompressSql().isSelected() && !PrintSqlType.COMPRESS.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.COMPRESS);
@@ -206,23 +199,10 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingState.setAutoAttach(false);
         }
         settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
-        // 新增 saveSql 配置项保存
-        boolean newAutoSaveSql = settingPanel.getSaveSqlCheckBox().isSelected();
-        settingState.setAutoSaveSql(newAutoSaveSql);
-        if (newAutoSaveSql) {
-            try {
-                int days = Integer.parseInt(settingPanel.getSaveSqlDaysField().getText().trim());
-                if (days < 1) days = 0;
-                settingState.setSqlRetentionDays(days);
-            } catch (Exception ignore) {
-                settingState.setSqlRetentionDays(7);
-            }
-        }
-        // 只有开关状态发生变化时才提示
-        if (oldAutoSaveSql != newAutoSaveSql) {
-            DebugToolsNotifierUtil.notifyInfo(project, "You've changed the auto save sql setting, you need to restart App Service.");
-        }
-        // 配置保存后刷新 ToolWindow 按钮
+
+        settingState.setAutoSaveSql(settingPanel.getSaveSqlCheckBox().isSelected());
+        settingState.setSqlRetentionDays(settingPanel.getSaveSqlDaysField().getNumber());
+
         DebugToolsToolWindow toolWindow = DebugToolsToolWindowFactory.getToolWindow(project);
         if (toolWindow != null) {
             toolWindow.refreshToolBar();

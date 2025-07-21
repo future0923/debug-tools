@@ -134,7 +134,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 保存日志天数（天）
      */
-    private Integer sqlRetentionDays = 7;
+    private Integer sqlRetentionDays = 1;
 
     /**
      * 远程应用名称
@@ -278,25 +278,4 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         getRemoteHosts().clear();
     }
 
-    public Boolean getAutoSaveSql() {
-        if (autoSaveSql == null) {
-            setAutoSaveSql(false);
-        }
-        return autoSaveSql;
-    }
-
-    public void setAutoSaveSql(Boolean autoSaveSql) {
-        this.autoSaveSql = autoSaveSql;
-    }
-
-    public Integer getSqlRetentionDays() {
-        if (sqlRetentionDays == null) {
-            setSqlRetentionDays(7);
-        }
-        return sqlRetentionDays;
-    }
-
-    public void setSqlRetentionDays(Integer sqlRetentionDays) {
-        this.sqlRetentionDays = sqlRetentionDays;
-    }
 }

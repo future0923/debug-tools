@@ -34,7 +34,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.response.RunTarge
 import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.server.trace.MethodTraceClassFileTransformer;
+import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
@@ -118,7 +118,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         TraceMethodDTO traceMethodDTO = runDTO.getTraceMethodDTO();
         boolean traceMethod = traceMethodDTO != null && traceMethodDTO.getTraceMethod();
         if (traceMethod) {
-            MethodTraceClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
+            TraceMethodClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
         }
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);

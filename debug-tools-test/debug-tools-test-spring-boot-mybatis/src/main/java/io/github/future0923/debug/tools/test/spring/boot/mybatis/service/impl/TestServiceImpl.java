@@ -31,7 +31,7 @@ public class TestServiceImpl implements TestService {
     private final UserMapper userMapper;
 
     @Override
-    public String c() {
+    public String c(String a) {
         System.out.println("11111111");
         userMapper.aaa();
         return null;

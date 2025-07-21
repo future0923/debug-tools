@@ -51,9 +51,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 方法追踪类转换器
+ *
  * @author future0923
  */
-public class MethodTraceClassFileTransformer {
+public class TraceMethodClassFileTransformer {
 
     /**
      * 已经追踪的方法信息
@@ -74,10 +76,25 @@ public class MethodTraceClassFileTransformer {
     @Getter
     private static final Set<String> IGNORED_CLASS_SET = new HashSet<>();
 
+    /**
+     * 追踪MyBatis时拦截的类名
+     */
     private static final String TRACE_MYBATIS_CLASS_NAME = "org.apache.ibatis.binding.MapperProxy";
 
+    /**
+     * 追踪MyBatis时拦截的方法名
+     */
     private static final String TRACE_MYBATIS_METHOD_NAME = "invoke";
 
+    /**
+     * 转换方法
+     *
+     * @param classLoader    类加载器
+     * @param targetClass    类
+     * @param targetMethod   方法
+     * @param traceMethodDTO 配置信息
+     * @throws Exception 错误
+     */
     public static void traceMethod(ClassLoader classLoader, Class<?> targetClass, Method targetMethod, TraceMethodDTO traceMethodDTO) throws Exception {
         ClassPool classPool = getClassPool();
         CtClass ctClass = classPool.get(targetClass.getName());
@@ -87,6 +104,14 @@ public class MethodTraceClassFileTransformer {
         MethodTrace.setTraceSqlStatus(traceMethodDTO.getTraceSQL());
     }
 
+    /**
+     * 取消转换方法
+     *
+     * @param className         类
+     * @param methodName        方法
+     * @param methodDescription 方法描述符
+     * @throws Exception 异常
+     */
     public static void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
         String qualifierNameKey = getQualifierNameKey(className, methodName, methodDescription);
         RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
@@ -97,6 +122,14 @@ public class MethodTraceClassFileTransformer {
         IGNORED_METHOD_SET.add(qualifierNameKey);
     }
 
+    /**
+     * 转换MyBatis方法
+     *
+     * @param classLoader  类加载器
+     * @param classPool    类池
+     * @param traceMyBatis 是否追踪MyBatis
+     * @throws Exception 异常
+     */
     private static void redefineMyBatisMethod(ClassLoader classLoader, ClassPool classPool, Boolean traceMyBatis) throws Exception {
         Class<?> clazz = classLoader.loadClass(TRACE_MYBATIS_CLASS_NAME);
         String methodDescription = getDescriptor(classPool, ReflectUtil.getMethodByName(clazz, TRACE_MYBATIS_METHOD_NAME));
@@ -115,6 +148,17 @@ public class MethodTraceClassFileTransformer {
         }
     }
 
+    /**
+     * 重新定义方法
+     *
+     * @param classLoader       类加载器
+     * @param classPool         类池
+     * @param ctClass           javassist类
+     * @param methodName        方法名
+     * @param methodDescription 方法描述符
+     * @param maxDepth          最大递归深度
+     * @throws Exception 异常
+     */
     private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, int maxDepth) throws Exception {
         if (maxDepth - 1 < 0) {
             return;
@@ -190,19 +234,42 @@ public class MethodTraceClassFileTransformer {
         }
     }
 
+    /**
+     * 调用bytebuddy重定义类
+     *
+     * @param className         类名
+     * @param methodName        方法名
+     * @param methodDescription 方法描述
+     * @return 重定义类转换器，用于还原
+     */
     private static ResettableClassFileTransformer redefineClass(String className, String methodName, String methodDescription) {
         return new AgentBuilder.Default(new ByteBuddy().with(TypeValidation.DISABLED))
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
                 .disableClassFormatChanges()
                 .type(ElementMatchers.named(className))
-                .transform((builder, typeDescription, classLoader, module, protectionDomain) -> builder.visit(Advice.to(Interceptor.class).on(getMethodDescription(methodName, methodDescription)))).installOn(DebugToolsBootstrap.INSTANCE.getInstrumentation());
+                .transform((builder, typeDescription, classLoader, module, protectionDomain) -> builder.visit(Advice.to(TraceMethodInterceptor.class).on(getMethodDescription(methodName, methodDescription)))).installOn(DebugToolsBootstrap.INSTANCE.getInstrumentation());
     }
 
+    /**
+     * 通过方法描述获取方法匹配器
+     *
+     * @param methodName        方法名
+     * @param methodDescription 方法描述符
+     * @return 方法匹配器
+     */
     private static ElementMatcher<? super MethodDescription> getMethodDescription(String methodName, String methodDescription) {
         ElementMatcher.Junction<NamedElement> methodMatcher = ElementMatchers.named(methodName);
         return methodDescription == null ? methodMatcher : methodMatcher.and(ElementMatchers.hasDescriptor(methodDescription));
     }
 
+    /**
+     * 获取方法的CtMethod
+     *
+     * @param ctClass        类
+     * @param methodName     方法名
+     * @param methodDescribe 方法描述
+     * @return CtMethod
+     */
     private static CtMethod[] getCtMethod(CtClass ctClass, String methodName, String methodDescribe) {
         try {
             return methodDescribe != null ? new CtMethod[]{ctClass.getMethod(methodName, methodDescribe)} : ctClass.getDeclaredMethods(methodName);
@@ -218,7 +285,6 @@ public class MethodTraceClassFileTransformer {
         try {
             // 获取返回类型
             CtClass returnType = toCtClass(method.getReturnType(), classPool);
-
             // 获取参数类型
             CtClass[] paramTypes = Arrays.stream(method.getParameterTypes())
                     .map(type -> {
@@ -229,10 +295,8 @@ public class MethodTraceClassFileTransformer {
                         }
                     })
                     .toArray(CtClass[]::new);
-
             // 生成方法描述符
             return Descriptor.ofMethod(returnType, paramTypes);
-
         } catch (Exception e) {
             throw new RuntimeException("生成方法描述符失败", e);
         }
@@ -259,10 +323,23 @@ public class MethodTraceClassFileTransformer {
         return pool.get(clazz.getName());
     }
 
+    /**
+     * 获取唯一标识符key
+     *
+     * @param className         类名
+     * @param methodName        方法名
+     * @param methodDescription 方法描述
+     * @return 唯一标识符key
+     */
     private static String getQualifierNameKey(String className, String methodName, String methodDescription) {
         return className + "#" + methodName + methodDescription;
     }
 
+    /**
+     * 获取ClassPool
+     *
+     * @return ClassPool
+     */
     private static ClassPool getClassPool() {
         ClassPool classPool = new ClassPool();
         classPool.appendSystemPath();

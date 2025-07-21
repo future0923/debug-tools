@@ -59,7 +59,7 @@ public class SqlPrintInterceptor {
         SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
     }
 
-    public static void setAutoSaveSql(boolean autoSave) {
+    public static void setAutoSaveSql(Boolean autoSave) {
         autoSaveSql = autoSave;
     }
 
