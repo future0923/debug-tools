@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.server.scoket.handler;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
@@ -120,6 +121,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         if (traceMethod) {
             TraceMethodClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
         }
+        ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
         Thread.currentThread().setContextClassLoader(orgClassLoader);

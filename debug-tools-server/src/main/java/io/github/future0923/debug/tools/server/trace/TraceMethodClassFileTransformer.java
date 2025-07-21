@@ -131,7 +131,12 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 异常
      */
     private static void redefineMyBatisMethod(ClassLoader classLoader, ClassPool classPool, Boolean traceMyBatis) throws Exception {
-        Class<?> clazz = classLoader.loadClass(TRACE_MYBATIS_CLASS_NAME);
+        Class<?> clazz;
+        try {
+            clazz = classLoader.loadClass(TRACE_MYBATIS_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            return;
+        }
         String methodDescription = getDescriptor(classPool, ReflectUtil.getMethodByName(clazz, TRACE_MYBATIS_METHOD_NAME));
         String qualifierNameKey = getQualifierNameKey(TRACE_MYBATIS_CLASS_NAME, TRACE_MYBATIS_METHOD_NAME, methodDescription);
         if (BooleanUtil.isTrue(traceMyBatis)) {
@@ -168,9 +173,6 @@ public class TraceMethodClassFileTransformer {
             return;
         }
         if (className.startsWith("javax.")) {
-            return;
-        }
-        if (!className.startsWith("io.github.future0923.debug.tools.test")) {
             return;
         }
         for (String ignoreClassName : IGNORED_CLASS_SET) {
