@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
+import io.github.future0923.debug.tools.base.hutool.core.date.DateUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
@@ -28,9 +29,15 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 打印SQL字节码拦截器
@@ -124,7 +131,12 @@ public class SqlPrintInterceptor {
             long startTime = System.currentTimeMillis();
             Object result = method.invoke(statement, args);
             long endTime = System.currentTimeMillis();
-            if (method.getName().startsWith("set") && args != null && args.length >= 2) {
+            if (method.getName().startsWith("setNull")) {
+                // 显式记录 NULL 值
+                int index = (Integer) args[0];
+                while (parameters.size() < index) parameters.add(null);
+                parameters.set(index - 1, "NULL"); // 标记为 SQL NULL
+            }else if (method.getName().startsWith("set") && args != null && args.length >= 2) {
                 int index = (Integer) args[0];
                 while (parameters.size() < index) parameters.add(null);
                 parameters.set(index - 1, args[1]);
@@ -227,9 +239,18 @@ public class SqlPrintInterceptor {
             char character = statementQuery.charAt(pos);
             if( statementQuery.charAt(pos) == '?' && currentParameter <= parameterValues.length) {
                 Object getSetterValue = parameterValues[currentParameter];
-                if (getSetterValue instanceof String) {
+                if ("NULL".equals(getSetterValue)) {
+                    sb.append("NULL"); // 输出 SQL NULL
+                }else if (getSetterValue instanceof String) {
                     sb.append("'").append(getSetterValue).append("'");
-                } else {
+                } else if (
+                        getSetterValue instanceof Date
+                                || getSetterValue instanceof LocalDateTime
+                                || getSetterValue instanceof LocalDate
+                                || getSetterValue instanceof LocalTime) {
+                    sb.append("'").append(getSetterValue).append("'");
+                }
+                else {
                     sb.append(Convert.toStr(getSetterValue));
                 }
                 currentParameter++;
