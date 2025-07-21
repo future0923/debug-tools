@@ -20,7 +20,10 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -44,4 +47,13 @@ public interface UserMapper {
 
     @Select("select * from dp_user limit 1")
     List<User> aaa();
+
+    @Select("select * from dp_user where update_date > #{updateDate}")
+    List<User> findByUpdateData(@Param("updateDate") LocalDate updateDate);
+
+    @Select("update dp_user set name = #{name},update_at = #{updateAt} where id = #{id}")
+    void updateNameById(@Param("name") String name, @Param("updateAt") LocalDateTime updateAt, @Param("id") Long id);
+
+    @Update("update dp_user set update_date = #{updateDate} where id = 1")
+    void updateDate(@Param("updateDate") LocalDate updateDate);
 }
