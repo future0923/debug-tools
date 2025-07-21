@@ -27,6 +27,7 @@ import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
@@ -89,7 +90,10 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         String agentPath = settingState.loadAgentPath(project);
-        if (!PrintSqlType.NO.equals(settingState.getPrintSql()) || settingState.getHotswap()) {
+        Boolean traceSql = settingState.getTraceMethodDTO() != null && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceMethod()) && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceSQL());
+        if (!PrintSqlType.NO.equals(settingState.getPrintSql())
+                || settingState.getHotswap()
+                || traceSql) {
             AgentArgs agentArgs = new AgentArgs();
             agentArgs.setServer(Boolean.FALSE.toString());
             if (settingState.getHotswap()) {
@@ -120,6 +124,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
+            agentArgs.setTraceSql(traceSql.toString());
             agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
             agentArgs.setAutoSaveSql(settingState.getAutoSaveSql().toString());
             agentArgs.setSqlRetentionDays(settingState.getSqlRetentionDays());

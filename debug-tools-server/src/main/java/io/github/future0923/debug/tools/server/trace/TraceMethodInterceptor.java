@@ -22,25 +22,37 @@ import net.bytebuddy.asm.Advice;
 import java.lang.reflect.Method;
 
 /**
+ * 追踪方法拦截器
+ *
  * @author future0923
  */
-public class Interceptor {
+public class TraceMethodInterceptor {
 
+    /**
+     * 方法执行之前
+     *
+     * @param clazz  原始类
+     * @param method 原始方法
+     * @param args   方法入参
+     */
     @Advice.OnMethodEnter
     static void invokeBeforeEachMethod(@Advice.Origin Class<?> clazz,
-                                       @Advice.Origin("#m#s") String method,
+                                       @Advice.Origin Method method,
                                        @Advice.AllArguments Object[] args) {
         if ("org.apache.ibatis.binding.MapperProxy".equals(clazz.getName())) {
             Method invokeMethod = (Method) args[1];
             if (!Object.class.equals(invokeMethod.getDeclaringClass())) {
                 Class<?> declaringClass = invokeMethod.getDeclaringClass();
-                MethodTrace.enterMyBatis(declaringClass.getName(), declaringClass.getSimpleName(), invokeMethod.getName());
+                MethodTrace.enterMyBatis(declaringClass.getName(), declaringClass.getSimpleName(), invokeMethod.getName(), MethodTrace.genMethodSignature(invokeMethod));
             }
             return;
         }
-        MethodTrace.enterMethod(clazz.getName(), clazz.getSimpleName(), method);
+        MethodTrace.enterMethod(clazz.getName(), clazz.getSimpleName(), method.getName(), MethodTrace.genMethodSignature(method));
     }
 
+    /**
+     * 方法执行之后
+     */
     @Advice.OnMethodExit
     static void invokeWhileExitingEachMethod() {
         MethodTrace.exit();

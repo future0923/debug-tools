@@ -16,17 +16,24 @@
  */
 package io.github.future0923.debug.tools.idea.ui.tree;
 
+import com.intellij.codeInsight.navigation.NavigationUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTraceType;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.EmptyTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTraceTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -34,9 +41,13 @@ import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 /**
+ * trace树面板
+ *
  * @author future0923
  */
 @SuppressWarnings(value = {"unchecked", "rawtypes"})
@@ -78,6 +89,47 @@ public class ResultTraceTreePanel extends JBScrollPane {
             @Override
             public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
 
+            }
+        });
+        // 创建右键菜单
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem gotoMethodSource = new JMenuItem("Goto method source");
+        popupMenu.add(gotoMethodSource);
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = tree.getClosestRowForLocation(e.getX(), e.getY());
+                    tree.setSelectionRow(row);
+                    TreePath path = tree.getPathForRow(row);
+
+                    if (path != null) {
+                        // 显示右键菜单
+                        popupMenu.show(tree, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+        gotoMethodSource.addActionListener(e -> {
+            TreePath selectedPath = tree.getSelectionPath();
+            if (selectedPath != null) {
+                TreeNode<MethodTreeNode> selectedNode = (TreeNode<MethodTreeNode>) selectedPath.getLastPathComponent();
+                MethodTreeNode treeNode = selectedNode.getUserObject();
+                if (treeNode == null) {
+                    return;
+                }
+                if (MethodTraceType.SQL.equals(treeNode.getTraceType())) {
+                    return;
+                }
+                JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
+                GlobalSearchScope scope = GlobalSearchScope.allScope(project);
+                PsiClass psiClass = facade.findClass(treeNode.getClassName(), scope);
+                if (psiClass != null) {
+                    PsiMethod psiMethod = DebugToolsIdeaClassUtil.findMethod(psiClass, treeNode.getMethodName(), treeNode.getMethodSignature());
+                    if (psiMethod != null) {
+                        NavigationUtil.activateFileWithPsiElement(psiMethod);
+                    }
+                }
             }
         });
         if (root != null) {
