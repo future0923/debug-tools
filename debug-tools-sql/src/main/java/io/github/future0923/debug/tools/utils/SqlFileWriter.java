@@ -27,46 +27,6 @@ public class SqlFileWriter {
     private static final ReentrantLock lock = new ReentrantLock();
 
     /**
-     * 写入SQL记录到文件(紧凑版)
-     */
-    public static void writeSqlRecord(String sql, long consumeTime, String dbType) {
-        lock.lock();
-        try {
-            LocalDateTime now = LocalDateTime.now();
-            String dateStr = now.format(DATE_FORMATTER);
-            String timeStr = now.format(TIME_FORMATTER);
-
-            // 紧凑化的SQL记录格式
-            String content = String.format(
-                    "-- %s | %s | %dms\n%s;\n\n",
-                    timeStr, dbType, consumeTime, sql
-            );
-
-            String projectPath = System.getProperty("user.dir");
-            Path sqlDir = Paths.get(projectPath, SQL_DIR);
-            if (!Files.exists(sqlDir)) {
-                Files.createDirectories(sqlDir);
-            }
-
-            Path sqlFile = sqlDir.resolve(dateStr + ".sql");
-
-            Files.write(
-                    sqlFile,
-                    content.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND
-            );
-
-            logger.debug("SQL record written to file: {}", sqlFile);
-
-        } catch (IOException e) {
-            logger.error("Failed to write SQL record to file", e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
      * 写入SQL记录到文件，支持保留天数和0天清空逻辑
      */
     public static void writeSqlRecordWithRetention(String sql, long consumeTime, String dbType, Integer days) {

@@ -50,6 +50,11 @@ public class MethodTreeNode {
     private String methodName;
 
     /**
+     * 方法签名
+     */
+    private String methodSignature;
+
+    /**
      * sql
      */
     private String sql;
@@ -74,6 +79,11 @@ public class MethodTreeNode {
      */
     private List<MethodTreeNode> children = new ArrayList<>();
 
+    /**
+     * 转换成树结构
+     *
+     * @return 树结构
+     */
     public MethodTreeNode toTree() {
         MethodTreeNode tree = new MethodTreeNode();
         tree.setStart(start);
@@ -81,6 +91,7 @@ public class MethodTreeNode {
         tree.setClassName(className);
         tree.setClassSimpleName(classSimpleName);
         tree.setMethodName(methodName);
+        tree.setMethodSignature(methodSignature);
         tree.setSql(sql);
         if (duration == null) {
             duration = end - start;

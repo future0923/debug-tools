@@ -17,7 +17,17 @@
 package io.github.future0923.debug.tools.idea.utils;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassType;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
+import com.intellij.psi.PsiParameterList;
+import com.intellij.psi.PsiReferenceList;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 
 import java.util.Objects;
@@ -82,22 +92,53 @@ public class DebugToolsIdeaClassUtil {
     /**
      * 在给定的项目中查找指定名称的 Method 类
      *
-     * @param project             搜索项目
-     * @param qualifiedMethodName 方法标识符
      * @return PsiMethod信息
      */
-    public static PsiMethod findMethod(Project project, String qualifiedMethodName) {
-        PsiClass psiClass = findClass(project, qualifiedMethodName.substring(0, qualifiedMethodName.lastIndexOf("#")));
-        if (Objects.nonNull(psiClass)) {
-            PsiMethod[] methods = psiClass.findMethodsByName(getSimpleMethodName(qualifiedMethodName), false);
-            for (PsiMethod method : methods) {
-                if (Objects.equals(getMethodQualifiedName(method), qualifiedMethodName)) {
-                    return method;
-                }
+    public static PsiMethod findMethod(PsiClass psiClass, String methodName, String methodSignature) {
+        PsiMethod[] methods = psiClass.findMethodsByName(methodName, false);
+        for (PsiMethod method : methods) {
+            if (Objects.equals(genMethodSignature(method), methodSignature)) {
+                return method;
             }
         }
         return null;
     }
+
+    /**
+     * 生成方法签名
+     */
+    public static String genMethodSignature(PsiMethod method) {
+        StringBuilder sb = new StringBuilder();
+        // 方法名
+        sb.append(method.getName());
+        // 参数列表
+        sb.append("(");
+        PsiParameterList parameterList = method.getParameterList();
+        PsiParameter[] parameters = parameterList.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            PsiType type = parameters[i].getType();
+            sb.append(type.getPresentableText()); // 不含包名，比如 String、List<Integer>
+            if (i < parameters.length - 1) sb.append(", ");
+        }
+        sb.append(")");
+        // 返回值
+        PsiType returnType = method.getReturnType();
+        if (returnType != null) {
+            sb.append(": ").append(returnType.getPresentableText());
+        }
+        // 异常列表
+        PsiReferenceList throwsList = method.getThrowsList();
+        PsiClassType[] exceptionTypes = throwsList.getReferencedTypes();
+        if (exceptionTypes.length > 0) {
+            sb.append(" throws ");
+            for (int i = 0; i < exceptionTypes.length; i++) {
+                sb.append(exceptionTypes[i].getPresentableText());
+                if (i < exceptionTypes.length - 1) sb.append(", ");
+            }
+        }
+        return sb.toString();
+    }
+
 
     /**
      * 获取类名，处理多级内部类。io.github.Test.User.Name -> io.github.Test$User$Name

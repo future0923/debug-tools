@@ -18,11 +18,14 @@ package io.github.future0923.debug.tools.idea.ui.setting;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.JBIntSpinner;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
@@ -66,11 +69,10 @@ public class SettingPanel {
     @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
-    // 新增：保存SQL日志相关控件
     @Getter
-    private final JCheckBox saveSqlCheckBox = new JCheckBox("Save sql");
+    private final JBCheckBox saveSqlCheckBox = new JBCheckBox("Auto save sql to file");
     @Getter
-    private final JTextField saveSqlDaysField = new JTextField(5);
+    private final JBIntSpinner saveSqlDaysField = new JBIntSpinner(1, 1, Integer.MAX_VALUE);
 
     @Getter
     private final TraceMethodPanel traceMethodPanel = new TraceMethodPanel();
@@ -102,6 +104,7 @@ public class SettingPanel {
         printSqlPanel.add(printPrettySql);
         printSqlPanel.add(printCompressSql);
         printSqlPanel.add(printNoSql);
+        printSqlPanel.add(saveSqlCheckBox);
         ButtonGroup printSqlButtonGroup = new ButtonGroup();
         printSqlButtonGroup.add(printPrettySql);
         printSqlButtonGroup.add(printCompressSql);
@@ -114,42 +117,32 @@ public class SettingPanel {
             printNoSql.setSelected(true);
         }
 
-        // 新增：自动保存SQL日志配置面板（分为两行，均跟随 print sql 显示）
-        JPanel autoSaveSqlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        autoSaveSqlPanel.add(saveSqlCheckBox);
-        saveSqlCheckBox.setText("Auto save sql to file");
-
         JPanel sqlRetentionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         sqlRetentionPanel.add(new JLabel("SQL Retention Days:"));
         sqlRetentionPanel.add(saveSqlDaysField);
         sqlRetentionPanel.add(new JLabel("0 means only keep SQL for the current request."));
 
-        // 初始化控件状态
-        saveSqlCheckBox.setSelected(Boolean.TRUE.equals(settingState.getAutoSaveSql()));
-        saveSqlDaysField.setText(String.valueOf(settingState.getSqlRetentionDays()));
-        saveSqlDaysField.setEnabled(saveSqlCheckBox.isSelected());
+        saveSqlCheckBox.setVisible(!printNoSql.isSelected());
+        saveSqlCheckBox.setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
+        if (settingState.getSqlRetentionDays() != null) {
+            saveSqlDaysField.setNumber(settingState.getSqlRetentionDays());
+        }
+        sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected());
         // 监听开关变化
-        saveSqlCheckBox.addActionListener(e -> {
-            saveSqlDaysField.setEnabled(saveSqlCheckBox.isSelected());
-        });
+        saveSqlCheckBox.addItemListener(e -> sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected()));
 
-        // 联动逻辑：printSql为NO时隐藏两个面板并禁用saveSqlCheckBox
         Runnable updateSaveSqlPanels = () -> {
-            boolean show = !printNoSql.isSelected();
-            autoSaveSqlPanel.setVisible(show);
-            sqlRetentionPanel.setVisible(show);
-            saveSqlCheckBox.setEnabled(show);
-            saveSqlDaysField.setEnabled(show && saveSqlCheckBox.isSelected());
-            if (!show) {
+            if (printNoSql.isSelected()) {
+                saveSqlCheckBox.setVisible(false);
                 saveSqlCheckBox.setSelected(false);
+            } else {
+                saveSqlCheckBox.setVisible(true);
             }
         };
         // 监听printSql单选按钮变化
-        printPrettySql.addActionListener(e -> updateSaveSqlPanels.run());
-        printCompressSql.addActionListener(e -> updateSaveSqlPanels.run());
-        printNoSql.addActionListener(e -> updateSaveSqlPanels.run());
-        // 初始化时执行一次
-        updateSaveSqlPanels.run();
+        printPrettySql.addItemListener(e -> updateSaveSqlPanels.run());
+        printCompressSql.addItemListener(e -> updateSaveSqlPanels.run());
+        printNoSql.addItemListener(e -> updateSaveSqlPanels.run());
 
         JPanel autoAttachPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         autoAttachPanel.add(autoAttachYes);
@@ -182,10 +175,6 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Print sql:"),
                         printSqlPanel
-                )
-                .addLabeledComponent(
-                        new JBLabel(""),
-                        autoSaveSqlPanel
                 )
                 .addLabeledComponent(
                         new JBLabel(""),

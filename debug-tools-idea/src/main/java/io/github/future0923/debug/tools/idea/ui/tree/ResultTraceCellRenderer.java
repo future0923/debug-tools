@@ -18,25 +18,22 @@ package io.github.future0923.debug.tools.idea.ui.tree;
 
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.SimpleTextAttributes;
 import io.github.future0923.debug.tools.base.trace.MethodTraceType;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 
 /**
+ * Trace树节点渲染器
+ *
  * @author future0923
  */
-@SuppressWarnings(value = {"unchecked", "rawtypes"})
+@SuppressWarnings(value = {"unchecked"})
 public class ResultTraceCellRenderer extends ColoredTreeCellRenderer {
-
-    private static final Color ORANGE = new JBColor(new Color(0x753F3E), new Color(0xE6AE87));
-
-    private static final Color GREEN = new JBColor(new Color(0x377A2A), new Color(0x79A878));
-
-    private static final Color GRAY = new JBColor(new Color(0x818593), new Color(0x707379));
 
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -44,18 +41,27 @@ public class ResultTraceCellRenderer extends ColoredTreeCellRenderer {
         if (runResultDTO == null) {
             return;
         }
-        append(runResultDTO.getDuration() + "ms");
-        append(" ");
-        append(runResultDTO.getTraceType().name());
-        if (!runResultDTO.getTraceType().equals(MethodTraceType.SQL)) {
-            append(" ");
-            append(runResultDTO.getClassSimpleName());
-            append("#");
-            append(runResultDTO.getMethodName());
+        if (runResultDTO.getTraceType().equals(MethodTraceType.SQL)) {
+            setIcon(DebugToolsIcons.Trace.Database);
+            appendDuration(runResultDTO.getDuration());
+            append(runResultDTO.getSql(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+        } else if (runResultDTO.getTraceType().equals(MethodTraceType.MYBATIS)) {
+            setIcon(DebugToolsIcons.Trace.MyBatis);
+            appendDuration(runResultDTO.getDuration());
+            append(runResultDTO.getClassSimpleName() + "#" + runResultDTO.getMethodSignature(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         } else {
-            append(runResultDTO.getSql());
+            setIcon(DebugToolsIcons.Trace.Time);
+            appendDuration(runResultDTO.getDuration());
+            append(runResultDTO.getClassSimpleName() + "#" + runResultDTO.getMethodSignature(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
         }
+    }
 
+    private void appendDuration(Long duration) {
+        if (duration != null && duration > 100) {
+            append("[" + duration + "] ms ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
+        } else {
+            append("[" + duration + "] ms ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GREEN));
+        }
     }
 
 }
