@@ -18,6 +18,10 @@ package io.github.future0923.debug.tools.test.spring.boot.mybatis.model;
 
 import lombok.Data;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 /**
  * @author future0923
  */
@@ -31,4 +35,9 @@ public class User {
     private Integer age;
 
     private Integer version;
+
+    private LocalTime updateDateTime;
+    private LocalDate updateDate;
+    private Instant updateTime;
+    private LocalDate updateAt;
 }
