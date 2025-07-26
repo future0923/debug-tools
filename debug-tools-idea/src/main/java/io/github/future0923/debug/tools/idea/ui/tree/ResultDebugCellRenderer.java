@@ -22,7 +22,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
 import org.jetbrains.annotations.NotNull;
 

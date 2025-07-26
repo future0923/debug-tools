@@ -43,6 +43,10 @@ public class SocketSendUtils {
     }
 
     public static void send(Project project, Packet packet) {
+        send(project, packet, null);
+    }
+
+    public static void send(Project project, Packet packet, Runnable runnable) {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
             Messages.showErrorDialog("Run attach first", "Send Error");
@@ -51,6 +55,9 @@ public class SocketSendUtils {
         }
         try {
             info.getClient().getHolder().send(packet);
+            if (runnable != null) {
+                runnable.run();
+            }
         } catch (SocketCloseException e) {
             Messages.showErrorDialog("Socket close", "Send Error");
             DebugToolsToolWindowFactory.showWindow(project, null);

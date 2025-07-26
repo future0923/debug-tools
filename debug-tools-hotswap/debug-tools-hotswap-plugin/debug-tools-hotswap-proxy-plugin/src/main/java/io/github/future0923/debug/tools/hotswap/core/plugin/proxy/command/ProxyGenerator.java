@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.command;
 
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import sun.security.action.GetBooleanAction;
 
 import java.io.ByteArrayOutputStream;
@@ -479,10 +480,10 @@ public class ProxyGenerator {
          * Make sure that constant pool indexes are reserved for the following items before starting to write the final
          * class file.
          */
-        cp.getClass(dotToSlash(className));
+        cp.getClass(DebugToolsClassUtils.dotToSlash(className));
         cp.getClass(superclassName);
         for (Class<?> intf : interfaces) {
-            cp.getClass(dotToSlash(intf.getName()));
+            cp.getClass(DebugToolsClassUtils.dotToSlash(intf.getName()));
         }
 
         /*
@@ -510,7 +511,7 @@ public class ProxyGenerator {
             // u2 access_flags;
             dout.writeShort(accessFlags);
             // u2 this_class;
-            dout.writeShort(cp.getClass(dotToSlash(className)));
+            dout.writeShort(cp.getClass(DebugToolsClassUtils.dotToSlash(className)));
             // u2 super_class;
             dout.writeShort(cp.getClass(superclassName));
 
@@ -518,7 +519,7 @@ public class ProxyGenerator {
             dout.writeShort(interfaces.length);
             // u2 interfaces[interfaces_count];
             for (Class<?> intf : interfaces) {
-                dout.writeShort(cp.getClass(dotToSlash(intf.getName())));
+                dout.writeShort(cp.getClass(DebugToolsClassUtils.dotToSlash(intf.getName())));
             }
 
             // u2 fields_count;
@@ -560,7 +561,7 @@ public class ProxyGenerator {
         Class<?> returnType = m.getReturnType();
         Class<?>[] exceptionTypes = m.getExceptionTypes();
 
-        String sig = name + getParameterDescriptors(parameterTypes);
+        String sig = name + DebugToolsClassUtils.getParameterDescriptors(parameterTypes);
         List<ProxyMethod> sigmethods = proxyMethods.get(sig);
         if (sigmethods != null) {
             for (ProxyMethod pm : sigmethods) {
@@ -834,7 +835,7 @@ public class ProxyGenerator {
          * Return a MethodInfo object for this method, including generating the code and exception table entry.
          */
         private MethodInfo generateMethod() throws IOException {
-            String desc = getMethodDescriptor(parameterTypes, returnType);
+            String desc = DebugToolsClassUtils.getMethodDescriptor(parameterTypes, returnType);
             MethodInfo minfo = new MethodInfo(methodName, desc, ACC_PUBLIC | ACC_FINAL);
 
             int[] parameterSlot = new int[parameterTypes.length];
@@ -849,11 +850,11 @@ public class ProxyGenerator {
             DataOutputStream out = new DataOutputStream(minfo.code);
 
             out.writeByte(opc_getstatic);
-            out.writeShort(cp.getFieldRef(dotToSlash(className), initFieldName, "Z"));
+            out.writeShort(cp.getFieldRef(DebugToolsClassUtils.dotToSlash(className), initFieldName, "Z"));
             out.writeByte(opc_ifne);
             out.writeShort(6);
             out.writeByte(opc_invokestatic);
-            out.writeShort(cp.getMethodRef(dotToSlash(className), initMethodName, "()V"));
+            out.writeShort(cp.getMethodRef(DebugToolsClassUtils.dotToSlash(className), initMethodName, "()V"));
 
             code_aload(0, out);
 
@@ -863,7 +864,7 @@ public class ProxyGenerator {
             code_aload(0, out);
 
             out.writeByte(opc_getstatic);
-            out.writeShort(cp.getFieldRef(dotToSlash(className), methodFieldName, "Ljava/lang/reflect/Method;"));
+            out.writeShort(cp.getFieldRef(DebugToolsClassUtils.dotToSlash(className), methodFieldName, "Ljava/lang/reflect/Method;"));
 
             if (parameterTypes.length > 0) {
 
@@ -910,7 +911,7 @@ public class ProxyGenerator {
             if (catchList.size() > 0) {
 
                 for (Class<?> ex : catchList) {
-                    minfo.exceptionTable.add(new ExceptionTableEntry(tryBegin, tryEnd, pc, cp.getClass(dotToSlash(ex
+                    minfo.exceptionTable.add(new ExceptionTableEntry(tryBegin, tryEnd, pc, cp.getClass(DebugToolsClassUtils.dotToSlash(ex
                             .getName()))));
                 }
 
@@ -946,7 +947,7 @@ public class ProxyGenerator {
             minfo.maxLocals = (short) (localSlot0 + 1);
             minfo.declaredExceptions = new short[exceptionTypes.length];
             for (int i = 0; i < exceptionTypes.length; i++) {
-                minfo.declaredExceptions[i] = cp.getClass(dotToSlash(exceptionTypes[i].getName()));
+                minfo.declaredExceptions[i] = cp.getClass(DebugToolsClassUtils.dotToSlash(exceptionTypes[i].getName()));
             }
 
             return minfo;
@@ -1013,7 +1014,7 @@ public class ProxyGenerator {
             } else {
 
                 out.writeByte(opc_checkcast);
-                out.writeShort(cp.getClass(dotToSlash(type.getName())));
+                out.writeShort(cp.getClass(DebugToolsClassUtils.dotToSlash(type.getName())));
 
                 out.writeByte(opc_areturn);
             }
@@ -1057,7 +1058,7 @@ public class ProxyGenerator {
                     + "Ljava/lang/reflect/Method;"));
 
             out.writeByte(opc_putstatic);
-            out.writeShort(cp.getFieldRef(dotToSlash(className), methodFieldName, "Ljava/lang/reflect/Method;"));
+            out.writeShort(cp.getFieldRef(DebugToolsClassUtils.dotToSlash(className), methodFieldName, "Ljava/lang/reflect/Method;"));
         }
     }
 
@@ -1090,7 +1091,7 @@ public class ProxyGenerator {
 
         DataOutputStream out = new DataOutputStream(minfo.code);
         out.writeByte(opc_invokestatic);
-        out.writeShort(cp.getMethodRef(dotToSlash(className), initMethodName, "()V"));
+        out.writeShort(cp.getMethodRef(DebugToolsClassUtils.dotToSlash(className), initMethodName, "()V"));
         out.writeByte(opc_return);
 
         minfo.declaredExceptions = new short[0];
@@ -1116,7 +1117,7 @@ public class ProxyGenerator {
 
         out.writeByte(opc_iconst_1);
         out.writeByte(opc_putstatic);
-        out.writeShort(cp.getFieldRef(dotToSlash(className), initFieldName, "Z"));
+        out.writeShort(cp.getFieldRef(DebugToolsClassUtils.dotToSlash(className), initFieldName, "Z"));
 
         out.writeByte(opc_return);
 
@@ -1306,57 +1307,6 @@ public class ProxyGenerator {
      */
 
     /**
-     * Convert a fully qualified class name that uses '.' as the package separator, the external representation used by
-     * the Java language and APIs, to a fully qualified class name that uses '/' as the package separator, the
-     * representation used in the class file format (see JVMS section 4.2).
-     */
-    private static String dotToSlash(String name) {
-        return name.replace('.', '/');
-    }
-
-    /**
-     * Return the "method descriptor" string for a method with the given parameter types and return type. See JVMS
-     * section 4.3.3.
-     */
-    private static String getMethodDescriptor(Class<?>[] parameterTypes, Class<?> returnType) {
-        return getParameterDescriptors(parameterTypes) + ((returnType == void.class) ? "V" : getFieldType(returnType));
-    }
-
-    /**
-     * Return the list of "parameter descriptor" strings enclosed in parentheses corresponding to the given parameter
-     * types (in other words, a method descriptor without a return descriptor). This string is useful for constructing
-     * string keys for methods without regard to their return type.
-     */
-    private static String getParameterDescriptors(Class<?>[] parameterTypes) {
-        StringBuilder desc = new StringBuilder("(");
-        for (int i = 0; i < parameterTypes.length; i++) {
-            desc.append(getFieldType(parameterTypes[i]));
-        }
-        desc.append(')');
-        return desc.toString();
-    }
-
-    /**
-     * Return the "field type" string for the given type, appropriate for a field descriptor, a parameter descriptor, or
-     * a return descriptor other than "void". See JVMS section 4.3.2.
-     */
-    private static String getFieldType(Class<?> type) {
-        if (type.isPrimitive()) {
-            return PrimitiveTypeInfo.get(type).baseTypeString;
-        } else if (type.isArray()) {
-            /*
-             * According to JLS 20.3.2, the getName() method on Class does return the VM type descriptor format for
-             * array classes (only); using that should be quicker than the otherwise obvious code:
-             *
-             * return "[" + getTypeDescriptor(type.getComponentType());
-             */
-            return type.getName().replace('.', '/');
-        } else {
-            return "L" + dotToSlash(type.getName()) + ";";
-        }
-    }
-
-    /**
      * Returns a human-readable string representing the signature of a method with the given name and parameter types.
      */
     private static String getFriendlyMethodSignature(String name, Class<?>[] parameterTypes) {
@@ -1520,7 +1470,7 @@ public class ProxyGenerator {
             assert primitiveClass.isPrimitive();
 
             baseTypeString = Array.newInstance(primitiveClass, 0).getClass().getName().substring(1);
-            wrapperClassName = dotToSlash(wrapperClass.getName());
+            wrapperClassName = DebugToolsClassUtils.dotToSlash(wrapperClass.getName());
             wrapperValueOfDesc = "(" + baseTypeString + ")L" + wrapperClassName + ";";
             unwrapMethodName = primitiveClass.getName() + "Value";
             unwrapMethodDesc = "()" + baseTypeString;

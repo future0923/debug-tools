@@ -107,18 +107,22 @@
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <java.programPatcher implementation="io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher" order="last"/>
+        <java.programPatcher implementation="io.github.future0923.debug.tools.idea.patcher.DebugToolsJavaProgramPatcher"
+                             order="last"/>
         <!--定义自己的Extensions文件格式与目录-->
         <scratch.rootType implementation="io.github.future0923.debug.tools.idea.extensions.ScratchDebugToolsRootType"/>
         <!--扩展文件写入访问权限，允许插件在非项目文件中进行写操作。-->
-        <nonProjectFileWritingAccessExtension implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
+        <nonProjectFileWritingAccessExtension
+                implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
         <!--项目启动完成后，后台异步地执行-->
-        <backgroundPostStartupActivity implementation="io.github.future0923.debug.tools.idea.startup.HotSwapStartupActivity" />
+        <backgroundPostStartupActivity
+                implementation="io.github.future0923.debug.tools.idea.startup.HotSwapStartupActivity"/>
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
         <!--文件变更-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.utils.FileChangedService"/>
-
+        <!--鼠标移动-->
+        <editorFactoryMouseMotionListener implementation="io.github.future0923.debug.tools.idea.listener.idea.QuickDebugEditorMouseMotionListener" />
         <!--设置-->
         <projectConfigurable instance="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable"
                              id="DebugToolsTool.Setting"
@@ -140,6 +144,9 @@
         <!--json编辑器代码提示-->
         <completion.contributor language="JSON"
                                 implementationClass="io.github.future0923.debug.tools.idea.completion.DebugToolsJsonEditorCompletionContributor"/>
+        <!--Gutter行头展示-->
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="io.github.future0923.debug.tools.idea.line.QuickDebugLineMarkerProvider"/>
 
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider
@@ -150,6 +157,16 @@
         <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <group text="Trace Method" id="DebugToolsTool.TraceMethod" popup="true">
+                <action id="DebugToolsTool.AddTraceMethod"
+                        class="io.github.future0923.debug.tools.idea.action.AddTraceMethodAction"
+                        text="Add Method To Trace"
+                        description="Add method to trace"/>
+                <action id="DebugToolsTool.CancelTraceMethodAction"
+                        class="io.github.future0923.debug.tools.idea.action.CancelTraceMethodAction"
+                        text="Remove Method To Trace"
+                        description="Remove method to trace"/>
+            </group>
             <action id="DebugToolsTool.QuickDebug"
                     class="io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction"
                     text="Quick Debug"

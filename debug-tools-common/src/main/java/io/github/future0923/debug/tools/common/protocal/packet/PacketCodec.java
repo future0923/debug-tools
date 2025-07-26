@@ -21,6 +21,7 @@ import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
+import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTraceMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
@@ -80,6 +81,7 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.LOCAL_COMPILER_HOT_DEPLOY_REQUEST, LocalCompilerHotDeployRequestPacket.class);
         this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_REQUEST, RemoteCompilerHotDeployRequestPacket.class);
         this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_RESPONSE, HotDeployResponsePacket.class);
+        this.packetTypeMap.put(Command.CHANGE_TRACE_METHOD_REQUEST, ChangeTraceMethodRequestPacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 

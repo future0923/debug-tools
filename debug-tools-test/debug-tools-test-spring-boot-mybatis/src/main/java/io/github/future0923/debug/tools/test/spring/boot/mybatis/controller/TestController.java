@@ -38,7 +38,10 @@ public class TestController {
     public User a() {
         testService.c("a");
         userService.a(null);
-        return new User();
+        User user = new User();
+        user.setAge(1);
+        user.getName();
+        return user;
     }
 
     @GetMapping("/c")

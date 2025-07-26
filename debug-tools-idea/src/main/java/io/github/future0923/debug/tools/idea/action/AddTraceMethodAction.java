@@ -14,25 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.ui.tree.node;
-
-import com.intellij.ui.treeStructure.PatchedDefaultMutableTreeNode;
+package io.github.future0923.debug.tools.idea.action;
 
 /**
  * @author future0923
  */
-@SuppressWarnings("unchecked")
-public abstract class TreeNode<T> extends PatchedDefaultMutableTreeNode {
-
-    public TreeNode() {
-    }
-
-    public TreeNode(Object userObject) {
-        super(userObject);
-    }
+public class AddTraceMethodAction extends AbstractTraceMethodAction {
 
     @Override
-    public T getUserObject() {
-        return (T) super.getUserObject();
+    protected boolean isAddTraceMethod() {
+        return true;
     }
+
 }
