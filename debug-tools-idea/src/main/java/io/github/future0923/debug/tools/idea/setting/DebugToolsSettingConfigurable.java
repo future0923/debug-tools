@@ -26,8 +26,6 @@ import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -35,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Objects;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 
 /**
  * @author future0923
@@ -210,7 +210,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
 
         settingState.setAutoSaveSql(settingPanel.getSaveSqlCheckBox().isSelected());
-        settingState.setSqlRetentionDays(settingPanel.getSaveSqlDaysField().getNumber());
+        settingState.setSqlRetentionDays(Math.max(1,settingPanel.getSaveSqlDaysField().getNumber()));
 
         DebugToolsToolWindow toolWindow = DebugToolsToolWindowFactory.getToolWindow(project);
         if (toolWindow != null) {
