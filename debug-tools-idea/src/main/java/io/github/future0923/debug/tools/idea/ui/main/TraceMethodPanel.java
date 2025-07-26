@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024-2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package io.github.future0923.debug.tools.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
@@ -30,6 +46,10 @@ public class TraceMethodPanel {
 
     private final JBCheckBox traceSqlCheckBox = new JBCheckBox("SQL");
 
+    private final JBCheckBox traceSkipStartGetSetCheckBox = new JBCheckBox("Skip get/set method");
+
+    private final JBTextField traceBusinessPackage = new JBTextField();
+
     private final JBTextField traceIgnorePackage = new JBTextField();
 
     public TraceMethodPanel() {
@@ -38,23 +58,29 @@ public class TraceMethodPanel {
         traceMethodPanel.add(traceMethodCheckBox);
         panel.add(traceMethodPanel);
         paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
-        JPanel maxDepthPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        JPanel traceParamPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         JBLabel maxDepthLabel = new JBLabel("Max depth:");
         maxDepth.setPreferredSize(new Dimension(80, maxDepth.getPreferredSize().height));
 
         JPanel ignorePackagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        JBLabel ignorePackageLabel = new JBLabel("Ignore package:");
+        JPanel businessPackageWrapper = new JPanel(new BorderLayout());
+        businessPackageWrapper.add(traceBusinessPackage, BorderLayout.CENTER);
+        businessPackageWrapper.setPreferredSize(new Dimension(200, traceBusinessPackage.getPreferredSize().height));
         JPanel ignorePackageWrapper = new JPanel(new BorderLayout());
         ignorePackageWrapper.add(traceIgnorePackage, BorderLayout.CENTER);
-        ignorePackageWrapper.setPreferredSize(new Dimension(500, traceIgnorePackage.getPreferredSize().height));
-        ignorePackagePanel.add(ignorePackageLabel);
+        ignorePackageWrapper.setPreferredSize(new Dimension(200, traceIgnorePackage.getPreferredSize().height));
+        ignorePackagePanel.add(new JBLabel("Business package:"));
+        ignorePackagePanel.add(businessPackageWrapper);
+        ignorePackagePanel.add(new JBLabel("Ignore package:"));
         ignorePackagePanel.add(ignorePackageWrapper);
-        maxDepthPanel.add(maxDepthLabel);
-        maxDepthPanel.add(maxDepth);
-        maxDepthPanel.add(traceMyBatisCheckBox);
-        maxDepthPanel.add(traceSqlCheckBox);
-        maxDepthPanel.add(ignorePackagePanel);
-        paramPanel.add(maxDepthPanel);
+
+        traceParamPanel.add(maxDepthLabel);
+        traceParamPanel.add(maxDepth);
+        traceParamPanel.add(traceMyBatisCheckBox);
+        traceParamPanel.add(traceSqlCheckBox);
+        traceParamPanel.add(traceSkipStartGetSetCheckBox);
+        traceParamPanel.add(ignorePackagePanel);
+        paramPanel.add(traceParamPanel);
         paramPanel.add(ignorePackagePanel);
         traceMethodCheckBox.addItemListener(e -> paramPanel.setVisible(e.getStateChange() == ItemEvent.SELECTED));
         panel.add(paramPanel);
@@ -70,6 +96,8 @@ public class TraceMethodPanel {
         maxDepth.setNumber(traceMethodDTO.getTraceMaxDepth());
         traceMyBatisCheckBox.setSelected(traceMethodDTO.getTraceMyBatis());
         traceSqlCheckBox.setSelected(traceMethodDTO.getTraceSQL());
+        traceSkipStartGetSetCheckBox.setSelected(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
+        traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackage());
         traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackage());
         paramPanel.setVisible(traceMethodCheckBox.isSelected());
     }
@@ -87,6 +115,12 @@ public class TraceMethodPanel {
             }
             if (traceMethodDTO.getTraceSQL() != null) {
                 traceSqlCheckBox.setSelected(traceMethodDTO.getTraceSQL());
+            }
+            if (traceMethodDTO.getTraceSkipStartGetSetCheckBox() != null) {
+                traceSkipStartGetSetCheckBox.setSelected(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
+            }
+            if (traceMethodDTO.getTraceBusinessPackage() != null) {
+                traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackage());
             }
             if (traceMethodDTO.getTraceIgnorePackage() != null) {
                 traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackage());
@@ -131,6 +165,22 @@ public class TraceMethodPanel {
 
     public void setTraceSql(boolean traceSql) {
         traceSqlCheckBox.setSelected(traceSql);
+    }
+
+    public boolean isTraceSkipStartGetSetCheckBox() {
+        return traceSkipStartGetSetCheckBox.isSelected();
+    }
+
+    public void setTraceSkipStartGetSetCheckBox(boolean traceSkipStartGetSetCheckBox) {
+        this.traceSkipStartGetSetCheckBox.setSelected(traceSkipStartGetSetCheckBox);
+    }
+
+    public String getTraceBusinessPackage() {
+        return traceBusinessPackage.getText();
+    }
+
+    public void setTraceBusinessPackage(String traceBusinessPackage) {
+        this.traceBusinessPackage.setText(traceBusinessPackage);
     }
 
     public String getTraceIgnorePackage() {

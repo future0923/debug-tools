@@ -18,7 +18,9 @@ package io.github.future0923.debug.tools.server.trace;
 
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
@@ -42,10 +44,14 @@ import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,10 +77,9 @@ public class TraceMethodClassFileTransformer {
     private static final Set<String> IGNORED_METHOD_SET = new HashSet<>();
 
     /**
-     * 忽略的类路径
+     * 该类中的getter和setter方法集合
      */
-    @Getter
-    private static final Set<String> IGNORED_CLASS_SET = new HashSet<>();
+    private static final Map<Class<?>, Set<String>> classGetSetMethodNameMap = new ConcurrentHashMap<>();
 
     /**
      * 追踪MyBatis时拦截的类名
@@ -99,9 +104,35 @@ public class TraceMethodClassFileTransformer {
         ClassPool classPool = getClassPool();
         CtClass ctClass = classPool.get(targetClass.getName());
         String methodDescription = getDescriptor(classPool, targetMethod);
-        redefineMethod(classLoader, classPool, ctClass, targetMethod.getName(), methodDescription, traceMethodDTO.getTraceMaxDepth() == null ? 1 : traceMethodDTO.getTraceMaxDepth());
+        redefineMethod(
+                classLoader,
+                classPool,
+                ctClass,
+                targetMethod.getName(),
+                methodDescription,
+                traceMethodDTO.getTraceSkipStartGetSetCheckBox(),
+                StrUtil.isNotBlank(traceMethodDTO.getTraceBusinessPackage()) ? Arrays.asList(traceMethodDTO.getTraceBusinessPackage().split(",")) : Collections.emptyList(),
+                StrUtil.isNotBlank(traceMethodDTO.getTraceIgnorePackage()) ? Arrays.asList(traceMethodDTO.getTraceIgnorePackage().split(",")) : Collections.emptyList(),
+                traceMethodDTO.getTraceMaxDepth() == null ? 1 : traceMethodDTO.getTraceMaxDepth()
+        );
         redefineMyBatisMethod(classLoader, classPool, traceMethodDTO.getTraceMyBatis());
         MethodTrace.setTraceSqlStatus(traceMethodDTO.getTraceSQL());
+    }
+
+    /**
+     * 添加追踪方法
+     *
+     * @param className 类名
+     * @param methodName 方法名
+     * @param methodDescription 方法描述符
+     * @throws Exception 异常
+     */
+    public static void traceMethod(String className, String methodName, String methodDescription) throws Exception {
+        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
+        RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
+                qualifierNameKey,
+                key -> redefineClass(className, methodName, methodDescription)
+        );
     }
 
     /**
@@ -113,7 +144,7 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 异常
      */
     public static void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
-        String qualifierNameKey = getQualifierNameKey(className, methodName, methodDescription);
+        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
         RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
             transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
             // 返回 null 表示移除
@@ -125,7 +156,7 @@ public class TraceMethodClassFileTransformer {
     /**
      * 转换MyBatis方法
      *
-     * @param classLoader  类加载器
+     * @param classLoader  类加载器S
      * @param classPool    类池
      * @param traceMyBatis 是否追踪MyBatis
      * @throws Exception 异常
@@ -138,7 +169,7 @@ public class TraceMethodClassFileTransformer {
             return;
         }
         String methodDescription = getDescriptor(classPool, ReflectUtil.getMethodByName(clazz, TRACE_MYBATIS_METHOD_NAME));
-        String qualifierNameKey = getQualifierNameKey(TRACE_MYBATIS_CLASS_NAME, TRACE_MYBATIS_METHOD_NAME, methodDescription);
+        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(TRACE_MYBATIS_CLASS_NAME, TRACE_MYBATIS_METHOD_NAME, methodDescription);
         if (BooleanUtil.isTrue(traceMyBatis)) {
             RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
                     qualifierNameKey,
@@ -164,8 +195,11 @@ public class TraceMethodClassFileTransformer {
      * @param maxDepth          最大递归深度
      * @throws Exception 异常
      */
-    private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, int maxDepth) throws Exception {
+    private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, Boolean traceSkipStartGetSetCheckBox, List<String> businessClassSet, List<String> ignoredClassSet, int maxDepth) throws Exception {
         if (maxDepth - 1 < 0) {
+            return;
+        }
+        if ("<init>".equals(methodName)) {
             return;
         }
         String className = ctClass.getName();
@@ -175,21 +209,55 @@ public class TraceMethodClassFileTransformer {
         if (className.startsWith("javax.")) {
             return;
         }
-        for (String ignoreClassName : IGNORED_CLASS_SET) {
-            if (className.startsWith(ignoreClassName)) {
+        for (String businessClassName : businessClassSet) {
+            if (!className.startsWith(businessClassName)) {
                 return;
             }
         }
-        String qualifierNameKey = getQualifierNameKey(className, methodName, methodDescription);
+        for (String ignoreClassName : ignoredClassSet) {
+            if (className.startsWith(ignoreClassName)) {
+                RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.entrySet().removeIf(entry -> {
+                    if (entry.getKey().startsWith(ignoreClassName)) {
+                        entry.getValue().reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+                        return true;
+                    }
+                    return false;
+                });
+                return;
+            }
+        }
+        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
         if (IGNORED_METHOD_SET.contains(qualifierNameKey)) {
             return;
+        }
+        Class<?> targetClass = classLoader.loadClass(className);
+        if (BooleanUtil.isTrue(traceSkipStartGetSetCheckBox)) {
+            Set<String> getSetMethodNameSet = classGetSetMethodNameMap.get(targetClass);
+            if (getSetMethodNameSet == null) {
+                getSetMethodNameSet = new HashSet<>();
+                PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(targetClass).getPropertyDescriptors();
+                for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+                    if ("class".equals(propertyDescriptor.getName())) {
+                        continue;
+                    }
+                    if (propertyDescriptor.getReadMethod() != null) {
+                        getSetMethodNameSet.add(propertyDescriptor.getReadMethod().getName());
+                    }
+                    if (propertyDescriptor.getWriteMethod() != null) {
+                        getSetMethodNameSet.add(propertyDescriptor.getWriteMethod().getName());
+                    }
+                }
+                classGetSetMethodNameMap.put(targetClass, getSetMethodNameSet);
+            }
+            if (getSetMethodNameSet.contains(methodName)) {
+                return;
+            }
         }
         CtMethod[] ctMethod = getCtMethod(ctClass, methodName, methodDescription);
         for (CtMethod method : ctMethod) {
             CodeAttribute codeAttribute = method.getMethodInfo().getCodeAttribute();
             // 接口方法、抽象方法、native方法 codeAttribute为null
             if (codeAttribute == null) {
-                Class<?> targetClass = classLoader.loadClass(className);
                 // 接口
                 if (targetClass.isInterface()) {
                     Set<Class<?>> childClassSet = new HashSet<>();
@@ -199,7 +267,7 @@ public class TraceMethodClassFileTransformer {
                     }
                     for (Class<?> childClass : childClassSet) {
                         RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
-                                getQualifierNameKey(childClass.getName(), methodName, methodDescription),
+                                DebugToolsClassUtils.getQualifierMethod(childClass.getName(), methodName, methodDescription),
                                 key -> redefineClass(childClass.getName(), methodName, methodDescription)
                         );
                     }
@@ -226,6 +294,9 @@ public class TraceMethodClassFileTransformer {
                             classPool.get(constPool.getMethodrefClassName(target)),
                             constPool.getMethodrefName(target),
                             constPool.getMethodrefType(target),
+                            traceSkipStartGetSetCheckBox,
+                            businessClassSet,
+                            ignoredClassSet,
                             maxDepth - 1);
                 }
             }
@@ -323,18 +394,6 @@ public class TraceMethodClassFileTransformer {
             return pool.get(clazz.getName().replace('$', '.'));
         }
         return pool.get(clazz.getName());
-    }
-
-    /**
-     * 获取唯一标识符key
-     *
-     * @param className         类名
-     * @param methodName        方法名
-     * @param methodDescription 方法描述
-     * @return 唯一标识符key
-     */
-    private static String getQualifierNameKey(String className, String methodName, String methodDescription) {
-        return className + "#" + methodName + methodDescription;
     }
 
     /**

@@ -30,6 +30,7 @@ plugins {
     idea
     id("java")
     id("org.jetbrains.intellij.platform") version "2.5.0"
+    id("com.github.hierynomus.license") version "0.16.1"
 }
 
 val pluginVersionString = prop("pluginVersion")
@@ -50,6 +51,7 @@ allprojects {
         plugin("idea")
         plugin("java")
         plugin("org.jetbrains.intellij.platform.module")
+        plugin("com.github.hierynomus.license")
     }
 
     repositories {
@@ -92,6 +94,17 @@ allprojects {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    license {
+        header = rootProject.file("../HEADER") // 指定版权文件路径
+        strictCheck = true // 设置为true会严格检查所有源文件
+        ignoreFailures = false // 如果有错误发生，是否忽略它们
+        ext.set("year", "2025")
+        ext.set("owner", "the original author or authors.")
+        mapping("java", "SLASHSTAR_STYLE") // 设置注释样式
+        include("**/*.java") // 包含哪些文件
+        excludes(listOf("**/build/**")) // 排除哪些文件或目录
+    }
+
     tasks {
         withType<JavaCompile> {
             sourceCompatibility = "17"
@@ -110,6 +123,9 @@ allprojects {
             delete(fileTree(layout.projectDirectory.dir("../dist")) {
                 include("*.zip") // 只删除 .zip 文件
             })
+        }
+        named("check") {
+            dependsOn("licenseCheck")
         }
     }
 }
