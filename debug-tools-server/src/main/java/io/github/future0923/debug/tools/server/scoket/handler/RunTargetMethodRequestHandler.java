@@ -32,7 +32,7 @@ import io.github.future0923.debug.tools.common.exception.ArgsParseException;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;

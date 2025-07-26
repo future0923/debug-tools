@@ -19,8 +19,10 @@ package io.github.future0923.debug.tools.idea.utils;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -43,6 +45,11 @@ public class StateUtils {
      */
     private static final Map<Project, ClassLoaderComboBox> CLASS_LOADER_COMBO_BOX_MAP = new ConcurrentHashMap<>();
 
+    /**
+     * 项目跟踪方法
+     */
+    private static final Map<Project, Set<String>> TRACE_METHOD_MAP = new ConcurrentHashMap<>();
+
     public static void setProjectOpenTime(Project project) {
         PROJECT_OPEN_TIME_MAP.put(project, System.currentTimeMillis());
     }
@@ -61,5 +68,20 @@ public class StateUtils {
 
     public static ClassLoaderComboBox getClassLoaderComboBox(Project project) {
         return CLASS_LOADER_COMBO_BOX_MAP.computeIfAbsent(project, ClassLoaderComboBox::new);
+    }
+
+    public static Set<String> getTraceMethod(Project project) {
+        return TRACE_METHOD_MAP.get(project);
+    }
+
+    public static void setTraceMethod(Project project, String traceMethod) {
+        TRACE_METHOD_MAP.computeIfAbsent(project, k -> ConcurrentHashMap.newKeySet()).add(traceMethod);
+    }
+
+    public static void removeTraceMethod(Project project, String qualifierMethod) {
+        Set<String> traceMethod = getTraceMethod(project);
+        if (traceMethod != null) {
+            traceMethod.remove(qualifierMethod);
+        }
     }
 }

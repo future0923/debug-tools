@@ -21,7 +21,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
 import io.github.future0923.debug.tools.extension.spring.request.MockMultipartFile;

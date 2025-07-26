@@ -98,6 +98,8 @@ public class MainDialog extends DialogWrapper {
         traceMethodDTO.setTraceMaxDepth(traceMethodPanel.getMaxDepth());
         traceMethodDTO.setTraceMyBatis(traceMethodPanel.isTraceMyBatis());
         traceMethodDTO.setTraceSQL(traceMethodPanel.isTraceSql());
+        traceMethodDTO.setTraceSkipStartGetSetCheckBox(traceMethodPanel.isTraceSkipStartGetSetCheckBox());
+        traceMethodDTO.setTraceBusinessPackage(traceMethodPanel.getTraceBusinessPackage());
         traceMethodDTO.setTraceIgnorePackage(traceMethodPanel.getTraceIgnorePackage());
         paramCacheDto.setTraceMethodDTO(traceMethodDTO);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
