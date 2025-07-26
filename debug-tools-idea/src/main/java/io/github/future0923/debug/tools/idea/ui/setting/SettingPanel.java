@@ -120,7 +120,7 @@ public class SettingPanel {
         JPanel sqlRetentionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         sqlRetentionPanel.add(new JLabel("SQL Retention Days:"));
         sqlRetentionPanel.add(saveSqlDaysField);
-        sqlRetentionPanel.add(new JLabel("0 means only keep SQL for the current request."));
+        sqlRetentionPanel.add(new JLabel("The minimum settable value is 1"));
 
         saveSqlCheckBox.setVisible(!printNoSql.isSelected());
         saveSqlCheckBox.setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
