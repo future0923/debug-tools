@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.util;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
@@ -122,12 +123,12 @@ public class HotswapTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(final ClassLoader classLoader, String className, Class<?> redefiningClass,
                             final ProtectionDomain protectionDomain, byte[] bytes) throws IllegalClassFormatException {
+        if (MethodTrace.redefineTraceMethodProcessing) {
+            return null;
+        }
         String classLoaderClassName = classLoader != null ? classLoader.getClass().getName() : null;
         if (skippedClassLoaders.contains(classLoaderClassName)) {
-            return bytes;
-        }
-        if (className != null) {
-            LOGGER.debug("className, {}", className);
+            return null;
         }
         // 非插件类文件Transformer的集合
         List<ClassFileTransformer> toApply = new ArrayList<>();
@@ -178,11 +179,11 @@ public class HotswapTransformer implements ClassFileTransformer {
         // 确保classLoader已经初始化
         if (!ensureClassLoaderInitialized(classLoader, protectionDomain)) {
             LOGGER.trace("Skipping className '{}' classloader '{}' transform", className, classLoader);
-            return bytes;
+            return null;
         }
 
         if (toApply.isEmpty() && pluginTransformers.isEmpty()) {
-            return bytes;
+            return null;
         }
 
         try {
@@ -203,7 +204,7 @@ public class HotswapTransformer implements ClassFileTransformer {
         } catch (Throwable t) {
             LOGGER.error("Error transforming class '" + className + "'.", t);
         }
-        return bytes;
+        return null;
     }
 
     /**

@@ -53,6 +53,11 @@ public class MethodTrace {
     private static final ThreadLocal<Boolean> traceSqlStatus = ThreadLocal.withInitial(() -> false);
 
     /**
+     * 追踪方法是否正在重新定义class
+     */
+    public static volatile boolean redefineTraceMethodProcessing = false;
+
+    /**
      * 方法入栈
      */
     public static void enterMethod(String className, String classSimpleName, String methodName, String methodSignature) {

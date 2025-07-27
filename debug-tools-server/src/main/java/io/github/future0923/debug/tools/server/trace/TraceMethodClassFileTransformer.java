@@ -101,6 +101,7 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 错误
      */
     public static void traceMethod(ClassLoader classLoader, Class<?> targetClass, Method targetMethod, TraceMethodDTO traceMethodDTO) throws Exception {
+        MethodTrace.redefineTraceMethodProcessing = true;
         ClassPool classPool = getClassPool();
         CtClass ctClass = classPool.get(targetClass.getName());
         String methodDescription = getDescriptor(classPool, targetMethod);
@@ -117,6 +118,7 @@ public class TraceMethodClassFileTransformer {
         );
         redefineMyBatisMethod(classLoader, classPool, traceMethodDTO.getTraceMyBatis());
         MethodTrace.setTraceSqlStatus(traceMethodDTO.getTraceSQL());
+        MethodTrace.redefineTraceMethodProcessing = false;
     }
 
     /**
@@ -128,11 +130,13 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 异常
      */
     public static void traceMethod(String className, String methodName, String methodDescription) throws Exception {
+        MethodTrace.redefineTraceMethodProcessing = true;
         String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
         RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
                 qualifierNameKey,
                 key -> redefineClass(className, methodName, methodDescription)
         );
+        MethodTrace.redefineTraceMethodProcessing = false;
     }
 
     /**
@@ -144,6 +148,7 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 异常
      */
     public static void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
+        MethodTrace.redefineTraceMethodProcessing = true;
         String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
         RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
             transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
@@ -151,6 +156,7 @@ public class TraceMethodClassFileTransformer {
             return null;
         });
         IGNORED_METHOD_SET.add(qualifierNameKey);
+        MethodTrace.redefineTraceMethodProcessing = false;
     }
 
     /**
@@ -259,7 +265,7 @@ public class TraceMethodClassFileTransformer {
             // 接口方法、抽象方法、native方法 codeAttribute为null
             if (codeAttribute == null) {
                 // 接口
-                if (targetClass.isInterface()) {
+                if (targetClass.isInterface() || Modifier.isAbstract(method.getModifiers())) {
                     Set<Class<?>> childClassSet = new HashSet<>();
                     Object[] instances = JvmToolsUtils.getInstances(targetClass);
                     for (Object instance : instances) {
@@ -271,10 +277,6 @@ public class TraceMethodClassFileTransformer {
                                 key -> redefineClass(childClass.getName(), methodName, methodDescription)
                         );
                     }
-                }
-                // 抽象方法
-                if (Modifier.isAbstract(method.getModifiers())) {
-                    // TODO
                 }
                 continue;
             }
