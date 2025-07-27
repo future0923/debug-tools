@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2024-2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 package io.github.future0923.debug.tools.utils;
 
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
@@ -27,49 +43,9 @@ public class SqlFileWriter {
     private static final ReentrantLock lock = new ReentrantLock();
 
     /**
-     * 写入SQL记录到文件(紧凑版)
-     */
-    public static void writeSqlRecord(String sql, long consumeTime, String dbType) {
-        lock.lock();
-        try {
-            LocalDateTime now = LocalDateTime.now();
-            String dateStr = now.format(DATE_FORMATTER);
-            String timeStr = now.format(TIME_FORMATTER);
-
-            // 紧凑化的SQL记录格式
-            String content = String.format(
-                    "-- %s | %s | %dms\n%s;\n\n",
-                    timeStr, dbType, consumeTime, sql
-            );
-
-            String projectPath = System.getProperty("user.dir");
-            Path sqlDir = Paths.get(projectPath, SQL_DIR);
-            if (!Files.exists(sqlDir)) {
-                Files.createDirectories(sqlDir);
-            }
-
-            Path sqlFile = sqlDir.resolve(dateStr + ".sql");
-
-            Files.write(
-                    sqlFile,
-                    content.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.APPEND
-            );
-
-            logger.debug("SQL record written to file: {}", sqlFile);
-
-        } catch (IOException e) {
-            logger.error("Failed to write SQL record to file", e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
      * 写入SQL记录到文件，支持保留天数和0天清空逻辑
      */
-    public static void writeSqlRecordWithRetention(String sql, long consumeTime, String dbType, int days) {
+    public static void writeSqlRecordWithRetention(String sql, long consumeTime, String dbType, Integer days) {
         lock.lock();
         try {
             LocalDateTime now = LocalDateTime.now();

@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
@@ -133,8 +134,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 保存日志天数（天）
      */
-    private Integer sqlRetentionDays = 7;
-
+    private Integer sqlRetentionDays = 1;
 
     /**
      * 远程应用名称
@@ -144,6 +144,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      * 远程应用列表
      */
     private Map<String, String> remoteHosts = new LinkedHashMap<>();
+
+    /**
+     * 追踪方法信息
+     */
+    private TraceMethodDTO traceMethodDTO;
 
     @Override
     public @Nullable DebugToolsSettingState getState() {
@@ -273,25 +278,4 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         getRemoteHosts().clear();
     }
 
-    public Boolean getAutoSaveSql() {
-        if (autoSaveSql == null) {
-            setAutoSaveSql(false);
-        }
-        return autoSaveSql;
-    }
-
-    public void setAutoSaveSql(Boolean autoSaveSql) {
-        this.autoSaveSql = autoSaveSql;
-    }
-
-    public Integer getSqlRetentionDays() {
-        if (sqlRetentionDays == null) {
-            setSqlRetentionDays(7);
-        }
-        return sqlRetentionDays;
-    }
-
-    public void setSqlRetentionDays(Integer sqlRetentionDays) {
-        this.sqlRetentionDays = sqlRetentionDays;
-    }
 }

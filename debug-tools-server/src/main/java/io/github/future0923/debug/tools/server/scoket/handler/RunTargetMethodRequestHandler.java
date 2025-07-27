@@ -21,17 +21,21 @@ import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.exception.ArgsParseException;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
+import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
@@ -40,6 +44,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 
 /**
  * @author future0923
@@ -111,26 +116,31 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             }
         }
         Method bridgedMethod = DebugToolsEnvUtils.findBridgedMethod(targetMethod);
+        TraceMethodDTO traceMethodDTO = runDTO.getTraceMethodDTO();
+        boolean traceMethod = traceMethodDTO != null && traceMethodDTO.getTraceMethod();
+        if (traceMethod) {
+            TraceMethodClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
+        }
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
-        run(targetClass, bridgedMethod, instance, targetMethodArgs, runDTO, outputStream);
+        run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
         Thread.currentThread().setContextClassLoader(orgClassLoader);
     }
 
-    private void run(Class<?> targetClass, Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream) throws Exception {
+    private void run(Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream, Boolean traceMethod) throws Exception {
         boolean voidType = void.class.isAssignableFrom(bridgedMethod.getReturnType()) || Void.class.isAssignableFrom(bridgedMethod.getReturnType());
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugToolsEnvUtils.isAopProxy(invocationHandler)) {
                 try {
-                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType);
+                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
                     return;
                 } catch (Throwable ignored) {
                 }
             }
         }
         try {
-            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType);
+            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
         } catch (Throwable throwable) {
             logger.error("invoke target method error", throwable);
             Throwable cause = throwable.getCause();
@@ -143,7 +153,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         }
     }
 
-    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType) {
+    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType, boolean traceMethod) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, DebugToolsBootstrap.serverConfig.getApplicationName());
         if (voidType) {
@@ -163,6 +173,12 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
                 packet.setOffsetPath(offsetPath);
                 DebugToolsResultUtils.putCache(offsetPath, result);
             }
+        }
+        if (traceMethod) {
+            List<MethodTreeNode> traceResult = MethodTrace.getResult();
+            String offsetPath = RunResultDTO.genOffsetPathRandom(traceResult);
+            DebugToolsResultUtils.putCache(offsetPath, traceResult);
+            packet.setTraceOffsetPath(offsetPath);
         }
         writeAndFlushNotException(outputStream, packet);
     }

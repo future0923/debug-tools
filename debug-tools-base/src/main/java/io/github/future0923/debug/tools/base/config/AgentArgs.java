@@ -67,6 +67,11 @@ public class AgentArgs {
     private String printSql;
 
     /**
+     * 是否追踪SQL
+     */
+    private String traceSql;
+
+    /**
      * 是否开启热重载/热部署. true | false
      */
     private String hotswap;

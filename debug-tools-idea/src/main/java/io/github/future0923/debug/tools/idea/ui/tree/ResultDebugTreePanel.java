@@ -25,7 +25,7 @@ import com.intellij.util.ui.JBUI;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.ui.tree.node.EmptyTreeNode;
-import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTreeNode;
+import io.github.future0923.debug.tools.idea.ui.tree.node.ResultDebugTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
 
 import javax.swing.*;
@@ -45,20 +45,21 @@ import java.util.List;
 /**
  * @author future0923
  */
-public class ResultTreePanel extends JBScrollPane {
+@SuppressWarnings(value = {"unchecked", "rawtypes"})
+public class ResultDebugTreePanel extends JBScrollPane {
 
     private final Tree tree;
 
-    public ResultTreePanel(Project project) {
+    public ResultDebugTreePanel(Project project) {
         this(project, null);
     }
 
-    public ResultTreePanel(Project project, ResultTreeNode root) {
+    public ResultDebugTreePanel(Project project, ResultDebugTreeNode root) {
         this.tree = new SimpleTree();
         // 可以拖动的Tree SimpleDnDAwareTree
         this.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.setBorder(new CustomLineBorder(JBUI.insetsTop(1)));
-        tree.setCellRenderer(new ResultCellRenderer());
+        tree.setCellRenderer(new ResultDebugCellRenderer());
         tree.addTreeWillExpandListener(new TreeWillExpandListener() {
 
             // 展开
@@ -67,9 +68,9 @@ public class ResultTreePanel extends JBScrollPane {
                 if (event.getPath().getLastPathComponent() instanceof TreeNode node) {
                     if (node.getChildCount() == 1 && node.getFirstChild() instanceof EmptyTreeNode) {
                         node.removeAllChildren();
-                        List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, node.getUserObject().getFiledOffset());
+                        List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, ((RunResultDTO)node.getUserObject()).getFiledOffset());
                         for (RunResultDTO runResultDTO : runResultDTOList) {
-                            node.add(new ResultTreeNode(runResultDTO, runResultDTO.getLeaf()));
+                            node.add(new ResultDebugTreeNode(runResultDTO, runResultDTO.getLeaf()));
                         }
                         ((DefaultTreeModel) tree.getModel()).reload(node);
                     }
@@ -124,7 +125,7 @@ public class ResultTreePanel extends JBScrollPane {
     private void copy(boolean value) {
         TreePath selectedPath = tree.getSelectionPath();
         if (selectedPath != null) {
-            TreeNode selectedNode = (TreeNode) selectedPath.getLastPathComponent();
+            TreeNode<RunResultDTO> selectedNode = (TreeNode<RunResultDTO>) selectedPath.getLastPathComponent();
             RunResultDTO runResultDTO = selectedNode.getUserObject();
             if (runResultDTO == null) {
                 return;
@@ -134,7 +135,7 @@ public class ResultTreePanel extends JBScrollPane {
         }
     }
 
-    public void setRoot(ResultTreeNode root) {
+    public void setRoot(ResultDebugTreeNode root) {
         DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
