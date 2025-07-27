@@ -23,7 +23,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.ResultVarClassType;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.JdkUnsafeUtils;
 
 import java.lang.reflect.Field;

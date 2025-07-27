@@ -60,7 +60,7 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             resultComponent = new TextEditor(null, runResult);
         } else {
             if (packet.isSuccess()) {
-                resultComponent = new RunResult(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getResultClassType());
+                resultComponent = new RunResult(project, packet.getPrintResult(), packet.getOffsetPath(), packet.getTraceOffsetPath(), packet.getResultClassType());
             } else {
                 resultComponent = new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
             }

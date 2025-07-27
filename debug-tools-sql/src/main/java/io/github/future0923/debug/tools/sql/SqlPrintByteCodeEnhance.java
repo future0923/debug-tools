@@ -16,6 +16,9 @@
  */
 package io.github.future0923.debug.tools.sql;
 
+import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -29,12 +32,11 @@ public class SqlPrintByteCodeEnhance {
      * 增加字节码让其打印SQL
      *
      * @param inst     instrumentation
-     * @param printSql 打印类型
      */
-    public static void enhance(Instrumentation inst, String printSql,String saveFlag,Integer saveDays) {
-        SqlPrintInterceptor.setPrintSqlType(printSql);
-        SqlPrintInterceptor.setAutoSaveSql("true".equalsIgnoreCase(saveFlag));
-        SqlPrintInterceptor.setSqlRetentionDays(saveDays);
+    public static void enhance(Instrumentation inst, AgentArgs agentArgs) {
+        SqlPrintInterceptor.setPrintSqlType(agentArgs.getPrintSql());
+        SqlPrintInterceptor.setAutoSaveSql(BooleanUtil.toBoolean(agentArgs.getAutoSaveSql()));
+        SqlPrintInterceptor.setSqlRetentionDays(agentArgs.getSqlRetentionDays());
         inst.addTransformer(new SqlDriverClassFileTransformer(), true);
     }
 }

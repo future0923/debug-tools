@@ -28,18 +28,44 @@ import java.util.Map;
 @Data
 public class RunDTO {
 
+    /**
+     * 请求头信息
+     */
     private Map<String, String> headers;
 
+    /**
+     * 使用的类加载器
+     */
     private AllClassLoaderRes.Item classLoader;
 
+    /**
+     * 调用的类名
+     */
     private String targetClassName;
 
+    /**
+     * 调用的方法
+     */
     private String targetMethodName;
 
+    /**
+     * 调用的方法参数
+     */
     private List<String> targetMethodParameterTypes;
 
+    /**
+     * 调用的方法入参
+     */
     private Map<String, RunContentDTO> targetMethodContent;
 
+    /**
+     * xxljob参数
+     */
     private String xxlJobParam;
+
+    /**
+     * 追踪方法
+     */
+    private TraceMethodDTO traceMethodDTO;
 
 }

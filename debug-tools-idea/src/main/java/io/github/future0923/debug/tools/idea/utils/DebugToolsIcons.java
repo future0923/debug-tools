@@ -39,6 +39,7 @@ public class DebugToolsIcons {
     public static final Icon Clear = IconLoader.getIcon("/icon/clear.svg", DebugToolsIcons.class);
     public static final Icon Groovy = IconLoader.getIcon("/icon/groovy.svg", DebugToolsIcons.class);
     public static final Icon Request = IconLoader.getIcon("/icon/request.svg", DebugToolsIcons.class);
+    public static final Icon Request_Full = IconLoader.getIcon("/icon/request_full.svg", DebugToolsIcons.class);
     public static final Icon Last = IconLoader.getIcon("/icon/last.svg", DebugToolsIcons.class);
     public static final Icon Last_ClassLoader = IconLoader.getIcon("/icon/last_classloader.svg", DebugToolsIcons.class);
     public static final Icon Connect = IconLoader.getIcon("/icon/connect.svg", DebugToolsIcons.class);
@@ -73,5 +74,12 @@ public class DebugToolsIcons {
         public static final Icon Delete = IconLoader.getIcon("/icon/action/delete.svg", DebugToolsIcons.class);
         public static final Icon Clear = IconLoader.getIcon("/icon/action/clear.svg", DebugToolsIcons.class);
         public static final Icon Reset = IconLoader.getIcon("/icon/action/reset.svg", DebugToolsIcons.class);
+    }
+
+    public static final class Trace {
+        public static final Icon Trace = IconLoader.getIcon("/icon/trace/trace.svg", DebugToolsIcons.class);
+        public static final Icon Time = IconLoader.getIcon("/icon/trace/time.svg", DebugToolsIcons.class);
+        public static final Icon MyBatis = IconLoader.getIcon("/icon/trace/mybatis.svg", DebugToolsIcons.class);
+        public static final Icon Database = IconLoader.getIcon("/icon/trace/database.svg", DebugToolsIcons.class);
     }
 }

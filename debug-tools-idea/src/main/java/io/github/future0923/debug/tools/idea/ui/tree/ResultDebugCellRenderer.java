@@ -22,7 +22,7 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
-import io.github.future0923.debug.tools.common.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ import java.awt.*;
 /**
  * @author future0923
  */
-public class ResultCellRenderer extends ColoredTreeCellRenderer {
+public class ResultDebugCellRenderer extends ColoredTreeCellRenderer {
 
     private static final Color ORANGE = new JBColor(new Color(0x753F3E), new Color(0xE6AE87));
 
@@ -40,9 +40,10 @@ public class ResultCellRenderer extends ColoredTreeCellRenderer {
 
     private static final Color GRAY = new JBColor(new Color(0x818593), new Color(0x707379));
 
+    @SuppressWarnings("unchecked")
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        RunResultDTO runResultDTO = ((TreeNode) value).getUserObject();
+        RunResultDTO runResultDTO = ((TreeNode<RunResultDTO>) value).getUserObject();
         if (runResultDTO == null) {
             return;
         }
