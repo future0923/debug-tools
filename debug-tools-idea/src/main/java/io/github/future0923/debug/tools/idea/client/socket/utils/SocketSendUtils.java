@@ -30,12 +30,12 @@ import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
  */
 public class SocketSendUtils {
 
-    public static void clearRunResult(String applicationName, String filedOffset) {
+    public static void clearRunResult(String applicationName, String filedOffset, String traceOffset) {
         if (DebugToolsStringUtils.isNotBlank(filedOffset)) {
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {
                 try {
-                    info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset));
+                    info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset, traceOffset));
                 } catch (Exception ignored) {
                 }
             }
@@ -43,6 +43,10 @@ public class SocketSendUtils {
     }
 
     public static void send(Project project, Packet packet) {
+        send(project, packet, null);
+    }
+
+    public static void send(Project project, Packet packet, Runnable runnable) {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
             Messages.showErrorDialog("Run attach first", "Send Error");
@@ -51,6 +55,9 @@ public class SocketSendUtils {
         }
         try {
             info.getClient().getHolder().send(packet);
+            if (runnable != null) {
+                runnable.run();
+            }
         } catch (SocketCloseException e) {
             Messages.showErrorDialog("Socket close", "Send Error");
             DebugToolsToolWindowFactory.showWindow(project, null);

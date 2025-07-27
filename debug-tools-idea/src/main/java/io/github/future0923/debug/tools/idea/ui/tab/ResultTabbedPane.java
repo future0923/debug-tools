@@ -20,6 +20,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTabbedPane;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.enums.PrintResultType;
@@ -28,10 +31,13 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
 import io.github.future0923.debug.tools.idea.ui.console.MyConsolePanel;
 import io.github.future0923.debug.tools.idea.ui.editor.JsonEditor;
-import io.github.future0923.debug.tools.idea.ui.tree.ResultTreePanel;
-import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTreeNode;
+import io.github.future0923.debug.tools.idea.ui.tree.ResultDebugTreePanel;
+import io.github.future0923.debug.tools.idea.ui.tree.ResultTraceTreePanel;
+import io.github.future0923.debug.tools.idea.ui.tree.node.ResultDebugTreeNode;
+import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTraceTreeNode;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,6 +51,8 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private final String offsetPath;
 
+    private final String traceOffsetPath;
+
     private final ResultClassType resultClassType;
 
     private JBTabbedPane tabPane;
@@ -53,16 +61,21 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
 
     private JsonEditor jsonTab;
 
-    private ResultTreePanel debugTab;
+    private ResultDebugTreePanel debugTab;
+
+    private ResultTraceTreePanel traceTab;
 
     private boolean loadJson = false;
 
     private boolean loadDebug = false;
 
-    public ResultTabbedPane(Project project, String printResult, String offsetPath, ResultClassType resultClassType) {
+    private boolean loadTrace = false;
+
+    public ResultTabbedPane(Project project, String printResult, String offsetPath, String traceOffsetPath, ResultClassType resultClassType) {
         this.project = project;
         this.printResult = printResult;
         this.offsetPath = offsetPath;
+        this.traceOffsetPath = traceOffsetPath;
         this.resultClassType = resultClassType;
         initView();
         initEvent();
@@ -87,8 +100,14 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         if (!ResultClassType.VOID.equals(resultClassType)
                 && !ResultClassType.NULL.equals(resultClassType)
                 && debugTab()) {
-            debugTab = new ResultTreePanel(project);
+            debugTab = new ResultDebugTreePanel(project);
             tabPane.addTab("debug", debugTab);
+        }
+
+        if (StrUtil.isNotBlank(traceOffsetPath)
+                && traceTab()) {
+            traceTab = new ResultTraceTreePanel(project);
+            tabPane.addTab("trace", traceTab);
         }
 
         add(tabPane, BorderLayout.CENTER);
@@ -102,6 +121,10 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         return false;
     }
 
+    protected boolean traceTab() {
+        return false;
+    }
+
     private void initEvent() {
         tabPane.addChangeListener(e -> {
             // 获取当前选中的选项卡索引
@@ -112,6 +135,8 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
                 changeJson();
             } else if (Objects.equals(selectedTabTitle, "debug") && !loadDebug) {
                 changeDebug();
+            } else if (Objects.equals(selectedTabTitle, "trace") && !loadTrace) {
+                changeTrace();
             }
         });
     }
@@ -140,18 +165,32 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         } else if (ResultClassType.NULL.equals(resultClassType)) {
             Messages.showErrorDialog(project, "Null does not support viewing", "Debug Result");
         } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
-            debugTab.setRoot(new ResultTreeNode(new RunResultDTO("result", printResult) {{
+            debugTab.setRoot(new ResultDebugTreeNode(new RunResultDTO("result", printResult) {{
                 setLeaf(true);
             }}));
             loadDebug = true;
         } else if (ResultClassType.OBJECT.equals(resultClassType)) {
             String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
             if (DebugToolsStringUtils.isNotBlank(body)) {
-                debugTab.setRoot(new ResultTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
+                debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
                 loadDebug = true;
             } else {
                 Messages.showErrorDialog(project, "The request failed, please try again later", "Request Result");
             }
         }
+    }
+
+    private void changeTrace() {
+        if (traceTab == null) {
+            return;
+        }
+        if (StrUtil.isBlank(traceOffsetPath)) {
+            Messages.showErrorDialog(project, "Trace does not support viewing", "Debug Result");
+        }
+        List<MethodTreeNode> methodTreeNodes = HttpClientUtils.resultTrace(project, traceOffsetPath);
+        if (CollUtil.isNotEmpty(methodTreeNodes)) {
+            traceTab.setRoot(new ResultTraceTreeNode(CollUtil.getFirst(methodTreeNodes)));
+        }
+        loadTrace = true;
     }
 }

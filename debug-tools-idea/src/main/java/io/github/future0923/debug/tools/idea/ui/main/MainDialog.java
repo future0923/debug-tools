@@ -24,6 +24,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
+import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
@@ -87,7 +88,20 @@ public class MainDialog extends DialogWrapper {
         MainJsonEditor editor = mainPanel.getEditor();
         String text = DebugToolsJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
-        ParamCache paramCacheDto = new ParamCache(itemHeaderMap, text, xxlJobParam);
+        TraceMethodPanel traceMethodPanel = mainPanel.getTraceMethodPanel();
+        ParamCache paramCacheDto = new ParamCache();
+        paramCacheDto.setItemHeaderMap(itemHeaderMap);
+        paramCacheDto.setParamContent(text);
+        paramCacheDto.setXxlJobParam(xxlJobParam);
+        TraceMethodDTO traceMethodDTO = new TraceMethodDTO();
+        traceMethodDTO.setTraceMethod(traceMethodPanel.isTraceMethod());
+        traceMethodDTO.setTraceMaxDepth(traceMethodPanel.getMaxDepth());
+        traceMethodDTO.setTraceMyBatis(traceMethodPanel.isTraceMyBatis());
+        traceMethodDTO.setTraceSQL(traceMethodPanel.isTraceSql());
+        traceMethodDTO.setTraceSkipStartGetSetCheckBox(traceMethodPanel.isTraceSkipStartGetSetCheckBox());
+        traceMethodDTO.setTraceBusinessPackage(traceMethodPanel.getTraceBusinessPackage());
+        traceMethodDTO.setTraceIgnorePackage(traceMethodPanel.getTraceIgnorePackage());
+        paramCacheDto.setTraceMethodDTO(traceMethodDTO);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugToolsJsonUtils.toRunContentDTOMap(text);
         Map<String, String> headers = Stream.of(itemHeaderMap, settingState.getGlobalHeader())
@@ -105,6 +119,7 @@ public class MainDialog extends DialogWrapper {
         runDTO.setTargetMethodParameterTypes(DebugToolsActionUtil.toParamTypeNameList(methodDataContext.getPsiMethod().getParameterList()));
         runDTO.setTargetMethodContent(contentMap);
         runDTO.setXxlJobParam(xxlJobParam);
+        runDTO.setTraceMethodDTO(traceMethodDTO);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {

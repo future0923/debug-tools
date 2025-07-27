@@ -60,7 +60,7 @@ public class ResponseDialog extends DialogWrapper {
 
     private void close() {
         if (packet.isSuccess()) {
-            SocketSendUtils.clearRunResult(packet.getApplicationName(), packet.getOffsetPath());
+            SocketSendUtils.clearRunResult(packet.getApplicationName(), packet.getOffsetPath(), packet.getTraceOffsetPath());
         }
     }
 }

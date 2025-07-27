@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
@@ -68,8 +69,8 @@ public class DebugToolsAttach {
             Logger.setLevel(parse.getLogLevel());
         }
         JvmToolsUtils.init();
-        if (PrintSqlType.isPrint(parse.getPrintSql())) {
-            SqlPrintByteCodeEnhance.enhance(inst, parse.getPrintSql(),parse.getAutoSaveSql(),parse.getSqlRetentionDays());
+        if (PrintSqlType.isPrint(parse.getPrintSql()) || BooleanUtil.toBoolean(parse.getTraceSql())) {
+            SqlPrintByteCodeEnhance.enhance(inst, parse);
         }
         if (Objects.equals(parse.getHotswap(), "true")) {
             HotswapAgent.init(parse, inst);

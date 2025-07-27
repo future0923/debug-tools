@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author future0923
@@ -41,10 +42,11 @@ public class UserService {
 
     public String c() {
         System.out.println("11111111");
-        List<User> aaa = userMapper.aaa();
-        return aaa.toString();
+        userMapper.aaa();
+        return null;
     }
-    public String a() {
+
+    public String a(Map<String, List<User>> userMap) {
         System.out.println(2222222);
         return "1";
     }
