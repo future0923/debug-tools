@@ -29,6 +29,7 @@ import org.mybatis.spring.mapper.ClassPathMapperScanner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -140,7 +141,8 @@ public class MyBatisSpringResourceManager {
             try {
                 Resource[] resources = resourcePatternResolver.getResources(mapperLocation);
                 for (Resource resource : resources) {
-                    if (resource.getFile().getAbsolutePath().equals(absolutePath)) {
+                    // 使用File进行比较，避免windows上absolutePath路径格式不一致导致判断错误
+                    if (resource.getFile().equals(new File(absolutePath))) {
                         return true;
                     }
                 }
