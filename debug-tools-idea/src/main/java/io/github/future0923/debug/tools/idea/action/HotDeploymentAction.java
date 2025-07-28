@@ -35,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
 public class HotDeploymentAction extends DumbAwareAction {
 
     public HotDeploymentAction() {
+        getTemplatePresentation().setText("Hot Deployment");
+        getTemplatePresentation().setDescription("Hot deploy the changed files to the attached application");
         getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Deploy);
     }
 
