@@ -185,12 +185,6 @@
                     description="Quickly call last with default classloader for execution">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl D"/>
             </action>
-            <action id="DebugToolsTool.EvaluateGroovy"
-                    class="io.github.future0923.debug.tools.idea.action.GroovyConsoleAction"
-                    text="Groovy Console"
-                    description="Evaluate groovy script for attach application">
-                <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl G"/>
-            </action>
             <separator/>
         </group>
         <group id="DebugTools.Run">
@@ -214,18 +208,6 @@
                 text="Search Http Url" description="Search http url and goto it">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
         </action>
-        <group id="DebugTools.Toolbar">
-            <action class="io.github.future0923.debug.tools.idea.tool.action.AttachAction"/>
-            <action class="io.github.future0923.debug.tools.idea.tool.action.ConnectAction"/>
-            <action class="io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction"/>
-            <separator text="Separator"/>
-            <action class="io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction"/>
-            <separator text="Separator"/>
-            <reference ref="DebugToolsTool.EvaluateGroovy"/>
-            <separator text="Separator"/>
-            <reference ref="DebugTools.HttpUrl"/>
-            <separator text="Separator"/>
-        </group>
         <group id="DebugToolsHotSwap">
             <add-to-group group-id="ToolbarRunGroup" anchor="after"
                           relative-to-action="MoreRunToolbarActions"/>
