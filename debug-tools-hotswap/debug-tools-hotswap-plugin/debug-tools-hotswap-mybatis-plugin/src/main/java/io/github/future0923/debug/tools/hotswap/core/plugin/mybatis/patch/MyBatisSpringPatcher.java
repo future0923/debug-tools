@@ -84,12 +84,15 @@ public class MyBatisSpringPatcher {
     }
 
     /**
-     * MyBatisProperties.resolveMapperLocations 插桩，获取mapperLocations
+     * MybatisProperties.resolveMapperLocations 插桩，获取mapperLocations
+     * <p>
+     *     Spring+Mybatis工程中：限制加载的Mapper.xml必须为<code>mybatis.mapper-locations</code>配置的文件
+     * </p>
      *
      * @param ctClass   ctClass
      * @param classPool classPool
      */
-    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.boot.autoconfigure.MyBatisProperties|com.baomidou.mybatisplus.autoconfigure.MybatisProperties")
+    @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.boot.autoconfigure.MybatisProperties")
     public static void patchMapperLocations(CtClass ctClass, ClassPool classPool) {
         try {
             CtMethod resolveMapperLocations = ctClass.getDeclaredMethod("resolveMapperLocations");

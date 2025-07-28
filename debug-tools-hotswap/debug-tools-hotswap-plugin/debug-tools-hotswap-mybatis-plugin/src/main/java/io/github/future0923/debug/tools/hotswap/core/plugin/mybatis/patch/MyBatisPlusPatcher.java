@@ -21,6 +21,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -119,6 +120,27 @@ public class MyBatisPlusPatcher {
             if (MyBatisUtils.isMyBatisMapper(userClassLoader, clazz)) {
                 scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(userClassLoader, clazz, bytes, ""), 1000);
             }
+        }
+    }
+
+    /**
+     * MybatisPlusProperties.resolveMapperLocations 插桩，获取mapperLocations
+     * <p>
+     *     Spring+MybatisPlus工程中：限制加载的Mapper.xml必须为<code>mybatis-plus.mapper-locations</code>配置的文件
+     * </p>
+     *
+     * @param ctClass   ctClass
+     * @param classPool classPool
+     */
+    @OnClassLoadEvent(classNameRegexp = "com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties")
+    public static void patchMapperLocations(CtClass ctClass, ClassPool classPool) {
+        try {
+            CtMethod resolveMapperLocations = ctClass.getDeclaredMethod("resolveMapperLocations");
+            resolveMapperLocations.insertAfter("{" +
+                    MyBatisSpringResourceManager.class.getName() + ".addMapperLocations(this.mapperLocations);" +
+                    "}");
+        } catch (Throwable e) {
+            logger.error("patchMapperLocations err", e);
         }
     }
 }
