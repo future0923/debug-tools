@@ -26,6 +26,8 @@ import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.Nls;
@@ -33,8 +35,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.Objects;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 
 /**
  * @author future0923
@@ -123,10 +123,10 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (!Objects.equals(settingState.getTraceMethodDTO().getTraceSkipStartGetSetCheckBox(), settingPanel.getTraceMethodPanel().isTraceSkipStartGetSetCheckBox())) {
             return true;
         }
-        if (!StrUtil.equals(settingState.getTraceMethodDTO().getTraceBusinessPackage(), settingPanel.getTraceMethodPanel().getTraceBusinessPackage())) {
+        if (!StrUtil.equals(settingState.getTraceMethodDTO().getTraceBusinessPackageRegexp(), settingPanel.getTraceMethodPanel().getTraceBusinessPackage())) {
             return true;
         }
-        if (!StrUtil.equals(settingState.getTraceMethodDTO().getTraceIgnorePackage(), settingPanel.getTraceMethodPanel().getTraceIgnorePackage())) {
+        if (!StrUtil.equals(settingState.getTraceMethodDTO().getTraceIgnorePackageRegexp(), settingPanel.getTraceMethodPanel().getTraceIgnorePackage())) {
             return true;
         }
         return false;
@@ -171,8 +171,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingPanel.getTraceMethodPanel().setTraceMyBatis(traceMethodDTO.getTraceMyBatis());
         settingPanel.getTraceMethodPanel().setTraceSql(traceMethodDTO.getTraceSQL());
         settingPanel.getTraceMethodPanel().setTraceSkipStartGetSetCheckBox(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
-        settingPanel.getTraceMethodPanel().setTraceBusinessPackage(traceMethodDTO.getTraceBusinessPackage());
-        settingPanel.getTraceMethodPanel().setTraceIgnorePackage(traceMethodDTO.getTraceIgnorePackage());
+        settingPanel.getTraceMethodPanel().setTraceBusinessPackage(traceMethodDTO.getTraceBusinessPackageRegexp());
+        settingPanel.getTraceMethodPanel().setTraceIgnorePackage(traceMethodDTO.getTraceIgnorePackageRegexp());
     }
 
     @Override
@@ -223,8 +223,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceMyBatis(settingPanel.getTraceMethodPanel().isTraceMyBatis());
         traceMethodDTO.setTraceSQL(settingPanel.getTraceMethodPanel().isTraceSql());
         traceMethodDTO.setTraceSkipStartGetSetCheckBox(settingPanel.getTraceMethodPanel().isTraceSkipStartGetSetCheckBox());
-        traceMethodDTO.setTraceBusinessPackage(settingPanel.getTraceMethodPanel().getTraceBusinessPackage());
-        traceMethodDTO.setTraceIgnorePackage(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
+        traceMethodDTO.setTraceBusinessPackageRegexp(settingPanel.getTraceMethodPanel().getTraceBusinessPackage());
+        traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
     }
 

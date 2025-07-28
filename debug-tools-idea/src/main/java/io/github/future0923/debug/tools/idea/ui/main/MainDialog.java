@@ -99,8 +99,8 @@ public class MainDialog extends DialogWrapper {
         traceMethodDTO.setTraceMyBatis(traceMethodPanel.isTraceMyBatis());
         traceMethodDTO.setTraceSQL(traceMethodPanel.isTraceSql());
         traceMethodDTO.setTraceSkipStartGetSetCheckBox(traceMethodPanel.isTraceSkipStartGetSetCheckBox());
-        traceMethodDTO.setTraceBusinessPackage(traceMethodPanel.getTraceBusinessPackage());
-        traceMethodDTO.setTraceIgnorePackage(traceMethodPanel.getTraceIgnorePackage());
+        traceMethodDTO.setTraceBusinessPackageRegexp(traceMethodPanel.getTraceBusinessPackage());
+        traceMethodDTO.setTraceIgnorePackageRegexp(traceMethodPanel.getTraceIgnorePackage());
         paramCacheDto.setTraceMethodDTO(traceMethodDTO);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugToolsJsonUtils.toRunContentDTOMap(text);
