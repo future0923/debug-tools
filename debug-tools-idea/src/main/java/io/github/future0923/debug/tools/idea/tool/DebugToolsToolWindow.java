@@ -24,6 +24,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
 import io.github.future0923.debug.tools.idea.action.GroovyConsoleAction;
+import io.github.future0923.debug.tools.idea.action.HotDeploymentAction;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.action.AttachAction;
 import io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction;
@@ -69,6 +70,8 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         defaultActionGroup.add(new HelpAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(new GroovyConsoleAction());
+        defaultActionGroup.addSeparator();
+        defaultActionGroup.add(new HotDeploymentAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(ActionManager.getInstance().getAction("DebugTools.HttpUrl"));
         actionToolbar = ActionManager.getInstance().createActionToolbar(

@@ -215,10 +215,6 @@
                           relative-to-action="MoreRunToolbarActions"/>
             <action id="HotSwapSwitchAction"
                     class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"/>
-            <action id="DeployAction"
-                    class="io.github.future0923.debug.tools.idea.action.HotDeploymentAction"
-                    text="Hot Deployment"
-                    description="Hot deploy the changed files to the attached application"/>
         </group>
         <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyAsJsonAction"
                 text="Copy as JSON">
