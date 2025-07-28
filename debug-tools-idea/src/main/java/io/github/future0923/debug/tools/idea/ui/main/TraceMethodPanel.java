@@ -97,8 +97,8 @@ public class TraceMethodPanel {
         traceMyBatisCheckBox.setSelected(traceMethodDTO.getTraceMyBatis());
         traceSqlCheckBox.setSelected(traceMethodDTO.getTraceSQL());
         traceSkipStartGetSetCheckBox.setSelected(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
-        traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackage());
-        traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackage());
+        traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackageRegexp());
+        traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackageRegexp());
         paramPanel.setVisible(traceMethodCheckBox.isSelected());
     }
 
@@ -119,11 +119,11 @@ public class TraceMethodPanel {
             if (traceMethodDTO.getTraceSkipStartGetSetCheckBox() != null) {
                 traceSkipStartGetSetCheckBox.setSelected(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
             }
-            if (traceMethodDTO.getTraceBusinessPackage() != null) {
-                traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackage());
+            if (traceMethodDTO.getTraceBusinessPackageRegexp() != null) {
+                traceBusinessPackage.setText(traceMethodDTO.getTraceBusinessPackageRegexp());
             }
-            if (traceMethodDTO.getTraceIgnorePackage() != null) {
-                traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackage());
+            if (traceMethodDTO.getTraceIgnorePackageRegexp() != null) {
+                traceIgnorePackage.setText(traceMethodDTO.getTraceIgnorePackageRegexp());
             }
             paramPanel.setVisible(traceMethodCheckBox.isSelected());
         } else {

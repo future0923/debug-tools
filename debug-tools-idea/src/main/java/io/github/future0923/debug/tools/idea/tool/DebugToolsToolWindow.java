@@ -23,8 +23,14 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.JBSplitter;
+import io.github.future0923.debug.tools.idea.action.GroovyConsoleAction;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.tool.action.*;
+import io.github.future0923.debug.tools.idea.tool.action.AttachAction;
+import io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction;
+import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
+import io.github.future0923.debug.tools.idea.tool.action.HelpAction;
+import io.github.future0923.debug.tools.idea.tool.action.SettingAction;
+import io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction;
 import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
 
 /**
@@ -62,7 +68,7 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         defaultActionGroup.add(new SettingAction());
         defaultActionGroup.add(new HelpAction());
         defaultActionGroup.addSeparator();
-        defaultActionGroup.add(ActionManager.getInstance().getAction("DebugToolsTool.EvaluateGroovy"));
+        defaultActionGroup.add(new GroovyConsoleAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(ActionManager.getInstance().getAction("DebugTools.HttpUrl"));
         actionToolbar = ActionManager.getInstance().createActionToolbar(

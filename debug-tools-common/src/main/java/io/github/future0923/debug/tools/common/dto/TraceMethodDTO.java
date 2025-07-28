@@ -52,10 +52,10 @@ public class TraceMethodDTO {
     /**
      * 只追踪该业务包方法的前缀
      */
-    private String traceBusinessPackage;
+    private String traceBusinessPackageRegexp;
 
     /**
      * 忽略追踪方法包前缀
      */
-    private String traceIgnorePackage;
+    private String traceIgnorePackageRegexp;
 }

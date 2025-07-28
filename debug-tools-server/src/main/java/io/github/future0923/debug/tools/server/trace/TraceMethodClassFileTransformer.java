@@ -49,12 +49,11 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * 方法追踪类转换器
@@ -112,8 +111,8 @@ public class TraceMethodClassFileTransformer {
                 targetMethod.getName(),
                 methodDescription,
                 traceMethodDTO.getTraceSkipStartGetSetCheckBox(),
-                StrUtil.isNotBlank(traceMethodDTO.getTraceBusinessPackage()) ? Arrays.asList(traceMethodDTO.getTraceBusinessPackage().split(",")) : Collections.emptyList(),
-                StrUtil.isNotBlank(traceMethodDTO.getTraceIgnorePackage()) ? Arrays.asList(traceMethodDTO.getTraceIgnorePackage().split(",")) : Collections.emptyList(),
+                traceMethodDTO.getTraceBusinessPackageRegexp(),
+                traceMethodDTO.getTraceIgnorePackageRegexp(),
                 traceMethodDTO.getTraceMaxDepth() == null ? 1 : traceMethodDTO.getTraceMaxDepth()
         );
         redefineMyBatisMethod(classLoader, classPool, traceMethodDTO.getTraceMyBatis());
@@ -124,8 +123,8 @@ public class TraceMethodClassFileTransformer {
     /**
      * 添加追踪方法
      *
-     * @param className 类名
-     * @param methodName 方法名
+     * @param className         类名
+     * @param methodName        方法名
      * @param methodDescription 方法描述符
      * @throws Exception 异常
      */
@@ -201,7 +200,7 @@ public class TraceMethodClassFileTransformer {
      * @param maxDepth          最大递归深度
      * @throws Exception 异常
      */
-    private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, Boolean traceSkipStartGetSetCheckBox, List<String> businessClassSet, List<String> ignoredClassSet, int maxDepth) throws Exception {
+    private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, Boolean traceSkipStartGetSetCheckBox, String traceBusinessPackageRegexp, String traceIgnorePackageRegexp, int maxDepth) throws Exception {
         if (maxDepth - 1 < 0) {
             return;
         }
@@ -215,22 +214,18 @@ public class TraceMethodClassFileTransformer {
         if (className.startsWith("javax.")) {
             return;
         }
-        for (String businessClassName : businessClassSet) {
-            if (!className.startsWith(businessClassName)) {
-                return;
-            }
+        if (StrUtil.isNotBlank(traceBusinessPackageRegexp) && !Pattern.compile(traceBusinessPackageRegexp).matcher(className).matches()) {
+            return;
         }
-        for (String ignoreClassName : ignoredClassSet) {
-            if (className.startsWith(ignoreClassName)) {
-                RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.entrySet().removeIf(entry -> {
-                    if (entry.getKey().startsWith(ignoreClassName)) {
-                        entry.getValue().reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
-                        return true;
-                    }
-                    return false;
-                });
-                return;
-            }
+        if (StrUtil.isNotBlank(traceIgnorePackageRegexp) && Pattern.compile(traceIgnorePackageRegexp).matcher(className).matches()) {
+            RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.entrySet().removeIf(entry -> {
+                if (Pattern.compile(traceIgnorePackageRegexp).matcher(entry.getKey().split("#")[0]).matches()) {
+                    entry.getValue().reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+                    return true;
+                }
+                return false;
+            });
+            return;
         }
         String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
         if (IGNORED_METHOD_SET.contains(qualifierNameKey)) {
@@ -256,6 +251,11 @@ public class TraceMethodClassFileTransformer {
                 classGetSetMethodNameMap.put(targetClass, getSetMethodNameSet);
             }
             if (getSetMethodNameSet.contains(methodName)) {
+                RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
+                    transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
+                    // 返回 null 表示移除
+                    return null;
+                });
                 return;
             }
         }
@@ -297,8 +297,8 @@ public class TraceMethodClassFileTransformer {
                             constPool.getMethodrefName(target),
                             constPool.getMethodrefType(target),
                             traceSkipStartGetSetCheckBox,
-                            businessClassSet,
-                            ignoredClassSet,
+                            traceBusinessPackageRegexp,
+                            traceIgnorePackageRegexp,
                             maxDepth - 1);
                 }
             }
