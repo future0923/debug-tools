@@ -107,7 +107,7 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> extends 
         }
         URL[] classpath = pluginConfiguration.getExtraClasspath();
         if (classpath == null || classpath.length == 0) {
-            logger.error("cache is null");
+            logger.error("{} is null", DebugToolsOSUtils.isWindows() ? "extraClasspathWin" : "extraClasspath");
             return;
         }
         String extraClasspath = classpath[0].getPath();
