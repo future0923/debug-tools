@@ -148,18 +148,31 @@ public class MyBatisSpringPatcher {
                     MyBatisSpringPatcher.class.getName() + ".baseMapperPackage($1, $2);" +
                     "}");
         } catch (NotFoundException e) {
-            // mybatis-spring 2.0.2
-            CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
+            try {
+                // mybatis-spring 2.0.2
+                CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
+                        "registerBeanDefinitions",
+                        new CtClass[]{
+                                classPool.get("org.springframework.core.annotation.AnnotationAttributes"),
+                                classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
+                                classPool.get("java.lang.String")
+                        }
+                );
+                registerBeanDefinitions.insertAfter("{" +
+                        MyBatisSpringPatcher.class.getName() + ".baseMapperPackage(null, $1);" +
+                        "}");
+            } catch (NotFoundException ex) {
+                // 找不到解析主方法
+                CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
                     "registerBeanDefinitions",
                     new CtClass[]{
-                            classPool.get("org.springframework.core.annotation.AnnotationAttributes"),
-                            classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
-                            classPool.get("java.lang.String")
-                    }
-            );
-            registerBeanDefinitions.insertAfter("{" +
-                    MyBatisSpringPatcher.class.getName() + ".baseMapperPackage(null, $1);" +
-                    "}");
+                        classPool.get("org.springframework.core.type.AnnotationMetadata"),
+                        classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
+                    });
+                    registerBeanDefinitions.insertAfter("{" +
+                        MyBatisSpringPatcher.class.getName() + ".baseMapperPackage(null, $1);" +
+                        "}");
+            }
         }
 
     }
@@ -169,22 +182,29 @@ public class MyBatisSpringPatcher {
      * {@link #patchMapperScannerRegistrar}调用
      */
     public static void baseMapperPackage(Object annoMetaObj, Object annoAttrsObj) {
-        // 插件启动时会扫描 {@link Plugin}相关所有类的属性和方法，参数直接写如果没有对应的类文件会报错，所以这里用 Object接收
-        if (annoAttrsObj instanceof AnnotationAttributes) {
-            AnnotationAttributes annoAttrs = (AnnotationAttributes) annoAttrsObj;
-            Set<String> basePackages = new HashSet<>();
-            basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
-            basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
-            basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
-            if (basePackages.isEmpty()) {
-                if (annoMetaObj instanceof AnnotationMetadata) {
-                    AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
-                    basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
-                }
+        AnnotationAttributes annoAttrs = null;
+        if (annoAttrsObj instanceof AnnotationMetadata) {
+            annoAttrs = AnnotationAttributes.fromMap(((AnnotationMetadata) annoAttrsObj).getAnnotationAttributes(MapperScan.class.getName()));
+        } else if (annoAttrsObj instanceof AnnotationAttributes) {
+            // 插件启动时会扫描 {@link Plugin}相关所有类的属性和方法，参数直接写如果没有对应的类文件会报错，所以这里用 Object接收
+            annoAttrs = (AnnotationAttributes) annoAttrsObj;
+        }
+        if (annoAttrs == null) {
+            logger.error("baseMapperPackage annoAttrs is null");
+            return;
+        }
+        Set<String> basePackages = new HashSet<>();
+        basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("value")).filter(StringUtils::hasText).collect(Collectors.toList()));
+        basePackages.addAll(Arrays.stream(annoAttrs.getStringArray("basePackages")).filter(StringUtils::hasText).collect(Collectors.toList()));
+        basePackages.addAll(Arrays.stream(annoAttrs.getClassArray("basePackageClasses")).map(ClassUtils::getPackageName).collect(Collectors.toList()));
+        if (basePackages.isEmpty()) {
+            if (annoMetaObj instanceof AnnotationMetadata) {
+                AnnotationMetadata annoMeta = (AnnotationMetadata) annoMetaObj;
+                basePackages.add(ClassUtils.getPackageName(annoMeta.getClassName()));
             }
-            for (String basePackage : basePackages) {
-                registerMapperTransformer(basePackage);
-            }
+        }
+        for (String basePackage : basePackages) {
+            registerMapperTransformer(basePackage);
         }
     }
 
