@@ -52,19 +52,34 @@ public class DynamicPatcher {
                     "   return ds;" +
                     "}");
         } catch (NotFoundException e) {
-            // ds 4.2+
-            CtMethod findKey = ctClass.getDeclaredMethod("findKey", new CtClass[]{methodCtClass, objectCtClass, classCtClass});
-            findKey.setBody("{" +
-                    "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
-                    "       return \"\";" +
-                    "   }" +
-                    "   com.baomidou.dynamic.datasource.annotation.BasicAttribute dsOperation = this.computeDatasource($1, $2, $3);" +
-                    "   if (dsOperation == null) {" +
-                    "       return \"\";" +
-                    "   } else {" +
-                    "       return (java.lang.String) dsOperation.getDataOperation();" +
-                    "   }" +
-                    "}");
+            try {
+                // ds 4.2+
+                CtMethod findKey = ctClass.getDeclaredMethod("findKey", new CtClass[]{methodCtClass, objectCtClass, classCtClass});
+                findKey.setBody("{" +
+                        "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
+                        "       return \"\";" +
+                        "   }" +
+                        "   com.baomidou.dynamic.datasource.annotation.BasicAttribute dsOperation = this.computeDatasource($1, $2, $3);" +
+                        "   if (dsOperation == null) {" +
+                        "       return \"\";" +
+                        "   } else {" +
+                        "       return (java.lang.String) dsOperation.getDataOperation();" +
+                        "   }" +
+                        "}");
+            } catch (NotFoundException ex) {
+                // ds 3+
+                CtMethod findDSKey = ctClass.getDeclaredMethod("findDSKey", new CtClass[]{methodCtClass, objectCtClass});
+                findDSKey.setBody("{" +
+                        "   if ($1.getDeclaringClass() == java.lang.Object.class) {" +
+                        "       return \"\";" +
+                        "   }" +
+                        "   java.lang.String ds = computeDatasource($1, $2);" +
+                        "   if (ds == null) {" +
+                        "       return \"\";" +
+                        "   }" +
+                        "   return ds;" +
+                        "}");
+            }
         }
     }
 }
