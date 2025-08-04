@@ -151,6 +151,9 @@
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider
                 implementation="io.github.future0923.debug.tools.idea.navigation.DebugToolsJsonEditorDirectNavigationProvider"/>
+        <!-- 注册HotswapDebugRunner和HotswapDebugExecutor -->
+        <programRunner implementation="io.github.future0923.debug.tools.idea.runner.HotswapDebugRunner"/>
+        <executor implementation="io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor"/>
     </extensions>
 
     <actions>
@@ -220,6 +223,11 @@
                 text="Copy as JSON">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="before" relative-to-action="XDebugger.CopyValue"/>
 
+        </action>
+        <action id="io.github.future0923.debug.tools.idea.action.HotswapDebugAction"
+                class="io.github.future0923.debug.tools.idea.action.HotswapDebugAction" popup="true">
+            <!-- 添加到services -->
+            <add-to-group group-id="RunDashboardContentToolbar" anchor="after" relative-to-action="RunDashboard.Stop"/>
         </action>
     </actions>
 
