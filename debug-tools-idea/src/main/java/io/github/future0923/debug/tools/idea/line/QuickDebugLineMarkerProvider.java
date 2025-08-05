@@ -57,7 +57,7 @@ public class QuickDebugLineMarkerProvider implements LineMarkerProvider {
                             psiElement,
                             psiElement.getTextRange(),
                             DebugToolsIcons.Trace.Trace,
-                            e -> "Remove method to trace",
+                            e -> "Remove method from trace",
                             (mouseEvent, elt) -> {
                                 ChangeTraceMethodRequestPacket packet = new ChangeTraceMethodRequestPacket();
                                 packet.setTrace(false);
@@ -70,7 +70,7 @@ public class QuickDebugLineMarkerProvider implements LineMarkerProvider {
                                 });
                             },
                             GutterIconRenderer.Alignment.RIGHT,
-                            () -> "Remove method to trace"
+                            () -> "Remove method from trace"
                     );
                 }
             }
