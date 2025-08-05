@@ -93,7 +93,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         String agentPath = settingState.loadAgentPath(project);
         Boolean traceSql = settingState.getTraceMethodDTO() != null && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceMethod()) && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceSQL());
         // 根据执行器判断是否使用hotswap
-        boolean hotswap = HotswapDebugExecutor.EXECUTOR_ID.equals(executor.getId()) || settingState.getHotswap();
+        boolean hotswap = HotswapDebugExecutor.EXECUTOR_ID.equals(executor.getId());
         if (!PrintSqlType.NO.equals(settingState.getPrintSql())
                 || hotswap
                 || traceSql) {

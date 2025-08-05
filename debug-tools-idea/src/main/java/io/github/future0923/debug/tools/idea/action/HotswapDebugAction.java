@@ -39,13 +39,13 @@ public class HotswapDebugAction extends ExecutorAction {
     protected void update(@NotNull AnActionEvent e, boolean running) {
         Presentation presentation = e.getPresentation();
         if (running) {
-            presentation.setText("Rerun HotswapDebug");
-            presentation.setDescription("Rerun 'HotswapDebug' with DebugTools");
+            presentation.setText("Rerun DebugTools Hotswap");
+            presentation.setDescription("Rerun hotswap with DebugTools");
             presentation.setIcon(DebugToolsIcons.Hotswap.Off);
         }
         else {
-            presentation.setText("Run HotswapDebug");
-            presentation.setDescription("Run 'HotswapDebug' with DebugTools");
+            presentation.setText("Run DebugTools Hotswap");
+            presentation.setDescription("Run hotswap with DebugTools");
             presentation.setIcon(DebugToolsIcons.Hotswap.Off);
         }
     }
