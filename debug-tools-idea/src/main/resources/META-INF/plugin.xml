@@ -211,14 +211,14 @@
                 text="Search Http Url" description="Search http url and goto it">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
         </action>
-        <group id="DebugToolsHotSwap">
+        <!--<group id="DebugToolsHotSwap">
             <add-to-group group-id="ToolbarRunGroup" anchor="after"
                           relative-to-action="MoreRunToolbarActions"/>
             <add-to-group group-id="RunToolbarMainActionGroup" anchor="after"
                           relative-to-action="MoreRunToolbarActions"/>
             <action id="HotSwapSwitchAction"
                     class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"/>
-        </group>
+        </group>-->
         <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyAsJsonAction"
                 text="Copy as JSON">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="before" relative-to-action="XDebugger.CopyValue"/>

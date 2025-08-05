@@ -19,6 +19,8 @@ package io.github.future0923.debug.tools.idea.runner;
 import com.intellij.execution.Executor;
 import com.intellij.execution.ExecutorRegistry;
 import com.intellij.openapi.util.NlsActions;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.util.text.TextWithMnemonic;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
@@ -53,7 +55,7 @@ public class HotswapDebugExecutor extends Executor {
 
     @Override
     public @NlsActions.ActionDescription String getDescription() {
-        return "Debug with DebugTools";
+        return "Hotswap debug with DebugTools";
     }
 
     @Override
@@ -68,7 +70,13 @@ public class HotswapDebugExecutor extends Executor {
 
     @Override
     public @NotNull @Nls(capitalization = Nls.Capitalization.Title) String getStartActionText() {
-        return "Hotswap Debug: ";
+        return "Hotswap with DebugTools";
+    }
+
+    @Override
+    public @NotNull @Nls(capitalization = Nls.Capitalization.Title) String getStartActionText(@NotNull String configurationName) {
+        String configName = StringUtil.isEmpty(configurationName) ? "" : " '" + shortenNameIfNeeded(configurationName) + "'";
+        return TextWithMnemonic.parse("Hotswap").append(configName).append(" with DebugTools").toString();
     }
 
     @Override
