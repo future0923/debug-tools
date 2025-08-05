@@ -164,8 +164,8 @@
                         description="Add method to trace"/>
                 <action id="DebugToolsTool.CancelTraceMethodAction"
                         class="io.github.future0923.debug.tools.idea.action.CancelTraceMethodAction"
-                        text="Remove Method To Trace"
-                        description="Remove method to trace"/>
+                        text="Remove Method From Trace"
+                        description="Remove method From trace"/>
             </group>
             <action id="DebugToolsTool.QuickDebug"
                     class="io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction"
