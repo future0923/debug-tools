@@ -30,6 +30,7 @@ import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -52,26 +53,26 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         if (project == null) {
             return;
         }
-        applyForConfiguration(configuration, javaParameters, project);
+        applyForConfiguration(executor, configuration, javaParameters, project);
     }
 
     private boolean isMavenAndGrade(RunProfile configuration, JavaParameters javaParameters) {
-        if (configuration.getClass().getName().equals("org.jetbrains.idea.maven.execution.MavenRunConfiguration")) {
+        if ("org.jetbrains.idea.maven.execution.MavenRunConfiguration".equals(configuration.getClass().getName())) {
             return true;
         }
-        if (configuration.getClass().getName().equals("org.jetbrains.plugins.gradle.service.execution.GradleRunConfiguration")) {
+        if ("org.jetbrains.plugins.gradle.service.execution.GradleRunConfiguration".equals(configuration.getClass().getName())) {
             return true;
         }
-        if (javaParameters.getMainClass().equals("org.codehaus.classworlds.Launcher")) {
+        if ("org.codehaus.classworlds.Launcher".equals(javaParameters.getMainClass())) {
             return true;
         }
-        if (javaParameters.getMainClass().equals("org.codehaus.plexus.classworlds.launcher.Launcher")) {
+        if ("org.codehaus.plexus.classworlds.launcher.Launcher".equals(javaParameters.getMainClass())) {
             return true;
         }
         return false;
     }
 
-    private void applyForConfiguration(RunProfile configuration, JavaParameters javaParameters, Project project) {
+    private void applyForConfiguration(Executor executor, RunProfile configuration, JavaParameters javaParameters, Project project) {
         log.debug("Applying HotSwapAgent to configuration " + (configuration != null ? configuration.getName() : ""));
         String jdkPath;
         try {
@@ -91,12 +92,14 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         String agentPath = settingState.loadAgentPath(project);
         Boolean traceSql = settingState.getTraceMethodDTO() != null && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceMethod()) && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceSQL());
+        // 根据执行器判断是否使用hotswap
+        boolean hotswap = HotswapDebugExecutor.EXECUTOR_ID.equals(executor.getId());
         if (!PrintSqlType.NO.equals(settingState.getPrintSql())
-                || settingState.getHotswap()
+                || hotswap
                 || traceSql) {
             AgentArgs agentArgs = new AgentArgs();
             agentArgs.setServer(Boolean.FALSE.toString());
-            if (settingState.getHotswap()) {
+            if (hotswap) {
                 //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
                 //rootManager.getProjectSdk();
                 if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
