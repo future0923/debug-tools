@@ -18,6 +18,8 @@ package io.github.future0923.debug.tools.idea.runner;
 
 import com.intellij.execution.Executor;
 import com.intellij.execution.ExecutorRegistry;
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.NlsActions;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.util.text.TextWithMnemonic;
@@ -49,8 +51,13 @@ public class HotswapDebugExecutor extends Executor {
     }
 
     @Override
+    public @NotNull Icon getRerunIcon() {
+        return AllIcons.Actions.RestartDebugger;
+    }
+
+    @Override
     public Icon getDisabledIcon() {
-        return DebugToolsIcons.Hotswap.Off;
+        return IconLoader.getDisabledIcon(this.getIcon());
     }
 
     @Override
