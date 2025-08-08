@@ -36,6 +36,23 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.2.0</strong>
+        <ul>
+            <li>增加调用方法时trace功能展示链路耗时功能</li>
+            <li>增加鼠标放在行头展示调用方法按钮功能</li>
+            <li>增加断点右键菜单增加复制对象为json功能</li>
+            <li>增加sql打印历史并存储为文件功能</li>
+            <li>热重载启动适配idea run/debug configurations启动</li>
+            <li>优化mybatis mapper xml文件识别方式</li>
+            <li>优化agent启动加载速度</li>
+            <li>右键菜单移除Groovy控制台按钮</li>
+            <li>将热部署的按钮从启动栏移除放到ToolWindow中</li>
+            <li>修复sql打印时间类型显示bug</li>
+            <li>修复wsl2导致xml热重载失败的bug</li>
+            <li>修复mybatis-spring1.3.2启动失败的bug</li>
+            <li>修复dynamic-datasource3+启动失败的bug</li>
+            <li>修复内部类构造函数使用父类ioc属性时为null的bug</li>
+        </ul>
         <strong>4.1.2</strong>
         <ul>
             <li>修复dynamic-datasource4.2+启动失败的bug</li>
