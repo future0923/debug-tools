@@ -92,6 +92,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     private boolean local = true;
 
     /**
+     * 方法上quick debug的可见性
+     */
+    private Boolean lineMarkerVisible = Boolean.FALSE;
+
+    /**
      * 本地的http端口
      */
     private Integer localHttpPort;

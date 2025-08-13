@@ -67,6 +67,11 @@ public class SettingPanel {
     private final JBRadioButton autoAttachNo = new JBRadioButton("No");
 
     @Getter
+    private final JBRadioButton showLineMarker = new JBRadioButton("Show");
+    @Getter
+    private final JBRadioButton hideLineMarker = new JBRadioButton("Hide");
+
+    @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
     @Getter
@@ -156,6 +161,18 @@ public class SettingPanel {
             autoAttachNo.setSelected(true);
         }
 
+        JPanel lineMarkerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        lineMarkerPanel.add(showLineMarker);
+        lineMarkerPanel.add(hideLineMarker);
+        ButtonGroup LineMarkerButtonGroup = new ButtonGroup();
+        LineMarkerButtonGroup.add(showLineMarker);
+        LineMarkerButtonGroup.add(hideLineMarker);
+        if (settingState.getLineMarkerVisible()) {
+            showLineMarker.setSelected(true);
+        } else {
+            hideLineMarker.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
         Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
@@ -171,6 +188,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel("Entity class default param:"),
                         defaultGenParamType
+                )
+                .addLabeledComponent(
+                        new JBLabel("Show lineMarker:"),
+                        lineMarkerPanel
                 )
                 .addLabeledComponent(
                         new JBLabel("Print sql:"),
