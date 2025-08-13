@@ -44,8 +44,10 @@ import com.intellij.ui.LightweightHint;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.idea.action.MouseQuickDebugAction;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -63,13 +65,13 @@ public class QuickDebugEditorMouseMotionListener implements EditorMouseMotionLis
     private WeakReference<Editor> currentEditor = new WeakReference<>(null);
     private int currentLineNumber = -1;
     private final DefaultActionGroup defaultActionGroup;
-    private final JComponent callMethodButton;
     private final MouseQuickDebugAction mouseQuickDebugAction;
+    private JComponent callMethodButton;
+    private DebugToolsSettingState settingState;
 
     public QuickDebugEditorMouseMotionListener() {
         this.mouseQuickDebugAction = new MouseQuickDebugAction();
         this.defaultActionGroup = new DefaultActionGroup();
-        this.defaultActionGroup.add(mouseQuickDebugAction);
         this.callMethodButton = this.createRunMethodComponent();
     }
 
@@ -110,6 +112,25 @@ public class QuickDebugEditorMouseMotionListener implements EditorMouseMotionLis
         if (project == null) {
             return;
         }
+
+        if (settingState == null) {
+            this.settingState = DebugToolsSettingState.getInstance(project);
+        }
+
+        if (this.settingState == null || this.settingState.getState()==null) {
+            return;
+        }
+
+        if (!this.defaultActionGroup.containsAction(mouseQuickDebugAction) && BooleanUtil.isTrue(this.settingState.getState().getLineMarkerVisible())) {
+            this.defaultActionGroup.add(mouseQuickDebugAction);
+            this.callMethodButton = this.createRunMethodComponent();
+        }
+
+        if (this.defaultActionGroup.containsAction(mouseQuickDebugAction) && BooleanUtil.isFalse(this.settingState.getState().getLineMarkerVisible())) {
+            this.defaultActionGroup.remove(mouseQuickDebugAction);
+            this.callMethodButton = this.createRunMethodComponent();
+        }
+
         if (!EditorKind.MAIN_EDITOR.equals(editor.getEditorKind())) {
             return;
         }
