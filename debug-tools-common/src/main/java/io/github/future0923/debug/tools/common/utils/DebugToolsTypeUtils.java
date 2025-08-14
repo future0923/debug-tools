@@ -16,7 +16,7 @@
  */
 package io.github.future0923.debug.tools.common.utils;
 
-import org.apache.commons.lang3.ArrayUtils;
+import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -99,7 +99,7 @@ public class DebugToolsTypeUtils {
             if (null == genericSuper || Object.class.equals(genericSuper)) {
                 // 如果类没有父类，而是实现一些定义好的泛型接口，则取接口的Type
                 final Type[] genericInterfaces = clazz.getGenericInterfaces();
-                if (ArrayUtils.isNotEmpty(genericInterfaces)) {
+                if (ArrayUtil.isNotEmpty(genericInterfaces)) {
                     // 默认取第一个实现接口的泛型Type
                     genericSuper = genericInterfaces[0];
                 }

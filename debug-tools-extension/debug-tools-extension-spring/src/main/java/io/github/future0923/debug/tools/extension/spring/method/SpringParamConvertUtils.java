@@ -16,18 +16,18 @@
  */
 package io.github.future0923.debug.tools.extension.spring.method;
 
+import io.github.future0923.debug.tools.base.hutool.core.date.DateUtil;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
-import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
 import io.github.future0923.debug.tools.extension.spring.request.MockMultipartFile;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ResolvableType;
@@ -103,7 +103,7 @@ public class SpringParamConvertUtils {
                         return LocalTime.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("HH:mm:ss"));
                     }
                     if (parameter.getParameterType().isAssignableFrom(Date.class)) {
-                        return DateUtils.parseDate(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
+                        return DateUtil.parse(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
                     }
                     // spring简单类型转换
                     return simpleTypeConverter.convertIfNecessary(runContentDTO.getContent(), parameter.getParameterType(), parameter);
