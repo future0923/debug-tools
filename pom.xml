@@ -61,6 +61,8 @@
         <pl-joegreen-lambda.version>1.7</pl-joegreen-lambda.version>
         <xxl-job.version>2.4.1</xxl-job.version>
         <apache-cli.version>1.8.0</apache-cli.version>
+        <apache-common-text.version>1.14.0</apache-common-text.version>
+        <apache-common-lang3.version>3.18.0</apache-common-lang3.version>
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
         <groovy.version>4.0.22</groovy.version>
         <solon.version>3.3.1</solon.version>
@@ -83,94 +85,6 @@
     </modules>
 
     <profiles>
-        <profile>
-            <id>license</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.mycila</groupId>
-                        <artifactId>license-maven-plugin</artifactId>
-                        <version>4.5</version>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <properties>
-                                <owner>the original author or authors.</owner>
-                                <year>2025</year>
-                            </properties>
-                            <quiet>true</quiet>
-                            <header>HEADER</header>
-                            <excludes>
-                                <exclude>**/.antlr/**</exclude>
-                                <exclude>**/aot.factories</exclude>
-                                <exclude>**/.sdkmanrc</exclude>
-                                <exclude>**/*.adoc</exclude>
-                                <exclude>**/*.puml</exclude>
-                                <exclude>**/pom.xml</exclude>
-                                <exclude>**/*.properties</exclude>
-                                <exclude>**/*.yaml</exclude>
-                                <exclude>**/*.yml</exclude>
-                                <exclude>**/*.map</exclude>
-                                <exclude>**/*.html</exclude>
-                                <exclude>**/*.xhtml</exclude>
-                                <exclude>**/*.jsp</exclude>
-                                <exclude>**/*.js</exclude>
-                                <exclude>**/*.css</exclude>
-                                <exclude>**/*.txt</exclude>
-                                <exclude>**/*.xjb</exclude>
-                                <exclude>**/*.ftl</exclude>
-                                <exclude>**/*.xsd</exclude>
-                                <exclude>**/*.xml</exclude>
-                                <exclude>**/*.sh</exclude>
-                                <exclude>**/*.h</exclude>
-                                <exclude>**/*.ts</exclude>
-                                <exclude>**/*.md</exclude>
-                                <exclude>**/generated/**</exclude>
-                                <exclude>**/Dockerfile</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>spotless</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.diffplug.spotless</groupId>
-                        <artifactId>spotless-maven-plugin</artifactId>
-                        <version>2.43.0</version>
-                        <configuration>
-                            <java>
-                                <removeUnusedImports/>
-                            </java>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <profile>
             <id>mac-tools</id>
             <activation>
@@ -242,6 +156,16 @@
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
                 <version>${apache-cli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${apache-common-text.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache-common-lang3.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.olivergondza</groupId>
@@ -370,6 +294,74 @@
                         <id>attach-sources</id>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>4.5</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <properties>
+                        <owner>the original author or authors.</owner>
+                        <year>2025</year>
+                    </properties>
+                    <quiet>true</quiet>
+                    <header>HEADER</header>
+                    <excludes>
+                        <exclude>**/.antlr/**</exclude>
+                        <exclude>**/aot.factories</exclude>
+                        <exclude>**/.sdkmanrc</exclude>
+                        <exclude>**/*.adoc</exclude>
+                        <exclude>**/*.puml</exclude>
+                        <exclude>**/pom.xml</exclude>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.yaml</exclude>
+                        <exclude>**/*.yml</exclude>
+                        <exclude>**/*.map</exclude>
+                        <exclude>**/*.html</exclude>
+                        <exclude>**/*.xhtml</exclude>
+                        <exclude>**/*.jsp</exclude>
+                        <exclude>**/*.js</exclude>
+                        <exclude>**/*.css</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xjb</exclude>
+                        <exclude>**/*.ftl</exclude>
+                        <exclude>**/*.xsd</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.sh</exclude>
+                        <exclude>**/*.h</exclude>
+                        <exclude>**/*.ts</exclude>
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/generated/**</exclude>
+                        <exclude>**/Dockerfile</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.43.0</version>
+                <configuration>
+                    <java>
+                        <removeUnusedImports/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotless-apply-on-validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>apply</goal>
                         </goals>
                     </execution>
                 </executions>

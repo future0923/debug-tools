@@ -43,6 +43,7 @@ import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatchers;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -214,10 +215,10 @@ public class TraceMethodClassFileTransformer {
         if (className.startsWith("javax.")) {
             return;
         }
-        if (StrUtil.isNotBlank(traceBusinessPackageRegexp) && !Pattern.compile(traceBusinessPackageRegexp).matcher(className).matches()) {
+        if (StrUtil.isNotBlank(traceBusinessPackageRegexp) && !Pattern.compile(StringEscapeUtils.unescapeJava(traceBusinessPackageRegexp)).matcher(className).matches()) {
             return;
         }
-        if (StrUtil.isNotBlank(traceIgnorePackageRegexp) && Pattern.compile(traceIgnorePackageRegexp).matcher(className).matches()) {
+        if (StrUtil.isNotBlank(traceIgnorePackageRegexp) && Pattern.compile(StringEscapeUtils.unescapeJava(traceIgnorePackageRegexp)).matcher(className).matches()) {
             RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.entrySet().removeIf(entry -> {
                 if (Pattern.compile(traceIgnorePackageRegexp).matcher(entry.getKey().split("#")[0]).matches()) {
                     entry.getValue().reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
