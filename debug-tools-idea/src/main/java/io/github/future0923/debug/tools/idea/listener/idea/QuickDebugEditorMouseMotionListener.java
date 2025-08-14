@@ -44,8 +44,10 @@ import com.intellij.ui.LightweightHint;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.JBDimension;
 import com.intellij.util.ui.JBUI;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.idea.action.MouseQuickDebugAction;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -63,8 +65,8 @@ public class QuickDebugEditorMouseMotionListener implements EditorMouseMotionLis
     private WeakReference<Editor> currentEditor = new WeakReference<>(null);
     private int currentLineNumber = -1;
     private final DefaultActionGroup defaultActionGroup;
-    private final JComponent callMethodButton;
     private final MouseQuickDebugAction mouseQuickDebugAction;
+    private final JComponent callMethodButton;
 
     public QuickDebugEditorMouseMotionListener() {
         this.mouseQuickDebugAction = new MouseQuickDebugAction();
@@ -110,6 +112,11 @@ public class QuickDebugEditorMouseMotionListener implements EditorMouseMotionLis
         if (project == null) {
             return;
         }
+
+        if (BooleanUtil.isFalse(DebugToolsSettingState.getInstance(project).getLineMarkerVisible())) {
+            return;
+        }
+
         if (!EditorKind.MAIN_EDITOR.equals(editor.getEditorKind())) {
             return;
         }
