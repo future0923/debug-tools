@@ -18,7 +18,6 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
-import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
@@ -143,14 +142,12 @@ public class SqlPrintInterceptor {
 
     private static void printSql(long consume, Statement sta, Object[] parameters) {
         String className = sta.getClass().getName();
-        String dbType = DataSourceDriverClassEnum.getSqlDriverType(className);
-
-        if (StrUtil.isBlank(dbType)) {
+        DataSourceDriverClassEnum dbType = DataSourceDriverClassEnum.of(className);
+        if (dbType == null) {
             logger.error("The current database driver is not yet supported. Driver class: {}", className);
             return;
         }
-
-        String resultSql = DataSourceDriverClassEnum.of(className).getFormat().format(sta, parameters);
+        String resultSql = dbType.getFormat().format(sta, parameters);
 
         if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
             MethodTrace.enterSql(resultSql);
@@ -167,7 +164,7 @@ public class SqlPrintInterceptor {
         // 根据配置写入SQL记录到文件
         if (BooleanUtil.isTrue(autoSaveSql)) {
             try {
-                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType, sqlRetentionDays);
+                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType.getType(), sqlRetentionDays);
             } catch (Exception e) {
                 logger.error("Failed to write SQL record to file", e);
             }
