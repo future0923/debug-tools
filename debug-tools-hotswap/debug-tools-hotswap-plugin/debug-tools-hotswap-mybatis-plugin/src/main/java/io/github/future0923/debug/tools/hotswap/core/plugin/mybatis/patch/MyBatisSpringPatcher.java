@@ -71,37 +71,31 @@ public class MyBatisSpringPatcher {
      * ClassPathMapperScanner 构造函数插桩，获取ClassPathMapperScanner实例
      */
     @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.mapper.ClassPathMapperScanner")
-    public static void patchClassPathMapperScanner(CtClass ctClass, ClassPool classPool) {
-        try {
-            CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry")});
+    public static void patchClassPathMapperScanner(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtConstructor[] declaredConstructors = ctClass.getDeclaredConstructors();
+        for (CtConstructor constructor : declaredConstructors) {
             constructor.insertAfter(
                     "{" +
                             MyBatisSpringResourceManager.class.getName() + ".loadScanner(this);" +
                             "}");
-        } catch (Throwable e) {
-            logger.error("patchMyBatisClassPathMapperScanner err", e);
         }
     }
 
     /**
      * MybatisProperties.resolveMapperLocations 插桩，获取mapperLocations
      * <p>
-     *     Spring+Mybatis工程中：限制加载的Mapper.xml必须为<code>mybatis.mapper-locations</code>配置的文件
+     * Spring+Mybatis工程中：限制加载的Mapper.xml必须为<code>mybatis.mapper-locations</code>配置的文件
      * </p>
      *
      * @param ctClass   ctClass
      * @param classPool classPool
      */
     @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.boot.autoconfigure.MybatisProperties")
-    public static void patchMapperLocations(CtClass ctClass, ClassPool classPool) {
-        try {
-            CtMethod resolveMapperLocations = ctClass.getDeclaredMethod("resolveMapperLocations");
-            resolveMapperLocations.insertAfter("{" +
-                    MyBatisSpringResourceManager.class.getName() + ".addMapperLocations(this.mapperLocations);" +
-                    "}");
-        } catch (Throwable e) {
-            logger.error("patchMapperLocations err", e);
-        }
+    public static void patchMapperLocations(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
+        CtMethod resolveMapperLocations = ctClass.getDeclaredMethod("resolveMapperLocations");
+        resolveMapperLocations.insertAfter("{" +
+                MyBatisSpringResourceManager.class.getName() + ".addMapperLocations(this.mapperLocations);" +
+                "}");
     }
 
     @OnClassLoadEvent(classNameRegexp = "org.mybatis.spring.SqlSessionFactoryBean")
@@ -164,12 +158,12 @@ public class MyBatisSpringPatcher {
             } catch (NotFoundException ex) {
                 // 找不到解析主方法
                 CtMethod registerBeanDefinitions = ctClass.getDeclaredMethod(
-                    "registerBeanDefinitions",
-                    new CtClass[]{
-                        classPool.get("org.springframework.core.type.AnnotationMetadata"),
-                        classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
-                    });
-                    registerBeanDefinitions.insertAfter("{" +
+                        "registerBeanDefinitions",
+                        new CtClass[]{
+                                classPool.get("org.springframework.core.type.AnnotationMetadata"),
+                                classPool.get("org.springframework.beans.factory.support.BeanDefinitionRegistry"),
+                        });
+                registerBeanDefinitions.insertAfter("{" +
                         MyBatisSpringPatcher.class.getName() + ".baseMapperPackage(null, $1);" +
                         "}");
             }

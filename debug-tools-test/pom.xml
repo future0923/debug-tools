@@ -15,6 +15,7 @@
         <module>debug-tools-test-application</module>
         <module>debug-tools-test-simple</module>
         <module>debug-tools-test-spring-boot-mybatis</module>
+        <module>debug-tools-test-spring-boot-mybatis-plus</module>
         <module>debug-tools-test-agent</module>
         <module>debug-tools-test-spring-boot-three</module>
         <module>debug-tools-test-solon</module>
