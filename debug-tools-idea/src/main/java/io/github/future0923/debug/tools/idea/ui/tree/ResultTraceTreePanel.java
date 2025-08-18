@@ -28,8 +28,10 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.ui.JBUI;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.trace.MethodTraceType;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
+import io.github.future0923.debug.tools.idea.ui.dialog.SqlDialogWrapper;
 import io.github.future0923.debug.tools.idea.ui.tree.node.EmptyTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTraceTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.TreeNode;
@@ -53,6 +55,8 @@ import java.util.List;
 @SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class ResultTraceTreePanel extends JBScrollPane {
 
+    private final Project project;
+
     private final Tree tree;
 
     public ResultTraceTreePanel(Project project) {
@@ -60,6 +64,7 @@ public class ResultTraceTreePanel extends JBScrollPane {
     }
 
     public ResultTraceTreePanel(Project project, ResultTraceTreeNode root) {
+        this.project = project;
         this.tree = new SimpleTree();
         // 可以拖动的Tree SimpleDnDAwareTree
         this.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -91,10 +96,8 @@ public class ResultTraceTreePanel extends JBScrollPane {
 
             }
         });
-        // 创建右键菜单
-        JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem gotoMethodSource = new JMenuItem("Goto method source");
-        popupMenu.add(gotoMethodSource);
+        JMenuItem showSqlDetail = new JMenuItem("Show sql detail");
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -102,11 +105,25 @@ public class ResultTraceTreePanel extends JBScrollPane {
                     int row = tree.getClosestRowForLocation(e.getX(), e.getY());
                     tree.setSelectionRow(row);
                     TreePath path = tree.getPathForRow(row);
-
                     if (path != null) {
+                        TreeNode<MethodTreeNode> selectedNode = (TreeNode<MethodTreeNode>) path.getLastPathComponent();
+                        MethodTreeNode treeNode = selectedNode.getUserObject();
+                        if (treeNode == null) {
+                            return;
+                        }
+                        JPopupMenu popupMenu = new JPopupMenu();
+                        if (MethodTraceType.SQL.equals(treeNode.getTraceType())) {
+                            popupMenu.add(showSqlDetail);
+                        } else {
+                            popupMenu.add(gotoMethodSource);
+                        }
                         // 显示右键菜单
                         popupMenu.show(tree, e.getX(), e.getY());
                     }
+                }
+                // 双击
+                if (ObjectUtil.equal(e.getClickCount(), 2)) {
+                    showSqlDetail();
                 }
             }
         });
@@ -132,8 +149,24 @@ public class ResultTraceTreePanel extends JBScrollPane {
                 }
             }
         });
+        showSqlDetail.addActionListener(e -> showSqlDetail());
         if (root != null) {
             setRoot(root);
+        }
+    }
+
+    public void showSqlDetail() {
+        TreePath selectedPath = tree.getSelectionPath();
+        if (selectedPath != null) {
+            TreeNode<MethodTreeNode> selectedNode = (TreeNode<MethodTreeNode>) selectedPath.getLastPathComponent();
+            MethodTreeNode treeNode = selectedNode.getUserObject();
+            if (treeNode == null) {
+                return;
+            }
+            if (!MethodTraceType.SQL.equals(treeNode.getTraceType())) {
+                return;
+            }
+            new SqlDialogWrapper(project, treeNode.getSql()).show();
         }
     }
 
