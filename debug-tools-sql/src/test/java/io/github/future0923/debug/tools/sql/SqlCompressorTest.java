@@ -16,9 +16,8 @@
  */
 package io.github.future0923.debug.tools.sql;
 
+import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author future0923
