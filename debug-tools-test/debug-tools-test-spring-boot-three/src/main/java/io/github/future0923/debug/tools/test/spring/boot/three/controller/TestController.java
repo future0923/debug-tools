@@ -16,16 +16,26 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.three.controller;
 
+import io.github.future0923.debug.tools.test.spring.boot.three.entity.User;
+import io.github.future0923.debug.tools.test.spring.boot.three.service.UserService;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
 
 /**
  * @author future0923
  */
 @RestController
 public class TestController {
+
+    private final UserService userService;
+
+    public TestController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public String test(ServerHttpRequest request, ServerHttpResponse response, String name, Integer age) {
@@ -34,6 +44,11 @@ public class TestController {
 
     @GetMapping("/b")
     public String test2() {
+        User user = new User();
+        user.setName("1");
+        user.setAge1(1);
+        user.setVersion(0);
+        userService.saveBatch(Collections.singletonList(user));
         return "b";
     }
 }

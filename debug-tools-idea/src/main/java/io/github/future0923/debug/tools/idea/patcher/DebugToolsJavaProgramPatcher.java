@@ -102,12 +102,9 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             if (hotswap) {
                 //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
                 //rootManager.getProjectSdk();
-                if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+                if (jdkVersion.startsWith("11") || jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
                     agentArgs.setHotswap(Boolean.TRUE.toString());
                     javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
-                    addVm(javaParameters);
-                } else if (jdkVersion.startsWith("11")) {
-                    agentArgs.setHotswap(Boolean.TRUE.toString());
                     addVm(javaParameters);
                 } else if (jdkVersion.startsWith("1.8")) {
                     if (DcevmUtils.isDcevmInstalledLikeAltJvm(jdkPath)) {

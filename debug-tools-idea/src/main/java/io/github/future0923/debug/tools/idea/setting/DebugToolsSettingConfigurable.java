@@ -140,6 +140,14 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (!StrUtil.equals(settingState.getTraceMethodDTO().getTraceIgnorePackageRegexp(), settingPanel.getTraceMethodPanel().getTraceIgnorePackage())) {
             return true;
         }
+
+        if (BooleanUtil.isTrue(settingState.getLineMarkerVisible()) && settingPanel.getHideLineMarker().isSelected()) {
+            return true;
+        }
+        if (BooleanUtil.isFalse(settingState.getLineMarkerVisible()) && settingPanel.getShowLineMarker().isSelected()) {
+            return true;
+        }
+
         return false;
     }
 
@@ -231,6 +239,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.ALL);
         }
+
+        settingState.setLineMarkerVisible(settingPanel.getShowLineMarker().isSelected());
 
         if (settingPanel.getPrintPrettySql().isSelected() && !PrintSqlType.PRETTY.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.PRETTY);

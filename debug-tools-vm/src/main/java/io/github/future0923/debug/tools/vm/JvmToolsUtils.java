@@ -18,6 +18,8 @@ package io.github.future0923.debug.tools.vm;
 
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -37,27 +39,55 @@ public class JvmToolsUtils {
 
     private static boolean load = false;
 
+    private static final Logger logger = Logger.getLogger(JvmToolsUtils.class);
+
     public static synchronized void init() {
         if (init) {
             return;
         }
+
+        // 目前只针对mac特殊处理
+        if (DebugToolsOSUtils.isMac() && changeJdk()) {
+            AgentConfig.INSTANCE.setCurrentOsArch(DebugToolsOSUtils.arch());
+            storeLib(getLibName());
+        }
+
         String jniPath = AgentConfig.INSTANCE.getJniLibraryPath();
         // 不是调试模式 && 没有升级版本 && jniPath不为空 && 文件存在 && 未加载
         if (!ProjectConstants.DEBUG && !AgentConfig.INSTANCE.isUpgrade() && DebugToolsStringUtils.isNotBlank(jniPath) && DebugToolsFileUtils.exist(jniPath) && !load) {
             initVmTool(jniPath);
             return;
         }
-        String libName;
+
+        storeLib(getLibName());
+    }
+
+    public static <T> T[] getInstances(Class<T> targetClass) {
+        return instance.getInstances(targetClass);
+    }
+
+    private static void initVmTool(String libPath) {
+        instance = VmTool.getInstance(libPath);
+        if (instance == null) {
+            throw new IllegalStateException("VmToolUtils init fail. libPath: " + libPath);
+        }
+        init = true;
+        load = true;
+    }
+
+    private static String getLibName() {
         if (DebugToolsOSUtils.isMac()) {
-            libName = DebugToolsOSUtils.isArm64() ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
+            return DebugToolsOSUtils.isArm64() ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
-            libName = "libJniLibrary-x64.so";
+            return "libJniLibrary-x64.so";
         } else if (DebugToolsOSUtils.isWindows()) {
-            libName = "libJniLibrary-x64.dll";
+            return "libJniLibrary-x64.dll";
         } else {
             throw new IllegalStateException("unsupported os");
         }
+    }
 
+    private static void storeLib(String libName) {
         String libPath = "lib/" + libName;
         URL jniLibraryUrl = JvmToolsUtils.class.getClassLoader().getResource(libPath);
         if (jniLibraryUrl == null) {
@@ -74,16 +104,19 @@ public class JvmToolsUtils {
         AgentConfig.INSTANCE.setJniLibraryPathAndStore(jniLibraryFile.getAbsolutePath());
     }
 
-    public static <T> T[] getInstances(Class<T> targetClass) {
-        return instance.getInstances(targetClass);
-    }
-
-    private static void initVmTool(String libPath) {
-        instance = VmTool.getInstance(libPath);
-        if (instance == null) {
-            throw new IllegalStateException("VmToolUtils init fail. libPath: " + libPath);
+    private static boolean changeJdk() {
+        String storedArch = AgentConfig.INSTANCE.getCurrentOsArch();
+        // 第一次运行
+        if (StrUtil.isBlank(storedArch)) {
+            logger.info("DebugTools first use, current os arch:", DebugToolsOSUtils.arch());
+            return true;
         }
-        init = true;
-        load = true;
+
+        boolean changed = !StrUtil.equals(DebugToolsOSUtils.arch(), storedArch);
+
+        if (changed) {
+            logger.info("Jvm os arch has changed,current os arch: {},stored os arch: {}", DebugToolsOSUtils.arch(), storedArch);
+        }
+        return changed;
     }
 }
