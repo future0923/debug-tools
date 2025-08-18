@@ -20,6 +20,7 @@ import lombok.Data;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
@@ -36,7 +37,7 @@ public class User {
 
     private Integer version;
 
-    private LocalTime updateDateTime;
+    private LocalDateTime updateDateTime;
     private LocalDate updateDate;
     private Instant updateTime;
     private LocalDate updateAt;

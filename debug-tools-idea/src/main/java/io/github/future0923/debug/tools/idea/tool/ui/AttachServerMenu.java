@@ -21,6 +21,7 @@ import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.model.ServerDisplayValue;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
@@ -50,16 +51,16 @@ public class AttachServerMenu extends JBPopupMenu {
         radioPanel.setMinimumSize(new Dimension(500, 100));
         initVmServer();
         JPanel buttonPane = new JPanel();
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new JButton(DebugToolsBundle.message("attach.server.menu.cancel"));
         cancel.addActionListener(e -> this.setVisible(false));
         buttonPane.add(cancel);
-        JButton refresh = new JButton("Refresh");
+        JButton refresh = new JButton(DebugToolsBundle.message("attach.server.menu.refresh"));
         refresh.addActionListener(e -> {
             radioPanel.removeAll();
             initVmServer();
         });
         buttonPane.add(refresh);
-        JButton attach = new JButton("Attach");
+        JButton attach = new JButton(DebugToolsBundle.message("attach.server.menu.attach"));
         attach.addActionListener(e -> radioButtonList.stream().filter(AbstractButton::isSelected).findFirst().ifPresent(button -> {
             ServerDisplayValue serverDisplayValue = ServerDisplayValue.of(button.getText());
             if (serverDisplayValue != null) {
@@ -82,7 +83,7 @@ public class AttachServerMenu extends JBPopupMenu {
         ButtonGroup radioGroup = new ButtonGroup();
         DebugToolsAttachUtils.vmConsumer(size -> {
                     if (size == 0) {
-                        JBTextArea textArea = new JBTextArea("No server found");
+                        JBTextArea textArea = new JBTextArea(DebugToolsBundle.message("attach.server.menu.no.server.found"));
                         textArea.setEnabled(false);
                         radioPanel.add(textArea);
                     } else {

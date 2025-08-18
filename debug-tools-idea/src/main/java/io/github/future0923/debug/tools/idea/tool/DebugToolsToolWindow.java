@@ -87,6 +87,15 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     public void refreshToolBar() {
         initToolBar();
     }
+    
+    /**
+     * Refresh the tool window UI
+     */
+    public void refresh() {
+        // 重新初始化工具栏
+        initToolBar();
+        // TODO: 添加其他需要刷新的UI组件
+    }
 
     public void clearHeader() {
         globalParamPanel.clearHeader();

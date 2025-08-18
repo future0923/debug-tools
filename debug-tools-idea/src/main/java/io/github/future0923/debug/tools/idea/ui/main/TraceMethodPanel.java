@@ -22,6 +22,7 @@ import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 
@@ -38,15 +39,15 @@ public class TraceMethodPanel {
 
     private final JPanel paramPanel = new JBPanel<>();
 
-    private final JBCheckBox traceMethodCheckBox = new JBCheckBox("Trace method");
+    private final JBCheckBox traceMethodCheckBox = new JBCheckBox(DebugToolsBundle.message("trace.method.panel.trace.method"));
 
     private final JBIntSpinner maxDepth = new JBIntSpinner(1, 1, Integer.MAX_VALUE);
 
-    private final JBCheckBox traceMyBatisCheckBox = new JBCheckBox("MyBatis");
+    private final JBCheckBox traceMyBatisCheckBox = new JBCheckBox(DebugToolsBundle.message("trace.method.panel.mybatis"));
 
-    private final JBCheckBox traceSqlCheckBox = new JBCheckBox("SQL");
+    private final JBCheckBox traceSqlCheckBox = new JBCheckBox(DebugToolsBundle.message("trace.method.panel.sql"));
 
-    private final JBCheckBox traceSkipStartGetSetCheckBox = new JBCheckBox("Skip get/set method");
+    private final JBCheckBox traceSkipStartGetSetCheckBox = new JBCheckBox(DebugToolsBundle.message("trace.method.panel.skip.get.set.method"));
 
     private final JBTextField traceBusinessPackage = new JBTextField();
 
@@ -59,7 +60,7 @@ public class TraceMethodPanel {
         panel.add(traceMethodPanel);
         paramPanel.setLayout(new BoxLayout(paramPanel, BoxLayout.Y_AXIS));
         JPanel traceParamPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        JBLabel maxDepthLabel = new JBLabel("Max depth:");
+        JBLabel maxDepthLabel = new JBLabel(DebugToolsBundle.message("trace.method.panel.max.depth"));
         maxDepth.setPreferredSize(new Dimension(80, maxDepth.getPreferredSize().height));
 
         JPanel ignorePackagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -69,9 +70,9 @@ public class TraceMethodPanel {
         JPanel ignorePackageWrapper = new JPanel(new BorderLayout());
         ignorePackageWrapper.add(traceIgnorePackage, BorderLayout.CENTER);
         ignorePackageWrapper.setPreferredSize(new Dimension(200, traceIgnorePackage.getPreferredSize().height));
-        ignorePackagePanel.add(new JBLabel("Business package:"));
+        ignorePackagePanel.add(new JBLabel(DebugToolsBundle.message("trace.method.panel.business.package")));
         ignorePackagePanel.add(businessPackageWrapper);
-        ignorePackagePanel.add(new JBLabel("Ignore package:"));
+        ignorePackagePanel.add(new JBLabel(DebugToolsBundle.message("trace.method.panel.ignore.package")));
         ignorePackagePanel.add(ignorePackageWrapper);
 
         traceParamPanel.add(maxDepthLabel);
