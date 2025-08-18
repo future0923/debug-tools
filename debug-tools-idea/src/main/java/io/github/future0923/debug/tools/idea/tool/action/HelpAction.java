@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.idea.tool.action;
 
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 
@@ -29,7 +30,7 @@ import java.awt.*;
 public class HelpAction extends BaseToolAction {
 
     public HelpAction() {
-        getTemplatePresentation().setText("Help");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.help.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Help);
     }
 
@@ -38,7 +39,7 @@ public class HelpAction extends BaseToolAction {
         try {
             Desktop.getDesktop().browse(new java.net.URI("https://debug-tools.cc/"));
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "The browser could not be opened automatically. Please open it manually: https://debug-tools.cc/", "提示", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, DebugToolsBundle.message("notification.browser.open.error"), DebugToolsBundle.message("notification.browser.open.error.title"), JOptionPane.INFORMATION_MESSAGE);
         }
     }
 } 

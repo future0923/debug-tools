@@ -37,6 +37,7 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -69,8 +70,8 @@ public class MainDialog extends DialogWrapper {
         this.project = project;
         this.methodDataContext = methodDataContext;
         this.settingState = DebugToolsSettingState.getInstance(project);
-        setTitle("Quick Debug");
-        setOKButtonText("Run");
+        setTitle(DebugToolsBundle.message("action.quick.debug.text"));
+        setOKButtonText(DebugToolsBundle.message("action.quick.debug.run.text"));
         setOKButtonIcon(AllIcons.Actions.RunAll);
         init();
     }
@@ -123,17 +124,17 @@ public class MainDialog extends DialogWrapper {
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
-            Messages.showErrorDialog("Run attach first", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.run.attach.first"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         try {
             info.getClient().getHolder().send(packet);
         } catch (SocketCloseException e) {
-            Messages.showErrorDialog("Socket close", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.close"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         } catch (Exception e) {
-            Messages.showErrorDialog("Socket send error " + e.getMessage(), "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.send") + e.getMessage(), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
         try {

@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -37,9 +38,9 @@ public class SqlHistoryAction extends BaseToolAction {
 
     public SqlHistoryAction() {
         super();
-        getTemplatePresentation().setText("SQL History");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.tool.sql.history.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.SqlHistory);
-        getTemplatePresentation().setDescription("Show SQL execution history");
+        getTemplatePresentation().setDescription(DebugToolsBundle.message("action.tool.sql.history.description"));
     }
 
     @Override
@@ -72,7 +73,7 @@ public class SqlHistoryAction extends BaseToolAction {
             
         } catch (Exception e) {
             com.intellij.openapi.ui.Messages.showErrorDialog(project, 
-                "Failed to open SQL history file: " + e.getMessage(), "Error");
+                "Failed to open SQL history file: " + e.getMessage(), DebugToolsBundle.message("dialog.title.execution.failed"));
         }
     }
 } 
