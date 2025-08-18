@@ -21,7 +21,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
@@ -89,6 +89,7 @@ public class MainDialog extends DialogWrapper {
         String text = DebugToolsJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
         TraceMethodPanel traceMethodPanel = mainPanel.getTraceMethodPanel();
+        String methodAroundName = (String) mainPanel.getMethodAroundComboBox().getSelectedItem();
         ParamCache paramCacheDto = new ParamCache();
         paramCacheDto.setItemHeaderMap(itemHeaderMap);
         paramCacheDto.setParamContent(text);
@@ -102,6 +103,7 @@ public class MainDialog extends DialogWrapper {
         traceMethodDTO.setTraceBusinessPackageRegexp(traceMethodPanel.getTraceBusinessPackage());
         traceMethodDTO.setTraceIgnorePackageRegexp(traceMethodPanel.getTraceIgnorePackage());
         paramCacheDto.setTraceMethodDTO(traceMethodDTO);
+        paramCacheDto.setMethodAround(methodAroundName);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
         Map<String, RunContentDTO> contentMap = DebugToolsJsonUtils.toRunContentDTOMap(text);
         Map<String, String> headers = Stream.of(itemHeaderMap, settingState.getGlobalHeader())
@@ -120,6 +122,7 @@ public class MainDialog extends DialogWrapper {
         runDTO.setTargetMethodContent(contentMap);
         runDTO.setXxlJobParam(xxlJobParam);
         runDTO.setTraceMethodDTO(traceMethodDTO);
+        runDTO.setMethodAroundContent(FileUtil.readUtf8String(project.getBasePath() + IdeaPluginProjectConstants.METHOD_AROUND_DIR + methodAroundName + ".java"));
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
@@ -142,7 +145,7 @@ public class MainDialog extends DialogWrapper {
             if (!file.exists()) {
                 FileUtils.touch(file);
             }
-            FileUtil.writeToFile(file, DebugToolsJsonUtils.toJsonStr(runDTO));
+            FileUtil.writeUtf8String(DebugToolsJsonUtils.toJsonStr(runDTO), file);
         } catch (IOException ex) {
             log.error("参数写入json文件失败", ex);
             DebugToolsNotifierUtil.notifyError(project, "参数写入json文件失败");

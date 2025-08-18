@@ -106,7 +106,7 @@ public class DynamicCompiler {
         // 显式开启 annotation processor(8不支持)
         // options.add("-proc:full");
         PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(classLoader);
-        if (DebugToolsStringUtils.isNotBlank(pluginConfiguration.getLombokJarPath())) {
+        if (pluginConfiguration != null && DebugToolsStringUtils.isNotBlank(pluginConfiguration.getLombokJarPath())) {
             options.add("-classpath");
             options.add(System.getProperty("java.class.path") + File.pathSeparator + pluginConfiguration.getLombokJarPath());
         }
