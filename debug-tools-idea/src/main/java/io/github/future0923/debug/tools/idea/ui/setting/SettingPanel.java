@@ -167,7 +167,7 @@ public class SettingPanel {
         ButtonGroup LineMarkerButtonGroup = new ButtonGroup();
         LineMarkerButtonGroup.add(showLineMarker);
         LineMarkerButtonGroup.add(hideLineMarker);
-        if (settingState.getLineMarkerVisible()) {
+        if (BooleanUtil.isTrue(settingState.getLineMarkerVisible())) {
             showLineMarker.setSelected(true);
         } else {
             hideLineMarker.setSelected(true);
