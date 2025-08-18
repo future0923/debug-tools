@@ -17,13 +17,13 @@
 package io.github.future0923.debug.tools.server.utils;
 
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
+import io.github.future0923.debug.tools.base.hutool.core.date.DateUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
-import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
-import org.apache.commons.lang3.time.DateUtils;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -82,7 +82,7 @@ public class DebugToolsParamConvertUtils {
                         return LocalDate.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                     }
                     if (parameter.getType().isAssignableFrom(Date.class)) {
-                        return DateUtils.parseDate(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
+                        return DateUtil.parse(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
                     }
                     // spring简单类型转换
                     return Convert.convert(parameter.getType(), runContentDTO.getContent());

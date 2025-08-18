@@ -17,9 +17,7 @@
 package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
-import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
-import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
@@ -30,12 +28,8 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,10 +44,6 @@ public class SqlPrintInterceptor {
     private static final String CONNECTION_AGENT_METHODS = "prepareStatement";
 
     private static final List<String> PREPARED_STATEMENT_METHODS = Arrays.asList("execute", "executeUpdate", "executeQuery", "addBatch");
-
-    private static final String STATEMENT_PREFIXES = "com.mysql.jdbc.ClientPreparedStatement:";
-
-    private static final String CJ_STATEMENT_PREFIXES = "com.mysql.cj.jdbc.ClientPreparedStatement:";
 
     private static PrintSqlType printSqlType;
     private static Boolean autoSaveSql = false;
@@ -151,21 +141,14 @@ public class SqlPrintInterceptor {
     }
 
     private static void printSql(long consume, Statement sta, Object[] parameters) {
-        String resultSql;
         String className = sta.getClass().getName();
-        String dbType = getDbType(className);
-
-        if ("SQLServer".equals(dbType)) {
-            resultSql = printSQLServer(sta);
-        } else if ("MySQL".equals(dbType)) {
-            resultSql = printMySQL(sta);
-        } else if ("PostgreSQL".equals(dbType)) {
-            resultSql = printPostgresql(sta);
-        } else if ("Oracle".equals(dbType)) {
-            resultSql = printOracle(sta, parameters);
-        } else {
-            resultSql = sta.toString();
+        DataSourceDriverClassEnum dbType = DataSourceDriverClassEnum.of(className);
+        if (dbType == null) {
+            logger.error("The current database driver is not yet supported. Driver class: {}", className);
+            return;
         }
+        String resultSql = dbType.getFormat().format(sta, parameters);
+
         if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
             MethodTrace.enterSql(resultSql);
             MethodTrace.exit(consume);
@@ -181,88 +164,10 @@ public class SqlPrintInterceptor {
         // 根据配置写入SQL记录到文件
         if (BooleanUtil.isTrue(autoSaveSql)) {
             try {
-                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType, sqlRetentionDays);
+                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType.getType(), sqlRetentionDays);
             } catch (Exception e) {
                 logger.error("Failed to write SQL record to file", e);
             }
         }
-    }
-
-    /**
-     * 获取数据库类型
-     */
-    private static String getDbType(String className) {
-        if (className.startsWith("com.microsoft.sqlserver")) {
-            return "SQLServer";
-        } else if (className.startsWith("com.mysql")) {
-            return "MySQL";
-        } else if (className.startsWith("org.postgresql")) {
-            return "PostgreSQL";
-        } else if (className.startsWith("oracle.jdbc")) {
-            return "Oracle";
-        } else {
-            return "Unknown";
-        }
-    }
-
-    private static String printPostgresql(Statement sta) {
-        return sta.toString();
-    }
-
-    private static String printMySQL(Statement sta) {
-        final String sql = sta.toString().replace("** BYTE ARRAY DATA **", "NULL");
-        String resultSql;
-        if (sql.startsWith(STATEMENT_PREFIXES)) {
-            resultSql = sql.replace(STATEMENT_PREFIXES, "");
-        } else if (sql.startsWith(CJ_STATEMENT_PREFIXES)) {
-            resultSql = sql.replace(CJ_STATEMENT_PREFIXES, "");
-        } else {
-            resultSql = sql;
-        }
-        return resultSql;
-    }
-
-    private static String printSQLServer(Statement sta) {
-        Object[] inOutParam = (Object[]) ReflectUtil.getFieldValue(sta, "inOutParam");
-        Object[] parameterValues = new Object[inOutParam.length];
-        for (int i = 0; i < inOutParam.length; i++) {
-            parameterValues[i] = ReflectUtil.invoke(inOutParam[i], "getSetterValue");
-        }
-        final String statementQuery = (String) ReflectUtil.getFieldValue(sta, "userSQL");
-        return formatStringSql(statementQuery, parameterValues);
-    }
-
-    private static String printOracle(Statement sta, Object[] parameters) {
-        String statementQuery = ReflectUtil.getFieldValue(ReflectUtil.getFieldValue(sta, "preparedStatement"), "sqlObject").toString();
-        return formatStringSql(statementQuery, parameters);
-    }
-
-    private static String formatStringSql(String statementQuery, Object[] parameterValues) {
-        final StringBuilder sb = new StringBuilder();
-        int currentParameter = 0;
-        for( int pos = 0; pos < statementQuery.length(); pos ++) {
-            char character = statementQuery.charAt(pos);
-            if( statementQuery.charAt(pos) == '?' && currentParameter <= parameterValues.length) {
-                Object getSetterValue = parameterValues[currentParameter];
-                if ("NULL".equals(getSetterValue)) {
-                    sb.append("NULL"); // 输出 SQL NULL
-                }else if (getSetterValue instanceof String) {
-                    sb.append("'").append(getSetterValue).append("'");
-                } else if (
-                        getSetterValue instanceof Date
-                                || getSetterValue instanceof LocalDateTime
-                                || getSetterValue instanceof LocalDate
-                                || getSetterValue instanceof LocalTime) {
-                    sb.append("'").append(getSetterValue).append("'");
-                }
-                else {
-                    sb.append(Convert.toStr(getSetterValue));
-                }
-                currentParameter++;
-            } else {
-                sb.append(character);
-            }
-        }
-        return sb.toString();
     }
 }

@@ -21,6 +21,8 @@
         <shade.javassist.target>${shade.package}.${shade.javassist.source}</shade.javassist.target>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+        <shade.org.apache.commons.source>org.apache.commons</shade.org.apache.commons.source>
+        <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.commons.source}</shade.org.apache.commons.target>
         <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
         <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.pl.joegreen.lambdaFromString.source}</shade.pl.joegreen.lambdaFromString.target>
     </properties>
@@ -166,6 +168,10 @@
                                 <relocation>
                                     <pattern>${shade.net.bytebuddy.source}</pattern>
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>${shade.org.apache.commons.source}</pattern>
+                                    <shadedPattern>${shade.org.apache.commons.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>${shade.pl.joegreen.lambdaFromString.source}</pattern>

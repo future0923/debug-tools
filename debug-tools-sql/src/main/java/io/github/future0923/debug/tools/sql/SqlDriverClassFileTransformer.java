@@ -28,7 +28,6 @@ import java.security.ProtectionDomain;
 
 /**
  * 转换驱动类字节码
- *
  * @author future0923
  */
 public class SqlDriverClassFileTransformer implements ClassFileTransformer {
@@ -42,7 +41,7 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
                 return null;
             }
             String dotClassName = className.replace('/', '.');
-            if (!isTargetDriver(dotClassName)) {
+            if (!DataSourceDriverClassEnum.isTargetDriver(dotClassName)) {
                 return null;
             }
             ClassPool classPool = ClassPool.getDefault();
@@ -51,40 +50,12 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
             CtMethod connectMethod = ctClass.getDeclaredMethod("connect", new CtClass[]{classPool.get("java.lang.String"), classPool.get("java.util.Properties")});
             connectMethod.insertAfter("{ " +
                     "   return " + SqlPrintInterceptor.class.getName() + ".proxyConnection((java.sql.Connection)$_); " +
-            "}");
-            logger.info("Print {} log bytecode enhancement successful", getSqlDriverType(dotClassName));
+                    "}");
+            logger.info("Print {} log bytecode enhancement successful", DataSourceDriverClassEnum.getSqlDriverType(dotClassName));
             return ctClass.toBytecode();
         } catch (Throwable t) {
             logger.error("Failed to print SQL log bytecode enhancement", t);
         }
         return null;
-    }
-
-    private boolean isTargetDriver(String className) {
-        return className.equals("com.mysql.jdbc.NonRegisteringDriver")
-                || className.equals("com.mysql.cj.jdbc.NonRegisteringDriver")
-                || className.equals("org.postgresql.Driver")
-                || className.equals("com.microsoft.sqlserver.jdbc.SQLServerDriver")
-                || className.equals("ru.yandex.clickhouse.ClickHouseDriver")
-                || className.equals("oracle.jdbc.driver.OracleDriver");
-    }
-
-    private String getSqlDriverType(String className) {
-        if (className.contains("mysql")) {
-            return "mysql";
-        }
-        if (className.contains("postgresql")) {
-            return "postgresql";
-        }
-        if (className.contains("sqlserver")) {
-            return "sqlserver";
-        }
-        if (className.contains("clickhouse")) {
-            return "clickhouse";
-        }
-        if (className.contains("oracle")) {
-            return "oracle";
-        }
-        return "";
     }
 }
