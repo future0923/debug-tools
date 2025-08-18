@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.ui.convert;
 
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import lombok.Getter;
 
 /**
@@ -24,9 +25,9 @@ import lombok.Getter;
 @Getter
 public enum ConvertType {
 
-    IMPORT("Import", "Convert", "Import Other Convert to Debug Tools Run Json"),
+    IMPORT("convert.type.import.title", "convert.type.import.ok.button.text", "convert.type.import.description"),
 
-    EXPORT("Export", "Copy", "Export Debug Tools Run Json Convert to Other"),
+    EXPORT("convert.type.export.title", "convert.type.export.ok.button.text", "convert.type.export.description"),
     ;
     private final String title;
 
@@ -34,9 +35,9 @@ public enum ConvertType {
 
     private final String description;
 
-    ConvertType(String title, String okButtonText, String description) {
-        this.title = title;
-        this.okButtonText = okButtonText;
-        this.description = description;
+    ConvertType(String titleKey, String okButtonTextKey, String descriptionKey) {
+        this.title = DebugToolsBundle.message(titleKey);
+        this.okButtonText = DebugToolsBundle.message(okButtonTextKey);
+        this.description = DebugToolsBundle.message(descriptionKey);
     }
 }

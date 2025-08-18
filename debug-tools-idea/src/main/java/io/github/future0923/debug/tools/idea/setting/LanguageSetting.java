@@ -20,23 +20,49 @@ import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import lombok.Getter;
 
 /**
+ * Language setting for the plugin.
+ *
  * @author future0923
  */
 @Getter
-public enum GenParamType {
-
-    SIMPLE("gen.param.type.simple"),
-    CURRENT("gen.param.type.current"),
-    ALL("gen.param.type.all"),
-    ;
-
+public enum LanguageSetting {
+    
+    /**
+     * Follow the IDE's language setting
+     */
+    IDE("setting.language.ide", ""),
+    
+    /**
+     * English
+     */
+    ENGLISH("setting.language.english", "en"),
+    
+    /**
+     * Chinese
+     */
+    CHINESE("setting.language.chinese", "zh");
+    
     private final String bundleKey;
-
-    GenParamType(String bundleKey) {
+    private final String locale;
+    
+    LanguageSetting(String bundleKey, String locale) {
         this.bundleKey = bundleKey;
+        this.locale = locale;
     }
     
-    public String getType() {
+    public String getDisplayName() {
         return DebugToolsBundle.message(bundleKey);
+    }
+    
+    public static LanguageSetting fromLocale(String locale) {
+        if (locale == null) {
+            return IDE;
+        }
+        for (LanguageSetting setting : values()) {
+            if (locale.equals(setting.getLocale())) {
+                return setting;
+            }
+        }
+        return IDE;
     }
 }

@@ -20,6 +20,7 @@ import com.intellij.execution.Executor;
 import com.intellij.execution.dashboard.actions.ExecutorAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -39,13 +40,13 @@ public class HotswapDebugAction extends ExecutorAction {
     protected void update(@NotNull AnActionEvent e, boolean running) {
         Presentation presentation = e.getPresentation();
         if (running) {
-            presentation.setText("Rerun in Debug Mode with DebugTools");
-            presentation.setDescription("Rerun in debug mode with debugTools");
+            presentation.setText(DebugToolsBundle.message("action.hotswap.debug.rerun.text"));
+            presentation.setDescription(DebugToolsBundle.message("action.hotswap.debug.rerun.description"));
             presentation.setIcon(DebugToolsIcons.Hotswap.Off);
         }
         else {
-            presentation.setText("Debug with DebugTools");
-            presentation.setDescription("Debug with DebugTools");
+            presentation.setText(DebugToolsBundle.message("action.hotswap.debug.text"));
+            presentation.setDescription(DebugToolsBundle.message("action.hotswap.debug.description"));
             presentation.setIcon(DebugToolsIcons.Hotswap.Off);
         }
     }

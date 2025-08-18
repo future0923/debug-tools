@@ -42,7 +42,7 @@ public class UserService {
 
     public String c() {
         System.out.println("11111111");
-        userMapper.aaa();
+        List<User> aaa = userMapper.aaa();
         return null;
     }
 

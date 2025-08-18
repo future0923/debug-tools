@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
@@ -45,7 +46,7 @@ public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAc
     private static final Logger log = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
     public ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction() {
-        getTemplatePresentation().setText("Execute Last With Default ClassLoader");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.execute.last.with.default.classloader.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Last_ClassLoader);
     }
 
@@ -60,13 +61,13 @@ public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAc
         try {
             json = FileUtil.loadFile(new File(pathname), StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            Messages.showErrorDialog("Load file error", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.load.file"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
         RunDTO runDTO = DebugToolsJsonUtils.toBean(json, RunDTO.class);
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
-            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }

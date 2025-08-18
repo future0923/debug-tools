@@ -24,10 +24,12 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
-import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
+import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
+import io.github.future0923.debug.tools.idea.setting.PrintSqlType;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
@@ -62,25 +64,43 @@ public class SettingPanel {
     private final JBRadioButton printNoSql = new JBRadioButton(PrintSqlType.NO.getType());
 
     @Getter
-    private final JBRadioButton autoAttachYes = new JBRadioButton("Yes");
+    private final JBRadioButton autoAttachYes = new JBRadioButton(DebugToolsBundle.message("setting.panel.auto.attach.yes"));
     @Getter
-    private final JBRadioButton autoAttachNo = new JBRadioButton("No");
+    private final JBRadioButton autoAttachNo = new JBRadioButton(DebugToolsBundle.message("setting.panel.auto.attach.no"));
 
     @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
     @Getter
-    private final JBCheckBox saveSqlCheckBox = new JBCheckBox("Auto save sql to file");
+    private final JBCheckBox saveSqlCheckBox = new JBCheckBox(DebugToolsBundle.message("setting.panel.auto.save.sql"));
     @Getter
     private final JBIntSpinner saveSqlDaysField = new JBIntSpinner(1, 1, Integer.MAX_VALUE);
 
     @Getter
     private final TraceMethodPanel traceMethodPanel = new TraceMethodPanel();
+    
+    @Getter
+    private final JBRadioButton languageIde = new JBRadioButton(LanguageSetting.IDE.getDisplayName());
+    
+    @Getter
+    private final JBRadioButton languageEnglish = new JBRadioButton(LanguageSetting.ENGLISH.getDisplayName());
+    
+    @Getter
+    private final JBRadioButton languageChinese = new JBRadioButton(LanguageSetting.CHINESE.getDisplayName());
 
     public SettingPanel(Project project) {
         this.project = project;
         this.settingState = DebugToolsSettingState.getInstance(project);
         initLayout();
+    }
+    
+    /**
+     * Refresh the language display text
+     */
+    public void refreshLanguageDisplay() {
+        languageIde.setText(LanguageSetting.IDE.getDisplayName());
+        languageEnglish.setText(LanguageSetting.ENGLISH.getDisplayName());
+        languageChinese.setText(LanguageSetting.CHINESE.getDisplayName());
     }
 
     private void initLayout() {
@@ -118,9 +138,9 @@ public class SettingPanel {
         }
 
         JPanel sqlRetentionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        sqlRetentionPanel.add(new JLabel("SQL Retention Days:"));
+        sqlRetentionPanel.add(new JLabel(DebugToolsBundle.message("setting.panel.sql.retention.days")));
         sqlRetentionPanel.add(saveSqlDaysField);
-        sqlRetentionPanel.add(new JLabel("The minimum settable value is 1"));
+        sqlRetentionPanel.add(new JLabel(DebugToolsBundle.message("setting.panel.minimum.settable.value")));
 
         saveSqlCheckBox.setVisible(!printNoSql.isSelected());
         saveSqlCheckBox.setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
@@ -155,6 +175,31 @@ public class SettingPanel {
         } else {
             autoAttachNo.setSelected(true);
         }
+        
+        // 初始化语言设置单选按钮
+        JPanel languagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        languagePanel.add(languageIde);
+        languagePanel.add(languageEnglish);
+        languagePanel.add(languageChinese);
+        ButtonGroup languageButtonGroup = new ButtonGroup();
+        languageButtonGroup.add(languageIde);
+        languageButtonGroup.add(languageEnglish);
+        languageButtonGroup.add(languageChinese);
+        LanguageSetting languageSetting = settingState.getLanguageSetting();
+        switch (languageSetting) {
+            case IDE:
+                languageIde.setSelected(true);
+                break;
+            case ENGLISH:
+                languageEnglish.setSelected(true);
+                break;
+            case CHINESE:
+                languageChinese.setSelected(true);
+                break;
+            default:
+                languageIde.setSelected(true);
+                break;
+        }
 
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
@@ -169,11 +214,15 @@ public class SettingPanel {
 
         settingPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
-                        new JBLabel("Entity class default param:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.language")),
+                        languagePanel
+                )
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("setting.panel.entity.class.default.param")),
                         defaultGenParamType
                 )
                 .addLabeledComponent(
-                        new JBLabel("Print sql:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.print.sql")),
                         printSqlPanel
                 )
                 .addLabeledComponent(
@@ -181,15 +230,15 @@ public class SettingPanel {
                         sqlRetentionPanel
                 )
                 .addLabeledComponent(
-                        new JBLabel("Auto attach start application:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.auto.attach.start.application")),
                         autoAttachPanel
                 )
                 .addLabeledComponent(
-                        new JBLabel("Remove context path:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.remove.context.path")),
                         removeContextPath
                 )
                 .addLabeledComponent(
-                        new JBLabel("Trace method:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.trace.method")),
                         traceMethodPanel.getComponent()
                 )
                 .addComponentFillVertically(new JPanel(), 0)

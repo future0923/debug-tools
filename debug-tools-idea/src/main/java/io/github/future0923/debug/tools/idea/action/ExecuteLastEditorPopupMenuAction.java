@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +43,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
     private static final Logger log = Logger.getInstance(ExecuteLastEditorPopupMenuAction.class);
 
     public ExecuteLastEditorPopupMenuAction() {
-        getTemplatePresentation().setText("Execute Last");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.execute.last.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Last);
     }
 
@@ -57,7 +58,7 @@ public class ExecuteLastEditorPopupMenuAction extends AnAction {
         try {
             json = FileUtil.loadFile(new File(pathname), StandardCharsets.UTF_8);
         } catch (IOException ex) {
-            Messages.showErrorDialog("Load file error", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.load.file"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
         RunDTO runDTO = DebugToolsJsonUtils.toBean(json, RunDTO.class);

@@ -26,6 +26,7 @@ import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
@@ -83,24 +84,24 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         attached.setEditable(false);
         attached.setForeground(JBColor.WHITE);
         attached.setOpaque(true);
-        attachStatusPanel.add(new JBLabel("Attach status:"));
+        attachStatusPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.attach.status")));
         attachStatusPanel.add(local);
         attachStatusPanel.add(attached);
         attachStatusPanel.add(textField);
 
         ClassLoaderComboBox classLoaderComboBox = StateUtils.getClassLoaderComboBox(project);
-        classLoaderPanel.add(new JBLabel("Default classLoader:"), BorderLayout.WEST);
+        classLoaderPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader")), BorderLayout.WEST);
         classLoaderPanel.add(classLoaderComboBox);
-        JButton closeButton = new JButton("Close");
+        JButton closeButton = new JButton(DebugToolsBundle.message("global.param.panel.close"));
         attachButtonPanel.add(closeButton);
         closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
-        JButton stopButton = new JButton("Stop");
+        JButton stopButton = new JButton(DebugToolsBundle.message("global.param.panel.stop"));
         attachButtonPanel.add(stopButton);
         stopButton.addActionListener(e -> {
             try {
                 ApplicationProjectHolder.send(project, new ServerCloseRequestPacket());
             } catch (Exception ex) {
-                Messages.showErrorDialog(project, ex.getMessage(), "Stop Server Fail");
+                Messages.showErrorDialog(project, ex.getMessage(), DebugToolsBundle.message("global.param.panel.stop"));
             }
             ApplicationProjectHolder.close(project);
             unAttached();
@@ -108,30 +109,30 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        globalHeaderPanel.add(new JBLabel("Global header:"));
-        JButton addHeaderButton = new JButton("Add");
-        addHeaderButton.setToolTipText("Add global header item");
+        globalHeaderPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.global.header")));
+        JButton addHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.header"));
+        addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
         addHeaderButton.addActionListener(e -> {
             headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, null, null, headerItemMap));
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addHeaderButton);
-        JButton addAuthHeaderButton = new JButton("Auth");
-        addAuthHeaderButton.setToolTipText("Add Authorization global header item");
+        JButton addAuthHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.auth"));
+        addAuthHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
         addAuthHeaderButton.addActionListener(e -> {
             headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, "Authorization", null, headerItemMap));
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addAuthHeaderButton);
-        JButton removeAllHeaderButton = new JButton("DelAll");
-        removeAllHeaderButton.setToolTipText("Remove all global header item");
+        JButton removeAllHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.remove.all"));
+        removeAllHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
         removeAllHeaderButton.addActionListener(e -> {
             clearHeader();
-            DebugToolsNotifierUtil.notifyInfo(project, "Global header remove all successfully");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("global.param.panel.notification.header.remove.all"));
         });
         globalHeaderPanel.add(removeAllHeaderButton);
-        JButton saveHeaderButton = new JButton("Save");
-        saveHeaderButton.setToolTipText("Save global header item");
+        JButton saveHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.save"));
+        saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
         saveHeaderButton.addActionListener(e -> {
             settingState.clearGlobalHeaderCache();
             headerItemMap.forEach((k, v) -> {
@@ -140,7 +141,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                     settingState.putGlobalHeader(key, v.getText());
                 }
             });
-            DebugToolsNotifierUtil.notifyInfo(project, "Global header saved successfully");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("global.param.panel.notification.header.save"));
         });
         globalHeaderPanel.add(saveHeaderButton);
         formBuilder.addComponent(attachStatusPanel);
@@ -173,17 +174,17 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                             if (!info.getClient().isClosed()) {
                                 textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
                                 textField.setVisible(true);
-                                attached.setText("Connected");
+                                attached.setText(DebugToolsBundle.message("global.param.panel.status.connected"));
                                 attached.setBackground(JBColor.GREEN);
                                 attachButtonPanel.setVisible(true);
                                 classLoaderPanel.setVisible(true);
                             } else {
                                 if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
-                                    attached.setText("Fail");
+                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.fail"));
                                 } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
-                                    attached.setText("Reconnect");
+                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.reconnect"));
                                 } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
-                                    attached.setText("connecting");
+                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.connecting"));
                                 }
                                 attached.setBackground(JBColor.RED);
                                 textField.setVisible(true);
@@ -200,7 +201,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
 
     private void unAttached() {
         local.setVisible(false);
-        attached.setText("UnAttached");
+        attached.setText(DebugToolsBundle.message("global.param.panel.status.unattached"));
         attached.setBackground(JBColor.RED);
         textField.setVisible(false);
         attachButtonPanel.setVisible(false);
