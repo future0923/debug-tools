@@ -24,8 +24,8 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
@@ -69,6 +69,11 @@ public class SettingPanel {
     private final JBRadioButton autoAttachNo = new JBRadioButton(DebugToolsBundle.message("setting.panel.auto.attach.no"));
 
     @Getter
+    private final JBRadioButton showLineMarker = new JBRadioButton("Show");
+    @Getter
+    private final JBRadioButton hideLineMarker = new JBRadioButton("Hide");
+
+    @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
     @Getter
@@ -78,13 +83,13 @@ public class SettingPanel {
 
     @Getter
     private final TraceMethodPanel traceMethodPanel = new TraceMethodPanel();
-    
+
     @Getter
     private final JBRadioButton languageIde = new JBRadioButton(LanguageSetting.IDE.getDisplayName());
-    
+
     @Getter
     private final JBRadioButton languageEnglish = new JBRadioButton(LanguageSetting.ENGLISH.getDisplayName());
-    
+
     @Getter
     private final JBRadioButton languageChinese = new JBRadioButton(LanguageSetting.CHINESE.getDisplayName());
 
@@ -93,7 +98,7 @@ public class SettingPanel {
         this.settingState = DebugToolsSettingState.getInstance(project);
         initLayout();
     }
-    
+
     /**
      * Refresh the language display text
      */
@@ -175,7 +180,7 @@ public class SettingPanel {
         } else {
             autoAttachNo.setSelected(true);
         }
-        
+
         // 初始化语言设置单选按钮
         JPanel languagePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         languagePanel.add(languageIde);
@@ -201,6 +206,18 @@ public class SettingPanel {
                 break;
         }
 
+        JPanel lineMarkerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        lineMarkerPanel.add(showLineMarker);
+        lineMarkerPanel.add(hideLineMarker);
+        ButtonGroup LineMarkerButtonGroup = new ButtonGroup();
+        LineMarkerButtonGroup.add(showLineMarker);
+        LineMarkerButtonGroup.add(hideLineMarker);
+        if (BooleanUtil.isTrue(settingState.getLineMarkerVisible())) {
+            showLineMarker.setSelected(true);
+        } else {
+            hideLineMarker.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
         Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
@@ -220,6 +237,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.entity.class.default.param")),
                         defaultGenParamType
+                )
+                .addLabeledComponent(
+                        new JBLabel("Show lineMarker:"),
+                        lineMarkerPanel
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.print.sql")),

@@ -78,11 +78,15 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
         AllClassLoaderRes res = new AllClassLoaderRes();
         res.setItemList(loaderMap.values().stream().map(AllClassLoaderRes.Item::new).collect(Collectors.toSet()));
         for (AllClassLoaderRes.Item item : res.getItemList()) {
-            if (item.getName().equals("org.springframework.boot.loader.LaunchedURLClassLoader")) {
+            if ("org.springframework.boot.loader.LaunchedURLClassLoader".equals(item.getName())) {
                 res.setDefaultIdentity(item.getIdentity());
                 break;
             }
-            if (item.getName().equals("org.springframework.boot.loader.launch.LaunchedClassLoader")) {
+            if ("org.springframework.boot.loader.launch.LaunchedClassLoader".equals(item.getName())) {
+                res.setDefaultIdentity(item.getIdentity());
+                break;
+            }
+            if ("org.springframework.boot.devtools.restart.classloader.RestartClassLoader".equals(item.getName())) {
                 res.setDefaultIdentity(item.getIdentity());
                 break;
             }

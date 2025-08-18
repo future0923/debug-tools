@@ -50,6 +50,8 @@ public class AgentConfig {
 
     private static final String JNI_LIBRARY_PATH = "debug.tools.jni.library.path";
 
+    private static final String CURRENT_OS_ARCH = "debug.tools.current.os.arch";
+
     public static final AgentConfig INSTANCE = new AgentConfig();
 
     private final Properties properties = new Properties();
@@ -129,6 +131,19 @@ public class AgentConfig {
 
     public void setVersionAndStore(String version) {
         setVersion(version);
+        store();
+    }
+
+    public String getCurrentOsArch() {
+        return properties.getProperty(CURRENT_OS_ARCH);
+    }
+
+    public void setCurrentOsArch(String currentOsArch) {
+        properties.setProperty(CURRENT_OS_ARCH, currentOsArch);
+    }
+
+    public void setCurrentOsArchAndStore(String currentOsArch) {
+        setCurrentOsArch(currentOsArch);
         store();
     }
 
