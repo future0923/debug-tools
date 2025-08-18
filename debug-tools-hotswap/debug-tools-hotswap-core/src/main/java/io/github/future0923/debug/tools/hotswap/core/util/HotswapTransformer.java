@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.util;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
@@ -123,7 +124,8 @@ public class HotswapTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(final ClassLoader classLoader, String className, Class<?> redefiningClass,
                             final ProtectionDomain protectionDomain, byte[] bytes) throws IllegalClassFormatException {
-        if (MethodTrace.redefineTraceMethodProcessing) {
+        if (MethodTrace.redefineTraceMethodProcessing
+            || StrUtil.equals(className, "io/github/future0923/debug/tools/base/around/RunMethodAround")) {
             return null;
         }
         String classLoaderClassName = classLoader != null ? classLoader.getClass().getName() : null;
