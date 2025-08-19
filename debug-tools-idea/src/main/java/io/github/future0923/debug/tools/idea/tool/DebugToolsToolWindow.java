@@ -42,6 +42,10 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     private final GlobalParamPanel globalParamPanel;
     private final Project project;
     private ActionToolbar actionToolbar;
+    
+    public GlobalParamPanel getGlobalParamPanel() {
+        return globalParamPanel;
+    }
 
     public DebugToolsToolWindow(Project project) {
         super(false, false);

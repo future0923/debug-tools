@@ -42,6 +42,8 @@ public class LanguageUtils {
         DebugToolsToolWindow toolWindow = DebugToolsToolWindowFactory.getToolWindow(project);
         if (toolWindow != null) {
             toolWindow.refresh();
+            // Refresh GlobalParamPanel
+            toolWindow.getGlobalParamPanel().refresh();
         }
         
         // Refresh action groups
