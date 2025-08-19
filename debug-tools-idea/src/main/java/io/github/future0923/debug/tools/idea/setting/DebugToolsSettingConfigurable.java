@@ -30,6 +30,7 @@ import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+import io.github.future0923.debug.tools.idea.utils.LanguageUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +69,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        DebugToolsGlobalSettingState globalSettingState = DebugToolsGlobalSettingState.getInstance();
         // 检查语言设置是否修改
-        LanguageSetting currentLanguage = settingState.getLanguageSetting();
+        LanguageSetting currentLanguage = globalSettingState.getLanguage();
         if (currentLanguage != LanguageSetting.IDE && !settingPanel.getLanguageIde().isSelected()) {
             return true;
         }
@@ -154,8 +156,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public void reset() {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        DebugToolsGlobalSettingState globalSettingState = DebugToolsGlobalSettingState.getInstance();
         // 重置语言设置
-        LanguageSetting languageSetting = settingState.getLanguageSetting();
+        LanguageSetting languageSetting = globalSettingState.getLanguage();
         switch (languageSetting) {
             case IDE:
                 settingPanel.getLanguageIde().setSelected(true);
@@ -214,20 +217,20 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        LanguageSetting oldLanguage = settingState.getLanguageSetting();
-        
+        DebugToolsGlobalSettingState globalSettingState = DebugToolsGlobalSettingState.getInstance();
+        LanguageSetting oldLanguage = globalSettingState.getLanguage();
         // 保存语言设置
         if (settingPanel.getLanguageIde().isSelected()) {
-            settingState.setLanguageSetting(LanguageSetting.IDE);
+            globalSettingState.setLanguage(LanguageSetting.IDE);
         }
         if (settingPanel.getLanguageEnglish().isSelected()) {
-            settingState.setLanguageSetting(LanguageSetting.ENGLISH);
+            globalSettingState.setLanguage(LanguageSetting.ENGLISH);
         }
         if (settingPanel.getLanguageChinese().isSelected()) {
-            settingState.setLanguageSetting(LanguageSetting.CHINESE);
+            globalSettingState.setLanguage(LanguageSetting.CHINESE);
         }
         
-        LanguageSetting newLanguage = settingState.getLanguageSetting();
+        LanguageSetting newLanguage = globalSettingState.getLanguage();
         boolean languageChanged = oldLanguage != newLanguage;
         
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
@@ -285,7 +288,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (languageChanged) {
             // 刷新设置面板的语言显示
             settingPanel.refreshLanguageDisplay();
-            io.github.future0923.debug.tools.idea.utils.LanguageUtils.refreshUI(project);
+            LanguageUtils.refreshUI(project);
         }
     }
 

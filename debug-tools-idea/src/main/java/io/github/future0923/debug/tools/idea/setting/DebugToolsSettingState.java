@@ -153,11 +153,6 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      * 追踪方法信息
      */
     private TraceMethodDTO traceMethodDTO;
-    
-    /**
-     * 插件语言设置
-     */
-    private String language = LanguageSetting.IDE.name();
 
     /**
      * 默认选中的MethodAround名
@@ -296,18 +291,6 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     public void delAllHost() {
         getRemoteHosts().clear();
-    }
-    
-    public LanguageSetting getLanguageSetting() {
-        try {
-            return LanguageSetting.valueOf(language);
-        } catch (Exception e) {
-            return LanguageSetting.IDE;
-        }
-    }
-    
-    public void setLanguageSetting(LanguageSetting languageSetting) {
-        this.language = languageSetting.name();
     }
 
 }
