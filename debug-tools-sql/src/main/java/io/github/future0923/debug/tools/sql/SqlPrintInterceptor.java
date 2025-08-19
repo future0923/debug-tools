@@ -18,6 +18,8 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
+import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;

@@ -14,26 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.sql;
+package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.controller;
 
-import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
-import org.junit.jupiter.api.Test;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author future0923
  */
-class SqlCompressorTest {
+@RestController
+public class TestController {
 
-    @Test
-    void compressSql() {
-        String sql = "SELECT * \n" +
-                "FROM user  -- 用户表\n" +
-                "WHERE name = '张 三'  \n" +
-                "  AND age > 18 \n" +
-                "  /* 这里是块注释，描述条件 */\n" +
-                "  AND remark = \"备注 换行\"\n";
-
-        String compressed = SqlCompressor.compressSql(sql);
-        System.out.println(compressed);
+    @GetMapping("test")
+    public String test() {
+        return "hello world";
     }
 }

@@ -33,6 +33,8 @@ public interface IdeaPluginProjectConstants {
 
     String PARAM_FILE = "/.idea/DebugTools/agent.json";
 
+    String METHOD_AROUND_DIR = "/.idea/DebugTools/MethodAround/";
+
     String TOOL_WINDOW_ID = "DebugTools";
 
     String SCRATCH_PATH = "/debug-tools-plugins";

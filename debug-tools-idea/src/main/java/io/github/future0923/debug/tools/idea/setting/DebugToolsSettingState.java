@@ -159,6 +159,17 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private String language = LanguageSetting.IDE.name();
 
+    /**
+     * 默认选中的MethodAround名
+     */
+    private String defaultMethodAroundName;
+
+    /**
+     * 方法Around信息
+     * key名字，value路径
+     */
+    private Map<String, String> methodAroundMap = new LinkedHashMap<>();
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;
@@ -269,7 +280,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     }
 
     public String getUrl(String uri, boolean local) {
-        return  "http://" + (local ? "127.0.0.1" : getRemoteHost()) + ":" + (local ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
+        return "http://" + (local ? "127.0.0.1" : getRemoteHost()) + ":" + (local ? getLocalHttpPort() : getRemoteHttpPort()) + uri;
     }
 
 
@@ -278,7 +289,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
         map.put("host", getRemoteHost());
         map.put("tcpPort", getRemoteTcpPort());
         map.put("httpPort", getRemoteHttpPort());
-        String name = StringUtils.isBlank(getRemoteName())? getRemoteHost()+"@"+getRemoteTcpPort()+"@"+getRemoteHttpPort() : getRemoteName();
+        String name = StringUtils.isBlank(getRemoteName()) ? getRemoteHost() + "@" + getRemoteTcpPort() + "@" + getRemoteHttpPort() : getRemoteName();
         map.put("name", name);
         getRemoteHosts().put(name, JSONUtil.toJsonStr(map));
     }
