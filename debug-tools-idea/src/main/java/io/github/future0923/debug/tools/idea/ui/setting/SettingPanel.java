@@ -26,10 +26,7 @@ import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.setting.GenParamType;
-import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
-import io.github.future0923.debug.tools.idea.setting.PrintSqlType;
+import io.github.future0923.debug.tools.idea.setting.*;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
@@ -190,7 +187,7 @@ public class SettingPanel {
         languageButtonGroup.add(languageIde);
         languageButtonGroup.add(languageEnglish);
         languageButtonGroup.add(languageChinese);
-        LanguageSetting languageSetting = settingState.getLanguageSetting();
+        LanguageSetting languageSetting = DebugToolsGlobalSettingState.getInstance().getLanguage();
         switch (languageSetting) {
             case IDE:
                 languageIde.setSelected(true);
