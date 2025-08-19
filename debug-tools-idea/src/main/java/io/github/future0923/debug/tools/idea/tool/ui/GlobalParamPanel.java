@@ -24,12 +24,14 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
+import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
@@ -121,6 +123,16 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         });
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
+
+        JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        methodAroundPanel.add(new JBLabel("Method around:"));
+        MethodAroundComboBox methodAroundComboBox = new MethodAroundComboBox(project, 300);
+        methodAroundComboBox.addActionListener(e -> settingState.setDefaultMethodAroundName((String) methodAroundComboBox.getSelectedItem()));
+        if (StrUtil.isNotBlank(settingState.getDefaultMethodAroundName())) {
+            methodAroundComboBox.setSelected(settingState.getDefaultMethodAroundName());
+        }
+        methodAroundPanel.add(methodAroundComboBox);
+
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         globalHeaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.global.header"));
         globalHeaderPanel.add(globalHeaderLabel);
@@ -161,6 +173,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         formBuilder.addComponent(attachStatusPanel);
         formBuilder.addComponent(classLoaderPanel);
         formBuilder.addComponent(attachButtonPanel);
+        formBuilder.addComponent(methodAroundPanel);
+        formBuilder.addComponent(methodAroundComboBox.getMethodAroundPanel());
         formBuilder.addComponent(globalHeaderPanel);
         settingState.getGlobalHeader().forEach((k, v) -> headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, k, v, headerItemMap)));
         DebugToolsUIHelper.refreshUI(formBuilder);
