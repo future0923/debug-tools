@@ -16,7 +16,6 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
