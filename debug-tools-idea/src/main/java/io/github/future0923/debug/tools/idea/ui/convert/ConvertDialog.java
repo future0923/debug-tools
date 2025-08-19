@@ -24,6 +24,7 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.ui.main.MainJsonEditor;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsJsonElementUtil;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author future0923
@@ -90,7 +92,7 @@ public class ConvertDialog extends DialogWrapper {
                 List<String> args = Arrays.stream(jsonEditor.getPsiParameterList().getParameters())
                         .filter(psiParameter -> RunContentType.SIMPLE.getType().equals(DebugToolsJsonElementUtil.getContentType(psiParameter.getType())))
                         .map(PsiParameter::getName)
-                        .toList();
+                        .collect(Collectors.toList());
                 jsonEditor.setText(DebugToolsJsonUtils.pathConvertDebugToolsJson(text, args));
             }
         } else if (ConvertType.EXPORT.equals(convertType)) {
@@ -102,5 +104,12 @@ public class ConvertDialog extends DialogWrapper {
     @Override
     protected Action @NotNull [] createActions() {
         return new Action[]{getOKAction(), getCancelAction()};
+    }
+    
+    @Override
+    protected Action getCancelAction() {
+        Action cancelAction = super.getCancelAction();
+        cancelAction.putValue(Action.NAME, DebugToolsBundle.message("button.cancel"));
+        return cancelAction;
     }
 }

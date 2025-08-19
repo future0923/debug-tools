@@ -71,6 +71,17 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     private final List<JPanel> headerPanelList = new ArrayList<>();
 
     private JPanel jPanel;
+    
+    // Keep references to components that need to be refreshed
+    private JBLabel attachStatusLabel;
+    private JBLabel defaultClassLoaderLabel;
+    private JButton closeButton;
+    private JButton stopButton;
+    private JBLabel globalHeaderLabel;
+    private JButton addHeaderButton;
+    private JButton addAuthHeaderButton;
+    private JButton removeAllHeaderButton;
+    private JButton saveHeaderButton;
 
     public GlobalParamPanel(Project project) {
         super(new GridBagLayout());
@@ -84,18 +95,20 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         attached.setEditable(false);
         attached.setForeground(JBColor.WHITE);
         attached.setOpaque(true);
-        attachStatusPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.attach.status")));
+        attachStatusLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.attach.status"));
+        attachStatusPanel.add(attachStatusLabel);
         attachStatusPanel.add(local);
         attachStatusPanel.add(attached);
         attachStatusPanel.add(textField);
 
         ClassLoaderComboBox classLoaderComboBox = StateUtils.getClassLoaderComboBox(project);
-        classLoaderPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader")), BorderLayout.WEST);
+        defaultClassLoaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader"));
+        classLoaderPanel.add(defaultClassLoaderLabel, BorderLayout.WEST);
         classLoaderPanel.add(classLoaderComboBox);
-        JButton closeButton = new JButton(DebugToolsBundle.message("global.param.panel.close"));
+        closeButton = new JButton(DebugToolsBundle.message("global.param.panel.close"));
         attachButtonPanel.add(closeButton);
         closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
-        JButton stopButton = new JButton(DebugToolsBundle.message("global.param.panel.stop"));
+        stopButton = new JButton(DebugToolsBundle.message("global.param.panel.stop"));
         attachButtonPanel.add(stopButton);
         stopButton.addActionListener(e -> {
             try {
@@ -109,29 +122,30 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        globalHeaderPanel.add(new JBLabel(DebugToolsBundle.message("global.param.panel.global.header")));
-        JButton addHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.header"));
+        globalHeaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.global.header"));
+        globalHeaderPanel.add(globalHeaderLabel);
+        addHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.header"));
         addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
         addHeaderButton.addActionListener(e -> {
             headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, null, null, headerItemMap));
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addHeaderButton);
-        JButton addAuthHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.auth"));
+        addAuthHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.auth"));
         addAuthHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
         addAuthHeaderButton.addActionListener(e -> {
             headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, "Authorization", null, headerItemMap));
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
         globalHeaderPanel.add(addAuthHeaderButton);
-        JButton removeAllHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.remove.all"));
+        removeAllHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.remove.all"));
         removeAllHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
         removeAllHeaderButton.addActionListener(e -> {
             clearHeader();
             DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("global.param.panel.notification.header.remove.all"));
         });
         globalHeaderPanel.add(removeAllHeaderButton);
-        JButton saveHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.save"));
+        saveHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.save"));
         saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
         saveHeaderButton.addActionListener(e -> {
             settingState.clearGlobalHeaderCache();
@@ -215,5 +229,64 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         jPanel.revalidate();
         jPanel.repaint();
         headerItemMap.clear();
+    }
+    
+    /**
+     * Refresh the UI components with new language settings
+     */
+    public void refresh() {
+        // Update all components that use DebugToolsBundle messages
+        if (attachStatusLabel != null) {
+            attachStatusLabel.setText(DebugToolsBundle.message("global.param.panel.attach.status"));
+        }
+        
+        if (defaultClassLoaderLabel != null) {
+            defaultClassLoaderLabel.setText(DebugToolsBundle.message("global.param.panel.default.classloader"));
+        }
+        
+        if (closeButton != null) {
+            closeButton.setText(DebugToolsBundle.message("global.param.panel.close"));
+        }
+        
+        if (stopButton != null) {
+            stopButton.setText(DebugToolsBundle.message("global.param.panel.stop"));
+            stopButton.setToolTipText(DebugToolsBundle.message("global.param.panel.stop"));
+        }
+        
+        if (globalHeaderLabel != null) {
+            globalHeaderLabel.setText(DebugToolsBundle.message("global.param.panel.global.header"));
+        }
+        
+        if (addHeaderButton != null) {
+            addHeaderButton.setText(DebugToolsBundle.message("global.param.panel.add.header"));
+            addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
+        }
+        
+        if (addAuthHeaderButton != null) {
+            addAuthHeaderButton.setText(DebugToolsBundle.message("global.param.panel.add.auth"));
+            addAuthHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
+        }
+        
+        if (removeAllHeaderButton != null) {
+            removeAllHeaderButton.setText(DebugToolsBundle.message("global.param.panel.remove.all"));
+            removeAllHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
+        }
+        
+        if (saveHeaderButton != null) {
+            saveHeaderButton.setText(DebugToolsBundle.message("global.param.panel.save"));
+            saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
+        }
+        
+        // Update status messages
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null || info.getClient() == null || info.getClient().isClosed()) {
+            attached.setText(DebugToolsBundle.message("global.param.panel.status.unattached"));
+        } else {
+            attached.setText(DebugToolsBundle.message("global.param.panel.status.connected"));
+        }
+        
+        // Revalidate and repaint the panel to ensure UI updates
+        this.revalidate();
+        this.repaint();
     }
 }
