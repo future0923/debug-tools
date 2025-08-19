@@ -20,6 +20,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.action.TraceMethodGroup;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
@@ -58,11 +59,10 @@ public class LanguageUtils {
         
         // Refresh TraceMethodGroup
         AnAction traceMethodAction = actionManager.getAction("DebugToolsTool.TraceMethod");
-        if (traceMethodAction instanceof TraceMethodGroup) {
-            TraceMethodGroup traceMethodGroup = (TraceMethodGroup) traceMethodAction;
+        if (traceMethodAction instanceof TraceMethodGroup traceMethodGroup) {
             // Force refresh the presentation text
             traceMethodGroup.getTemplatePresentation().setText(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.trace.method.group")
+                DebugToolsBundle.message("action.trace.method.group")
             );
         }
         
@@ -70,7 +70,7 @@ public class LanguageUtils {
         AnAction quickDebugAction = actionManager.getAction("DebugToolsTool.QuickDebug");
         if (quickDebugAction != null) {
             quickDebugAction.getTemplatePresentation().setText(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.quick.debug.text")
+                DebugToolsBundle.message("action.quick.debug.text")
             );
         }
         
@@ -78,7 +78,7 @@ public class LanguageUtils {
         AnAction executeLastAction = actionManager.getAction("DebugToolsTool.ExecuteLast");
         if (executeLastAction != null) {
             executeLastAction.getTemplatePresentation().setText(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.execute.last.text")
+                DebugToolsBundle.message("action.execute.last.text")
             );
         }
         
@@ -86,7 +86,7 @@ public class LanguageUtils {
         AnAction executeLastWithDefaultClassLoaderAction = actionManager.getAction("DebugToolsTool.ExecuteLastWithDefaultClassLoader");
         if (executeLastWithDefaultClassLoaderAction != null) {
             executeLastWithDefaultClassLoaderAction.getTemplatePresentation().setText(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.execute.last.with.default.classloader.text")
+                DebugToolsBundle.message("action.execute.last.with.default.classloader.text")
             );
         }
         
@@ -94,22 +94,12 @@ public class LanguageUtils {
         AnAction httpUrlSearchAction = actionManager.getAction("DebugTools.HttpUrl");
         if (httpUrlSearchAction != null) {
             httpUrlSearchAction.getTemplatePresentation().setText(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.search.http.url.text")
+                DebugToolsBundle.message("action.search.http.url.text")
             );
             httpUrlSearchAction.getTemplatePresentation().setDescription(
-                io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle.message("action.search.http.url.description")
+                DebugToolsBundle.message("action.search.http.url.description")
             );
         }
     }
-    
-    /**
-     * Get the current language setting
-     *
-     * @param project the project
-     * @return the language setting
-     */
-    public static LanguageSetting getCurrentLanguage(Project project) {
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        return settingState.getLanguageSetting();
-    }
+
 }

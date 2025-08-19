@@ -23,11 +23,4 @@ public abstract class AbstractTestService {
 
     public abstract void test();
 
-    public static class A extends AbstractTestService {
-
-        @Override
-        public void test() {
-
-        }
-    }
 }

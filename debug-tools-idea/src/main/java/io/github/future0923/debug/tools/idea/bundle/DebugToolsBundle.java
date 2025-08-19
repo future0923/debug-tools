@@ -16,15 +16,28 @@
  */
 package io.github.future0923.debug.tools.idea.bundle;
 
+import com.intellij.AbstractBundle;
+import com.intellij.DynamicBundle;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsGlobalSettingState;
+import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-public class DebugToolsBundle {
+import java.util.ResourceBundle;
 
-    public static final String BUNDLE = "messages.DebugToolsBundle";
+public class DebugToolsBundle extends DynamicBundle {
+
+    private static final String BUNDLE = "messages.DebugToolsBundle";
+
+    private DebugToolsBundle() {
+        super(DebugToolsBundle.BUNDLE);
+    }
 
     @NotNull
-    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
-        return CustomDebugToolsBundle.message(key, params);
+    public static String message(@NotNull @PropertyKey(resourceBundle = DebugToolsBundle.BUNDLE) String key, Object... params) {
+        LanguageSetting language = DebugToolsGlobalSettingState.getInstance().getLanguage();
+        ClassLoader classLoader = DebugToolsBundle.class.getClassLoader();
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(DebugToolsBundle.BUNDLE, language.getLocale(), classLoader);
+        return AbstractBundle.message(resourceBundle, key, params);
     }
 }
