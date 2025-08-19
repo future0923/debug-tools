@@ -17,9 +17,13 @@
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.service.impl;
 
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author future0923
@@ -31,9 +35,10 @@ public class TestServiceImpl implements TestService {
     private final UserMapper userMapper;
 
     @Override
-    public String c(String a) {
+    public List<User> c(String a) {
         System.out.println("11111111");
-        userMapper.aaa();
-        return null;
+        List<User> aaa = userMapper.aaa();
+        aaa.get(0).setUpdateDateTime(LocalDateTime.now());
+        return aaa;
     }
 }

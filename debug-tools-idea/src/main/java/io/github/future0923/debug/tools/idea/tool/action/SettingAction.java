@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.idea.tool.action;
 
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
@@ -28,7 +29,7 @@ import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 public class SettingAction extends BaseToolAction {
 
     public SettingAction() {
-        getTemplatePresentation().setText("Settings");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.tool.settings.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Setting);
     }
 

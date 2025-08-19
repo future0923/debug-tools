@@ -16,9 +16,13 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.service;
 
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
+
+import java.util.List;
+
 /**
  * @author future0923
  */
 public interface TestService {
-    String c(String a);
+    List<User> c(String a);
 }

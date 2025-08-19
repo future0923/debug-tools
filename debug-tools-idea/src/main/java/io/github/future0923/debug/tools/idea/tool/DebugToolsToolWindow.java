@@ -42,6 +42,10 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     private final GlobalParamPanel globalParamPanel;
     private final Project project;
     private ActionToolbar actionToolbar;
+    
+    public GlobalParamPanel getGlobalParamPanel() {
+        return globalParamPanel;
+    }
 
     public DebugToolsToolWindow(Project project) {
         super(false, false);
@@ -86,6 +90,15 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     // 提供刷新方法，配置变更后可调用
     public void refreshToolBar() {
         initToolBar();
+    }
+    
+    /**
+     * Refresh the tool window UI
+     */
+    public void refresh() {
+        // 重新初始化工具栏
+        initToolBar();
+        // TODO: 添加其他需要刷新的UI组件
     }
 
     public void clearHeader() {

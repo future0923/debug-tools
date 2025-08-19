@@ -30,6 +30,7 @@ import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +47,7 @@ public class RunGroovyAction extends AnAction {
         }
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
-            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
@@ -85,7 +86,7 @@ public class RunGroovyAction extends AnAction {
             return;
         }
         if ("Groovy".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText("Run '" + file.getName() + "' With Debug Tools");
+            presentation.setText(DebugToolsBundle.message("action.run.groovy.text") + " '" + file.getName() + "'");
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);

@@ -23,7 +23,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
-import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
@@ -154,6 +153,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      * 追踪方法信息
      */
     private TraceMethodDTO traceMethodDTO;
+    
+    /**
+     * 插件语言设置
+     */
+    private String language = LanguageSetting.IDE.name();
 
     /**
      * 默认选中的MethodAround名
@@ -292,6 +296,18 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     public void delAllHost() {
         getRemoteHosts().clear();
+    }
+    
+    public LanguageSetting getLanguageSetting() {
+        try {
+            return LanguageSetting.valueOf(language);
+        } catch (Exception e) {
+            return LanguageSetting.IDE;
+        }
+    }
+    
+    public void setLanguageSetting(LanguageSetting languageSetting) {
+        this.language = languageSetting.name();
     }
 
 }

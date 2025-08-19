@@ -21,11 +21,11 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
-import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
+import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
@@ -68,6 +68,17 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public boolean isModified() {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        // 检查语言设置是否修改
+        LanguageSetting currentLanguage = settingState.getLanguageSetting();
+        if (currentLanguage != LanguageSetting.IDE && !settingPanel.getLanguageIde().isSelected()) {
+            return true;
+        }
+        if (currentLanguage != LanguageSetting.ENGLISH && !settingPanel.getLanguageEnglish().isSelected()) {
+            return true;
+        }
+        if (currentLanguage != LanguageSetting.CHINESE && !settingPanel.getLanguageChinese().isSelected()) {
+            return true;
+        }
         if (GenParamType.SIMPLE.equals(settingState.getDefaultGenParamType()) && !settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             return true;
         }
@@ -143,6 +154,23 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public void reset() {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        // 重置语言设置
+        LanguageSetting languageSetting = settingState.getLanguageSetting();
+        switch (languageSetting) {
+            case IDE:
+                settingPanel.getLanguageIde().setSelected(true);
+                break;
+            case ENGLISH:
+                settingPanel.getLanguageEnglish().setSelected(true);
+                break;
+            case CHINESE:
+                settingPanel.getLanguageChinese().setSelected(true);
+                break;
+            default:
+                settingPanel.getLanguageIde().setSelected(true);
+                break;
+        }
+        
         if (GenParamType.SIMPLE.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeSimple().setSelected(true);
         }
@@ -186,6 +214,22 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public void apply() throws ConfigurationException {
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        LanguageSetting oldLanguage = settingState.getLanguageSetting();
+        
+        // 保存语言设置
+        if (settingPanel.getLanguageIde().isSelected()) {
+            settingState.setLanguageSetting(LanguageSetting.IDE);
+        }
+        if (settingPanel.getLanguageEnglish().isSelected()) {
+            settingState.setLanguageSetting(LanguageSetting.ENGLISH);
+        }
+        if (settingPanel.getLanguageChinese().isSelected()) {
+            settingState.setLanguageSetting(LanguageSetting.CHINESE);
+        }
+        
+        LanguageSetting newLanguage = settingState.getLanguageSetting();
+        boolean languageChanged = oldLanguage != newLanguage;
+        
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.SIMPLE);
         }
@@ -236,6 +280,13 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceBusinessPackageRegexp(settingPanel.getTraceMethodPanel().getTraceBusinessPackage());
         traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
+        
+        // 如果语言设置发生了变化，刷新UI
+        if (languageChanged) {
+            // 刷新设置面板的语言显示
+            settingPanel.refreshLanguageDisplay();
+            io.github.future0923.debug.tools.idea.utils.LanguageUtils.refreshUI(project);
+        }
     }
 
     @Override

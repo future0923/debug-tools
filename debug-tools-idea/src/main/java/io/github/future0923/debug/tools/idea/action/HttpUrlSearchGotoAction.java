@@ -31,6 +31,7 @@ import io.github.future0923.debug.tools.idea.search.HttpUrlChooseByNamePopup;
 import io.github.future0923.debug.tools.idea.search.HttpUrlContributor;
 import io.github.future0923.debug.tools.idea.search.HttpUrlFilteringGotoByModel;
 import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +45,8 @@ import org.jetbrains.annotations.Nullable;
 public class HttpUrlSearchGotoAction extends GotoActionBase {
 
     public HttpUrlSearchGotoAction() {
-        getTemplatePresentation().setText("Search Http Url");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.search.http.url.text"));
+        getTemplatePresentation().setDescription(DebugToolsBundle.message("action.search.http.url.description"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Search);
     }
 

@@ -16,13 +16,17 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.AbstractTestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 
 
 /**
@@ -35,7 +39,8 @@ public class TestController {
     private final UserService userService;
     private final TestService testService;
     private final AbstractTestService abstractTestService;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @GetMapping("/a")
     public User a() {
         abstractTestService.test();
@@ -48,9 +53,7 @@ public class TestController {
     }
 
     @GetMapping("/c")
-    public String c() {
-        testService.c("a");
-        userService.a(null);
-        return "c";
+    public String c() throws JsonProcessingException {
+        return objectMapper.writeValueAsString(testService.c("a"));
     }
 }

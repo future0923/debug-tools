@@ -28,6 +28,7 @@ import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ThrowableRunnable;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -43,7 +44,7 @@ public class GroovyConsoleAction extends AnAction {
     private static final Logger log = Logger.getInstance(GroovyConsoleAction.class);
 
     public GroovyConsoleAction() {
-        getTemplatePresentation().setText("Groovy Console");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.run.groovy.console"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Groovy);
     }
 

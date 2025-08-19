@@ -35,6 +35,7 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.main.MainDialog;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +53,7 @@ public class MouseQuickDebugAction extends AnAction {
     private PsiMethod psiMethod;
 
     public MouseQuickDebugAction() {
-        getTemplatePresentation().setText("Quick Debug");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.mouse.quick.debug.text"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Request_Full);
     }
 
@@ -69,12 +70,12 @@ public class MouseQuickDebugAction extends AnAction {
 
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
-            Messages.showErrorDialog("Run attach first", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.run.attach.first"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         if (info.getClient().isClosed()) {
-            Messages.showErrorDialog("Attach socket status error", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.attach.socket.status"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
