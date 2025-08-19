@@ -111,6 +111,12 @@ allprojects {
             targetCompatibility = "17"
             options.encoding = "UTF-8"
         }
+        
+        withType<ProcessResources> {
+            filesMatching("**/*.properties") {
+                filter(org.apache.tools.ant.filters.EscapeUnicode::class)
+            }
+        }
         withType<BuildSearchableOptionsTask> {
             enabled = false
         }

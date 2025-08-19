@@ -25,6 +25,7 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTraceMethodRequestPacket;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,18 @@ import java.util.Objects;
 public abstract class AbstractTraceMethodAction extends AnAction {
 
     protected abstract boolean isAddTraceMethod();
+
+    @Override
+    public void update(@NotNull AnActionEvent e) {
+        e.getPresentation().setEnabledAndVisible(Objects.nonNull(DebugToolsIdeaClassUtil.getCaretPsiMethod(e)));
+        if (isAddTraceMethod()) {
+            e.getPresentation().setText(DebugToolsBundle.message("action.trace.method.add.text"));
+            e.getPresentation().setDescription(DebugToolsBundle.message("action.trace.method.add.description"));
+        } else {
+            e.getPresentation().setText(DebugToolsBundle.message("action.trace.method.cancel.text"));
+            e.getPresentation().setDescription(DebugToolsBundle.message("action.trace.method.cancel.description"));
+        }
+    }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -64,10 +77,6 @@ public abstract class AbstractTraceMethodAction extends AnAction {
         });
     }
 
-    @Override
-    public void update(@NotNull AnActionEvent e) {
-        e.getPresentation().setEnabledAndVisible(Objects.nonNull(DebugToolsIdeaClassUtil.getCaretPsiMethod(e)));
-    }
 
     @Override
     public @NotNull ActionUpdateThread getActionUpdateThread() {

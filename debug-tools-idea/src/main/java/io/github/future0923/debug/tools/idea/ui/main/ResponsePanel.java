@@ -22,6 +22,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
@@ -69,21 +70,21 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
         if (packet.getClassLoaderIdentity() != null) {
             JBTextField classLoaderField = new JBTextField(packet.getClassLoaderIdentity());
             formBuilder.addLabeledComponent(
-                    new JBLabel("Class loader:"),
+                    new JBLabel(DebugToolsBundle.message("response.panel.class.loader")),
                     classLoaderField
             );
         }
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
-                        new JBLabel("Current class:"),
+                        new JBLabel(DebugToolsBundle.message("response.panel.current.class")),
                         classNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Current method:"),
+                        new JBLabel(DebugToolsBundle.message("response.panel.current.method")),
                         methodNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Parameter types:"),
+                        new JBLabel(DebugToolsBundle.message("response.panel.parameter.types")),
                         parameterTypesField
                 )
                 .addComponentFillVertically(new JPanel(), 0)

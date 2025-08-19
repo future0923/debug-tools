@@ -6,6 +6,7 @@
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
     <name>DebugTools</name>
+    <resource-bundle>messages.DebugToolsBundle</resource-bundle>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="future94@qq.com" url="https://github.com/future0923">future0923</vendor>
@@ -17,7 +18,7 @@
     focusing on improving development efficiency and shortening debugging cycles. <a href="https://debug-tools.cc">Official Website</a>.
     <ul>
         <li>Hot deployment in seconds: Deploy remote applications (dev/test environments) with one click. </li>
-        <li>Hot reload in seconds: Code changes take effect immediately without restarting the application. </li>
+        <li>Hot reload | hotswap in seconds: Code changes take effect immediately without restarting the application. </li>
         <li>Call any Java method: Call any Java method with one click. </li>
         <li>SQL statements and time consumption: The executed SQL statements and time consumption can be printed without modifying any application code. </li>
         <li>Search HttpUrl: Jump directly to the corresponding method definition location through the given URL information. </li>
@@ -177,7 +178,9 @@
         <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <group text="Trace Method" id="DebugToolsTool.TraceMethod" popup="true">
+            <group id="DebugToolsTool.TraceMethod" 
+                    class="io.github.future0923.debug.tools.idea.action.TraceMethodGroup" 
+                    popup="true">
                 <action id="DebugToolsTool.AddTraceMethod"
                         class="io.github.future0923.debug.tools.idea.action.AddTraceMethodAction"
                         text="Add Method To Trace"
@@ -236,8 +239,8 @@
             <action id="HotSwapSwitchAction"
                     class="io.github.future0923.debug.tools.idea.action.HotSwapSwitchAction"/>
         </group>-->
-        <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyAsJsonAction"
-                text="Copy as JSON">
+        <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyToJsonAction"
+                text="Copy to JSON">
             <add-to-group group-id="XDebugger.ValueGroup" anchor="before" relative-to-action="XDebugger.CopyValue"/>
 
         </action>

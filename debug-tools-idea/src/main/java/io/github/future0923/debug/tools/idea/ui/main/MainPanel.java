@@ -25,6 +25,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.impl.ConvertDataListener;
@@ -61,7 +62,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     @Getter
     private final MethodAroundComboBox methodAroundComboBox;
 
-    private final JButton refreshButton = new JButton("Refresh");
+    private final JButton refreshButton = new JButton(DebugToolsBundle.message("main.panel.refresh"));
 
     private final JBTextField classNameField = new JBTextField();
 
@@ -134,19 +135,19 @@ public class MainPanel extends JBPanel<MainPanel> {
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
-                        new JBLabel("Class loader:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.class.loader")),
                         classLoaderJPanel
                 )
                 .addLabeledComponent(
-                        new JBLabel("Current class:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.current.class")),
                         classNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Current method:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.current.method")),
                         methodNameField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Xxl-job param:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.xxl.job.param")),
                         xxlJobParamField
                 )
                 .addLabeledComponent(
@@ -154,16 +155,16 @@ public class MainPanel extends JBPanel<MainPanel> {
                         methodAroundPanel
                 )
                 .addLabeledComponent(
-                        new JBLabel("Trace method:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.trace.method")),
                         traceMethodPanel.getComponent()
                 )
                 .addLabeledComponent(
-                        new JBLabel("Header:"),
+                        new JBLabel(DebugToolsBundle.message("main.panel.header")),
                         headerButtonPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
-        JButton addHeaderButton = new JButton("Add");
+        JButton addHeaderButton = new JButton(DebugToolsBundle.message("main.panel.add"));
         headerButtonPanel.add(addHeaderButton);
         addHeaderButton.addActionListener(e -> {
             DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap);

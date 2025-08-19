@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.idea.ui.main;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ public class ResponseDialog extends DialogWrapper {
         super(project, true, IdeModalityType.MODELESS);
         this.packet = packet;
         this.project = project;
-        setTitle("Run Result");
+        setTitle(DebugToolsBundle.message("response.dialog.title"));
         init();
     }
 

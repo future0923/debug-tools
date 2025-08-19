@@ -25,13 +25,13 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
-import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.setting.PrintSqlType;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 
@@ -91,7 +91,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
         }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         String agentPath = settingState.loadAgentPath(project);
-        Boolean traceSql = settingState.getTraceMethodDTO() != null && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceMethod()) && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceSQL());
+        boolean traceSql = settingState.getTraceMethodDTO() != null && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceMethod()) && BooleanUtil.isTrue(settingState.getTraceMethodDTO().getTraceSQL());
         // 根据执行器判断是否使用hotswap
         boolean hotswap = HotswapDebugExecutor.EXECUTOR_ID.equals(executor.getId());
         if (!PrintSqlType.NO.equals(settingState.getPrintSql())
@@ -124,7 +124,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
-            agentArgs.setTraceSql(traceSql.toString());
+            agentArgs.setTraceSql(Boolean.toString(traceSql));
             agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
             agentArgs.setAutoSaveSql(settingState.getAutoSaveSql().toString());
             agentArgs.setSqlRetentionDays(settingState.getSqlRetentionDays());

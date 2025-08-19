@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.idea.tool.ui;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.ui.components.JBCheckBox;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.action.ClearCacheType;
@@ -49,10 +50,10 @@ public class ClearCacheMenu extends JBPopupMenu {
 
     private void initButton(DebugToolsSettingState settingState, DebugToolsToolWindow toolWindow) {
         JPanel buttonPane = new JPanel();
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new JButton(DebugToolsBundle.message("clear.cache.menu.cancel"));
         cancel.addActionListener(e -> this.setVisible(false));
         buttonPane.add(cancel);
-        JButton clear = new JButton("Clear");
+        JButton clear = new JButton(DebugToolsBundle.message("clear.cache.menu.clear"));
         clear.addActionListener(e -> {
             checkBoxList.stream().filter(AbstractButton::isSelected).forEach(box -> {
                 if (ClearCacheType.CORE_JAR.getType().equals(box.getText())) {
@@ -67,15 +68,15 @@ public class ClearCacheMenu extends JBPopupMenu {
                 }
             });
             this.setVisible(false);
-            DebugToolsNotifierUtil.notifyInfo(project, "Clear cache successful");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("clear.cache.menu.notification.clear.successful"));
         });
         buttonPane.add(clear);
-        JButton clearAll = new JButton("Clear all");
+        JButton clearAll = new JButton(DebugToolsBundle.message("clear.cache.menu.clear.all"));
         clearAll.addActionListener(e -> {
             settingState.clearAllCache();
             toolWindow.clearHeader();
             this.setVisible(false);
-            DebugToolsNotifierUtil.notifyInfo(project, "Cache all successful");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("clear.cache.menu.notification.cache.all.successful"));
         });
         buttonPane.add(clearAll);
         this.add(buttonPane, BorderLayout.SOUTH);
