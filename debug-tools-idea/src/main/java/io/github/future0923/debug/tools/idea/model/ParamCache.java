@@ -40,6 +40,8 @@ public class ParamCache {
 
     private TraceMethodDTO traceMethodDTO;
 
+    private String methodAround;
+
     public static final ParamCache NULL = new ParamCache();
 
     public String formatContent() {

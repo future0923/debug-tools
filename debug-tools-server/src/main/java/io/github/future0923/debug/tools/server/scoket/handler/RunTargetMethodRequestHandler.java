@@ -16,13 +16,16 @@
  */
 package io.github.future0923.debug.tools.server.scoket.handler;
 
+import io.github.future0923.debug.tools.base.around.RunMethodAround;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
@@ -32,8 +35,8 @@ import io.github.future0923.debug.tools.common.exception.ArgsParseException;
 import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
-import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
+import io.github.future0923.debug.tools.server.compiler.DynamicCompiler;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
@@ -41,10 +44,13 @@ import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 
 import java.io.OutputStream;
+import java.lang.instrument.ClassDefinition;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author future0923
@@ -72,7 +78,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             try {
                 classLoader = AllClassLoaderHttpHandler.getClassLoader(runDTO.getClassLoader().getIdentity());
             } catch (DefaultClassLoaderException e) {
-                ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() +"]类加载器");
+                ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() + "]类加载器");
                 String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
                 DebugToolsResultUtils.putCache(offsetPath, exception);
                 writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
@@ -123,34 +129,92 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         }
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
-        run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
+        Class<?> aroundClass = DebugToolsClassUtils.loadClass(RunMethodAround.class.getName(), classLoader);
+        if (StrUtil.isNotBlank(runDTO.getMethodAroundContent())) {
+            Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
+            DynamicCompiler dynamicCompiler = new DynamicCompiler(classLoader);
+            dynamicCompiler.addSource(RunMethodAround.class.getName(), runDTO.getMethodAroundContent());
+            instrumentation.redefineClasses(new ClassDefinition(aroundClass, dynamicCompiler.buildByteCodes().get(RunMethodAround.class.getName())));
+        }
+        Object aroundInstance = aroundClass.getConstructor().newInstance();
+        ReflectUtil.invoke(
+                aroundInstance,
+                ReflectUtil.getMethod(aroundClass, "onBefore", Map.class, String.class, String.class, String.class, List.class, Object[].class),
+                runDTO.getHeaders(),
+                runDTO.getXxlJobParam(),
+                runDTO.getTargetClassName(),
+                runDTO.getTargetMethodName(),
+                runDTO.getTargetMethodParameterTypes(),
+                targetMethodArgs
+        );
+        Object result = null;
+        Throwable throwable = null;
+        try {
+            result = run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
+            ReflectUtil.invoke(
+                    aroundInstance,
+                    ReflectUtil.getMethod(aroundClass, "onAfter", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class),
+                    runDTO.getHeaders(),
+                    runDTO.getXxlJobParam(),
+                    runDTO.getTargetClassName(),
+                    runDTO.getTargetMethodName(),
+                    runDTO.getTargetMethodParameterTypes(),
+                    targetMethodArgs,
+                    result
+            );
+        } catch (Exception e) {
+            logger.error("invoke target method error", e);
+            throwable = e.getCause();
+            if (throwable == null) {
+                throwable = e;
+            }
+            String offsetPath = RunResultDTO.genOffsetPathRandom(throwable);
+            DebugToolsResultUtils.putCache(offsetPath, throwable);
+            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, throwable, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ReflectUtil.invoke(
+                    aroundInstance,
+                    ReflectUtil.getMethod(aroundClass, "onException", Map.class, String.class, String.class, String.class, List.class, Object[].class, Exception.class),
+                    runDTO.getHeaders(),
+                    runDTO.getXxlJobParam(),
+                    runDTO.getTargetClassName(),
+                    runDTO.getTargetMethodName(),
+                    runDTO.getTargetMethodParameterTypes(),
+                    targetMethodArgs,
+                    throwable
+            );
+        } finally {
+            ReflectUtil.invoke(
+                    aroundInstance,
+                    ReflectUtil.getMethod(aroundClass, "onFinally", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class, Exception.class),
+                    runDTO.getHeaders(),
+                    runDTO.getXxlJobParam(),
+                    runDTO.getTargetClassName(),
+                    runDTO.getTargetMethodName(),
+                    runDTO.getTargetMethodParameterTypes(),
+                    targetMethodArgs,
+                    result,
+                    throwable
+                );
+        }
         Thread.currentThread().setContextClassLoader(orgClassLoader);
     }
 
-    private void run(Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream, Boolean traceMethod) throws Exception {
+    private Object run(Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream, Boolean traceMethod) throws Exception {
         boolean voidType = void.class.isAssignableFrom(bridgedMethod.getReturnType()) || Void.class.isAssignableFrom(bridgedMethod.getReturnType());
         if (instance instanceof Proxy) {
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugToolsEnvUtils.isAopProxy(invocationHandler)) {
                 try {
-                    printResult(invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
-                    return;
+                    Object result = invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs);
+                    printResult(result, runDTO, outputStream, voidType, traceMethod);
+                    return result;
                 } catch (Throwable ignored) {
                 }
             }
         }
-        try {
-            printResult(bridgedMethod.invoke(instance, targetMethodArgs), runDTO, outputStream, voidType, traceMethod);
-        } catch (Throwable throwable) {
-            logger.error("invoke target method error", throwable);
-            Throwable cause = throwable.getCause();
-            if (cause == null) {
-                cause = throwable;
-            }
-            String offsetPath = RunResultDTO.genOffsetPathRandom(cause);
-            DebugToolsResultUtils.putCache(offsetPath, cause);
-            writeAndFlushNotException(outputStream, RunTargetMethodResponsePacket.of(runDTO, cause, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
-        }
+        Object result = bridgedMethod.invoke(instance, targetMethodArgs);
+        printResult(result, runDTO, outputStream, voidType, traceMethod);
+        return result;
     }
 
     private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType, boolean traceMethod) {

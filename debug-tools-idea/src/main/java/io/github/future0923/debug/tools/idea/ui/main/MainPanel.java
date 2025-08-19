@@ -24,6 +24,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
@@ -31,7 +32,9 @@ import io.github.future0923.debug.tools.idea.listener.data.impl.ConvertDataListe
 import io.github.future0923.debug.tools.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListener;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
+import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
@@ -55,6 +58,9 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     @Getter
     private final ClassLoaderComboBox classLoaderComboBox;
+
+    @Getter
+    private final MethodAroundComboBox methodAroundComboBox;
 
     private final JButton refreshButton = new JButton(DebugToolsBundle.message("main.panel.refresh"));
 
@@ -92,6 +98,13 @@ public class MainPanel extends JBPanel<MainPanel> {
         if (StringUtils.isNotBlank(paramCache.getXxlJobParam())) {
             xxlJobParamField.setText(paramCache.getXxlJobParam());
         }
+        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        methodAroundComboBox = new MethodAroundComboBox(project, 370);
+        if (StrUtil.isNotBlank(paramCache.getMethodAround())) {
+            methodAroundComboBox.setSelected(paramCache.getMethodAround());
+        } else if (StrUtil.isNotBlank(settingState.getDefaultMethodAroundName())) {
+            methodAroundComboBox.setSelected(settingState.getDefaultMethodAroundName());
+        }
         traceMethodPanel = new TraceMethodPanel();
         traceMethodPanel.processDefaultInfo(project, paramCache.getTraceMethodDTO());
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
@@ -108,13 +121,16 @@ public class MainPanel extends JBPanel<MainPanel> {
     private void initLayout() {
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         getAllClassLoader();
-        refreshButton.addActionListener( e -> {
+        refreshButton.addActionListener(e -> {
             classLoaderComboBox.removeAllItems();
             getAllClassLoader();
             classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
         });
         classLoaderJPanel.add(classLoaderComboBox);
         classLoaderJPanel.add(refreshButton);
+        JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        methodAroundPanel.add(methodAroundComboBox);
+        methodAroundPanel.add(methodAroundComboBox.getMethodAroundPanel());
         JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
@@ -133,6 +149,10 @@ public class MainPanel extends JBPanel<MainPanel> {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.xxl.job.param")),
                         xxlJobParamField
+                )
+                .addLabeledComponent(
+                        new JBLabel("Method around:"),
+                        methodAroundPanel
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.trace.method")),

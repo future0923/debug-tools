@@ -68,4 +68,9 @@ public class RunDTO {
      */
     private TraceMethodDTO traceMethodDTO;
 
+    /**
+     * 调用方法around
+     */
+    private String methodAroundContent;
+
 }
