@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.panels.HorizontalBox;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.event.ConvertDataEvent;
 import io.github.future0923.debug.tools.idea.listener.data.event.ExampleDataEvent;
@@ -51,16 +52,16 @@ public class MainToolBar extends ToolBar {
         genButton(ConvertType.EXPORT.getDescription(), DebugToolsIcons.Export, DebugToolsIcons.Export, actionEvent -> {
             publisher.multicastEvent(new ConvertDataEvent(ConvertType.EXPORT));
         });
-        genButton("Pretty Json", DebugToolsIcons.Pretty, DebugToolsIcons.Pretty, actionEvent -> {
+        genButton(DebugToolsBundle.message("main.toolbar.pretty.json"), DebugToolsIcons.Pretty, DebugToolsIcons.Pretty, actionEvent -> {
             publisher.multicastEvent(new PrettyDataEvent());
         });
-        genButton("Gen Param", DebugToolsIcons.ExampleSimple, DebugToolsIcons.ExampleSimple, actionEvent -> {
+        genButton(DebugToolsBundle.message("main.toolbar.gen.param"), DebugToolsIcons.ExampleSimple, DebugToolsIcons.ExampleSimple, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.SIMPLE));
         });
-        genButton("Gen Param With Default Current Entity Class", DebugToolsIcons.ExampleCurrent, DebugToolsIcons.ExampleCurrent, actionEvent -> {
+        genButton(DebugToolsBundle.message("main.toolbar.gen.param.with.default.current.entity.class"), DebugToolsIcons.ExampleCurrent, DebugToolsIcons.ExampleCurrent, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.CURRENT));
         });
-        genButton("Gen Param With Default All", DebugToolsIcons.ExampleAll, DebugToolsIcons.ExampleAll, actionEvent -> {
+        genButton(DebugToolsBundle.message("main.toolbar.gen.param.with.default.all"), DebugToolsIcons.ExampleAll, DebugToolsIcons.ExampleAll, actionEvent -> {
             publisher.multicastEvent(new ExampleDataEvent(GenParamType.ALL));
         });
     }

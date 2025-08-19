@@ -43,6 +43,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCom
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
 import lombok.Data;
 import lombok.Getter;
@@ -58,6 +59,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author future0923
@@ -80,7 +82,7 @@ public class HotDeployDialog extends DialogWrapper {
         this.projectDefaultClassLoader = projectDefaultClassLoader;
         this.hotUndoShowList = new DefaultListModel<>();
         this.init();
-        this.setTitle("Change Files");
+        this.setTitle(DebugToolsBundle.message("dialog.title.change.files"));
         this.pack();
     }
 
@@ -88,16 +90,16 @@ public class HotDeployDialog extends DialogWrapper {
     protected @Nullable JComponent createCenterPanel() {
         JPanel compilerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         ButtonGroup compilerButtonGroup = new ButtonGroup();
-        JRadioButton localRadio = new JRadioButton("Local Intellij Idea");
+        JRadioButton localRadio = new JRadioButton(DebugToolsBundle.message("dialog.option.local.intellij"));
         localRadio.setSelected(true);
         localRadio.addItemListener((e) -> local = true);
-        JRadioButton remoteRadio = new JRadioButton("Remote Attach Application");
+        JRadioButton remoteRadio = new JRadioButton(DebugToolsBundle.message("dialog.option.remote.attach"));
         remoteRadio.addItemListener((e) -> local = false);
         compilerButtonGroup.add(localRadio);
         compilerButtonGroup.add(remoteRadio);
         compilerPanel.add(localRadio);
         compilerPanel.add(remoteRadio);
-        JRadioButton javaRadio = new JRadioButton("Java");
+        JRadioButton javaRadio = new JRadioButton(DebugToolsBundle.message("dialog.option.java"));
         javaRadio.addItemListener((e) -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 isJava = true;
@@ -122,7 +124,7 @@ public class HotDeployDialog extends DialogWrapper {
         //group.add(resourceRadio);
         optPanel.add(javaRadio);
         //optPanel.add(resourceRadio);
-        JCheckBox vcs = new JCheckBox("Vcs(git/svn)");
+        JCheckBox vcs = new JCheckBox(DebugToolsBundle.message("dialog.option.vcs"));
         vcs.addItemListener((e) -> {
             FileChangedService fileChangedBean = FileChangedService.getInstance(project);
             checkVCS = e.getStateChange() == ItemEvent.SELECTED;
@@ -169,11 +171,11 @@ public class HotDeployDialog extends DialogWrapper {
         publisher.addListener(new ResetListener(this));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         formBuilder.addLabeledComponent(
-                        new JBLabel("Compiler type:"),
+                        new JBLabel(DebugToolsBundle.message("dialog.compiler.type")),
                         compilerPanel
                 )
                 .addLabeledComponent(
-                        new JBLabel("Select type:"),
+                        new JBLabel(DebugToolsBundle.message("dialog.select.type")),
                         optPanel
                         )
                 .addComponent(mainToolBar)
@@ -184,7 +186,7 @@ public class HotDeployDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        List<VirtualFile> virtualFiles = getHotUndoList().stream().map(LocalFileSystem.getInstance()::findFileByPath).toList();
+        List<VirtualFile> virtualFiles = getHotUndoList().stream().map(LocalFileSystem.getInstance()::findFileByPath).collect(Collectors.toList());
         if (!virtualFiles.isEmpty()) {
             if (local) {
                 localCompiler(virtualFiles);
@@ -234,7 +236,7 @@ public class HotDeployDialog extends DialogWrapper {
                         // 获取输出目录
                         VirtualFile outputDirectory = compileContext.getModuleOutputDirectory(compileContext.getModuleByFile(selectedFile));
                         if (outputDirectory == null) {
-                            log.error("Output directory error.");
+                            log.error(DebugToolsBundle.message("dialog.error.output.directory"));
                         } else {
                             // 如果输出目录未刷新，则刷新它
                             if (!allOutputs.contains(outputDirectory)) {
@@ -246,7 +248,7 @@ public class HotDeployDialog extends DialogWrapper {
                             Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
                             String packageName = DebugToolsIdeaClassUtil.getPackageName(document.getText());
                             if (packageName == null) {
-                                log.error("解析package失败");
+                                log.error(DebugToolsBundle.message("dialog.error.parse.package"));
                                 return;
                             }
                             String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");

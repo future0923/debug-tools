@@ -14,27 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.tool.action;
+package io.github.future0923.debug.tools.idea.action;
 
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
-import io.github.future0923.debug.tools.idea.tool.ui.ConnectServerMenu;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.function.Supplier;
 
 /**
+ * Trace method action group with multi-language support.
+ *
  * @author future0923
  */
-public class ConnectAction extends BaseToolAction {
+public class TraceMethodGroup extends DefaultActionGroup {
 
-    public ConnectAction() {
-        getTemplatePresentation().setText(DebugToolsBundle.message("action.tool.connect.text"));
-        getTemplatePresentation().setIcon(DebugToolsIcons.Connect);
+    public TraceMethodGroup() {
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.trace.method.group"));
+        getTemplatePresentation().setIcon(DebugToolsIcons.HttpMethod.Trace);
     }
 
-    @Override
-    protected void doActionPerformed(Project project, DebugToolsToolWindow toolWindow) {
-        ConnectServerMenu attachServerMenu = new ConnectServerMenu(project);
-        attachServerMenu.show(toolWindow, 0, toolWindow.getY());
-    }
 }

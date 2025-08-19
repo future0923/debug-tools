@@ -23,6 +23,7 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.hotswap.HotDeployDialog;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
@@ -35,8 +36,8 @@ import org.jetbrains.annotations.NotNull;
 public class HotDeploymentAction extends DumbAwareAction {
 
     public HotDeploymentAction() {
-        getTemplatePresentation().setText("Hot Deployment");
-        getTemplatePresentation().setDescription("Hot deploy the changed files to the attached application");
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.hotswap.deployment.text"));
+        getTemplatePresentation().setDescription(DebugToolsBundle.message("action.hotswap.deployment.description"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Deploy);
     }
 
@@ -48,7 +49,7 @@ public class HotDeploymentAction extends DumbAwareAction {
         }
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
-            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }

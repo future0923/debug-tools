@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import org.jetbrains.annotations.NotNull;
@@ -49,12 +50,12 @@ public class HotSwapSwitchAction extends DumbAwareAction {
         }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         if (settingState.getHotswap()) {
-            presentation.setText("Enable Hot Reload");
-            presentation.setDescription("After turning it on, starting the project will load the hot reload plugin");
+            presentation.setText(DebugToolsBundle.message("action.hotswap.enable.text"));
+            presentation.setDescription(DebugToolsBundle.message("action.hotswap.enable.description"));
             presentation.setIcon(DebugToolsIcons.Hotswap.On);
         } else {
-            presentation.setText("Disable Hot Reload");
-            presentation.setDescription("Disable hot reload to remove plugins after restart");
+            presentation.setText(DebugToolsBundle.message("action.hotswap.disable.text"));
+            presentation.setDescription(DebugToolsBundle.message("action.hotswap.disable.description"));
             presentation.setIcon(DebugToolsIcons.Hotswap.Off);
         }
     }

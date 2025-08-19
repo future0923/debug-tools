@@ -14,29 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.setting;
+package io.github.future0923.debug.tools.idea.bundle;
 
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.PropertyKey;
 
-/**
- * @author future0923
- */
-@Getter
-public enum GenParamType {
+public class DebugToolsBundle {
 
-    SIMPLE("gen.param.type.simple"),
-    CURRENT("gen.param.type.current"),
-    ALL("gen.param.type.all"),
-    ;
+    public static final String BUNDLE = "messages.DebugToolsBundle";
 
-    private final String bundleKey;
-
-    GenParamType(String bundleKey) {
-        this.bundleKey = bundleKey;
-    }
-    
-    public String getType() {
-        return DebugToolsBundle.message(bundleKey);
+    @NotNull
+    public static String message(@NotNull @PropertyKey(resourceBundle = BUNDLE) String key, Object... params) {
+        return CustomDebugToolsBundle.message(key, params);
     }
 }

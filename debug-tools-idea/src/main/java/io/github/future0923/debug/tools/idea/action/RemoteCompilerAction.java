@@ -32,6 +32,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCom
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,7 @@ public class RemoteCompilerAction extends AnAction {
         }
         AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
         if (projectDefaultClassLoader == null) {
-            Messages.showErrorDialog("Please select a DefaultClassLoader first.", "执行失败");
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
@@ -93,7 +94,7 @@ public class RemoteCompilerAction extends AnAction {
             return;
         }
         if ("JAVA".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText("Remote Compile '" + file.getName() + "' to Hot Reload");
+            presentation.setText(DebugToolsBundle.message("action.remote.compiler.text") + " '" + file.getName() + "'");
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);

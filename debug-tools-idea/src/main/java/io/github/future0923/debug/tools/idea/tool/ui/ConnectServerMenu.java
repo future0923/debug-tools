@@ -29,6 +29,7 @@ import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsAttachUtils;
 
@@ -80,7 +81,7 @@ public class ConnectServerMenu extends JBPopupMenu {
                         new JBLabel(HtmlChunk.html()
                                 .children(
                                         HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
-                                        HtmlChunk.text("Host:")
+                                        HtmlChunk.text(DebugToolsBundle.message("connect.server.menu.host"))
                                 ).toString()),
                         hostField
                 )
@@ -88,7 +89,7 @@ public class ConnectServerMenu extends JBPopupMenu {
                         new JBLabel(HtmlChunk.html()
                                 .children(
                                         HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
-                                        HtmlChunk.text("Tcp port:")
+                                        HtmlChunk.text(DebugToolsBundle.message("connect.server.menu.tcp.port"))
                                 ).toString()),
                         tcpPortField
                 )
@@ -96,12 +97,12 @@ public class ConnectServerMenu extends JBPopupMenu {
                         new JBLabel(HtmlChunk.html()
                                 .children(
                                         HtmlChunk.text("*").wrapWith("font").attr("color", redHex),
-                                        HtmlChunk.text("Http port:")
+                                        HtmlChunk.text(DebugToolsBundle.message("connect.server.menu.http.port"))
                                 ).toString()),
                         httpPortField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Name:"),
+                        new JBLabel(DebugToolsBundle.message("connect.server.menu.name")),
                         nameField
                 )
                 .addComponentFillVertically(new JPanel(), 5)
@@ -109,11 +110,11 @@ public class ConnectServerMenu extends JBPopupMenu {
         this.add(jPanel, BorderLayout.CENTER);
 
         JPanel button = new JPanel();
-        JButton cancel = new JButton("Cancel");
+        JButton cancel = new JButton(DebugToolsBundle.message("connect.server.menu.cancel"));
         button.add(cancel);
         cancel.addActionListener(e -> this.setVisible(false));
 
-        JButton connectBtn = new JButton("Connect");
+        JButton connectBtn = new JButton(DebugToolsBundle.message("connect.server.menu.connect"));
         button.add(connectBtn);
         connectBtn.addActionListener(e -> {
             this.setVisible(false);
@@ -129,7 +130,7 @@ public class ConnectServerMenu extends JBPopupMenu {
             settingState.setLocal(false);
         });
 
-        JButton saveConnect = new JButton("Save & Connect");
+        JButton saveConnect = new JButton(DebugToolsBundle.message("connect.server.menu.save.and.connect"));
         button.add(saveConnect);
         saveConnect.addActionListener(e -> {
             this.setVisible(false);
@@ -146,7 +147,7 @@ public class ConnectServerMenu extends JBPopupMenu {
             settingState.saveRemoteHost();
         });
 
-        JButton delAllBtn = new JButton("DelAll");
+        JButton delAllBtn = new JButton(DebugToolsBundle.message("connect.server.menu.delete.all"));
         button.add(delAllBtn);
         delAllBtn.addActionListener(e -> {
             settingState.delAllHost();
@@ -208,7 +209,7 @@ public class ConnectServerMenu extends JBPopupMenu {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 1, 1));
 
-        JButton editButton = new JButton("Connect");
+        JButton editButton = new JButton(DebugToolsBundle.message("connect.server.menu.connect.button"));
         editButton.addActionListener(e -> {
             settingState.setRemoteName(entry.getValue());
             settingState.setRemoteHost(hostInfo.getStr("host"));
@@ -223,7 +224,7 @@ public class ConnectServerMenu extends JBPopupMenu {
             this.setVisible(false);
         });
 
-        JButton deleteButton = new JButton("Remove");
+        JButton deleteButton = new JButton(DebugToolsBundle.message("connect.server.menu.remove.button"));
         deleteButton.addActionListener(e -> {
             settingState.getRemoteHosts().remove(entry.getKey());
             parent.remove(panel);

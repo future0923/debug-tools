@@ -24,6 +24,7 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.NlsContexts;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import org.jetbrains.annotations.Nls;
@@ -49,7 +50,7 @@ public class HttpUrlFilteringGotoByModel extends FilteringGotoByModel<HttpMethod
 
     @Override
     public @Nls(capitalization = Nls.Capitalization.Sentence) String getPromptText() {
-        return "Enter http url";
+        return DebugToolsBundle.message("http.url.filtering.goto.by.model.prompt");
     }
 
     @Override

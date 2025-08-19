@@ -32,6 +32,7 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +48,8 @@ public class CompileXmlFileToTargetAction extends AnAction {
     private static final Logger logger = Logger.getInstance(CompileXmlFileToTargetAction.class);
 
     public CompileXmlFileToTargetAction() {
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.compile.xml.file.to.target.text"));
+        getTemplatePresentation().setDescription(DebugToolsBundle.message("action.compile.xml.file.to.target.description"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Compile);
     }
 
@@ -87,10 +90,10 @@ public class CompileXmlFileToTargetAction extends AnAction {
         String targetPath = moduleOutputDirectory.getPath() + "/" + pathFromSourceRoot;
         try {
             FileUtil.writeToFile(new File(targetPath), fileContent);
-            DebugToolsNotifierUtil.notifyInfo(project, "Compile" + file.getName() + " to target success");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("action.compile.xml.file.to.target.success", file.getName()));
         } catch (IOException ex) {
-            logger.error("Compile" + file.getName() + " to target error", ex);
-            DebugToolsNotifierUtil.notifyError(project, "Compile" + file.getName() + " to target error. " + ex.getMessage());
+            logger.error(DebugToolsBundle.message("action.compile.xml.file.to.target.error", file.getName()), ex);
+            DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("action.compile.xml.file.to.target.error.detail", file.getName(), ex.getMessage()));
         }
     }
 
@@ -114,7 +117,7 @@ public class CompileXmlFileToTargetAction extends AnAction {
             return;
         }
         if ("XML".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText("Compile '" + file.getName() + "' to Target");
+            presentation.setText(DebugToolsBundle.message("action.compile.xml.file.to.target.text") + " '" + file.getName() + "' " + DebugToolsBundle.message("action.compile.xml.file.to.target.description"));
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);
