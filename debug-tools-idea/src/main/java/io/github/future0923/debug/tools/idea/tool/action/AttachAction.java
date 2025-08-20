@@ -28,7 +28,7 @@ import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 public class AttachAction extends BaseToolAction {
 
     public AttachAction() {
-        getTemplatePresentation().setText(DebugToolsBundle.message("action.tool.attach.text"));
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.attach"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Add);
     }
 
