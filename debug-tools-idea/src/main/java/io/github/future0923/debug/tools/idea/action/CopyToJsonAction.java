@@ -73,7 +73,7 @@ public class CopyToJsonAction extends AnAction {
             SuspendContext suspendContext = Objects.requireNonNull(evalContext.getSuspendContext());
             ThreadReference thread = Objects.requireNonNull(suspendContext.getThread()).getThreadReference();
             if (thread == null || !thread.isSuspended()) {
-                Messages.showErrorDialog(project, DebugToolsBundle.message("action.copy.to.json.thread.error"), DebugToolsBundle.message("action.copy.to.json.thread.error.title"));
+                Messages.showErrorDialog(project, DebugToolsBundle.message("action.copy.to.json.thread.error"), DebugToolsBundle.message("common.error"));
                 return;
             }
 

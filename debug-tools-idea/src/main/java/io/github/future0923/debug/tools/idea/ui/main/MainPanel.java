@@ -62,7 +62,7 @@ public class MainPanel extends JBPanel<MainPanel> {
     @Getter
     private final MethodAroundComboBox methodAroundComboBox;
 
-    private final JButton refreshButton = new JButton(DebugToolsBundle.message("main.panel.refresh"));
+    private final JButton refreshButton = new JButton(DebugToolsBundle.message("action.refresh"));
 
     private final JBTextField classNameField = new JBTextField();
 
@@ -151,7 +151,7 @@ public class MainPanel extends JBPanel<MainPanel> {
                         xxlJobParamField
                 )
                 .addLabeledComponent(
-                        new JBLabel("Method around:"),
+                        new JBLabel(DebugToolsBundle.message("method.around")),
                         methodAroundPanel
                 )
                 .addLabeledComponent(
@@ -164,7 +164,7 @@ public class MainPanel extends JBPanel<MainPanel> {
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
-        JButton addHeaderButton = new JButton(DebugToolsBundle.message("main.panel.add"));
+        JButton addHeaderButton = new JButton(DebugToolsBundle.message("action.add"));
         headerButtonPanel.add(addHeaderButton);
         addHeaderButton.addActionListener(e -> {
             DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap);

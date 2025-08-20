@@ -19,7 +19,6 @@ package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
-import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.AbstractTestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -38,12 +37,10 @@ public class TestController {
 
     private final UserService userService;
     private final TestService testService;
-    private final AbstractTestService abstractTestService;
     @Autowired
     private ObjectMapper objectMapper;
     @GetMapping("/a")
     public User a() {
-        abstractTestService.test();
         testService.c("a");
         userService.a(null);
         User user = new User();
