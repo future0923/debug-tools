@@ -25,13 +25,13 @@ import com.intellij.execution.runners.JavaProgramPatcher;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.setting.PrintSqlType;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 

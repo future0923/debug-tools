@@ -110,11 +110,11 @@ public class ConnectServerMenu extends JBPopupMenu {
         this.add(jPanel, BorderLayout.CENTER);
 
         JPanel button = new JPanel();
-        JButton cancel = new JButton(DebugToolsBundle.message("connect.server.menu.cancel"));
+        JButton cancel = new JButton(DebugToolsBundle.message("action.cancel"));
         button.add(cancel);
         cancel.addActionListener(e -> this.setVisible(false));
 
-        JButton connectBtn = new JButton(DebugToolsBundle.message("connect.server.menu.connect"));
+        JButton connectBtn = new JButton(DebugToolsBundle.message("action.connect"));
         button.add(connectBtn);
         connectBtn.addActionListener(e -> {
             this.setVisible(false);
@@ -209,7 +209,7 @@ public class ConnectServerMenu extends JBPopupMenu {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 1, 1));
 
-        JButton editButton = new JButton(DebugToolsBundle.message("connect.server.menu.connect.button"));
+        JButton editButton = new JButton(DebugToolsBundle.message("action.connect"));
         editButton.addActionListener(e -> {
             settingState.setRemoteName(entry.getValue());
             settingState.setRemoteHost(hostInfo.getStr("host"));
@@ -224,7 +224,7 @@ public class ConnectServerMenu extends JBPopupMenu {
             this.setVisible(false);
         });
 
-        JButton deleteButton = new JButton(DebugToolsBundle.message("connect.server.menu.remove.button"));
+        JButton deleteButton = new JButton(DebugToolsBundle.message("action.remove"));
         deleteButton.addActionListener(e -> {
             settingState.getRemoteHosts().remove(entry.getKey());
             parent.remove(panel);

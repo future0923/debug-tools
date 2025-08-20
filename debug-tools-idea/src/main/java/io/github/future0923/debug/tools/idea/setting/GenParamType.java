@@ -16,7 +16,6 @@
  */
 package io.github.future0923.debug.tools.idea.setting;
 
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import lombok.Getter;
 
 /**
@@ -35,8 +34,5 @@ public enum GenParamType {
     GenParamType(String bundleKey) {
         this.bundleKey = bundleKey;
     }
-    
-    public String getType() {
-        return DebugToolsBundle.message(bundleKey);
-    }
+
 }

@@ -28,28 +28,31 @@ public enum PrintSqlType {
     /**
      * 格式化打印
      */
-    PRETTY("Pretty"),
+    PRETTY("Pretty", "print.sql.type.pretty"),
 
     /**
      * 压缩打印
      */
-    COMPRESS("Compress"),
+    COMPRESS("Compress", "print.sql.type.compress"),
 
     /**
      * 不打印
      */
-    NO("No"),
+    NO("No", "print.sql.type.no"),
 
     /**
      * 兼容之前版本
      */
-    YES("true"),
+    YES("true", "print.sql.type.pretty"),
     ;
 
     private final String type;
 
-    PrintSqlType(String type) {
+    private final String bundleKey;
+
+    PrintSqlType(String type, String bundleKey) {
         this.type = type;
+        this.bundleKey = bundleKey;
     }
 
     /**
