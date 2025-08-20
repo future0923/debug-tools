@@ -73,6 +73,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     private final List<JPanel> headerPanelList = new ArrayList<>();
 
     private JPanel jPanel;
+
+    private final MethodAroundComboBox methodAroundComboBox;
     
     // Keep references to components that need to be refreshed
     private JBLabel attachStatusLabel;
@@ -84,11 +86,13 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     private JButton addAuthHeaderButton;
     private JButton removeAllHeaderButton;
     private JButton saveHeaderButton;
+    private JBLabel methodAroundLabel;
 
     public GlobalParamPanel(Project project) {
         super(new GridBagLayout());
         this.project = project;
         this.settingState = DebugToolsSettingState.getInstance(project);
+        this.methodAroundComboBox = new MethodAroundComboBox(project, 300);
         initLayout();
     }
 
@@ -125,8 +129,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         jPanel = formBuilder.addComponentFillVertically(new JPanel(), 0).getPanel();
 
         JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        methodAroundPanel.add(new JBLabel("Method around:"));
-        MethodAroundComboBox methodAroundComboBox = new MethodAroundComboBox(project, 300);
+        methodAroundLabel = new JBLabel(DebugToolsBundle.message("method.around"));
+        methodAroundPanel.add(methodAroundLabel);
         methodAroundComboBox.addActionListener(e -> settingState.setDefaultMethodAroundName((String) methodAroundComboBox.getSelectedItem()));
         if (StrUtil.isNotBlank(settingState.getDefaultMethodAroundName())) {
             methodAroundComboBox.setSelected(settingState.getDefaultMethodAroundName());
@@ -136,7 +140,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         JPanel globalHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         globalHeaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.global.header"));
         globalHeaderPanel.add(globalHeaderLabel);
-        addHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.add.header"));
+        addHeaderButton = new JButton(DebugToolsBundle.message("action.add"));
         addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
         addHeaderButton.addActionListener(e -> {
             headerPanelList.add(DebugToolsUIHelper.addHeaderComponentItem(jPanel, formBuilder, 100, 230, null, null, headerItemMap));
@@ -157,7 +161,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
             DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("global.param.panel.notification.header.remove.all"));
         });
         globalHeaderPanel.add(removeAllHeaderButton);
-        saveHeaderButton = new JButton(DebugToolsBundle.message("global.param.panel.save"));
+        saveHeaderButton = new JButton(DebugToolsBundle.message("action.save"));
         saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
         saveHeaderButton.addActionListener(e -> {
             settingState.clearGlobalHeaderCache();
@@ -272,7 +276,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         }
         
         if (addHeaderButton != null) {
-            addHeaderButton.setText(DebugToolsBundle.message("global.param.panel.add.header"));
+            addHeaderButton.setText(DebugToolsBundle.message("action.add"));
             addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
         }
         
@@ -287,9 +291,15 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         }
         
         if (saveHeaderButton != null) {
-            saveHeaderButton.setText(DebugToolsBundle.message("global.param.panel.save"));
+            saveHeaderButton.setText(DebugToolsBundle.message("action.save"));
             saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
         }
+
+        if (methodAroundLabel != null) {
+            methodAroundLabel.setText(DebugToolsBundle.message("method.around"));
+        }
+
+        methodAroundComboBox.refreshBundle();
         
         // Update status messages
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);

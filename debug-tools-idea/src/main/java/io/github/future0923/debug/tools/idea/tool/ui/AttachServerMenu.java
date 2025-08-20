@@ -51,16 +51,16 @@ public class AttachServerMenu extends JBPopupMenu {
         radioPanel.setMinimumSize(new Dimension(500, 100));
         initVmServer();
         JPanel buttonPane = new JPanel();
-        JButton cancel = new JButton(DebugToolsBundle.message("attach.server.menu.cancel"));
+        JButton cancel = new JButton(DebugToolsBundle.message("action.cancel"));
         cancel.addActionListener(e -> this.setVisible(false));
         buttonPane.add(cancel);
-        JButton refresh = new JButton(DebugToolsBundle.message("attach.server.menu.refresh"));
+        JButton refresh = new JButton(DebugToolsBundle.message("action.refresh"));
         refresh.addActionListener(e -> {
             radioPanel.removeAll();
             initVmServer();
         });
         buttonPane.add(refresh);
-        JButton attach = new JButton(DebugToolsBundle.message("attach.server.menu.attach"));
+        JButton attach = new JButton(DebugToolsBundle.message("action.attach"));
         attach.addActionListener(e -> radioButtonList.stream().filter(AbstractButton::isSelected).findFirst().ifPresent(button -> {
             ServerDisplayValue serverDisplayValue = ServerDisplayValue.of(button.getText());
             if (serverDisplayValue != null) {
