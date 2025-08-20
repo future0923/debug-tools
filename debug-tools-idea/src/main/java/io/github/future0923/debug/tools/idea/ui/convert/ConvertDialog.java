@@ -109,7 +109,7 @@ public class ConvertDialog extends DialogWrapper {
     @Override
     protected Action getCancelAction() {
         Action cancelAction = super.getCancelAction();
-        cancelAction.putValue(Action.NAME, DebugToolsBundle.message("button.cancel"));
+        cancelAction.putValue(Action.NAME, DebugToolsBundle.message("action.cancel"));
         return cancelAction;
     }
 }

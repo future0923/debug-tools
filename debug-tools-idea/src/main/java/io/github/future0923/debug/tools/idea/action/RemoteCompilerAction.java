@@ -94,7 +94,7 @@ public class RemoteCompilerAction extends AnAction {
             return;
         }
         if ("JAVA".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText(DebugToolsBundle.message("action.remote.compiler.text") + " '" + file.getName() + "'");
+            presentation.setText(DebugToolsBundle.message("action.remote.compiler.text") + " '" + file.getName() + "' " + DebugToolsBundle.message("action.remote.compiler.hot.deploy"));
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);

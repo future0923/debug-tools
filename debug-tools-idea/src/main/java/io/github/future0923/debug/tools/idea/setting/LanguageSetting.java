@@ -16,8 +16,11 @@
  */
 package io.github.future0923.debug.tools.idea.setting;
 
+import com.intellij.DynamicBundle;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import lombok.Getter;
+
+import java.util.Locale;
 
 /**
  * Language setting for the plugin.
@@ -30,39 +33,27 @@ public enum LanguageSetting {
     /**
      * Follow the IDE's language setting
      */
-    IDE("setting.language.ide", ""),
+    IDE("setting.language.ide", DynamicBundle.getLocale()),
     
     /**
      * English
      */
-    ENGLISH("setting.language.english", "en"),
+    ENGLISH("setting.language.english", Locale.ENGLISH),
     
     /**
      * Chinese
      */
-    CHINESE("setting.language.chinese", "zh");
+    CHINESE("setting.language.chinese", Locale.CHINESE);
     
     private final String bundleKey;
-    private final String locale;
+    private final Locale locale;
     
-    LanguageSetting(String bundleKey, String locale) {
+    LanguageSetting(String bundleKey, Locale locale) {
         this.bundleKey = bundleKey;
         this.locale = locale;
     }
     
     public String getDisplayName() {
         return DebugToolsBundle.message(bundleKey);
-    }
-    
-    public static LanguageSetting fromLocale(String locale) {
-        if (locale == null) {
-            return IDE;
-        }
-        for (LanguageSetting setting : values()) {
-            if (locale.equals(setting.getLocale())) {
-                return setting;
-            }
-        }
-        return IDE;
     }
 }

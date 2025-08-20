@@ -22,6 +22,7 @@ import com.intellij.openapi.ui.ComboBox;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.main.JavaEditorDialogWrapper;
@@ -44,6 +45,14 @@ public class MethodAroundComboBox extends ComboBox<String> {
     @Getter
     private final JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
+    private final JButton methodAroundReloadButton;
+
+    private final JButton methodAroundDetailButton;
+
+    private final JButton methodAroundDeleteButton;
+
+    private final JButton methodAroundAddButton;
+
     public MethodAroundComboBox(Project project) {
         this(project, -1);
     }
@@ -52,14 +61,14 @@ public class MethodAroundComboBox extends ComboBox<String> {
         super(width);
         this.project = project;
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        JButton methodAroundRefreshButton = new JButton("Reload");
-        methodAroundRefreshButton.addActionListener(e -> reload(project, settingState));
-        JButton methodAroundDetailButton = new JButton("Detail");
+        methodAroundReloadButton = new JButton(DebugToolsBundle.message("action.reload"));
+        methodAroundReloadButton.addActionListener(e -> reload(project, settingState));
+        methodAroundDetailButton = new JButton(DebugToolsBundle.message("action.detail"));
         methodAroundDetailButton.addActionListener(e -> {
             JavaEditorDialogWrapper javaEditorDialogWrapper = new JavaEditorDialogWrapper(project, this, (String) getSelectedItem());
             javaEditorDialogWrapper.show();
         });
-        JButton methodAroundDeleteButton = new JButton("Delete");
+        methodAroundDeleteButton = new JButton(DebugToolsBundle.message("action.delete"));
         methodAroundDeleteButton.addActionListener(e -> {
             String filePath = settingState.getMethodAroundMap().remove((String) getSelectedItem());
             if (StrUtil.isNotBlank(filePath) && FileUtil.exist(filePath)) {
@@ -67,14 +76,14 @@ public class MethodAroundComboBox extends ComboBox<String> {
             }
             refresh();
         });
-        JButton methodAroundAddButton = new JButton("Add");
+        methodAroundAddButton = new JButton(DebugToolsBundle.message("action.add"));
         methodAroundAddButton.addActionListener(e -> {
             JavaEditorDialogWrapper javaEditorDialogWrapper = new JavaEditorDialogWrapper(project, this, "");
             javaEditorDialogWrapper.show();
         });
         addActionListener(e -> buttonVisible(methodAroundDetailButton, methodAroundDeleteButton));
         buttonVisible(methodAroundDetailButton, methodAroundDeleteButton);
-        methodAroundPanel.add(methodAroundRefreshButton);
+        methodAroundPanel.add(methodAroundReloadButton);
         methodAroundPanel.add(methodAroundDetailButton);
         methodAroundPanel.add(methodAroundDeleteButton);
         methodAroundPanel.add(methodAroundAddButton);
@@ -109,6 +118,13 @@ public class MethodAroundComboBox extends ComboBox<String> {
         boolean selected = StrUtil.isNotBlank((String) getSelectedItem());
         methodAroundDetailButton.setVisible(selected);
         methodAroundDeleteButton.setVisible(selected);
+    }
+
+    public void refreshBundle() {
+        methodAroundReloadButton.setText(DebugToolsBundle.message("action.reload"));
+        methodAroundDetailButton.setText(DebugToolsBundle.message("action.detail"));
+        methodAroundDeleteButton.setText(DebugToolsBundle.message("action.delete"));
+        methodAroundAddButton.setText(DebugToolsBundle.message("action.add"));
     }
 
 }

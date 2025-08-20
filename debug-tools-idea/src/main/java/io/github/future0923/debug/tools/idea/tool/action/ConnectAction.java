@@ -28,7 +28,7 @@ import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 public class ConnectAction extends BaseToolAction {
 
     public ConnectAction() {
-        getTemplatePresentation().setText(DebugToolsBundle.message("action.tool.connect.text"));
+        getTemplatePresentation().setText(DebugToolsBundle.message("action.connect"));
         getTemplatePresentation().setIcon(DebugToolsIcons.Connect);
     }
 

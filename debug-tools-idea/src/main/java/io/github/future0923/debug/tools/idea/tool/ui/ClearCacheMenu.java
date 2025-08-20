@@ -50,7 +50,7 @@ public class ClearCacheMenu extends JBPopupMenu {
 
     private void initButton(DebugToolsSettingState settingState, DebugToolsToolWindow toolWindow) {
         JPanel buttonPane = new JPanel();
-        JButton cancel = new JButton(DebugToolsBundle.message("clear.cache.menu.cancel"));
+        JButton cancel = new JButton(DebugToolsBundle.message("action.cancel"));
         cancel.addActionListener(e -> this.setVisible(false));
         buttonPane.add(cancel);
         JButton clear = new JButton(DebugToolsBundle.message("clear.cache.menu.clear"));
