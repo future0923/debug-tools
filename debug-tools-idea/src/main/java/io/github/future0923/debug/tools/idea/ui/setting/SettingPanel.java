@@ -24,12 +24,13 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBRadioButton;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsGlobalSettingState;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
-import io.github.future0923.debug.tools.idea.setting.PrintSqlType;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
@@ -50,28 +51,28 @@ public class SettingPanel {
     private JPanel settingPanel;
 
     @Getter
-    private final JBRadioButton defaultGenParamTypeSimple = new JBRadioButton(GenParamType.SIMPLE.getType());
+    private final JBRadioButton defaultGenParamTypeSimple = new JBRadioButton(DebugToolsBundle.message(GenParamType.SIMPLE.getBundleKey()));
     @Getter
-    private final JBRadioButton defaultGenParamTypeCurrent = new JBRadioButton(GenParamType.CURRENT.getType());
+    private final JBRadioButton defaultGenParamTypeCurrent = new JBRadioButton(DebugToolsBundle.message(GenParamType.CURRENT.getBundleKey()));
     @Getter
-    private final JBRadioButton defaultGenParamTypeAll = new JBRadioButton(GenParamType.ALL.getType());
+    private final JBRadioButton defaultGenParamTypeAll = new JBRadioButton(DebugToolsBundle.message(GenParamType.ALL.getBundleKey()));
 
     @Getter
-    private final JBRadioButton printPrettySql = new JBRadioButton(PrintSqlType.PRETTY.getType());
+    private final JBRadioButton printPrettySql = new JBRadioButton(DebugToolsBundle.message(PrintSqlType.PRETTY.getBundleKey()));
     @Getter
-    private final JBRadioButton printCompressSql = new JBRadioButton(PrintSqlType.COMPRESS.getType());
+    private final JBRadioButton printCompressSql = new JBRadioButton(DebugToolsBundle.message(PrintSqlType.COMPRESS.getBundleKey()));
     @Getter
-    private final JBRadioButton printNoSql = new JBRadioButton(PrintSqlType.NO.getType());
+    private final JBRadioButton printNoSql = new JBRadioButton(DebugToolsBundle.message(PrintSqlType.NO.getBundleKey()));
 
     @Getter
-    private final JBRadioButton autoAttachYes = new JBRadioButton(DebugToolsBundle.message("setting.panel.auto.attach.yes"));
+    private final JBRadioButton autoAttachYes = new JBRadioButton(DebugToolsBundle.message("common.yes"));
     @Getter
-    private final JBRadioButton autoAttachNo = new JBRadioButton(DebugToolsBundle.message("setting.panel.auto.attach.no"));
+    private final JBRadioButton autoAttachNo = new JBRadioButton(DebugToolsBundle.message("common.no"));
 
     @Getter
-    private final JBRadioButton showLineMarker = new JBRadioButton("Show");
+    private final JBRadioButton showLineMarker = new JBRadioButton(DebugToolsBundle.message("common.yes"));
     @Getter
-    private final JBRadioButton hideLineMarker = new JBRadioButton("Hide");
+    private final JBRadioButton hideLineMarker = new JBRadioButton(DebugToolsBundle.message("common.no"));
 
     @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
@@ -190,7 +191,7 @@ public class SettingPanel {
         languageButtonGroup.add(languageIde);
         languageButtonGroup.add(languageEnglish);
         languageButtonGroup.add(languageChinese);
-        LanguageSetting languageSetting = settingState.getLanguageSetting();
+        LanguageSetting languageSetting = DebugToolsGlobalSettingState.getInstance().getLanguage();
         switch (languageSetting) {
             case IDE:
                 languageIde.setSelected(true);
@@ -239,7 +240,7 @@ public class SettingPanel {
                         defaultGenParamType
                 )
                 .addLabeledComponent(
-                        new JBLabel("Show lineMarker:"),
+                        new JBLabel(DebugToolsBundle.message("setting.panel.quick.action.line.marker")),
                         lineMarkerPanel
                 )
                 .addLabeledComponent(

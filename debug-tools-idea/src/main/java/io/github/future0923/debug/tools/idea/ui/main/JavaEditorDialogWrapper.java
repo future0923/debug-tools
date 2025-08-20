@@ -45,6 +45,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.JBUI;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
@@ -107,8 +108,9 @@ public class JavaEditorDialogWrapper extends DialogWrapper {
         this.initName = initName;
         this.methodAroundComboBox = methodAroundComboBox;
         nameTextField = new JBTextField(initName, 20);
-        setTitle("Method Around");
-        setOKButtonText("Save");
+        setTitle(DebugToolsBundle.message("method.around"));
+        setOKButtonText(DebugToolsBundle.message("action.save"));
+        setCancelButtonText(DebugToolsBundle.message("action.cancel"));
         init();
     }
 
@@ -173,20 +175,20 @@ public class JavaEditorDialogWrapper extends DialogWrapper {
 
     private @NotNull JPanel initToolBar() {
         JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 6));
-        JButton optimizeImportsBtn = new JButton("Optimize Imports");
+        JButton optimizeImportsBtn = new JButton(DebugToolsBundle.message("method.around.optimize"));
         optimizeImportsBtn.addActionListener(e -> runWrite(() ->
                 JavaCodeStyleManager.getInstance(project).optimizeImports(psiJavaFile)));
 
-        JButton reformatBtn = new JButton("Reformat");
+        JButton reformatBtn = new JButton(DebugToolsBundle.message("method.around.format"));
         reformatBtn.addActionListener(e -> runWrite(() ->
                 CodeStyleManager.getInstance(project).reformat(psiJavaFile)));
 
-        JButton shortenRefsBtn = new JButton("Shorten Class References");
+        JButton shortenRefsBtn = new JButton(DebugToolsBundle.message("method.around.short.class"));
         shortenRefsBtn.addActionListener(e -> runWrite(() ->
                 JavaCodeStyleManager.getInstance(project).shortenClassReferences(psiJavaFile)));
 
         JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        namePanel.add(new JBLabel("Method around name:"));
+        namePanel.add(new JBLabel(DebugToolsBundle.message("method.around.name")));
         namePanel.add(nameTextField); // 指定列数更稳一点
         toolbar.add(namePanel);
         toolbar.add(optimizeImportsBtn);
@@ -230,7 +232,7 @@ public class JavaEditorDialogWrapper extends DialogWrapper {
     protected void doOKAction() {
         String name = nameTextField.getText();
         if (StrUtil.isBlank(name)) {
-            Messages.showErrorDialog("Method around name required", "Error");
+            Messages.showErrorDialog(DebugToolsBundle.message("method.around.name.error"), DebugToolsBundle.message("common.error"));
             return;
         }
         WriteCommandAction.runWriteCommandAction(project, () -> {
