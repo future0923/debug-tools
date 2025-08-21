@@ -50,30 +50,34 @@ public class MyBatisPlusPatcher {
      */
     @OnClassLoadEvent(classNameRegexp = "com.baomidou.mybatisplus.core.toolkit.MybatisUtils")
     public static void patchMybatisUtils(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod getMybatisMapperProxy = ctClass.getDeclaredMethod("getMybatisMapperProxy", new CtClass[]{classPool.get("java.lang.Object")});
-        getMybatisMapperProxy.setBody("{" +
-                "   if ($1 instanceof com.baomidou.mybatisplus.core.override.MybatisMapperProxy) {" +
-                "       return (com.baomidou.mybatisplus.core.override.MybatisMapperProxy) $1;" +
-                "   }" +
-                "   Object result = $1;" +
-                "   if (com.baomidou.mybatisplus.core.toolkit.AopUtils.isLoadSpringAop()) {" +
-                "       while (org.springframework.aop.support.AopUtils.isAopProxy(result)) {" +
-                "           result = org.springframework.aop.framework.AopProxyUtils.getSingletonTarget(result);" +
-                "       }" +
-                "   }" +
-                "   if (result != null) {" +
-                "       while (java.lang.reflect.Proxy.isProxyClass(result.getClass())) {" +
-                "           if (java.lang.reflect.Proxy.getInvocationHandler(result) instanceof io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.HotswapSpringInvocationHandler) {" +
-                "               result = ((io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.HotswapSpringInvocationHandler) java.lang.reflect.Proxy.getInvocationHandler(result)).getBean();" +
-                "           }" +
-                "           result = java.lang.reflect.Proxy.getInvocationHandler(result);" +
-                "       }" +
-                "   }" +
-                "   if (result instanceof com.baomidou.mybatisplus.core.override.MybatisMapperProxy) {" +
-                "       return (com.baomidou.mybatisplus.core.override.MybatisMapperProxy) result;" +
-                "   }" +
-                "   throw new com.baomidou.mybatisplus.core.exceptions.MybatisPlusException(\"Unable to get MybatisMapperProxy : \" + $1);" +
-                "}");
+        try {
+            CtMethod getMybatisMapperProxy = ctClass.getDeclaredMethod("getMybatisMapperProxy", new CtClass[]{classPool.get("java.lang.Object")});
+            getMybatisMapperProxy.setBody("{" +
+                    "   if ($1 instanceof com.baomidou.mybatisplus.core.override.MybatisMapperProxy) {" +
+                    "       return (com.baomidou.mybatisplus.core.override.MybatisMapperProxy) $1;" +
+                    "   }" +
+                    "   Object result = $1;" +
+                    "   if (com.baomidou.mybatisplus.core.toolkit.AopUtils.isLoadSpringAop()) {" +
+                    "       while (org.springframework.aop.support.AopUtils.isAopProxy(result)) {" +
+                    "           result = org.springframework.aop.framework.AopProxyUtils.getSingletonTarget(result);" +
+                    "       }" +
+                    "   }" +
+                    "   if (result != null) {" +
+                    "       while (java.lang.reflect.Proxy.isProxyClass(result.getClass())) {" +
+                    "           if (java.lang.reflect.Proxy.getInvocationHandler(result) instanceof io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.HotswapSpringInvocationHandler) {" +
+                    "               result = ((io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean.HotswapSpringInvocationHandler) java.lang.reflect.Proxy.getInvocationHandler(result)).getBean();" +
+                    "           }" +
+                    "           result = java.lang.reflect.Proxy.getInvocationHandler(result);" +
+                    "       }" +
+                    "   }" +
+                    "   if (result instanceof com.baomidou.mybatisplus.core.override.MybatisMapperProxy) {" +
+                    "       return (com.baomidou.mybatisplus.core.override.MybatisMapperProxy) result;" +
+                    "   }" +
+                    "   throw new com.baomidou.mybatisplus.core.exceptions.MybatisPlusException(\"Unable to get MybatisMapperProxy : \" + $1);" +
+                    "}");
+        } catch (NotFoundException ignored) {
+        }
+
     }
 
     @OnClassLoadEvent(classNameRegexp = "com.baomidou.mybatisplus.core.MybatisConfiguration")
@@ -126,9 +130,8 @@ public class MyBatisPlusPatcher {
     /**
      * MybatisPlusProperties.resolveMapperLocations 插桩，获取mapperLocations
      * <p>
-     *     Spring+MybatisPlus工程中：限制加载的Mapper.xml必须为<code>mybatis-plus.mapper-locations</code>配置的文件
+     * Spring+MybatisPlus工程中：限制加载的Mapper.xml必须为<code>mybatis-plus.mapper-locations</code>配置的文件
      * </p>
-     *
      * @param ctClass   ctClass
      * @param classPool classPool
      */
