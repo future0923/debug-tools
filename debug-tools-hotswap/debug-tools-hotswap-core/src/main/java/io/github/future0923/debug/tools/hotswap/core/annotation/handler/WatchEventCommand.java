@@ -21,14 +21,13 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnResourceFileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
+import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
+import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.LoaderClassPath;
 import javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
-import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -53,7 +52,7 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
     private final ClassLoader classLoader;
 
     public static <T extends Annotation> WatchEventCommand<T> createCmdForEvent(PluginAnnotation<T> pluginAnnotation,
-            WatchFileEvent event, ClassLoader classLoader) {
+                                                                                WatchFileEvent event, ClassLoader classLoader) {
         WatchEventDTO watchEventDTO = WatchEventDTO.parse(pluginAnnotation.getAnnotation());
         if (!watchEventDTO.accept(event)) {
             return null;
@@ -142,12 +141,12 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
             }
         } catch (IllegalAccessException e) {
             LOGGER.error("IllegalAccessException in method '{}' class '{}' classLoader '{}' on plugin '{}'",
-                e, pluginAnnotation.getMethod().getName(), ctClass != null ? ctClass.getName() : "",
-                classLoader != null ? classLoader.getClass().getName() : "", plugin.getClass().getName());
+                    e, pluginAnnotation.getMethod().getName(), ctClass != null ? ctClass.getName() : "",
+                    classLoader != null ? classLoader.getClass().getName() : "", plugin.getClass().getName());
         } catch (InvocationTargetException e) {
             LOGGER.error("InvocationTargetException in method '{}' class '{}' classLoader '{}' on plugin '{}'",
-                e, pluginAnnotation.getMethod().getName(), ctClass != null ? ctClass.getName() : "",
-                classLoader != null ? classLoader.getClass().getName() : "", plugin.getClass().getName());
+                    e, pluginAnnotation.getMethod().getName(), ctClass != null ? ctClass.getName() : "",
+                    classLoader != null ? classLoader.getClass().getName() : "", plugin.getClass().getName());
         }
     }
 
@@ -157,9 +156,7 @@ public class WatchEventCommand<T extends Annotation> extends MergeableCommand {
     private CtClass createCtClass(URI uri, ClassLoader classLoader) throws NotFoundException, IOException {
         File file = new File(uri);
         if (file.exists()) {
-          ClassPool cp = new ClassPool();
-          cp.appendClassPath(new LoaderClassPath(classLoader));
-          return cp.makeClass(new ByteArrayInputStream(IOUtils.toByteArray(uri)));
+            return JavassistUtil.createCtClass(classLoader, IOUtils.toByteArray(uri));
         }
         return null;
     }

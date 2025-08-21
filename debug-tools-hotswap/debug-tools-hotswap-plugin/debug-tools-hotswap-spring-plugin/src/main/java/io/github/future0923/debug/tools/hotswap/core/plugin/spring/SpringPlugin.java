@@ -23,23 +23,25 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtMethod;
-import javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPathBeanDefinitionScannerPatcher;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.SpringBootClassLoaderPatcher;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.SpringBootClassLoaderPatcher;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.Modifier;
+import javassist.NotFoundException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -211,5 +213,17 @@ public class SpringPlugin {
                 "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
                 "return " + ClassPathBeanDefinitionScannerAgent.class.getName() + ".filterDeleteBeanName(original);" +
                 "}");
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.cglib.core.SpringNamingPolicy")
+    public static void patchSpringNamingPolicy(ClassLoader classLoader, CtClass ctClass) throws CannotCompileException, IOException {
+        int modifiers = ctClass.getModifiers();
+        ctClass.setModifiers(modifiers & ~Modifier.FINAL);
+        for (CtConstructor constructor : ctClass.getDeclaredConstructors()) {
+            if (Modifier.isPrivate(constructor.getModifiers())) {
+                constructor.setModifiers(Modifier.PUBLIC);
+            }
+        }
+        JavassistUtil.insertClassPath(classLoader, "org.springframework.cglib.core.SpringNamingPolicy", ctClass);
     }
 }
