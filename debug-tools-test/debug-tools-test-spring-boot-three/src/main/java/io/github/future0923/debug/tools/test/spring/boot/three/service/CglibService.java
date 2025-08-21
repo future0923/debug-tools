@@ -16,28 +16,17 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.three.service;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.github.future0923.debug.tools.test.spring.boot.three.entity.User;
-import io.github.future0923.debug.tools.test.spring.boot.three.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  * @author future0923
  */
-@Service("userService")
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+@Service
+public class CglibService {
 
-    private final UserMapper userDao;
-
-    public UserServiceImpl(UserMapper userDao) {
-        this.userDao = userDao;
-    }
-
-    @Override
     @Transactional
-    public void saveBatchTest() {
-        System.out.println(1);
+    public void test() {
+        System.out.println("CglibService");
     }
 }

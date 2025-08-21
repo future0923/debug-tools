@@ -17,16 +17,14 @@
 package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.LoaderClassPath;
-import javassist.NotFoundException;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ClassPathScanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.Scanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ScannerVisitor;
+import javassist.CannotCompileException;
+import javassist.CtClass;
+import javassist.NotFoundException;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,9 +61,6 @@ public class ClassLoaderDefineClassPatcher {
         List<byte[]> cache = getPluginCache(classLoaderFrom, pluginPath);
 
         if (cache != null) {
-
-            final ClassPool cp = new ClassPool();
-            cp.appendClassPath(new LoaderClassPath(getClass().getClassLoader()));
             Set<String> loadedClasses = new HashSet<>();
             String packagePrefix = pluginPath.replace('/', '.');
 
@@ -75,8 +70,7 @@ public class ClassLoaderDefineClassPatcher {
                     // force to load class in classLoaderFrom (it may not yet be loaded) and if the classLoaderTo
                     // is parent of classLoaderFrom, after definition in classLoaderTo will classLoaderFrom return
                     // class from parent classloader instead own definition (hence change of behaviour).
-                    InputStream is = new ByteArrayInputStream(pluginBytes);
-                    pluginClass = cp.makeClass(is);
+                    pluginClass = JavassistUtil.createCtClass(getClass().getClassLoader(), pluginBytes);
                     try {
                         classLoaderFrom.loadClass(pluginClass.getName());
                     } catch (NoClassDefFoundError e) {
