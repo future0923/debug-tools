@@ -17,13 +17,13 @@
 package io.github.future0923.debug.tools.test.spring.boot.three.controller;
 
 import io.github.future0923.debug.tools.test.spring.boot.three.entity.User;
+import io.github.future0923.debug.tools.test.spring.boot.three.service.CglibService;
 import io.github.future0923.debug.tools.test.spring.boot.three.service.UserService;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 
 /**
  * @author future0923
@@ -33,8 +33,11 @@ public class TestController {
 
     private final UserService userService;
 
-    public TestController(UserService userService) {
+    private final CglibService cglibService;
+
+    public TestController(UserService userService, CglibService cglibService) {
         this.userService = userService;
+        this.cglibService = cglibService;
     }
 
     @GetMapping
@@ -48,7 +51,8 @@ public class TestController {
         user.setName("1");
         user.setAge1(1);
         user.setVersion(0);
-        userService.saveBatch(Collections.singletonList(user));
+        //userService.saveBatch(Collections.singletonList(user));
+        cglibService.test();
         return "b";
     }
 }
