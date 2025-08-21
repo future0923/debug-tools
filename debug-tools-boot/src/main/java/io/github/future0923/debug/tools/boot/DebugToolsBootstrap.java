@@ -16,8 +16,8 @@
  */
 package io.github.future0923.debug.tools.boot;
 
-import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.ArgType;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.AnsiLog;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
@@ -64,14 +64,11 @@ public class DebugToolsBootstrap {
         }
         File debugToolsHomeDir = DebugToolsLibUtils.getDebugToolsLibDir();
         File coreJarFile = new File(debugToolsHomeDir, "debug-tools-core.jar");
-        if (ProjectConstants.DEBUG || !coreJarFile.exists()) {
-            coreJarFile = DebugToolsFileUtils.getLibResourceJar(DebugToolsBootstrap.class.getClassLoader(), "debug-tools-core");
-        }
+        FileUtil.del(coreJarFile);
+        coreJarFile = DebugToolsFileUtils.getLibResourceJar(DebugToolsBootstrap.class.getClassLoader(), "debug-tools-core");
         File agentJarFile = new File(debugToolsHomeDir, "debug-tools-agent.jar");
-        if (ProjectConstants.DEBUG || !agentJarFile.exists()) {
-            agentJarFile = DebugToolsFileUtils.getLibResourceJar(DebugToolsBootstrap.class.getClassLoader(), "debug-tools-agent");
-        }
-
+        FileUtil.del(agentJarFile);
+        agentJarFile = DebugToolsFileUtils.getLibResourceJar(DebugToolsBootstrap.class.getClassLoader(), "debug-tools-agent");
         long pid = -1;
         try {
             pid = DebugToolsExecUtils.select();
