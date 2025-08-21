@@ -101,4 +101,22 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
         }
         return res;
     }
+
+    public static ClassLoader getDefaultClassLoader() {
+        Map<String, ClassLoader> map = getClassLoaderMap();
+        for (ClassLoader classLoader : map.values()) {
+            String classLoaderName = classLoader.getClass().getName();
+            if ("org.springframework.boot.loader.LaunchedURLClassLoader".equals(classLoaderName)
+                    || "org.springframework.boot.loader.launch.LaunchedClassLoader".equals(classLoaderName)
+                    || "org.springframework.boot.devtools.restart.classloader.RestartClassLoader".equals(classLoaderName)) {
+                return classLoader;
+            }
+        }
+        for (ClassLoader classLoader : map.values()) {
+            if (classLoader.getClass().getName().contains("AppClassLoader")) {
+                return classLoader;
+            }
+        }
+        return null;
+    }
 }
