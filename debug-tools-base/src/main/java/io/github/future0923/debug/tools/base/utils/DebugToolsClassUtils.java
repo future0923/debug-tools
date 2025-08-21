@@ -33,17 +33,15 @@ import java.util.Set;
  */
 public class DebugToolsClassUtils extends ClassUtil {
 
-    private static ClassLoader classLoader;
-
-    public static void setClassLoader(ClassLoader classLoader) {
-        DebugToolsClassUtils.classLoader = classLoader;
-    }
-
-    public static Class<?> loadDebugToolsClass(String name) throws ClassNotFoundException {
+    public static Class<?> loadDebugToolsClass(ClassLoader classLoader, String name) throws ClassNotFoundException {
         if (null == classLoader) {
             return ClassUtil.loadClass(name);
         }
-        return classLoader.loadClass(name);
+        try {
+            return classLoader.loadClass(name);
+        } catch (ClassNotFoundException e) {
+            return ClassUtil.loadClass(name);
+        }
     }
 
     public static Class<?> loadClass(String className, ClassLoader classLoader) {
