@@ -20,9 +20,10 @@ import io.github.future0923.debug.tools.base.classloader.DebugToolsExtensionClas
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
-import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
+import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -42,8 +43,14 @@ public class DebugToolsEnvUtils {
     private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
     private static final Map<ClassLoader, DebugToolsExtensionClassLoader> EXTENSION_CLASS_LOADER_MAP = new HashMap<>();
+    
+    private static ClassLoader appClassLoader;
 
     private static DebugToolsExtensionClassLoader getExtensionClassLoader(ClassLoader classLoader) {
+        if (classLoader == null) {
+            classLoader = AllClassLoaderHttpHandler.getDefaultClassLoader();
+        }
+        appClassLoader = classLoader;
         DebugToolsExtensionClassLoader extensionClassLoader = EXTENSION_CLASS_LOADER_MAP.get(classLoader);
         if (extensionClassLoader != null) {
             return extensionClassLoader;
@@ -124,7 +131,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method getLastBean = springEnvUtil.getMethod("getLastBean", String.class);
         return (T) getLastBean.invoke(null, beanName);
     }
@@ -135,7 +142,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method getBeans = springEnvUtil.getMethod("getBeans", String.class);
         return (List<T>) getBeans.invoke(null, beanName);
     }
@@ -157,7 +164,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method getLastBean = springEnvUtil.getMethod("getLastBean", Class.class);
         return (T) getLastBean.invoke(null, requiredType);
     }
@@ -168,7 +175,7 @@ public class DebugToolsEnvUtils {
         if (solonEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.noear.solon.core.AppContext");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.noear.solon.core.AppContext");
         Method getLastBean = solonEnvUtil.getMethod("getLastBean", Class.class);
         return (T) getLastBean.invoke(null, requiredType);
     }
@@ -179,7 +186,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method getBean = springEnvUtil.getMethod("getBeans", Class.class);
         return (List<T>) getBean.invoke(null, requiredType);
     }
@@ -189,7 +196,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method registerBean = springEnvUtil.getMethod("registerBean", Object.class);
         registerBean.invoke(null, bean);
     }
@@ -199,7 +206,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method registerBean = springEnvUtil.getMethod("registerBean", String.class, Object.class);
         registerBean.invoke(null, beanName, bean);
     }
@@ -209,7 +216,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.beans.factory.BeanFactory");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method unregisterBean = springEnvUtil.getMethod("unregisterBean", String.class);
         unregisterBean.invoke(null, beanName);
     }
@@ -219,7 +226,7 @@ public class DebugToolsEnvUtils {
         if (springEnvUtil == null) {
             return null;
         }
-        DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.env.Environment");
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.core.env.Environment");
         Method getSpringConfig = springEnvUtil.getMethod("getSpringConfig", String.class);
         return getSpringConfig.invoke(null, value);
     }
@@ -231,7 +238,7 @@ public class DebugToolsEnvUtils {
             return (T) candidate;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.SpringProxy");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.aop.SpringProxy");
             Method getTargetObject = springEnvUtil.getMethod("getTargetObject", Object.class);
             return (T) getTargetObject.invoke(null, candidate);
         } catch (Exception ignored) {
@@ -245,7 +252,7 @@ public class DebugToolsEnvUtils {
             return candidate.getClass();
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.SpringProxy");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.aop.SpringProxy");
             Method getTargetClass = springEnvUtil.getMethod("getTargetClass", Object.class);
             return (Class<?>) getTargetClass.invoke(null, candidate);
         } catch (Exception ignored) {
@@ -259,7 +266,7 @@ public class DebugToolsEnvUtils {
             return targetMethod;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.BridgeMethodResolver");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.core.BridgeMethodResolver");
             Method findBridgedMethod = springEnvUtil.getMethod("findBridgedMethod", Method.class);
             return (Method) findBridgedMethod.invoke(null, targetMethod);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -275,8 +282,8 @@ public class DebugToolsEnvUtils {
             return;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.web.context.request.RequestContextHolder");
-            DebugToolsClassUtils.loadDebugToolsClass("javax.servlet.http.HttpServletRequest");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.context.request.RequestContextHolder");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest");
             Method setRequest = springServletUtil.getMethod("setRequest", RunDTO.class);
             setRequest.invoke(null, runDTO);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -291,7 +298,7 @@ public class DebugToolsEnvUtils {
             return false;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.aop.framework.AopProxy");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.aop.framework.AopProxy");
             Method setRequest = springEnvUtil.getMethod("isAopProxy", InvocationHandler.class);
             return (boolean) setRequest.invoke(null, invocationHandler);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -307,7 +314,7 @@ public class DebugToolsEnvUtils {
             return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.core.ResolvableType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.core.ResolvableType");
             Method getArgs = springEnvUtil.getMethod("getArgs", Method.class, Map.class);
             return (Object[]) getArgs.invoke(null, bridgedMethod, targetMethodContent);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -323,8 +330,8 @@ public class DebugToolsEnvUtils {
             return null;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
-            DebugToolsClassUtils.loadDebugToolsClass("javax.servlet.http.HttpServletRequest");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest");
             Method getRequest = springServletUtil.getMethod("getRequest");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -340,7 +347,7 @@ public class DebugToolsEnvUtils {
             return null;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.server.reactive.ServerHttpRequest");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.server.reactive.ServerHttpRequest");
             Method getRequest = springReactiveUtil.getMethod("getServerHttpRequest");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -356,7 +363,7 @@ public class DebugToolsEnvUtils {
             return null;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.web.server.ServerWebExchange");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.server.ServerWebExchange");
             Method getRequest = springReactiveUtil.getMethod("getServerWebExchange");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -372,7 +379,7 @@ public class DebugToolsEnvUtils {
             return null;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.MediaType");
             Method getRequest = springServletUtil.getMethod("getResponse");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -388,7 +395,7 @@ public class DebugToolsEnvUtils {
             return null;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("org.springframework.http.server.reactive.ServerHttpResponse");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.server.reactive.ServerHttpResponse");
             Method getRequest = springReactiveUtil.getMethod("getServerHttpResponse");
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
@@ -404,7 +411,7 @@ public class DebugToolsEnvUtils {
             return;
         }
         try {
-            DebugToolsClassUtils.loadDebugToolsClass("com.xxl.job.core.context.XxlJobContext");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "com.xxl.job.core.context.XxlJobContext");
             Method setXxlJobParam = xxlJobEnvUtil.getMethod("setXxlJobParam", String.class);
             setXxlJobParam.invoke(null, jobParam);
         } catch (InvocationTargetException | IllegalAccessException e) {
