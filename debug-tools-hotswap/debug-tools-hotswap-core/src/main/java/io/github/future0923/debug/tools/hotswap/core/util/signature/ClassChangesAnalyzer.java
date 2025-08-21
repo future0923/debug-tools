@@ -17,9 +17,9 @@
 package io.github.future0923.debug.tools.hotswap.core.util.signature;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.LoaderClassPath;
 
 import java.io.ByteArrayInputStream;
 
@@ -37,14 +37,7 @@ public class ClassChangesAnalyzer {
     private final ClassPool classPool;
 
     public ClassChangesAnalyzer(final ClassLoader classLoader) {
-        this.classPool = new ClassPool() {
-            @Override
-            public ClassLoader getClassLoader() {
-                return classLoader;
-            }
-        };
-        classPool.appendSystemPath();
-        classPool.appendClassPath(new LoaderClassPath(classLoader));
+        this.classPool = JavassistUtil.getClassPool(classLoader);
     }
 
     public boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer) {
