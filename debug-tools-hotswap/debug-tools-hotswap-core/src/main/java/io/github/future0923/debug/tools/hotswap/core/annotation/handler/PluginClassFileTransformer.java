@@ -20,13 +20,12 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
+import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.LoaderClassPath;
-import io.github.future0923.debug.tools.hotswap.core.util.HaClassFileTransformer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.InvocationTargetException;
@@ -103,17 +102,6 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
     }
 
     /**
-     * 创建javassist CtClass
-     */
-    private static CtClass createCtClass(byte[] bytes, ClassLoader classLoader) throws IOException {
-        ClassPool cp = new ClassPool();
-        cp.appendSystemPath();
-        cp.appendClassPath(new LoaderClassPath(classLoader));
-
-        return cp.makeClass(new ByteArrayInputStream(bytes));
-    }
-
-    /**
      * 判断是否是合成类，跳过 proxy 和 javassist synthetic classes 类
      */
     protected static boolean isSyntheticClass(String className) {
@@ -164,14 +152,10 @@ public class PluginClassFileTransformer implements HaClassFileTransformer {
             } else if (type.isAssignableFrom(byte[].class)) {
                 args.add(bytes);
             } else if (type.isAssignableFrom(ClassPool.class)) {
-                ClassPool classPool = new ClassPool();
-                classPool.appendSystemPath();
-                LOGGER.trace("Adding loader classpath " + classLoader);
-                classPool.appendClassPath(new LoaderClassPath(classLoader));
-                args.add(classPool);
+                args.add(JavassistUtil.getClassPool(classLoader));
             } else if (type.isAssignableFrom(CtClass.class)) {
                 try {
-                    ctClass = createCtClass(bytes, classLoader);
+                    ctClass = JavassistUtil.createCtClass(classLoader, bytes);
                     args.add(ctClass);
                 } catch (IOException e) {
                     LOGGER.error("Unable create CtClass for '" + className + "'.", e);
