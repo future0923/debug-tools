@@ -17,13 +17,13 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 import org.springframework.cglib.core.DefaultNamingPolicy;
 import org.springframework.core.SpringVersion;
@@ -67,7 +67,9 @@ public class EnhancerProxyCreater {
             return false;
         }
         String beanClassName = bean.getClass().getName();
-        return beanClassName.contains("$$EnhancerBySpringCGLIB") || beanClassName.contains("$$EnhancerByCGLIB");
+        return beanClassName.contains("$$EnhancerBySpringCGLIB") || beanClassName.contains("$$EnhancerByCGLIB") // spring-core 5.x
+                // Spring-core 6+
+                || beanClassName.contains("$$SpringCGLIB$$") || beanClassName.contains("FastClass$$");
     }
 
     /**
@@ -140,7 +142,7 @@ public class EnhancerProxyCreater {
     }
 
     private Method getProxyCreationMethod(Object bean) throws CannotCompileException, NotFoundException {
-        ClassPool classPool = getCp(loader);
+        ClassPool classPool = JavassistUtil.getClassPool(loader);
         if (classPool.find("org.springframework.cglib.proxy.MethodInterceptor") != null) {
             if (createSpringProxy == null) {
                 synchronized (springLock) {
@@ -293,13 +295,5 @@ public class EnhancerProxyCreater {
         ct.addMethod(m);
         return ct.toClass(loader, protectionDomain);
     }
-
-    private ClassPool getCp(ClassLoader loader) {
-        ClassPool cp = new ClassPool();
-        cp.appendSystemPath();
-        cp.appendClassPath(new LoaderClassPath(loader));
-        return cp;
-    }
-
 
 }

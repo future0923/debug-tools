@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 import javassist.ClassPool;
@@ -102,7 +103,7 @@ public class TraceMethodClassFileTransformer {
      */
     public static void traceMethod(ClassLoader classLoader, Class<?> targetClass, Method targetMethod, TraceMethodDTO traceMethodDTO) throws Exception {
         MethodTrace.redefineTraceMethodProcessing = true;
-        ClassPool classPool = getClassPool();
+        ClassPool classPool = JavassistUtil.getClassPool(classLoader);
         CtClass ctClass = classPool.get(targetClass.getName());
         String methodDescription = getDescriptor(classPool, targetMethod);
         redefineMethod(
@@ -397,17 +398,6 @@ public class TraceMethodClassFileTransformer {
             return pool.get(clazz.getName().replace('$', '.'));
         }
         return pool.get(clazz.getName());
-    }
-
-    /**
-     * 获取ClassPool
-     *
-     * @return ClassPool
-     */
-    private static ClassPool getClassPool() {
-        ClassPool classPool = new ClassPool();
-        classPool.appendSystemPath();
-        return classPool;
     }
 
 }
