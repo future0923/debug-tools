@@ -25,7 +25,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
-import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -149,7 +148,6 @@ public class JavaEditorDialogWrapper extends DialogWrapper {
                 editor.getSettings().setLineCursorWidth(EditorUtil.getDefaultCaretWidth());
                 editor.getColorsScheme().setEditorFontName(getFont().getFontName());
                 editor.getColorsScheme().setEditorFontSize(getFont().getSize());
-                editor.putUserData(EditorImpl.DISABLE_REMOVE_ON_DROP, Boolean.TRUE);
                 editor.getContentComponent().setBorder(new CompoundBorder(editor.getContentComponent().getBorder(), JBUI.Borders.emptyLeft(2)));
                 editor.getSettings().setLineNumbersShown(true);
                 editor.getSettings().setFoldingOutlineShown(true);
