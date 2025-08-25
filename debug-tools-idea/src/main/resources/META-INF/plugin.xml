@@ -17,12 +17,9 @@
     <description><![CDATA[
     focusing on improving development efficiency and shortening debugging cycles. <a href="https://debug-tools.cc">Official Website</a>.
     <ul>
-        <li>Hot deployment in seconds: Deploy remote applications (dev/test environments) with one click. </li>
-        <li>Hot reload | hotswap in seconds: Code changes take effect immediately without restarting the application. </li>
-        <li>Call any Java method: Call any Java method with one click. </li>
-        <li>SQL statements and time consumption: The executed SQL statements and time consumption can be printed without modifying any application code. </li>
-        <li>Search HttpUrl: Jump directly to the corresponding method definition location through the given URL information. </li>
-        <li>Groovy: Execute Groovy scripts. </li>
+        <li>hot deploy, hotswap, hot reload, Similar to jrebel.</li>
+        <li>Call any Java method, Similar to api tool. </li>
+        <li>Others: SQL statements and time consumption, Search HttpUrl, Groovy.</li>
     </ul>
     专注于提升开发效率与缩短调试周期。<a href="https://debug-tools.cc">官网</a>。
     <ul>
@@ -37,6 +34,23 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.3.0</strong>
+        <ul>
+            <li>增加调用方法前后置脚本</li>
+            <li>增加trace方式sql语句双击/右键菜单放大查看</li>
+            <li>国际化(英文/中文)</li>
+            <li>打印sql支持达梦数据库</li>
+            <li>鼠标放在行头是否展示调用方法按钮配置开关</li>
+            <li>插件jdk11改为只支持jbr11不再支持trava11</li>
+            <li>SpringbootDevTools的项目默认选RestartClassLoader类加载器</li>
+            <li>修复调用方法trace功能传入转义字符串正则匹配失败的bug</li>
+            <li>修复macOS在M芯片下dylib加载错误的bug</li>
+            <li>修复MyBatis Plus3.5.6启动失败的bug</li>
+            <li>修复MyBatis Plus3.5.11+下热重载失败的bug</li>
+            <li>修复mybatis-spring3.0.4+下热重载失败</li>
+            <li>修复SpringBoot3.4.5下cglib的bean启动失败的bug</li>
+            <li>修复debug-tools-boot附着远程获取应用名错误导致附着失败的bug</li>
+        </ul>
         <strong>4.2.0</strong>
         <ul>
             <li>增加调用方法时trace功能展示链路耗时功能</li>
