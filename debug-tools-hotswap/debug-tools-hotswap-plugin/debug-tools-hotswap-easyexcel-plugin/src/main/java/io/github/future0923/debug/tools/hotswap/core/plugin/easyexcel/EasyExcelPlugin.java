@@ -102,42 +102,54 @@ public class EasyExcelPlugin {
         CtMethod getHeadMap = ctClass.getDeclaredMethod("getHeadMap");
         String beforeHandler =
                 "if (this.headClazz != null) {" +
-                "   this.headMap.clear();" +
-                "   this.initColumnProperties(this.holder);" +
-                "   this.initHeadRowNumber();" +
-                "   com.alibaba.excel.annotation.write.style.ColumnWidth parentColumnWidth = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.ColumnWidth.class);" +
-                "   com.alibaba.excel.annotation.write.style.HeadStyle parentHeadStyle = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.HeadStyle.class);" +
-                "   com.alibaba.excel.annotation.write.style.HeadFontStyle parentHeadFontStyle = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.HeadFontStyle.class);" +
-                "   java.util.Set entrySet = this.headMap.entrySet();" +
-                "   java.util.Iterator iterator = entrySet.iterator();" +
-                "   while (iterator.hasNext()) {" +
-                "       Object obj = iterator.next();" +
-                "       java.util.Map.Entry entry = (java.util.Map.Entry) obj;" +
-                "       com.alibaba.excel.metadata.Head headData = (com.alibaba.excel.metadata.Head) entry.getValue();" +
-                "       if (headData == null) continue;" +
-                "       java.lang.reflect.Field field = headData.getField();" +
-
-                "       com.alibaba.excel.annotation.write.style.ColumnWidth columnWidth = null;" +
-                "       if (field != null) columnWidth = field.getAnnotation(com.alibaba.excel.annotation.write.style.ColumnWidth.class);" +
-                "       if (columnWidth == null) columnWidth = parentColumnWidth;" +
-
-                "       com.alibaba.excel.annotation.write.style.HeadStyle headStyle = null;" +
-                "       if (field != null) headStyle = field.getAnnotation(com.alibaba.excel.annotation.write.style.HeadStyle.class);" +
-                "       if (headStyle == null) headStyle = parentHeadStyle;" +
-
-                "       com.alibaba.excel.annotation.write.style.HeadFontStyle headFontStyle = null;" +
-                "       if (field != null) headFontStyle = field.getAnnotation(com.alibaba.excel.annotation.write.style.HeadFontStyle.class);" +
-                "       if (headFontStyle == null) headFontStyle = parentHeadFontStyle;" +
-
-                "       com.alibaba.excel.annotation.write.style.ContentLoopMerge contentLoopMerge = null;" +
-                "       if (field != null) contentLoopMerge = field.getAnnotation(com.alibaba.excel.annotation.write.style.ContentLoopMerge.class);" +
-
-                "       headData.setColumnWidthProperty(com.alibaba.excel.metadata.property.ColumnWidthProperty.build(columnWidth));" +
-                "       headData.setHeadStyleProperty(com.alibaba.excel.metadata.property.StyleProperty.build(headStyle));" +
-                "       headData.setHeadFontProperty(com.alibaba.excel.metadata.property.FontProperty.build(headFontStyle));" +
-                "       headData.setLoopMergeProperty(com.alibaba.excel.metadata.property.LoopMergeProperty.build(contentLoopMerge));" +
-                "   }" +
+                "    this.headMap.clear();" +
+                "    this.initColumnProperties(this.holder);" +
+                "    this.initHeadRowNumber();" +
+                "    com.alibaba.excel.annotation.write.style.ColumnWidth parentColumnWidth = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.ColumnWidth.class);" +
+                "    com.alibaba.excel.annotation.write.style.HeadStyle parentHeadStyle = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.HeadStyle.class);" +
+                "    com.alibaba.excel.annotation.write.style.HeadFontStyle parentHeadFontStyle = this.headClazz.getAnnotation(com.alibaba.excel.annotation.write.style.HeadFontStyle.class);" +
+                "    java.util.Set entrySet = this.headMap.entrySet();" +
+                "    java.util.Iterator iterator = entrySet.iterator();" +
+                "    while (iterator.hasNext()) {" +
+                "        Object obj = iterator.next();" +
+                "        java.util.Map.Entry entry = (java.util.Map.Entry) obj;" +
+                "        com.alibaba.excel.metadata.Head headData = (com.alibaba.excel.metadata.Head) entry.getValue();" +
+                "        if (headData == null) {" +
+                "            continue;" +
+                "        }" +
+                "        java.lang.reflect.Field field = headData.getField();" +
+                "        com.alibaba.excel.annotation.write.style.ColumnWidth columnWidth = null;" +
+                "        if (field != null) {" +
+                "            columnWidth = field.getAnnotation(com.alibaba.excel.annotation.write.style.ColumnWidth.class);" +
+                "        }" +
+                "        if (columnWidth == null) {" +
+                "            columnWidth = parentColumnWidth;" +
+                "        }" +
+                "        com.alibaba.excel.annotation.write.style.HeadStyle headStyle = null;" +
+                "        if (field != null) {" +
+                "            headStyle = field.getAnnotation(com.alibaba.excel.annotation.write.style.HeadStyle.class);" +
+                "        }" +
+                "        if (headStyle == null) {" +
+                "            headStyle = parentHeadStyle;" +
+                "        }" +
+                "        com.alibaba.excel.annotation.write.style.HeadFontStyle headFontStyle = null;" +
+                "        if (field != null) {" +
+                "            headFontStyle = field.getAnnotation(com.alibaba.excel.annotation.write.style.HeadFontStyle.class);" +
+                "        }" +
+                "        if (headFontStyle == null) {" +
+                "            headFontStyle = parentHeadFontStyle;" +
+                "        }" +
+                "        com.alibaba.excel.annotation.write.style.ContentLoopMerge contentLoopMerge = null;" +
+                "        if (field != null) {" +
+                "            contentLoopMerge = field.getAnnotation(com.alibaba.excel.annotation.write.style.ContentLoopMerge.class);" +
+                "        }" +
+                "        headData.setColumnWidthProperty(com.alibaba.excel.metadata.property.ColumnWidthProperty.build(columnWidth));" +
+                "        headData.setHeadStyleProperty(com.alibaba.excel.metadata.property.StyleProperty.build(headStyle));" +
+                "        headData.setHeadFontProperty(com.alibaba.excel.metadata.property.FontProperty.build(headFontStyle));" +
+                "        headData.setLoopMergeProperty(com.alibaba.excel.metadata.property.LoopMergeProperty.build(contentLoopMerge));" +
+                "    }" +
                 "}";
+
 
         getHeadMap.insertBefore("{" + beforeHandler + "}");
         logger.info("patch easy excel ExcelHeadProperty success");
