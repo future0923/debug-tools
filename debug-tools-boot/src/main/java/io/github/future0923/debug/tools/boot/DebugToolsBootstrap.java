@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.boot;
 
 import io.github.future0923.debug.tools.base.enums.ArgType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.AnsiLog;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
@@ -47,6 +48,7 @@ public class DebugToolsBootstrap {
         Options options = new Options();
         options.addOption(ArgType.TCP_PORT.getOpt(), ArgType.TCP_PORT.getLongOpt(), ArgType.TCP_PORT.isHasArg(), ArgType.TCP_PORT.getDescription());
         options.addOption(ArgType.HTTP_PORT.getOpt(), ArgType.HTTP_PORT.getLongOpt(), ArgType.HTTP_PORT.isHasArg(), ArgType.HTTP_PORT.getDescription());
+        options.addOption(ArgType.PROCESS_ID.getOpt(), ArgType.PROCESS_ID.getLongOpt(), ArgType.PROCESS_ID.isHasArg(), ArgType.PROCESS_ID.getDescription());
         CommandLine cmd;
         try {
             cmd = parser.parse(options, args);
@@ -70,11 +72,17 @@ public class DebugToolsBootstrap {
         FileUtil.del(agentJarFile);
         agentJarFile = DebugToolsFileUtils.getLibResourceJar(DebugToolsBootstrap.class.getClassLoader(), "debug-tools-agent");
         long pid = -1;
-        try {
-            pid = DebugToolsExecUtils.select();
-        } catch (InputMismatchException e) {
-            AnsiLog.error("Please input an integer to select pid.");
-            System.exit(1);
+        String pidArg = cmd.getOptionValue(ArgType.PROCESS_ID.getLongOpt());
+        if (StrUtil.isNotBlank(pidArg)) {
+            pid = Long.parseLong(cmd.getOptionValue(ArgType.PROCESS_ID.getLongOpt()));
+        }
+        if (pid < 0) {
+            try {
+                pid = DebugToolsExecUtils.select();
+            } catch (InputMismatchException e) {
+                AnsiLog.error("Please input an integer to select pid.");
+                System.exit(1);
+            }
         }
         if (pid < 0) {
             AnsiLog.error("Please select an available pid.");
