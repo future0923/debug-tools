@@ -16,13 +16,15 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
-import javassist.ClassPool;
-import javassist.CtClass;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisSpringPatcher;
+import javassist.ClassPool;
+import javassist.CtClass;
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;
@@ -80,7 +82,7 @@ public class MyBatisSpringResourceManager {
      * {@link MyBatisSpringPatcher#patchClassPathMapperScanner}注入对象
      */
     public static void loadScanner(ClassPathMapperScanner scanner) {
-        if(null != mapperScanner) {
+        if (null != mapperScanner) {
             return;
         }
         mapperScanner = scanner;
@@ -132,18 +134,39 @@ public class MyBatisSpringResourceManager {
         return configurationList;
     }
 
-    public static boolean isInMapperLocations(String absolutePath) {
+    public static boolean isInMapperLocations(ClassLoader appClassLoader, String absolutePath) {
         if (mapperLocations.isEmpty()) {
             logger.debug("mapperLocations未配置，所有mapper xml文件都会加载");
             return true;
+        }
+
+        String hotDeployWatchResourcesPath = null;
+        PluginConfiguration pluginConfiguration = PluginManager.getInstance().getPluginConfiguration(appClassLoader);
+        if (pluginConfiguration != null) {
+            URL[] resourcesPath = pluginConfiguration.getWatchResources();
+            if (ArrayUtil.isNotEmpty(resourcesPath)) {
+                String watchResourcesPath = resourcesPath[0].getPath();
+                if (!watchResourcesPath.endsWith(File.separator)) {
+                    watchResourcesPath += File.separator;
+                }
+                if (absolutePath.startsWith(watchResourcesPath)) {
+                    hotDeployWatchResourcesPath = watchResourcesPath;
+                }
+            }
         }
         for (String mapperLocation : mapperLocations) {
             try {
                 Resource[] resources = resourcePatternResolver.getResources(mapperLocation);
                 for (Resource resource : resources) {
-                    // 使用File进行比较，避免windows上absolutePath路径格式不一致导致判断错误
-                    if (resource.getFile().equals(new File(absolutePath))) {
-                        return true;
+                    if (StrUtil.isNotBlank(hotDeployWatchResourcesPath)) {
+                        if (resource.getFile().getAbsolutePath().endsWith(StrUtil.removePrefix(absolutePath, hotDeployWatchResourcesPath))) {
+                            return true;
+                        }
+                    } else {
+                        // 使用File进行比较，避免windows上absolutePath路径格式不一致导致判断错误
+                        if (resource.getFile().equals(new File(absolutePath))) {
+                            return true;
+                        }
                     }
                 }
             } catch (Exception e) {

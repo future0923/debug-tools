@@ -21,19 +21,22 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.changes.Change;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
+import org.jetbrains.jps.model.java.JavaSourceRootType;
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -89,19 +92,16 @@ public class FileChangedService {
                 continue;
             }
             // 处理选择资源的逻辑
+            JpsModuleSourceRootType<?> sourceRootType = ProjectFileIndex.getInstance(project).getContainingSourceRootType(virtualFile);
             if (this.selectResource) {
-                // 如果文件扩展名不是 "class"，则检查映射配置
-                if (!"class".equals(virtualFile.getExtension())) {
-                    continue; // 如果映射配置为空，继续下一个迭代
+                if (ObjectUtil.equal(sourceRootType, JavaResourceRootType.RESOURCE)) {
+                    allChangedFiles.add(virtualFile.getPath());
                 }
             } else {
-                // 如果没有选择资源，且文件扩展名不是 "java"，继续下一个迭代
-                if (!"java".equals(virtualFile.getExtension())) {
-                    continue;
+                if (ObjectUtil.equal(sourceRootType, JavaSourceRootType.SOURCE) && "java".equals(virtualFile.getExtension())) {
+                    allChangedFiles.add(virtualFile.getPath());
                 }
             }
-            // 添加路径到集合中
-            allChangedFiles.add(virtualFile.getPath());
         }
         return allChangedFiles;
     }
@@ -114,22 +114,19 @@ public class FileChangedService {
         Module[] modules = ModuleManager.getInstance(project).getModules();
         final Set<String> modifiedFiles = new HashSet<>();
         for (Module module : modules) {
-            final ProjectFileIndex projectFileIndex = ProjectRootManager.getInstance(project).getFileIndex();
-            VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
-            for (VirtualFile contentRoot : contentRoots) {
-                VirtualFile srcDirectory = contentRoot.findChild("src");
-                if (srcDirectory != null && srcDirectory.isDirectory()) {
-                    VfsUtilCore.visitChildrenRecursively(srcDirectory, new VirtualFileVisitor<>() {
+            List<VirtualFile> sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots(JavaSourceRootType.SOURCE);
+            for (VirtualFile contentRoot : sourceRoots) {
+                if (contentRoot != null && contentRoot.isDirectory()) {
+                    VfsUtilCore.visitChildrenRecursively(contentRoot, new VirtualFileVisitor<>() {
                         @Override
-                        public boolean visitFile(@NotNull VirtualFile file) {
-                            if (projectFileIndex.isInTestSourceContent(file)) {
-                                return false;
-                            } else {
-                                if (file.isValid() && file.getTimeStamp() > lastJavaScanTime && "java".equals(file.getExtension())) {
-                                    modifiedFiles.add(file.getPath());
-                                }
-                                return true;
+                        public boolean visitFile(@NotNull VirtualFile virtualFile) {
+                            JpsModuleSourceRootType<?> sourceRootType = ProjectFileIndex.getInstance(project).getContainingSourceRootType(virtualFile);
+                            if (virtualFile.isValid() && virtualFile.getTimeStamp() > lastJavaScanTime
+                                    && ObjectUtil.equal(sourceRootType, JavaSourceRootType.SOURCE)
+                                    && "java".equals(virtualFile.getExtension())) {
+                                modifiedFiles.add(virtualFile.getPath());
                             }
+                            return true;
                         }
                     });
                 }
@@ -139,35 +136,31 @@ public class FileChangedService {
     }
 
     public Set<String> getModifiedResourceFiles() {
-        return this.checkVCS ? this.vcsChangedFiles() : this.scanModifiedResourceFiles("");
+        return this.checkVCS ? this.vcsChangedFiles() : this.scanModifiedResourceFiles();
     }
 
-    public Set<String> scanModifiedResourceFiles(String path) {
-        // 创建一个用于存储修改文件路径的集合
+    public Set<String> scanModifiedResourceFiles() {
+        Module[] modules = ModuleManager.getInstance(project).getModules();
         final Set<String> modifiedFiles = new HashSet<>();
-        // 获取映射路径对应的虚拟文件夹
-        VirtualFile virtualFileDir = LocalFileSystem.getInstance().findFileByPath(path);
-
-        if (virtualFileDir != null) {
-            // 遍历文件夹中的所有文件
-            VfsUtilCore.visitChildrenRecursively(virtualFileDir, new VirtualFileVisitor<>() {
-                @Override
-                public boolean visitFile(@NotNull VirtualFile file) {
-                    // 确保文件有效
-                    if (file.isValid()) {
-                        // 如果文件的时间戳大于上次扫描时间，且路径和文件类型匹配，则认为是修改过的文件
-                        if (file.getTimeStamp() > lastResourceScanTime) {
-                            // 将修改过的文件路径添加到集合中
-                            modifiedFiles.add(file.getPath());
+        for (Module module : modules) {
+            List<VirtualFile> sourceRoots = ModuleRootManager.getInstance(module).getSourceRoots(JavaResourceRootType.RESOURCE);
+            for (VirtualFile contentRoot : sourceRoots) {
+                if (contentRoot != null && contentRoot.isDirectory()) {
+                    VfsUtilCore.visitChildrenRecursively(contentRoot, new VirtualFileVisitor<>() {
+                        @Override
+                        public boolean visitFile(@NotNull VirtualFile virtualFile) {
+                            JpsModuleSourceRootType<?> sourceRootType = ProjectFileIndex.getInstance(project).getContainingSourceRootType(virtualFile);
+                            if (virtualFile.isValid() && virtualFile.getTimeStamp() > lastResourceScanTime
+                                    && ObjectUtil.equal(sourceRootType, JavaResourceRootType.RESOURCE)) {
+                                modifiedFiles.add(virtualFile.getPath());
+                            }
+                            // 继续遍历
+                            return true;
                         }
-                    }
-                    return true;  // 继续遍历
+                    });
                 }
-            });
+            }
         }
         return modifiedFiles;
     }
-
-
 }
-

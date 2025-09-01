@@ -21,27 +21,68 @@ package io.github.future0923.debug.tools.common.protocal;
  */
 public interface Command {
 
+    /**
+     * 心跳请求
+     */
     Byte HEARTBEAT_REQUEST = 1;
 
+    /**
+     * 心跳响应
+     */
     Byte HEARTBEAT_RESPONSE = 2;
 
+    /**
+     * 运行目标方法请求
+     */
     Byte RUN_TARGET_METHOD_REQUEST = 3;
 
+    /**
+     * 运行目标方法响应
+     */
     Byte RUN_TARGET_METHOD_RESPONSE = 4;
 
+    /**
+     * 服务器关闭请求
+     */
     Byte SERVER_CLOSE_REQUEST = 5;
 
+    /**
+     * 清空运行结果请求
+     */
     Byte CLEAR_RUN_RESULT = 7;
 
+    /**
+     * 运行Groovy脚本请求
+     */
     Byte RUN_GROOVY_SCRIPT_REQUEST = 8;
 
+    /**
+     * 运行Groovy脚本响应
+     */
     Byte RUN_GROOVY_SCRIPT_RESPONSE = 9;
 
+    /**
+     * 本地编译器HotDeploy请求
+     */
     Byte LOCAL_COMPILER_HOT_DEPLOY_REQUEST = 10;
 
+    /**
+     * 远程编译器HotDeploy请求
+     */
     Byte REMOTE_COMPILER_HOT_DEPLOY_REQUEST = 11;
 
+    /**
+     * HotDeploy响应
+     */
     Byte REMOTE_COMPILER_HOT_DEPLOY_RESPONSE = 12;
 
+    /**
+     * 修改追踪方法请求
+     */
     Byte CHANGE_TRACE_METHOD_REQUEST = 13;
+
+    /**
+     * 资源HotDeploy请求
+     */
+    Byte RESOURCE_HOT_DEPLOY_REQUEST = 14;
 }

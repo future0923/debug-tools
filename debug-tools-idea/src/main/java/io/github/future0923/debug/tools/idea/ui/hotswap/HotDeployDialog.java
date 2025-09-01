@@ -16,7 +16,6 @@
  */
 package io.github.future0923.debug.tools.idea.ui.hotswap;
 
-import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -24,6 +23,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -37,13 +37,15 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.FormBuilder;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.FileChangedService;
 import lombok.Data;
 import lombok.Getter;
@@ -52,7 +54,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -77,7 +79,7 @@ public class HotDeployDialog extends DialogWrapper {
     private boolean checkVCS = false;
 
     public HotDeployDialog(@Nullable Project project, AllClassLoaderRes.Item projectDefaultClassLoader) {
-        super(project, true);
+        super(project, true, IdeModalityType.MODELESS);
         this.project = project;
         this.projectDefaultClassLoader = projectDefaultClassLoader;
         this.hotUndoShowList = new DefaultListModel<>();
@@ -100,34 +102,34 @@ public class HotDeployDialog extends DialogWrapper {
         compilerPanel.add(localRadio);
         compilerPanel.add(remoteRadio);
         JRadioButton javaRadio = new JRadioButton(DebugToolsBundle.message("dialog.option.java"));
-        javaRadio.addItemListener((e) -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
+        javaRadio.addActionListener((e) -> {
+            if (javaRadio.isSelected()) {
                 isJava = true;
                 FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
                 fileChangedBean.setSelectResource(false);
                 this.fillInJavaFiles();
             }
         });
-        //JRadioButton resourceRadio = new JRadioButton("Resource(mapping path)");
-        //resourceRadio.addItemListener((e) -> {
-        //    if (e.getStateChange() == ItemEvent.SELECTED) {
-        //        isJava = false;
-        //        FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
-        //        fileChangedBean.setSelectResource(true);
-        //        this.fillInResourceFiles();
-        //    }
-        //
-        //});
+        JRadioButton resourceRadio = new JRadioButton("Resource");
+        resourceRadio.addActionListener((e) -> {
+            if (resourceRadio.isSelected()) {
+                isJava = false;
+                FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
+                fileChangedBean.setSelectResource(true);
+                this.fillInResourceFiles();
+            }
+        });
+        isJava = javaRadio.isSelected();
         JPanel optPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         ButtonGroup group = new ButtonGroup();
         group.add(javaRadio);
-        //group.add(resourceRadio);
+        group.add(resourceRadio);
         optPanel.add(javaRadio);
-        //optPanel.add(resourceRadio);
+        optPanel.add(resourceRadio);
         JCheckBox vcs = new JCheckBox(DebugToolsBundle.message("dialog.option.vcs"));
-        vcs.addItemListener((e) -> {
+        vcs.addActionListener((e) -> {
             FileChangedService fileChangedBean = FileChangedService.getInstance(project);
-            checkVCS = e.getStateChange() == ItemEvent.SELECTED;
+            checkVCS = vcs.isSelected();
             fileChangedBean.setCheckVCS(checkVCS);
             this.fullPathResourceFiles.clear();
             this.fullPathJavaFiles.clear();
@@ -157,7 +159,7 @@ public class HotDeployDialog extends DialogWrapper {
             vcs.setSelected(true);
         }
         if (fileChangedBean.isSelectResource()) {
-            //resourceRadio.setSelected(true);
+            resourceRadio.setSelected(true);
             this.fillInResourceFiles();
         } else {
             javaRadio.setSelected(true);
@@ -177,7 +179,7 @@ public class HotDeployDialog extends DialogWrapper {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("dialog.select.type")),
                         optPanel
-                        )
+                )
                 .addComponent(mainToolBar)
                 .addComponent(scrollPane);
         return formBuilder.getPanel();
@@ -187,12 +189,32 @@ public class HotDeployDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         List<VirtualFile> virtualFiles = getHotUndoList().stream().map(LocalFileSystem.getInstance()::findFileByPath).collect(Collectors.toList());
-        if (!virtualFiles.isEmpty()) {
+        if (isJava) {
             if (local) {
                 localCompiler(virtualFiles);
             } else {
                 remoteCompiler(virtualFiles);
             }
+        } else {
+            ResourceHotDeployRequestPacket hotSwapRequestPacket = new ResourceHotDeployRequestPacket();
+            for (VirtualFile virtualFile: virtualFiles) {
+                if (virtualFile == null) {
+                    continue;
+                }
+                VirtualFile sourceRootForFile = ProjectFileIndex.getInstance(project).getSourceRootForFile(virtualFile);
+                if (sourceRootForFile != null) {
+                    String filePath = VfsUtilCore.getRelativePath(virtualFile, sourceRootForFile, '/');
+                    try {
+                        byte[] bytes = virtualFile.contentsToByteArray();
+                        hotSwapRequestPacket.add(filePath, bytes);
+                    } catch (IOException ignored) {
+
+                    }
+                }
+                System.out.println(1);
+            }
+            hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
+            SocketSendUtils.send(project, hotSwapRequestPacket);
         }
         super.doOKAction();
     }
@@ -387,6 +409,12 @@ public class HotDeployDialog extends DialogWrapper {
     public static class ClassFilePath {
         private String className;
         private String fullPath;
+        private byte[] payload;
+    }
+
+    @Data
+    public static class ResourceFilePath {
+        private String filePath;
         private byte[] payload;
     }
 
