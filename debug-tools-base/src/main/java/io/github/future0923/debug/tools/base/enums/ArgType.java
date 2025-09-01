@@ -26,6 +26,7 @@ public enum ArgType {
 
     TCP_PORT("tp", "tcp-port", true, "target application server tcp port\ndefault get available port."),
     HTTP_PORT("hp", "http-port", true, "target application server http port\ndefault get available port."),
+    PROCESS_ID("pid", "pid", true, "target application process id"),
     ;
 
     private final String opt;
