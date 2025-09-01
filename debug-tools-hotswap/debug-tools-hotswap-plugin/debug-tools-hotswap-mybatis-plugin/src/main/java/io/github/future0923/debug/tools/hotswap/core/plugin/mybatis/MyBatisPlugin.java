@@ -103,14 +103,14 @@ public class MyBatisPlugin {
         Path pathObj = Paths.get(url.toURI());
         String normalizedPath = pathObj.toAbsolutePath().toString();
         logger.debug("registerResourceListeners, url:{}", normalizedPath);
-        if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(normalizedPath) && isInMapperLocations(normalizedPath))
+        if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(normalizedPath) && isInMapperLocations(appClassLoader, normalizedPath))
                 || (FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(normalizedPath))) {
             scheduler.scheduleCommand(new MyBatisSpringXmlReloadCommand(appClassLoader, url), 1000);
         }
     }
 
-    private static boolean isInMapperLocations(String normalizedPath) {
-        if (MyBatisSpringResourceManager.isInMapperLocations(normalizedPath)) {
+    private static boolean isInMapperLocations(ClassLoader appClassLoader, String normalizedPath) {
+        if (MyBatisSpringResourceManager.isInMapperLocations(appClassLoader, normalizedPath)) {
             return true;
         }
         logger.info("{} is not in mybatis.mapper-locations or mybatis-plus.mapper-locations", normalizedPath);
