@@ -49,17 +49,20 @@ public class ResourceHotDeployRequestHandler extends BasePacketHandler<ResourceH
 
     @Override
     public void handle(OutputStream outputStream, ResourceHotDeployRequestPacket packet) throws Exception {
+        long start = System.currentTimeMillis();
         Map<String, byte[]> filePathByteCodeMap = packet.getFilePathByteCodeMap();
-        String reloadClass = String.join(", ", filePathByteCodeMap.keySet());
+        String reloadFile = String.join(", ", filePathByteCodeMap.keySet());
         ClassLoader defaultClassLoader;
         try {
             defaultClassLoader = AllClassLoaderHttpHandler.getClassLoader(packet.getIdentity());
         } catch (DefaultClassLoaderException e) {
-            logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
-            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            logger.error("Fail to reload classes {}, msg is {}", reloadFile, e);
+            writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadFile + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         writeFile(defaultClassLoader, filePathByteCodeMap);
+        long end = System.currentTimeMillis();
+        writeAndFlushNotException(outputStream, HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadFile + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
     }
 
     protected void writeFile(ClassLoader defaultClassLoader, Map<String, byte[]> byteCodesMap) {
