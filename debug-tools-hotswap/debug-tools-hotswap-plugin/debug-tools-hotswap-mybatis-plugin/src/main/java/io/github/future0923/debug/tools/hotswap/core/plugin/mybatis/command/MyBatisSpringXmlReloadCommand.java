@@ -22,8 +22,12 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.MergeableCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringXmlReload;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 /**
@@ -37,27 +41,46 @@ public class MyBatisSpringXmlReloadCommand extends MergeableCommand {
 
     private final ClassLoader userClassLoader;
 
+    private final FileEvent fileEvent;
+
     private final URL url;
 
     /**
      * 当xml文件变化时，通过{@link MyBatisPlugin#watchResource(URL, FileEvent)}创建MyBatisXmlResourceRefreshCommands后调用这里
      */
-    public MyBatisSpringXmlReloadCommand(ClassLoader userClassLoader, URL url) {
+    public MyBatisSpringXmlReloadCommand(ClassLoader userClassLoader, FileEvent fileEvent, URL url) {
         this.userClassLoader = userClassLoader;
+        this.fileEvent = fileEvent;
         this.url = url;
     }
 
     @Override
     public void executeCommand() {
+        String normalizedPath;
         try {
-            ClassLoader orginalClassLoader = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader(userClassLoader);
-            Class<?> reloadClass = userClassLoader.loadClass(MyBatisSpringXmlReload.class.getName());
-            ReflectUtil.invoke(ReflectUtil.newInstance(reloadClass), "reload", url);
-            Thread.currentThread().setContextClassLoader(orginalClassLoader);
+            Path pathObj = Paths.get(url.toURI());
+            normalizedPath = pathObj.toAbsolutePath().toString();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        ClassLoader orginalClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(userClassLoader);
+        try {
+            if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(userClassLoader, normalizedPath) && invokeIsInMapperLocations(normalizedPath))
+                    || (FileEvent.MODIFY.equals(fileEvent) && invokeIsInMapperLocations(normalizedPath))) {
+                Class<?> reloadClass = userClassLoader.loadClass(MyBatisSpringXmlReload.class.getName());
+                ReflectUtil.invoke(ReflectUtil.newInstance(reloadClass), "reload", url);
+            }
         } catch (Exception e) {
             logger.error("reload MyBatis spring xml error", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(orginalClassLoader);
         }
+    }
+
+    public boolean invokeIsInMapperLocations(String normalizedPath) throws Exception {
+        Class<?> myBatisSpringResourceManager = userClassLoader.loadClass("io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager");
+        return ReflectUtil.invokeStatic(myBatisSpringResourceManager.getDeclaredMethod("isInMapperLocations", ClassLoader.class, String.class), userClassLoader, normalizedPath);
     }
 
     @Override
