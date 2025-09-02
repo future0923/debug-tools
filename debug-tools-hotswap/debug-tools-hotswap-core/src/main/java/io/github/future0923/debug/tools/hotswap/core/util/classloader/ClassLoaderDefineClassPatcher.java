@@ -17,14 +17,16 @@
 package io.github.future0923.debug.tools.hotswap.core.util.classloader;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ClassPathScanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.Scanner;
 import io.github.future0923.debug.tools.hotswap.core.util.scanner.ScannerVisitor;
 import javassist.CannotCompileException;
+import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,18 +61,20 @@ public class ClassLoaderDefineClassPatcher {
                       final ClassLoader classLoaderTo, final ProtectionDomain protectionDomain) {
 
         List<byte[]> cache = getPluginCache(classLoaderFrom, pluginPath);
-
         if (cache != null) {
+            // patch的时候必须要创建新的ClassPool，否则热部署启动时spring项目在AppClassLoader过早初始化从而无法启动
+            final ClassPool cp = new ClassPool();
+            cp.appendClassPath(new LoaderClassPath(getClass().getClassLoader()));
             Set<String> loadedClasses = new HashSet<>();
             String packagePrefix = pluginPath.replace('/', '.');
-
             for (byte[] pluginBytes : cache) {
                 CtClass pluginClass = null;
                 try {
                     // force to load class in classLoaderFrom (it may not yet be loaded) and if the classLoaderTo
                     // is parent of classLoaderFrom, after definition in classLoaderTo will classLoaderFrom return
                     // class from parent classloader instead own definition (hence change of behaviour).
-                    pluginClass = JavassistUtil.createCtClass(getClass().getClassLoader(), pluginBytes);
+                    InputStream is = new ByteArrayInputStream(pluginBytes);
+                    pluginClass = cp.makeClass(is);
                     try {
                         classLoaderFrom.loadClass(pluginClass.getName());
                     } catch (NoClassDefFoundError e) {

@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunR
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
@@ -41,6 +42,7 @@ public class ServerPacketHandleService extends PacketHandleService {
         register(RunGroovyScriptRequestPacket.class, RunGroovyScriptRequestHandler.INSTANCE);
         register(LocalCompilerHotDeployRequestPacket.class, LocalCompilerHotDeployRequestHandler.INSTANCE);
         register(RemoteCompilerHotDeployRequestPacket.class, RemoteCompilerHotDeployRequestHandler.INSTANCE);
+        register(ResourceHotDeployRequestPacket.class, ResourceHotDeployRequestHandler.INSTANCE);
         register(ChangeTraceMethodRequestPacket.class, ChangeTraceMethodRequestHandler.INSTANCE);
     }
 }

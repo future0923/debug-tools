@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunR
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
@@ -82,6 +83,7 @@ public class PacketCodec {
         this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_REQUEST, RemoteCompilerHotDeployRequestPacket.class);
         this.packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_RESPONSE, HotDeployResponsePacket.class);
         this.packetTypeMap.put(Command.CHANGE_TRACE_METHOD_REQUEST, ChangeTraceMethodRequestPacket.class);
+        this.packetTypeMap.put(Command.RESOURCE_HOT_DEPLOY_REQUEST, ResourceHotDeployRequestPacket.class);
         this.serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
     }
 
