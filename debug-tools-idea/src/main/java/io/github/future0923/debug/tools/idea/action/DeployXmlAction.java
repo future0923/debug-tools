@@ -21,40 +21,46 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.compiler.CompilerPaths;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.roots.ProjectFileIndex;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
-import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
  * @author future0923
  */
-public class CompileXmlFileToTargetAction extends AnAction {
+public class DeployXmlAction extends AnAction {
 
-    private static final Logger logger = Logger.getInstance(CompileXmlFileToTargetAction.class);
-
-    public CompileXmlFileToTargetAction() {
-        getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Compile);
+    public DeployXmlAction() {
+        getTemplatePresentation().setIcon(DebugToolsIcons.Hotswap.Publish);
     }
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
         if (project == null) {
+            return;
+        }
+        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
+        if (projectDefaultClassLoader == null) {
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
+            DebugToolsToolWindowFactory.showWindow(project, null);
             return;
         }
         // 获取当前编辑的文件
@@ -64,34 +70,23 @@ public class CompileXmlFileToTargetAction extends AnAction {
         }
         // 保存当前文件
         FileDocumentManager.getInstance().saveDocument(editor.getDocument());
-        String fileContent = editor.getDocument().getText();
         PsiFile file = e.getData(CommonDataKeys.PSI_FILE);
         if (file == null) {
             return;
         }
-        Module moduleForFile = ModuleUtilCore.findModuleForFile(file);
-        if (moduleForFile == null) {
-            return;
-        }
         VirtualFile virtualFile = file.getVirtualFile();
-        String path = virtualFile.getPath();
-        VirtualFile sourceRootForFile = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(virtualFile);
-        if (sourceRootForFile == null) {
-            return;
-        }
-        // mapper/UserMapper.xml
-        String pathFromSourceRoot = path.substring(sourceRootForFile.getPath().length() + 1);
-        VirtualFile moduleOutputDirectory = CompilerPaths.getModuleOutputDirectory(moduleForFile, false);
-        if (moduleOutputDirectory == null) {
-            return;
-        }
-        String targetPath = moduleOutputDirectory.getPath() + "/" + pathFromSourceRoot;
-        try {
-            FileUtil.writeToFile(new File(targetPath), fileContent);
-            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("action.compile.xml.file.to.target.success", file.getName()));
-        } catch (IOException ex) {
-            logger.error(DebugToolsBundle.message("action.compile.xml.file.to.target.error", file.getName()), ex);
-            DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("action.compile.xml.file.to.target.error.detail", file.getName(), ex.getMessage()));
+        ResourceHotDeployRequestPacket hotSwapRequestPacket = new ResourceHotDeployRequestPacket();
+        VirtualFile sourceRootForFile = ProjectFileIndex.getInstance(project).getSourceRootForFile(virtualFile);
+        if (sourceRootForFile != null) {
+            String filePath = VfsUtilCore.getRelativePath(virtualFile, sourceRootForFile, '/');
+            try {
+                byte[] bytes = virtualFile.contentsToByteArray();
+                hotSwapRequestPacket.add(filePath, bytes);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+            hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
+            SocketSendUtils.send(project, hotSwapRequestPacket);
         }
     }
 
@@ -115,7 +110,7 @@ public class CompileXmlFileToTargetAction extends AnAction {
             return;
         }
         if ("XML".equalsIgnoreCase(file.getFileType().getName())) {
-            presentation.setText(DebugToolsBundle.message("action.compile.xml.file.to.target.text") + " '" + file.getName() + "' " + DebugToolsBundle.message("action.compile.xml.file.to.target.description"));
+            presentation.setText(DebugToolsBundle.message("action.deploy.xml.file.text") + " '" + file.getName() + "' " + DebugToolsBundle.message("action.deploy.xml.file.description"));
             presentation.setEnabledAndVisible(true);
         } else {
             presentation.setEnabledAndVisible(false);

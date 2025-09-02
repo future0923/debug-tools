@@ -18,9 +18,9 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,7 +64,7 @@ public class MyBatisUtils {
         }
     }
 
-    public static boolean isMapperXml(String uri) {
+    public static boolean isMapperXml(ClassLoader classLoader, String uri) {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://javax.xml.XMLConstants/feature/secure-processing", true);
@@ -75,7 +75,7 @@ public class MyBatisUtils {
             factory.setCoalescing(false);
             factory.setExpandEntityReferences(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver(new XMLMapperEntityResolver());
+            builder.setEntityResolver((EntityResolver) classLoader.loadClass("org.apache.ibatis.builder.xml.XMLMapperEntityResolver").getDeclaredConstructor().newInstance());
             Document document = builder.parse(uri);
             NodeList mapper = document.getElementsByTagName("mapper");
             return mapper != null && mapper.getLength() > 0;

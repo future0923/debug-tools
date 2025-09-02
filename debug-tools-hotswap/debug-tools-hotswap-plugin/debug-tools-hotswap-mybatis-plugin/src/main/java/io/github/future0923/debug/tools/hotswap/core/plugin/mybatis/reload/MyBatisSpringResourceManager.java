@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
 
 import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
@@ -28,8 +29,8 @@ import javassist.CtClass;
 import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.ClassPathMapperScanner;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.io.File;
 import java.net.URL;
@@ -60,11 +61,6 @@ public class MyBatisSpringResourceManager {
      * Mapper.xml文件扫描路径
      */
     private static final Set<String> mapperLocations = new HashSet<>();
-
-    /**
-     * 用于解析Mapper.xml文件的位置
-     */
-    private static final PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     /**
      * <ul>
@@ -156,10 +152,14 @@ public class MyBatisSpringResourceManager {
         }
         for (String mapperLocation : mapperLocations) {
             try {
-                Resource[] resources = resourcePatternResolver.getResources(mapperLocation);
+                Resource[] resources = getPathMatchingResourcePatternResolver(appClassLoader, mapperLocation);
                 for (Resource resource : resources) {
                     if (StrUtil.isNotBlank(hotDeployWatchResourcesPath)) {
-                        if (resource.getFile().getAbsolutePath().endsWith(StrUtil.removePrefix(absolutePath, hotDeployWatchResourcesPath))) {
+                        if (resource instanceof ClassPathResource) {
+                            if (((ClassPathResource) resource).getPath().endsWith(StrUtil.removePrefix(absolutePath, hotDeployWatchResourcesPath))) {
+                                return true;
+                            }
+                        } else if (resource.getFile().getAbsolutePath().endsWith(StrUtil.removePrefix(absolutePath, hotDeployWatchResourcesPath))) {
                             return true;
                         }
                     } else {
@@ -174,5 +174,14 @@ public class MyBatisSpringResourceManager {
             }
         }
         return false;
+    }
+
+    /**
+     * 用于解析Mapper.xml文件的位置
+     */
+    public static Resource[] getPathMatchingResourcePatternResolver(ClassLoader classLoader, String mapperLocation) throws Exception {
+        Class<?> resolver = classLoader.loadClass("org.springframework.core.io.support.PathMatchingResourcePatternResolver");
+        Object resolverObj = resolver.getDeclaredConstructor().newInstance();
+        return ReflectUtil.invoke(resolverObj, "getResources", mapperLocation);
     }
 }

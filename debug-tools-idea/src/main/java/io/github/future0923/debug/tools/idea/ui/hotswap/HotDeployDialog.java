@@ -211,7 +211,6 @@ public class HotDeployDialog extends DialogWrapper {
 
                     }
                 }
-                System.out.println(1);
             }
             hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
             SocketSendUtils.send(project, hotSwapRequestPacket);
