@@ -235,6 +235,9 @@
             <action id="DebugTools.CompileXmlFileToTarget"
                     description="Run current xml file to target"
                     class="io.github.future0923.debug.tools.idea.action.CompileXmlFileToTargetAction"/>
+            <action id="DebugTools.DeployXml"
+                    description="Deploy current xml file to remote"
+                    class="io.github.future0923.debug.tools.idea.action.DeployXmlAction"/>
             <action id="DebugTools.RemoteCompiler"
                     description="Hot deploy the current file through remote compilation"
                     class="io.github.future0923.debug.tools.idea.action.RemoteCompilerAction"/>

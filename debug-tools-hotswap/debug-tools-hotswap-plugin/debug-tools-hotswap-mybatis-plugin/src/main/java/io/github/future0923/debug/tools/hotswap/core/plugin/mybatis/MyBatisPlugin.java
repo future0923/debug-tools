@@ -27,16 +27,9 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.Dynami
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.IBatisPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisPlusPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch.MyBatisSpringPatcher;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
 import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,24 +89,11 @@ public class MyBatisPlugin {
      * OnResourceFileEvent只能在主插件作用与实例对象，所以放在这里
      */
     @OnResourceFileEvent(path = "/", filter = ".*.xml", events = {FileEvent.CREATE, FileEvent.MODIFY})
-    public void watchResource(final URL url, final FileEvent fileEvent) throws ParserConfigurationException, IOException, SAXException, URISyntaxException {
-        if (!MyBatisUtils.isMyBatisSpring(appClassLoader) && !MyBatisUtils.isMyBatisPlus(appClassLoader)) {
+    public void watchResource(final URL url, final FileEvent fileEvent)  {
+        ClassLoader classLoader = getUserClassLoader();
+        if (!MyBatisUtils.isMyBatisSpring(classLoader) && !MyBatisUtils.isMyBatisPlus(classLoader)) {
             return;
         }
-        Path pathObj = Paths.get(url.toURI());
-        String normalizedPath = pathObj.toAbsolutePath().toString();
-        logger.debug("registerResourceListeners, url:{}", normalizedPath);
-        if ((FileEvent.CREATE.equals(fileEvent) && MyBatisUtils.isMapperXml(normalizedPath) && isInMapperLocations(normalizedPath))
-                || (FileEvent.MODIFY.equals(fileEvent) && configurationMap.containsKey(normalizedPath))) {
-            scheduler.scheduleCommand(new MyBatisSpringXmlReloadCommand(appClassLoader, url), 1000);
-        }
-    }
-
-    private static boolean isInMapperLocations(String normalizedPath) {
-        if (MyBatisSpringResourceManager.isInMapperLocations(normalizedPath)) {
-            return true;
-        }
-        logger.info("{} is not in mybatis.mapper-locations or mybatis-plus.mapper-locations", normalizedPath);
-        return false;
+        scheduler.scheduleCommand(new MyBatisSpringXmlReloadCommand(classLoader, fileEvent, url), 1000);
     }
 }
