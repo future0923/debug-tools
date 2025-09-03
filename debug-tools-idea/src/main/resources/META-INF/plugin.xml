@@ -34,6 +34,14 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.3.1</strong>
+        <ul>
+            <li>热部署支持resource目录下的文件</li>
+            <li>热部署支持mybatis的xml文件</li>
+            <li>debug-tools-boot支持pid参数传入进程号</li>
+            <li>修复EasyExcel在热重载启动下导出样式丢失的bug</li>
+            <li>修复SpringBoot3.4.5下热部署启动失败的bug</li>
+        </ul>
         <strong>4.3.0</strong>
         <ul>
             <li>增加调用方法前后置脚本</li>
@@ -154,7 +162,8 @@
         <!--文件变更-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.utils.FileChangedService"/>
         <!--鼠标移动-->
-        <editorFactoryMouseMotionListener implementation="io.github.future0923.debug.tools.idea.listener.idea.QuickDebugEditorMouseMotionListener" />
+        <editorFactoryMouseMotionListener
+                implementation="io.github.future0923.debug.tools.idea.listener.idea.QuickDebugEditorMouseMotionListener"/>
         <!--设置-->
         <projectConfigurable instance="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingConfigurable"
                              id="DebugToolsTool.Setting"
@@ -192,9 +201,9 @@
         <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <group id="DebugToolsTool.TraceMethod" 
-                    class="io.github.future0923.debug.tools.idea.action.TraceMethodGroup" 
-                    popup="true">
+            <group id="DebugToolsTool.TraceMethod"
+                   class="io.github.future0923.debug.tools.idea.action.TraceMethodGroup"
+                   popup="true">
                 <action id="DebugToolsTool.AddTraceMethod"
                         class="io.github.future0923.debug.tools.idea.action.AddTraceMethodAction"
                         text="Add Method To Trace"
