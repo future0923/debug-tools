@@ -16,7 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.ui.editor;
 
-import com.intellij.json.JsonFileType;
+import com.intellij.json.json5.Json5FileType;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
@@ -33,7 +33,7 @@ public class JsonEditor extends BaseEditor {
     /**
      * json格式
      */
-    public static final FileType JSON_FILE_TYPE = JsonFileType.INSTANCE;
+    public static final FileType JSON_FILE_TYPE = Json5FileType.INSTANCE;
 
     public JsonEditor(@NotNull Project project) {
         this(project, null);

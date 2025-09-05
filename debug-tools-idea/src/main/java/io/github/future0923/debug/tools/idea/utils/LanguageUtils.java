@@ -45,6 +45,7 @@ public class LanguageUtils {
             toolWindow.refresh();
             // Refresh GlobalParamPanel
             toolWindow.getGlobalParamPanel().refresh();
+            toolWindow.getInvokeMethodRecordPanel().refresh();
         }
         
         // Refresh action groups

@@ -16,10 +16,19 @@
  */
 package io.github.future0923.debug.tools.idea.utils;
 
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiParameterList;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
+import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
+import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -44,5 +53,29 @@ public class DebugToolsActionUtil {
             list.add(StringUtils.substringBefore(canonicalText, "<"));
         }
         return list;
+    }
+
+    public static void executeLast(Project project, String json) {
+        executeLast(project, DebugToolsJsonUtils.toBean(json, RunDTO.class));
+    }
+
+    public static void executeLast(Project project, RunDTO runDTO) {
+        RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
+        SocketSendUtils.send(project, packet);
+    }
+
+    public static void executeLastWithDefaultClassLoader(Project project, String json) {
+        executeLastWithDefaultClassLoader(project, DebugToolsJsonUtils.toBean(json, RunDTO.class));
+    }
+
+    public static void executeLastWithDefaultClassLoader(Project project, RunDTO runDTO) {
+        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
+        if (projectDefaultClassLoader == null) {
+            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
+            DebugToolsToolWindowFactory.showWindow(project, null);
+            return;
+        }
+        runDTO.setClassLoader(projectDefaultClassLoader);
+        executeLast(project, runDTO);
     }
 }
