@@ -23,6 +23,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
@@ -37,7 +38,7 @@ import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordDTO;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -131,6 +132,8 @@ public class MainDialog extends DialogWrapper {
                 runDTO.setMethodAroundContent(FileUtil.readUtf8String(filePath));
             }
         }
+        String identity = DebugToolsDigestUtil.md5(runDTO.toString());
+        runDTO.setIdentity(identity);
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
@@ -160,6 +163,8 @@ public class MainDialog extends DialogWrapper {
             return;
         }
         InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
+        invokeMethodRecordDTO.setIdentity(identity);
+        invokeMethodRecordDTO.formatRunTime();
         invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
         invokeMethodRecordDTO.setClassSimpleName(methodDataContext.getPsiClass().getName());
         invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
@@ -167,7 +172,7 @@ public class MainDialog extends DialogWrapper {
         invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
         invokeMethodRecordDTO.setMethodParamJson(text);
         invokeMethodRecordDTO.setCacheKey(methodDataContext.getCacheKey());
-        invokeMethodRecordDTO.setRunDTO(runDTO);
+        invokeMethodRecordDTO.formatRunDTO(runDTO);
         DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO);
         super.doOKAction();
     }

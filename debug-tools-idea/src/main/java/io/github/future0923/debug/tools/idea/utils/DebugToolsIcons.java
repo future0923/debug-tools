@@ -83,4 +83,11 @@ public class DebugToolsIcons {
         public static final Icon MyBatis = IconLoader.getIcon("/icon/trace/mybatis.svg", DebugToolsIcons.class);
         public static final Icon Database = IconLoader.getIcon("/icon/trace/database.svg", DebugToolsIcons.class);
     }
+
+    public static final class Status {
+        public static final Icon Ok = IconLoader.getIcon("/icon/status/ok.svg", DebugToolsIcons.class);
+        public static final Icon Fail = IconLoader.getIcon("/icon/status/fail.svg", DebugToolsIcons.class);
+        public static final Icon Running = IconLoader.getIcon("/icon/status/running.svg", DebugToolsIcons.class);
+    }
+
 }

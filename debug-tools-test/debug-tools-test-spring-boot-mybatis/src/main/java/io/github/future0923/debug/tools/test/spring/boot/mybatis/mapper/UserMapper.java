@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
 
 import java.time.LocalDate;
@@ -56,4 +57,7 @@ public interface UserMapper {
 
     @Update("update dp_user set update_date = #{updateDate} where id = 1")
     void updateDate(@Param("updateDate") LocalDate updateDate);
+
+    @SelectProvider(type = UserProvider.class, method = "testProvider")
+    List<User> testProvider();
 }

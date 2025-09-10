@@ -31,7 +31,7 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
-import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordDTO;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -167,7 +167,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private Map<String, String> methodAroundMap = new LinkedHashMap<>();
 
-    private LinkedHashMap<String, InvokeMethodRecordDTO> invokeMethodRecordMap;
+    private LinkedHashMap<String, InvokeMethodRecordDTO> invokeMethodRecordMap = new LinkedHashMap<>();
 
     @Override
     public @Nullable DebugToolsSettingState getState() {
