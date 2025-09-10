@@ -26,6 +26,7 @@ import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.main.JavaEditorDialogWrapper;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -62,7 +63,10 @@ public class MethodAroundComboBox extends ComboBox<String> {
         this.project = project;
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         methodAroundReloadButton = new JButton(DebugToolsBundle.message("action.reload"));
-        methodAroundReloadButton.addActionListener(e -> reload(project, settingState));
+        methodAroundReloadButton.addActionListener(e -> {
+            reload(project, settingState);
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("reload.successful"));
+        });
         methodAroundDetailButton = new JButton(DebugToolsBundle.message("action.detail"));
         methodAroundDetailButton.addActionListener(e -> {
             JavaEditorDialogWrapper javaEditorDialogWrapper = new JavaEditorDialogWrapper(project, this, (String) getSelectedItem());
