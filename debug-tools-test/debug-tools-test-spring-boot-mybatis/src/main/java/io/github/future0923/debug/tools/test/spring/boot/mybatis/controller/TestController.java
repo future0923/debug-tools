@@ -51,6 +51,6 @@ public class TestController {
 
     @GetMapping("/c")
     public String c() throws JsonProcessingException {
-        return objectMapper.writeValueAsString(testService.c("a"));
+        throw new RuntimeException();
     }
 }

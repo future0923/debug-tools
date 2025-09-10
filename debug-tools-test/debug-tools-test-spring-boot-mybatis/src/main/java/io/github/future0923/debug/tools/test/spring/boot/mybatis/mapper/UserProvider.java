@@ -14,18 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.ui.dialog;
+package io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper;
 
-import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
-import org.jetbrains.annotations.Nullable;
+import org.apache.ibatis.jdbc.SQL;
 
 /**
  * @author future0923
  */
-public class SqlDialogWrapper extends ShowDialogWrapper {
+public class UserProvider {
 
-    public SqlDialogWrapper(@Nullable Project project, String sql) {
-        super(project, "Sql Detail", SqlFormatter.format(sql), "sql");
+    public String testProvider() {
+        return new SQL() {
+            {
+                SELECT("a.id, a.version");
+                FROM("dp_user a");
+                LEFT_OUTER_JOIN("dp_user b ON a.id = b.id");
+            }
+        }.toString();
     }
 }

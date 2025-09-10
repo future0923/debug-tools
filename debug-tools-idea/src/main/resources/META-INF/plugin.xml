@@ -143,7 +143,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
     <depends>com.intellij.modules.json</depends>
-    <depends>com.intellij.modules.xdebugger</depends>
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
@@ -256,11 +255,6 @@
                 class="io.github.future0923.debug.tools.idea.action.HttpUrlSearchGotoAction"
                 text="Search Http Url" description="Search http url and goto it">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
-        </action>
-        <action id="DebugTools.CopyAsJson" class="io.github.future0923.debug.tools.idea.action.CopyToJsonAction"
-                text="Copy to JSON">
-            <add-to-group group-id="XDebugger.ValueGroup" anchor="before" relative-to-action="XDebugger.CopyValue"/>
-
         </action>
         <action id="io.github.future0923.debug.tools.idea.action.HotswapDebugAction"
                 class="io.github.future0923.debug.tools.idea.action.HotswapDebugAction" popup="true">

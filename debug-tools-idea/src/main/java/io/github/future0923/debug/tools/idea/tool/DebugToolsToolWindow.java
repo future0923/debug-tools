@@ -32,20 +32,22 @@ import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
 import io.github.future0923.debug.tools.idea.tool.action.HelpAction;
 import io.github.future0923.debug.tools.idea.tool.action.SettingAction;
 import io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction;
+import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordPanel;
 import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
+import lombok.Getter;
+
+import java.util.Arrays;
 
 /**
  * @author future0923
  */
 public class DebugToolsToolWindow extends SimpleToolWindowPanel {
 
+    @Getter
     private final GlobalParamPanel globalParamPanel;
     private final Project project;
-    private ActionToolbar actionToolbar;
-    
-    public GlobalParamPanel getGlobalParamPanel() {
-        return globalParamPanel;
-    }
+    @Getter
+    private final InvokeMethodRecordPanel invokeMethodRecordPanel;
 
     public DebugToolsToolWindow(Project project) {
         super(false, false);
@@ -54,7 +56,8 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         JBSplitter content = new JBSplitter(true, DebugToolsToolWindow.class.getName(), 0.5F);
         globalParamPanel = new GlobalParamPanel(project);
         content.setFirstComponent(globalParamPanel);
-        content.setSecondComponent(null);
+        invokeMethodRecordPanel = new InvokeMethodRecordPanel(project);
+        content.setSecondComponent(invokeMethodRecordPanel);
         this.setContent(content);
     }
 
@@ -78,7 +81,7 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         defaultActionGroup.add(new HotDeploymentAction());
         defaultActionGroup.addSeparator();
         defaultActionGroup.add(ActionManager.getInstance().getAction("DebugTools.HttpUrl"));
-        actionToolbar = ActionManager.getInstance().createActionToolbar(
+        ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(
                 ActionPlaces.TOOLBAR,
                 defaultActionGroup,
                 true

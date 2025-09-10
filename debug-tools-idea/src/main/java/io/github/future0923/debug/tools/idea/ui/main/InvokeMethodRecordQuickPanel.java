@@ -17,25 +17,22 @@
 package io.github.future0923.debug.tools.idea.ui.main;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
+import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.impl.ConvertDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListener;
-import io.github.future0923.debug.tools.idea.model.ParamCache;
-import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
-import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
@@ -50,11 +47,9 @@ import java.util.Optional;
 /**
  * @author future0923
  */
-public class MainPanel extends JBPanel<MainPanel> {
+public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuickPanel> {
 
     private final Project project;
-
-    private final MethodDataContext methodDataContext;
 
     private final JBTextField applicationNameField = new JBTextField();
 
@@ -83,46 +78,38 @@ public class MainPanel extends JBPanel<MainPanel> {
     @Getter
     private final MainJsonEditor editor;
 
-    public MainPanel(Project project, MethodDataContext methodDataContext) {
+    public InvokeMethodRecordQuickPanel(final Project project, final InvokeMethodRecordDTO recordDTO) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 700));
         this.project = project;
         applicationNameField.setText(StateUtils.getProjectAttachApplicationName(project));
         applicationNameField.setEditable(false);
         this.classLoaderComboBox = new ClassLoaderComboBox(project, 600, false);
-        this.methodDataContext = methodDataContext;
         // 当前类和方法
-        PsiMethod psiMethod = methodDataContext.getPsiMethod();
-        PsiClass psiClass = methodDataContext.getPsiClass();
-        if (psiClass != null && psiMethod != null) {
-            classNameField.setText(DebugToolsIdeaClassUtil.tryInnerClassName(psiClass));
-            methodNameField.setText(psiMethod.getName());
+        classNameField.setText(recordDTO.getClassName());
+        methodNameField.setText(recordDTO.getMethodName());
+        RunDTO formatRunDTO = recordDTO.parseRunDTO();
+        if (StringUtils.isNotBlank(formatRunDTO.getXxlJobParam())) {
+            xxlJobParamField.setText(formatRunDTO.getXxlJobParam());
         }
-        ParamCache paramCache = methodDataContext.getCache();
-        if (StringUtils.isNotBlank(paramCache.getXxlJobParam())) {
-            xxlJobParamField.setText(paramCache.getXxlJobParam());
-        }
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         methodAroundComboBox = new MethodAroundComboBox(project, 370);
-        if (StrUtil.isNotBlank(paramCache.getMethodAround())) {
-            methodAroundComboBox.setSelected(paramCache.getMethodAround());
-        } else if (StrUtil.isNotBlank(settingState.getDefaultMethodAroundName())) {
-            methodAroundComboBox.setSelected(settingState.getDefaultMethodAroundName());
+        if (StrUtil.isNotBlank(recordDTO.getMethodAroundName())) {
+            methodAroundComboBox.setSelected(recordDTO.getMethodAroundName());
         }
         traceMethodPanel = new TraceMethodPanel();
-        traceMethodPanel.processDefaultInfo(project, paramCache.getTraceMethodDTO());
+        traceMethodPanel.processDefaultInfo(project, formatRunDTO.getTraceMethodDTO());
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
         this.toolBar = new MainToolBar(publisher, project);
         // json编辑器
-        this.editor = new MainJsonEditor(paramCache.formatContent(), methodDataContext.getParamList(), project);
+        this.editor = new MainJsonEditor(DebugToolsJsonUtils.toJsonStr(formatRunDTO.getTargetMethodContent()), null, project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
         publisher.addListener(new ConvertDataListener(project, editor));
-        initLayout();
+        initLayout(formatRunDTO);
     }
 
-    private void initLayout() {
+    private void initLayout(RunDTO formatRunDTO) {
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         getAllClassLoader();
         refreshButton.addActionListener(e -> {
@@ -178,10 +165,7 @@ public class MainPanel extends JBPanel<MainPanel> {
             DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap);
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
-        Optional.of(methodDataContext)
-                .map(MethodDataContext::getCache)
-                .map(ParamCache::getItemHeaderMap)
-                .ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap)));
+        Optional.ofNullable(formatRunDTO.getHeaders()).ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap)));
         DebugToolsUIHelper.refreshUI(formBuilder);
 
         GridBagConstraints gbc = new GridBagConstraints();

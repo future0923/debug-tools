@@ -22,16 +22,10 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
-import io.github.future0923.debug.tools.common.dto.RunDTO;
-import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
-import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
-import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
-import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -64,15 +58,6 @@ public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAc
             Messages.showErrorDialog(DebugToolsBundle.message("error.load.file"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
-        RunDTO runDTO = DebugToolsJsonUtils.toBean(json, RunDTO.class);
-        AllClassLoaderRes.Item projectDefaultClassLoader = StateUtils.getProjectDefaultClassLoader(project);
-        if (projectDefaultClassLoader == null) {
-            Messages.showErrorDialog(DebugToolsBundle.message("error.select.default.classloader"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            DebugToolsToolWindowFactory.showWindow(project, null);
-            return;
-        }
-        runDTO.setClassLoader(projectDefaultClassLoader);
-        RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        SocketSendUtils.send(project, packet);
+        DebugToolsActionUtil.executeLastWithDefaultClassLoader(project, json);
     }
 }
