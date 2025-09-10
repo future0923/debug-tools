@@ -40,6 +40,8 @@ public class RunTargetMethodResponsePacket extends Packet {
 
     private static final Logger logger = Logger.getLogger(RunTargetMethodResponsePacket.class);
 
+    private String identity;
+
     private String applicationName;
 
     private String classLoaderIdentity;
@@ -59,6 +61,8 @@ public class RunTargetMethodResponsePacket extends Packet {
     private String offsetPath;
 
     private String traceOffsetPath;
+
+    private Long duration;
 
     @Override
     public Byte getCommand() {
@@ -81,6 +85,8 @@ public class RunTargetMethodResponsePacket extends Packet {
             return;
         }
         RunTargetMethodResponsePacket packet = DebugToolsJsonUtils.toBean(jsonString, RunTargetMethodResponsePacket.class);
+        this.setIdentity(packet.getIdentity());
+        this.setDuration(packet.getDuration());
         this.setApplicationName(packet.getApplicationName());
         this.setClassLoaderIdentity(packet.getClassLoaderIdentity());
         this.setClassName(packet.getClassName());
@@ -107,6 +113,7 @@ public class RunTargetMethodResponsePacket extends Packet {
     }
 
     public void setRunInfo(RunDTO runDTO, String applicationName) {
+        this.setIdentity(runDTO.getIdentity());
         this.setApplicationName(applicationName);
         this.setClassLoaderIdentity(runDTO.getClassLoader() == null ? null : runDTO.getClassLoader().getName() + "@" + runDTO.getClassLoader().getIdentity());
         this.setClassName(runDTO.getTargetClassName());

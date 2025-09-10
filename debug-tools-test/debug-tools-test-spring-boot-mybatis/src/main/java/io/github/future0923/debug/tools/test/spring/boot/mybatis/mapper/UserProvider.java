@@ -14,24 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.common.dto;
+package io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper;
 
-import io.github.future0923.debug.tools.common.enums.RunContentType;
-import lombok.Data;
+import org.apache.ibatis.jdbc.SQL;
 
 /**
  * @author future0923
  */
-@Data
-public class RunContentDTO {
+public class UserProvider {
 
-    /**
-     * {@link RunContentType}
-     */
-    private String type;
-
-    private Object content;
-
-    private Object value;
-
+    public String testProvider() {
+        return new SQL() {
+            {
+                SELECT("a.id, a.version");
+                FROM("dp_user a");
+                LEFT_OUTER_JOIN("dp_user b ON a.id = b.id");
+            }
+        }.toString();
+    }
 }

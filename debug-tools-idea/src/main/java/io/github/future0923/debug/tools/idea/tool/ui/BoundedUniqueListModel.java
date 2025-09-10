@@ -17,12 +17,14 @@
 package io.github.future0923.debug.tools.idea.tool.ui;
 
 import io.github.future0923.debug.tools.base.hutool.core.map.MapUtil;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import lombok.Getter;
 
 import javax.swing.*;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * 受限容量、去重、置顶（LRU）语义的 ListModel（通过 String key 判重）：
@@ -73,11 +75,18 @@ public class BoundedUniqueListModel<T> extends AbstractListModel<T> {
     public void addFirst(T element, String key) {
         if (element == null || key == null) return;
 
-        // 已存在则先移除（更新访问顺序），再放入成为“最新”
-        map.remove(key);
+        int oldIndex = indexOfKey(key);
+        boolean existed = oldIndex >= 0;
+
+        if (existed) {
+            // 移除旧的
+            map.remove(key);
+        }
+
+        // 插入到“最新”
         map.put(key, element);
 
-        // 超容量：淘汰最老（迭代首个）
+        // 淘汰超容量
         if (map.size() > capacity) {
             Iterator<String> it = map.keySet().iterator();
             if (it.hasNext()) {
@@ -85,8 +94,13 @@ public class BoundedUniqueListModel<T> extends AbstractListModel<T> {
                 it.remove();
             }
         }
-        // 容量通常很小（如 5），整体刷新简单稳妥
-        fireContentsChanged(this, 0, Math.max(0, map.size() - 1));
+
+        if (existed) {
+            // 原来位置删除
+            fireIntervalRemoved(this, oldIndex, oldIndex);
+        }
+        // 新位置插入
+        fireIntervalAdded(this, 0, 0);
     }
 
     /**
@@ -141,5 +155,105 @@ public class BoundedUniqueListModel<T> extends AbstractListModel<T> {
      */
     public T getByKey(String key) {
         return map.get(key);
+    }
+
+    /** 计算“显示层索引”（index=0 表示最新），不存在返回 -1 */
+    public int indexOfKey(String key) {
+        if (key == null || map.isEmpty()) return -1;
+        int i = 0, size = map.size();
+        // 你是反向显示，所以第一个迭代的是“最老”，最后一个是“最新”
+        for (String k : map.keySet()) {
+            if (key.equals(k)) {
+                // 迭代序 i 对应显示层 index = size-1-i
+                return size - 1 - i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
+    /** 仅刷新某一行（不改顺序不替换对象），用于“在原对象上改字段”的场景 */
+    private void refreshRowByKey(JList<T> list, String key) {
+        int row = indexOfKey(key);
+        if (row < 0) return;
+        // 方式A：标准事件（触发 renderer 重跑）
+        fireContentsChanged(this, row, row);
+
+        // 方式B：补一手精确重绘（某些 LnF 里重绘更及时）
+        if (list != null) {
+            java.awt.Rectangle r = list.getCellBounds(row, row);
+            if (r != null) list.repaint(r);
+        }
+    }
+
+    /** 替换为新值，但保持当前位置（不置顶） */
+    public void replaceByKey(String key, T newValue) {
+        if (key == null || newValue == null) return;
+        if (!map.containsKey(key)) return;
+        int row = indexOfKey(key);
+        map.put(key, newValue);         // 不改顺序
+        if (row >= 0) fireContentsChanged(this, row, row);
+    }
+
+    /** 替换并置顶（语义同 addFirst 的“去重 + 置顶”），触发整体刷新 */
+    public void replaceAndMoveToTop(String key, T newValue) {
+        if (key == null || newValue == null) return;
+        map.remove(key);
+        map.put(key, newValue);
+        if (map.size() > capacity) {
+            Iterator<String> it = map.keySet().iterator();
+            if (it.hasNext()) {
+                it.next(); it.remove();
+            }
+        }
+        fireContentsChanged(this, 0, Math.max(0, map.size() - 1));
+    }
+
+    /** 对某条记录做“原位变更”（Consumer 内修改字段），然后刷新这一行 */
+    public void mutateInPlace(String key, Consumer<T> mutator, JList<T> list) {
+        if (key == null || mutator == null) return;
+        T v = map.get(key);
+        if (v == null) return;
+        mutator.accept(v);
+        refreshRowByKey(list, key);
+    }
+
+    /**
+     * 删除指定 key 的元素
+     */
+    public void removeByKey(String key) {
+        if (key == null) return;
+        int index = indexOfKey(key);
+        if (index < 0) return;
+
+        map.remove(key);
+        // 通知列表：这行没了
+        fireIntervalRemoved(this, index, index);
+    }
+
+    /**
+     * 删除指定 index 的元素（显示层 index）
+     */
+    public void removeAt(int index) {
+        T element = getElementAt(index);
+        if (element == null) return;
+
+        // 找 key：由于 LinkedHashMap 是 key->value，需要反查
+        String keyToRemove = null;
+        int size = map.size();
+        int target = size - 1 - index;
+        int i = 0;
+        for (String k : map.keySet()) {
+            if (i == target) {
+                keyToRemove = k;
+                break;
+            }
+            i++;
+        }
+
+        if (keyToRemove != null) {
+            map.remove(keyToRemove);
+            fireIntervalRemoved(this, index, index);
+        }
     }
 }

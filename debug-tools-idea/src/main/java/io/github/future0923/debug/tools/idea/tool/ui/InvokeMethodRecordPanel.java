@@ -29,6 +29,7 @@ import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.ColoredListCellRenderer;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.border.CustomLineBorder;
@@ -42,8 +43,9 @@ import com.intellij.util.ui.StatusText;
 import io.github.future0923.debug.tools.base.hutool.core.map.MapUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
+import io.github.future0923.debug.tools.idea.model.RunStatus;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.dialog.JsonDialogWrapper;
 import io.github.future0923.debug.tools.idea.ui.main.InvokeMethodRecordDialog;
@@ -83,6 +85,8 @@ public class InvokeMethodRecordPanel extends JPanel {
 
     private AnAction reExecuteDefaultAction;
 
+    private AnAction removeAction;
+
     public InvokeMethodRecordPanel(Project project) {
         this.project = project;
         setLayout(new BorderLayout());
@@ -105,7 +109,30 @@ public class InvokeMethodRecordPanel extends JPanel {
             protected void customizeCellRenderer(@NotNull JList<? extends InvokeMethodRecordDTO> jList,
                                                  InvokeMethodRecordDTO value, int index,
                                                  boolean selected, boolean hasFocus) {
+                if (RunStatus.RUNNING.equals(value.getRunStatus())) {
+                    setIcon(DebugToolsIcons.Status.Running);
+                } else if (RunStatus.SUCCESS.equals(value.getRunStatus())) {
+                    setIcon(DebugToolsIcons.Status.Ok);
+                } else if (RunStatus.FAILED.equals(value.getRunStatus())) {
+                    setIcon(DebugToolsIcons.Status.Fail);
+                }
+                if (value.getDuration() != null) {
+                    if (value.getDuration()  > 100) {
+                        if (value.getDuration() > 10000) {
+                            if (value.getDuration() > 30000) {
+                                append("[" + value.getDuration() / 60000 + "] min ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
+                            } else {
+                                append("[" + value.getDuration() / 1000 + "] s ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
+                            }
+                        } else {
+                            append("[" + value.getDuration() + "] ms ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
+                        }
+                    } else {
+                        append("[" + value.getDuration() + "] ms ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.GREEN));
+                    }
+                }
                 append(value.getClassSimpleName() + "#" + value.getMethodSignature(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(" " + value.getRunTime(), SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
         });
         list.getEmptyText().setText(StatusText.getDefaultEmptyText());
@@ -150,8 +177,7 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                new JsonDialogWrapper(project, showCallJson, DebugToolsJsonUtils.toJsonStr(selected.getRunDTO())).show();
-
+                new JsonDialogWrapper(project, showCallJson, selected.getRunDTO()).show();
             }
         };
         actionGroup.add(showCallJsonAction);
@@ -168,7 +194,6 @@ public class InvokeMethodRecordPanel extends JPanel {
                     return;
                 }
                 new JsonDialogWrapper(project, showParamJson, selected.getMethodParamJson()).show();
-
             }
         };
         actionGroup.add(showParamJsonAction);
@@ -212,6 +237,22 @@ public class InvokeMethodRecordPanel extends JPanel {
             }
         };
         actionGroup.add(reExecuteDefaultAction);
+
+        // 执行上次
+        removeAction = new AnAction(DebugToolsBundle.message("action.remove")) {
+
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                InvokeMethodRecordDTO selected = getSelected();
+                if (selected == null) {
+                    Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
+                    return;
+                }
+                model.removeByKey(selected.getIdentity());
+                DebugToolsSettingState.getInstance(project).getInvokeMethodRecordMap().remove(selected.getIdentity());
+            }
+        };
+        actionGroup.add(removeAction);
 
         // 安装 popup
         PopupHandler.installPopupMenu(
@@ -260,12 +301,18 @@ public class InvokeMethodRecordPanel extends JPanel {
      */
     public void addItem(@NotNull InvokeMethodRecordDTO item) {
         if (StrUtil.isBlank(item.getIdentity())) {
-            item.setIdentity(DebugToolsDigestUtil.md5(item.toString()));
+            item.setIdentity(DebugToolsDigestUtil.md5(item.getRunDTO()));
         }
         model.addFirst(item, item.getIdentity());
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        settingState.setInvokeMethodRecordMap(model.getMap());
+        settingState.getInvokeMethodRecordMap().put(item.getIdentity(), item);
+    }
 
+    public void refreshItem(String identity, RunStatus runStatus, Long duration) {
+        model.mutateInPlace(identity, item -> {
+            item.setRunStatus(runStatus);
+            item.setDuration(duration);
+        }, list);
     }
 
     /**
@@ -295,6 +342,8 @@ public class InvokeMethodRecordPanel extends JPanel {
         if (reExecuteDefaultAction != null) {
             reExecuteDefaultAction.getTemplatePresentation().setText(DebugToolsBundle.message("action.rerun.with.default.classloader.text"));
         }
-
+        if (removeAction != null) {
+            removeAction.getTemplatePresentation().setText(DebugToolsBundle.message("action.remove"));
+        }
     }
 }

@@ -50,6 +50,11 @@ public class StateUtils {
      */
     private static final Map<Project, Set<String>> TRACE_METHOD_MAP = new ConcurrentHashMap<>();
 
+    /**
+     * 项目附加应用名称
+     */
+    private static final Map<Project, String> PROJECT_ATTACH_APPLICATION_NAME = new ConcurrentHashMap<>();
+
     public static void setProjectOpenTime(Project project) {
         PROJECT_OPEN_TIME_MAP.put(project, System.currentTimeMillis());
     }
@@ -83,5 +88,13 @@ public class StateUtils {
         if (traceMethod != null) {
             traceMethod.remove(qualifierMethod);
         }
+    }
+
+    public static String getProjectAttachApplicationName(Project project) {
+        return PROJECT_ATTACH_APPLICATION_NAME.get(project);
+    }
+
+    public static void setProjectAttachApplicationName(Project project, String applicationName) {
+        PROJECT_ATTACH_APPLICATION_NAME.put(project, applicationName);
     }
 }

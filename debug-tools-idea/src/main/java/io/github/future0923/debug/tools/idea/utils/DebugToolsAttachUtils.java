@@ -75,6 +75,7 @@ public class DebugToolsAttachUtils {
     public static void attachRemote(Project project, String host, int tcpPort) {
         try {
             String applicationName = HttpClientUtils.getApplicationName(project, false);
+            StateUtils.setProjectAttachApplicationName(project, applicationName);
             DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {
@@ -114,6 +115,7 @@ public class DebugToolsAttachUtils {
     }
 
     public static void attachLocal(Project project, String pid, String applicationName, String agentPath, Runnable onConnected) {
+        StateUtils.setProjectAttachApplicationName(project, applicationName);
         int tcpPort = ApplicationProjectHolder.getTcpPort(applicationName);
         Integer httpPort = ApplicationProjectHolder.getHttpPort(applicationName);
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);

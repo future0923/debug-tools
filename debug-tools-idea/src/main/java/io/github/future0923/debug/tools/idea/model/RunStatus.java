@@ -14,47 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.tool.ui;
-
-import io.github.future0923.debug.tools.common.dto.RunDTO;
-import lombok.Data;
+package io.github.future0923.debug.tools.idea.model;
 
 /**
  * @author future0923
  */
-@Data
-public class InvokeMethodRecordDTO {
+public enum RunStatus {
 
-    private String identity;
+    RUNNING,
 
-    /**
-     * 全类名
-     */
-    private String className;
+    SUCCESS,
 
-    /**
-     * 简类名
-     */
-    private String classSimpleName;
-
-    /**
-     * 方法名
-     */
-    private String methodName;
-
-    private String methodSignature;
-
-    /**
-     * 方法参数
-     */
-    private String methodParamJson;
-
-    private String methodAroundName;
-
-    private String cacheKey;
-
-    /**
-     * 调用参数
-     */
-    private RunDTO runDTO;
+    FAILED,
 }

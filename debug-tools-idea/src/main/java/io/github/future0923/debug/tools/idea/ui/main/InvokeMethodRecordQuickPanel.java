@@ -23,13 +23,14 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.listener.data.MulticasterEventPublisher;
 import io.github.future0923.debug.tools.idea.listener.data.impl.ConvertDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.PrettyDataListener;
 import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListener;
-import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordDTO;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
@@ -46,11 +47,11 @@ import java.util.Optional;
 /**
  * @author future0923
  */
-public class InvokeMethodRecordPanel extends JBPanel<InvokeMethodRecordPanel> {
+public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuickPanel> {
 
     private final Project project;
 
-    private final InvokeMethodRecordDTO recordDTO;
+    private final JBTextField applicationNameField = new JBTextField();
 
     @Getter
     private final ClassLoaderComboBox classLoaderComboBox;
@@ -77,36 +78,38 @@ public class InvokeMethodRecordPanel extends JBPanel<InvokeMethodRecordPanel> {
     @Getter
     private final MainJsonEditor editor;
 
-    public InvokeMethodRecordPanel(Project project, InvokeMethodRecordDTO recordDTO) {
+    public InvokeMethodRecordQuickPanel(final Project project, final InvokeMethodRecordDTO recordDTO) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 700));
         this.project = project;
+        applicationNameField.setText(StateUtils.getProjectAttachApplicationName(project));
+        applicationNameField.setEditable(false);
         this.classLoaderComboBox = new ClassLoaderComboBox(project, 600, false);
-        this.recordDTO = recordDTO;
         // 当前类和方法
         classNameField.setText(recordDTO.getClassName());
         methodNameField.setText(recordDTO.getMethodName());
-        if (StringUtils.isNotBlank(recordDTO.getRunDTO().getXxlJobParam())) {
-            xxlJobParamField.setText(recordDTO.getRunDTO().getXxlJobParam());
+        RunDTO formatRunDTO = recordDTO.parseRunDTO();
+        if (StringUtils.isNotBlank(formatRunDTO.getXxlJobParam())) {
+            xxlJobParamField.setText(formatRunDTO.getXxlJobParam());
         }
         methodAroundComboBox = new MethodAroundComboBox(project, 370);
         if (StrUtil.isNotBlank(recordDTO.getMethodAroundName())) {
             methodAroundComboBox.setSelected(recordDTO.getMethodAroundName());
         }
         traceMethodPanel = new TraceMethodPanel();
-        traceMethodPanel.processDefaultInfo(project, recordDTO.getRunDTO().getTraceMethodDTO());
+        traceMethodPanel.processDefaultInfo(project, formatRunDTO.getTraceMethodDTO());
         MulticasterEventPublisher publisher = new MulticasterEventPublisher();
         // 工具栏
         this.toolBar = new MainToolBar(publisher, project);
         // json编辑器
-        this.editor = new MainJsonEditor(DebugToolsJsonUtils.toJsonStr(recordDTO.getRunDTO().getTargetMethodContent()), null, project);
+        this.editor = new MainJsonEditor(DebugToolsJsonUtils.toJsonStr(formatRunDTO.getTargetMethodContent()), null, project);
         publisher.addListener(new SimpleDataListener(editor));
         publisher.addListener(new PrettyDataListener(editor));
         publisher.addListener(new ConvertDataListener(project, editor));
-        initLayout();
+        initLayout(formatRunDTO);
     }
 
-    private void initLayout() {
+    private void initLayout(RunDTO formatRunDTO) {
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         getAllClassLoader();
         refreshButton.addActionListener(e -> {
@@ -122,6 +125,10 @@ public class InvokeMethodRecordPanel extends JBPanel<InvokeMethodRecordPanel> {
         JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("main.panel.application.name")),
+                        applicationNameField
+                )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.class.loader")),
                         classLoaderJPanel
@@ -158,7 +165,7 @@ public class InvokeMethodRecordPanel extends JBPanel<InvokeMethodRecordPanel> {
             DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap);
             DebugToolsUIHelper.refreshUI(formBuilder);
         });
-        Optional.of(recordDTO.getRunDTO().getHeaders()).ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap)));
+        Optional.ofNullable(formatRunDTO.getHeaders()).ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap)));
         DebugToolsUIHelper.refreshUI(formBuilder);
 
         GridBagConstraints gbc = new GridBagConstraints();
