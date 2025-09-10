@@ -119,7 +119,7 @@ public class InvokeMethodRecordPanel extends JPanel {
                 if (value.getDuration() != null) {
                     if (value.getDuration()  > 100) {
                         if (value.getDuration() > 10000) {
-                            if (value.getDuration() > 30000) {
+                            if (value.getDuration() > 300000) {
                                 append("[" + value.getDuration() / 60000 + "] min ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
                             } else {
                                 append("[" + value.getDuration() / 1000 + "] s ", new SimpleTextAttributes(SimpleTextAttributes.STYLE_PLAIN, JBColor.RED));
