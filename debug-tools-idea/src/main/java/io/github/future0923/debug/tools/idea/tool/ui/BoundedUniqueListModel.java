@@ -17,7 +17,6 @@
 package io.github.future0923.debug.tools.idea.tool.ui;
 
 import io.github.future0923.debug.tools.base.hutool.core.map.MapUtil;
-import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -34,7 +33,7 @@ import java.util.function.Consumer;
  */
 public class BoundedUniqueListModel<T> extends AbstractListModel<T> {
 
-    private final int capacity = 50;
+    private final int capacity = 500;
 
     @Getter
     private final LinkedHashMap<String, T> map;
