@@ -14,18 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.idea.ui.dialog;
-
-import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
-import org.jetbrains.annotations.Nullable;
+package io.github.future0923.debug.tools.idea.model;
 
 /**
  * @author future0923
  */
-public class SqlDialogWrapper extends ShowDialogWrapper {
+public enum RunStatus {
 
-    public SqlDialogWrapper(@Nullable Project project, String sql) {
-        super(project, "Sql Detail", SqlFormatter.format(sql), "sql");
-    }
+    RUNNING,
+
+    SUCCESS,
+
+    FAILED,
 }

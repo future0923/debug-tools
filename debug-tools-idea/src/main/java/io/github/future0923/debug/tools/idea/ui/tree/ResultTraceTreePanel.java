@@ -31,6 +31,7 @@ import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.trace.MethodTraceType;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.ui.dialog.SqlDialogWrapper;
 import io.github.future0923.debug.tools.idea.ui.tree.node.EmptyTreeNode;
 import io.github.future0923.debug.tools.idea.ui.tree.node.ResultTraceTreeNode;
@@ -96,8 +97,8 @@ public class ResultTraceTreePanel extends JBScrollPane {
 
             }
         });
-        JMenuItem gotoMethodSource = new JMenuItem("Goto method source");
-        JMenuItem showSqlDetail = new JMenuItem("Show sql detail");
+        JMenuItem gotoMethodSource = new JMenuItem(DebugToolsBundle.message("goto.method.source"));
+        JMenuItem showSqlDetail = new JMenuItem(DebugToolsBundle.message("show.sql.detail"));
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

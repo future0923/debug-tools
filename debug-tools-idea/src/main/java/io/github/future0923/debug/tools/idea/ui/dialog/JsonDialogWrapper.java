@@ -17,15 +17,35 @@
 package io.github.future0923.debug.tools.idea.ui.dialog;
 
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
+import com.intellij.openapi.ui.DialogWrapper;
+import io.github.future0923.debug.tools.idea.ui.editor.JsonEditor;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 /**
  * @author future0923
  */
-public class SqlDialogWrapper extends ShowDialogWrapper {
+public class JsonDialogWrapper extends DialogWrapper {
 
-    public SqlDialogWrapper(@Nullable Project project, String sql) {
-        super(project, "Sql Detail", SqlFormatter.format(sql), "sql");
+    private final Project project;
+
+    private final String content;
+
+    public JsonDialogWrapper(@Nullable Project project, String title, String content) {
+        super(project, true, IdeModalityType.MODELESS);
+        this.project = project;
+        this.content = content;
+        setTitle(title);
+        setOKButtonText("Ok");
+        init();
+    }
+
+
+    @Override
+    protected @Nullable JComponent createCenterPanel() {
+        JsonEditor jsonEditor = new JsonEditor(project);
+        jsonEditor.setText(content);
+        return jsonEditor;
     }
 }
