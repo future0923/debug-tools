@@ -56,6 +56,8 @@ public class MainPanel extends JBPanel<MainPanel> {
 
     private final MethodDataContext methodDataContext;
 
+    private final JBTextField applicationNameField = new JBTextField();
+
     @Getter
     private final ClassLoaderComboBox classLoaderComboBox;
 
@@ -85,6 +87,8 @@ public class MainPanel extends JBPanel<MainPanel> {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 700));
         this.project = project;
+        applicationNameField.setText(StateUtils.getProjectAttachApplicationName(project));
+        applicationNameField.setEditable(false);
         this.classLoaderComboBox = new ClassLoaderComboBox(project, 600, false);
         this.methodDataContext = methodDataContext;
         // 当前类和方法
@@ -134,6 +138,10 @@ public class MainPanel extends JBPanel<MainPanel> {
         JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("main.panel.application.name")),
+                        applicationNameField
+                )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.class.loader")),
                         classLoaderJPanel

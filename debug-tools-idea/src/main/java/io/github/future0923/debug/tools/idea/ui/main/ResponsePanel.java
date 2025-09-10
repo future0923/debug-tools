@@ -16,17 +16,17 @@
  */
 package io.github.future0923.debug.tools.idea.ui.main;
 
-import com.intellij.ide.impl.ProjectUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import com.intellij.util.ui.JBDimension;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.model.RunStatus;
+import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.editor.TextEditor;
 import io.github.future0923.debug.tools.idea.ui.tab.ExceptionTabbedPane;
 import io.github.future0923.debug.tools.idea.ui.tab.RunResult;
@@ -45,6 +45,7 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
     public ResponsePanel(Project project, RunTargetMethodResponsePacket packet) {
         super(new GridBagLayout());
         setPreferredSize(new JBDimension(800, 600));
+        JBTextField applicationNameField = new JBTextField(packet.getApplicationName());
         JBTextField classNameField = new JBTextField(packet.getClassName());
         JBTextField methodNameField = new JBTextField(packet.getMethodName());
         List<String> methodParameterTypes = packet.getMethodParameterTypes();
@@ -65,8 +66,13 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             } else {
                 resultComponent = new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
             }
+            DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().refreshItem(packet.getIdentity(), packet.isSuccess() ? RunStatus.SUCCESS : RunStatus.FAILED, packet.getDuration());
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
+        formBuilder.addLabeledComponent(
+                new JBLabel(DebugToolsBundle.message("main.panel.application.name")),
+                applicationNameField
+        );
         if (packet.getClassLoaderIdentity() != null) {
             JBTextField classLoaderField = new JBTextField(packet.getClassLoaderIdentity());
             formBuilder.addLabeledComponent(

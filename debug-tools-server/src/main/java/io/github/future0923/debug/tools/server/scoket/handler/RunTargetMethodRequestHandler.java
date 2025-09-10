@@ -205,21 +205,26 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(instance);
             if (DebugToolsEnvUtils.isAopProxy(invocationHandler)) {
                 try {
+                    long start = System.currentTimeMillis();
                     Object result = invocationHandler.invoke(instance, bridgedMethod, targetMethodArgs);
-                    printResult(result, runDTO, outputStream, voidType, traceMethod);
+                    long end = System.currentTimeMillis();
+                    printResult(result, end - start, runDTO, outputStream, voidType, traceMethod);
                     return result;
                 } catch (Throwable ignored) {
                 }
             }
         }
+        long start = System.currentTimeMillis();
         Object result = bridgedMethod.invoke(instance, targetMethodArgs);
-        printResult(result, runDTO, outputStream, voidType, traceMethod);
+        long end = System.currentTimeMillis();
+        printResult(result, end - start, runDTO, outputStream, voidType, traceMethod);
         return result;
     }
 
-    private void printResult(Object result, RunDTO runDTO, OutputStream outputStream, boolean voidType, boolean traceMethod) {
+    private void printResult(Object result, Long duration, RunDTO runDTO, OutputStream outputStream, boolean voidType, boolean traceMethod) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, DebugToolsBootstrap.serverConfig.getApplicationName());
+        packet.setDuration(duration);
         if (voidType) {
             packet.setResultClassType(ResultClassType.VOID);
             packet.setPrintResult("Void");

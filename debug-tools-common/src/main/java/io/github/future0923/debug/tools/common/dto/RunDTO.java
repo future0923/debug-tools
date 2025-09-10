@@ -29,6 +29,11 @@ import java.util.Map;
 public class RunDTO {
 
     /**
+     * 运行唯一标识
+     */
+    private String identity;
+
+    /**
      * 请求头信息
      */
     private Map<String, String> headers;

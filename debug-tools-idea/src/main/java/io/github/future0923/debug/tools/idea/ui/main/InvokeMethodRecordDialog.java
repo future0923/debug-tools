@@ -33,10 +33,10 @@ import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -62,7 +62,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
 
     private final DebugToolsSettingState settingState;
 
-    private InvokeMethodRecordPanel mainPanel;
+    private InvokeMethodRecordQuickPanel mainPanel;
 
     public InvokeMethodRecordDialog(Project project, InvokeMethodRecordDTO recordRunDTO) {
         super(project, true, IdeModalityType.MODELESS);
@@ -77,7 +77,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
 
     @Override
     protected @Nullable JComponent createCenterPanel() {
-        mainPanel = new InvokeMethodRecordPanel(project, recordRunDTO);
+        mainPanel = new InvokeMethodRecordQuickPanel(project, recordRunDTO);
         return mainPanel;
     }
 
@@ -114,11 +114,13 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
                         (v1, v2) -> v1
                 ));
         RunDTO runDTO = new RunDTO();
+        runDTO.setIdentity(recordRunDTO.getIdentity());
         runDTO.setHeaders(headers);
         runDTO.setClassLoader(classLoaderRes);
-        runDTO.setTargetClassName(recordRunDTO.getRunDTO().getTargetClassName());
-        runDTO.setTargetMethodName(recordRunDTO.getRunDTO().getTargetMethodName());
-        runDTO.setTargetMethodParameterTypes(recordRunDTO.getRunDTO().getTargetMethodParameterTypes());
+        RunDTO formatRunDTO = recordRunDTO.parseRunDTO();
+        runDTO.setTargetClassName(formatRunDTO.getTargetClassName());
+        runDTO.setTargetMethodName(formatRunDTO.getTargetMethodName());
+        runDTO.setTargetMethodParameterTypes(formatRunDTO.getTargetMethodParameterTypes());
         runDTO.setTargetMethodContent(contentMap);
         runDTO.setXxlJobParam(xxlJobParam);
         runDTO.setTraceMethodDTO(traceMethodDTO);
@@ -158,6 +160,8 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
             return;
         }
         InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
+        invokeMethodRecordDTO.setIdentity(recordRunDTO.getIdentity());
+        invokeMethodRecordDTO.formatRunTime();
         invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
         invokeMethodRecordDTO.setClassSimpleName(recordRunDTO.getClassSimpleName());
         invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
@@ -165,7 +169,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
         invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
         invokeMethodRecordDTO.setMethodParamJson(text);
         invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
-        invokeMethodRecordDTO.setRunDTO(runDTO);
+        invokeMethodRecordDTO.formatRunDTO(runDTO);
         DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO);
         super.doOKAction();
     }
