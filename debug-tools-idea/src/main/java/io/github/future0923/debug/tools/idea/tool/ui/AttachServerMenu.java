@@ -91,7 +91,7 @@ public class AttachServerMenu extends JBPopupMenu {
                     }
                 },
                 descriptor -> {
-                    JBRadioButton radioButton = new JBRadioButton(ServerDisplayValue.display(descriptor.id(), descriptor.displayName()));
+                    JBRadioButton radioButton = new JBRadioButton(ServerDisplayValue.display(descriptor.getId(), descriptor.getDisplayName()));
                     radioPanel.add(radioButton);
                     radioGroup.add(radioButton);
                     radioButtonList.add(radioButton);
