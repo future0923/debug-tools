@@ -14,22 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper;
+package io.github.future0923.debug.tools.idea.model;
 
-import org.apache.ibatis.jdbc.SQL;
+import lombok.Data;
 
 /**
  * @author future0923
  */
-public class UserProvider {
+@Data
+public class VirtualMachineDescriptorDTO {
 
-    public String testProvider() {
-        return new SQL() {
-            {
-                SELECT("a.id, a.version");
-                FROM("dp_user a");
-                LEFT_OUTER_JOIN("dp_user b ON a.id = b.id");
-            }
-        }.toString();
-    }
+    private String id;
+
+    private String displayName;
 }

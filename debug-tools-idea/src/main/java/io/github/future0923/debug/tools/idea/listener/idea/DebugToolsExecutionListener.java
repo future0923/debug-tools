@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.idea.listener.idea;
 
 import com.intellij.execution.ExecutionListener;
+import com.intellij.execution.ShortenCommandLine;
 import com.intellij.execution.application.ApplicationConfiguration;
 import com.intellij.execution.process.KillableColoredProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
@@ -44,16 +45,23 @@ public class DebugToolsExecutionListener implements ExecutionListener {
     @Override
     public void processStarted(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler) {
         Project project = env.getProject();
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        if (!settingState.getAutoAttach()) {
-            return;
-        }
         String runClassName = env.getRunProfile().getClass().getName();
         if (!StringUtils.endsWith(runClassName, "SpringBootApplicationRunConfiguration") && !StringUtils.endsWithIgnoreCase(runClassName, "ApplicationConfiguration")) {
             return;
         }
         if (handler instanceof KillableColoredProcessHandler.Silent) {
             String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
+            // 处理 shorten command line
+            ApplicationConfiguration runProfile = (ApplicationConfiguration) env.getRunProfile();
+            ShortenCommandLine shortenCommandLine = runProfile.getShortenCommandLine();
+            if (ShortenCommandLine.CLASSPATH_FILE.equals(shortenCommandLine)) {
+                StateUtils.setShortenCommandLineMap(pid, runProfile.getMainClassName());
+            }
+            // 自动附着
+            DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+            if (!settingState.getAutoAttach()) {
+                return;
+            }
             String agentPath = settingState.getAgentPath();
             ThreadUtil.createThreadFactory("Auto-Attach").newThread(() -> {
                 File file = DebugToolsFileUtils.getAutoAttachFile();
@@ -68,7 +76,7 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                         DebugToolsAttachUtils.attachLocal(
                                 project,
                                 pid,
-                                ((ApplicationConfiguration) env.getRunProfile()).getMainClassName(),
+                                runProfile.getMainClassName(),
                                 agentPath,
                                 () -> {
                                     StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
@@ -79,6 +87,22 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                     }
                 }
             }).start();
+        }
+    }
+
+    @Override
+    public void processTerminated(@NotNull String executorId, @NotNull ExecutionEnvironment env, @NotNull ProcessHandler handler, int exitCode) {
+        String runClassName = env.getRunProfile().getClass().getName();
+        if (!StringUtils.endsWith(runClassName, "SpringBootApplicationRunConfiguration") && !StringUtils.endsWithIgnoreCase(runClassName, "ApplicationConfiguration")) {
+            return;
+        }
+        if (handler instanceof KillableColoredProcessHandler.Silent) {
+            ApplicationConfiguration runProfile = (ApplicationConfiguration) env.getRunProfile();
+            ShortenCommandLine shortenCommandLine = runProfile.getShortenCommandLine();
+            if (ShortenCommandLine.CLASSPATH_FILE.equals(shortenCommandLine)) {
+                String pid = String.valueOf(((KillableColoredProcessHandler.Silent) handler).getProcess().pid());
+                StateUtils.removeShortenCommandLineMap(pid);
+            }
         }
     }
 }

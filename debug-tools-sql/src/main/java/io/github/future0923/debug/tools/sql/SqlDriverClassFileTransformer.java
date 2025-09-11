@@ -17,7 +17,7 @@
 package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
-import javassist.ByteArrayClassPath;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -44,8 +44,7 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
             if (!DataSourceDriverClassEnum.isTargetDriver(dotClassName)) {
                 return null;
             }
-            ClassPool classPool = ClassPool.getDefault();
-            classPool.insertClassPath(new ByteArrayClassPath(dotClassName, classfileBuffer));
+            ClassPool classPool = JavassistUtil.getClassPool(loader);
             CtClass ctClass = classPool.get(dotClassName);
             CtMethod connectMethod = ctClass.getDeclaredMethod("connect", new CtClass[]{classPool.get("java.lang.String"), classPool.get("java.util.Properties")});
             connectMethod.insertAfter("{ " +

@@ -60,7 +60,14 @@ public class JavassistUtil {
      * 插入修改CtClass的，再从ClassPool获取时可以拿到最新的
      */
     public static void insertClassPath(ClassLoader classLoader, String name, CtClass ctClass) throws IOException, CannotCompileException {
-        getClassPool(classLoader).insertClassPath(new ByteArrayClassPath(name, ctClass.toBytecode()));
+        insertClassPath(classLoader, name, ctClass.toBytecode());
+    }
+
+    /**
+     * 插入修改CtClass的，再从ClassPool获取时可以拿到最新的
+     */
+    public static void insertClassPath(ClassLoader classLoader, String name, byte[] classFile) throws IOException, CannotCompileException {
+        getClassPool(classLoader).insertClassPath(new ByteArrayClassPath(name, classFile));
     }
 
 }
