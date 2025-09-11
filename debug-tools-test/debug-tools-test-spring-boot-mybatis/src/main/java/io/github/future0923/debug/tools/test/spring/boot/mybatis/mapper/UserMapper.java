@@ -22,6 +22,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.jdbc.SQL;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,6 +59,19 @@ public interface UserMapper {
     @Update("update dp_user set update_date = #{updateDate} where id = 1")
     void updateDate(@Param("updateDate") LocalDate updateDate);
 
-    @SelectProvider(type = UserProvider.class, method = "testProvider")
+    @SelectProvider(type = UserProvider.class, method = "selectTest")
     List<User> testProvider();
+
+    class UserProvider {
+
+        public String selectTest() {
+            return new SQL() {
+                {
+                    SELECT("a.id, a.version");
+                    FROM("dp_user a");
+                    LEFT_OUTER_JOIN("dp_user b ON a.id = b.id");
+                }
+            }.toString();
+        }
+    }
 }

@@ -172,8 +172,8 @@ public class PluginManager {
     /**
      * 增强ClassLoader，让其可以加载热部署过来的类文件. {@code SpringBootClassLoaderPatcher}
      */
-    public static void enhanceClassLoader(ClassLoader classLoader) {
-        URLClassLoaderPathHelper.prependClassPath(classLoader);
+    public static ClassLoader enhanceClassLoader(ClassLoader classLoader) {
+        return URLClassLoaderPathHelper.prependClassPath(classLoader);
     }
 
     /**
