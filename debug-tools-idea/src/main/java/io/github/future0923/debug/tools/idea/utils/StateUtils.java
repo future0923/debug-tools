@@ -55,6 +55,11 @@ public class StateUtils {
      */
     private static final Map<Project, String> PROJECT_ATTACH_APPLICATION_NAME = new ConcurrentHashMap<>();
 
+    /**
+     * shorten command line 的 classpath file 模式下的 pid 与 main name 的映射
+     */
+    private static final Map<String, String> SHORTEN_COMMAND_LINE_MAP = new ConcurrentHashMap<>();
+
     public static void setProjectOpenTime(Project project) {
         PROJECT_OPEN_TIME_MAP.put(project, System.currentTimeMillis());
     }
@@ -96,5 +101,21 @@ public class StateUtils {
 
     public static void setProjectAttachApplicationName(Project project, String applicationName) {
         PROJECT_ATTACH_APPLICATION_NAME.put(project, applicationName);
+    }
+
+    public static void setShortenCommandLineMap(String pid, String mainName) {
+        SHORTEN_COMMAND_LINE_MAP.put(pid, mainName);
+    }
+
+    public static String getShortenCommandLineMap(String pid, String defaultValue) {
+        return SHORTEN_COMMAND_LINE_MAP.getOrDefault(pid, defaultValue);
+    }
+
+    public static void removeShortenCommandLineMap(String pid) {
+        SHORTEN_COMMAND_LINE_MAP.remove(pid);
+    }
+
+    public static void refreshShortenCommandLineMap(Set<String> pidSet) {
+        SHORTEN_COMMAND_LINE_MAP.keySet().retainAll(pidSet);
     }
 }

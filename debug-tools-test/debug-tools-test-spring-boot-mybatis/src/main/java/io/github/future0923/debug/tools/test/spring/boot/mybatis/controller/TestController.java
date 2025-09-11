@@ -53,4 +53,9 @@ public class TestController {
     public String c() throws JsonProcessingException {
         throw new RuntimeException();
     }
+
+    @GetMapping("/ddd")
+    public String ddd() throws JsonProcessingException {
+        return "11";
+    }
 }

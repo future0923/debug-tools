@@ -29,12 +29,14 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.client.DebugToolsSocketClient;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
+import io.github.future0923.debug.tools.idea.model.VirtualMachineDescriptorDTO;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -46,28 +48,33 @@ public class DebugToolsAttachUtils {
 
     private static final Logger log = Logger.getInstance(DebugToolsAttachUtils.class);
 
-    public static List<VirtualMachineDescriptor> vmList() {
-        return VirtualMachine.list().stream().filter(descriptor -> !descriptor.displayName().startsWith("org.gradle")
-                && !descriptor.displayName().startsWith("org.jetbrains")
-                && !descriptor.displayName().startsWith("com.intellij")).collect(Collectors.toList());
+    public static List<VirtualMachineDescriptorDTO> vmList() {
+        List<VirtualMachineDescriptor> descriptorList = VirtualMachine.list();
+        Set<String> pidSet = descriptorList.stream().map(VirtualMachineDescriptor::id).collect(Collectors.toSet());
+        StateUtils.refreshShortenCommandLineMap(pidSet);
+        return descriptorList
+                .stream()
+                .map(descriptor -> {
+                    VirtualMachineDescriptorDTO descriptorDTO = new VirtualMachineDescriptorDTO();
+                    descriptorDTO.setId(descriptor.id());
+                    descriptorDTO.setDisplayName(StateUtils.getShortenCommandLineMap(descriptor.id(), descriptor.displayName()));
+                    return descriptorDTO;
+                })
+                .filter(descriptorDTO -> !descriptorDTO.getDisplayName().startsWith("org.gradle")
+                        && !descriptorDTO.getDisplayName().startsWith("org.jetbrains")
+                        && !descriptorDTO.getDisplayName().startsWith("com.intellij")).collect(Collectors.toList());
     }
 
-    public static void vmConsumer(Consumer<VirtualMachineDescriptor> consumer) {
+    public static void vmConsumer(Consumer<VirtualMachineDescriptorDTO> consumer) {
         vmConsumer(null, consumer);
     }
 
-    public static void vmConsumer(Consumer<Integer> sizeConsumer, Consumer<VirtualMachineDescriptor> descriptorConsumer) {
-        List<VirtualMachineDescriptor> list = vmList();
+    public static void vmConsumer(Consumer<Integer> sizeConsumer, Consumer<VirtualMachineDescriptorDTO> descriptorConsumer) {
+        List<VirtualMachineDescriptorDTO> list = vmList();
         if (sizeConsumer != null) {
             sizeConsumer.accept(list.size());
         }
-        for (VirtualMachineDescriptor descriptor : list) {
-            if (descriptor.displayName().startsWith("org.gradle")
-                    || descriptor.displayName().startsWith("org.jetbrains")
-                    || descriptor.displayName().startsWith("com.intellij")
-            ) {
-                continue;
-            }
+        for (VirtualMachineDescriptorDTO descriptor : list) {
             descriptorConsumer.accept(descriptor);
         }
     }
