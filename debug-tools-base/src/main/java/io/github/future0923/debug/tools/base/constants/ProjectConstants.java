@@ -36,4 +36,8 @@ public interface ProjectConstants {
     String CONFIG_FILE = "debug-tools.properties";
 
     String AUTO_ATTACH_FLAG_FILE = NAME + "/auto_attach.txt";
+
+    String PROJECT_PACKAGE_PREFIX = "io.github.future0923.debug.tools";
+
+    String PROJECT_PACKAGE_PATH = "io/github/future0923/debug/tools";
 }
