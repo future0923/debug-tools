@@ -76,6 +76,21 @@ public class PluginManagerInvoker {
      *
      * @return 方法的返回值
      */
+    public static Object callPluginMethod(Class<?> pluginClass, ClassLoader appClassLoader, String method) {
+        Object pluginInstance = PluginManager.getInstance().getPlugin(pluginClass.getName(), appClassLoader);
+        try {
+            Method m = pluginInstance.getClass().getDeclaredMethod(method);
+            return m.invoke(pluginInstance);
+        } catch (Exception e) {
+            throw new Error(String.format("Exception calling method %s on plugin class %s", method, pluginClass), e);
+        }
+    }
+
+    /**
+     * 反射调用指定ClassLoader中的Plugin方法
+     *
+     * @return 方法的返回值
+     */
     public static Object callPluginMethod(Class<?> pluginClass, ClassLoader appClassLoader, String method, Class<?>[] paramTypes, Object[] params) {
         Object pluginInstance = PluginManager.getInstance().getPlugin(pluginClass.getName(), appClassLoader);
         try {
