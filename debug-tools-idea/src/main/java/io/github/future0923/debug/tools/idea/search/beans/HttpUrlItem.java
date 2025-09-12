@@ -18,23 +18,21 @@ package io.github.future0923.debug.tools.idea.search.beans;
 
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.navigation.NavigationItem;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.Computable;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class HttpUrlItem implements NavigationItem {
-
-    private final PsiElement psiElement;
 
     @Getter
     private PsiMethod psiMethod;
@@ -43,28 +41,38 @@ public class HttpUrlItem implements NavigationItem {
     private HttpMethod method;
 
     @Getter
-    private final String url;
+    private String path;
+
+    private final String moduleName;
+
+    private final String className;
+
+    private final String methodName;
 
     private Navigatable navigationElement;
 
-    public HttpUrlItem(PsiElement psiElement, HttpMethod method, String urlPath) {
-        this.psiElement = psiElement;
+    private Icon icon = DebugToolsIcons.HttpMethod.Request;
+
+    public HttpUrlItem(PsiElement psiElement, HttpMethod method, String urlPath, String moduleName, String className, String methodName) {
         if (psiElement instanceof PsiMethod) {
             this.psiMethod = (PsiMethod) psiElement;
         }
         if (method != null) {
             this.method = method;
         }
-        this.url = urlPath;
+        this.path = urlPath;
         if (psiElement instanceof Navigatable) {
             navigationElement = (Navigatable) psiElement;
         }
+        this.moduleName = moduleName;
+        this.className = className;
+        this.methodName = methodName;
     }
 
     @Nullable
     @Override
     public String getName() {
-        return this.url;
+        return this.path;
     }
 
     @Nullable
@@ -76,26 +84,23 @@ public class HttpUrlItem implements NavigationItem {
             @Nullable
             @Override
             public String getPresentableText() {
-                return getUrl();
+                return getPath();
             }
 
             @Override
             public String getLocationString() {
-                return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-                    String location = null;
-                    if (psiMethod != null) {
-                        PsiClass psiClass = psiMethod.getContainingClass();
-                        if (psiClass != null) {
-                            location = psiClass.getName();
-                        }
-                        location += "#" + psiMethod.getName();
-                        location = "Java: (" + location + ")";
-                    }
-                    if (psiElement != null) {
-                        location += " in " + psiElement.getResolveScope().getDisplayName();
-                    }
-                    return location;
-                });
+                String location = "";
+                if (StrUtil.isNotBlank(className)) {
+                    location = className;
+                }
+                if (StrUtil.isNotBlank(methodName)) {
+                    location += "#" + psiMethod.getName();
+                }
+                location = "Java: (" + location + ")";
+                if (StrUtil.isNotBlank(moduleName)) {
+                    location += " in Module '" + moduleName + "'";
+                }
+                return location;
             }
 
             @NotNull
@@ -121,5 +126,69 @@ public class HttpUrlItem implements NavigationItem {
     @Override
     public boolean canNavigateToSource() {
         return true;
+    }
+
+    @NotNull
+    public HttpUrlItem copyWithParent(@Nullable HttpUrlItem parent) {
+        HttpUrlItem requestInfo = new HttpUrlItem(this.psiMethod, this.method, this.path, this.moduleName, this.className, this.methodName);
+        if (parent != null) {
+            requestInfo.setParent(parent);
+        }
+        return requestInfo;
+    }
+
+    public void setParent(@NotNull HttpUrlItem parent) {
+        if ((this.method == null || this.method == HttpMethod.REQUEST) && parent.getMethod() != null) {
+            this.setMethod(parent.getMethod());
+        }
+        String parentPath = parent.getPath();
+        if (parentPath != null && parentPath.endsWith("/")) {
+            // 去掉末尾的斜杠
+            parentPath = parentPath.substring(0, parentPath.length() - 1);
+        }
+        this.setPath(parentPath + this.path);
+    }
+
+    public void setMethod(@Nullable HttpMethod method) {
+        this.method = method;
+        this.icon = HttpMethod.getIcon(method);
+    }
+
+    public void setPath(@NotNull String path) {
+        path = path.trim();
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        path = path.replaceAll("//", "/");
+        this.path = path;
+    }
+
+    @Override
+    public String toString() {
+        HttpMethod method = this.method == null ? HttpMethod.REQUEST : this.method;
+        String path = this.path == null ? "" : this.path;
+        return String.format("[%s]%s(%s)", method, path, icon.getClass());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HttpUrlItem httpUrlInfo = (HttpUrlItem) o;
+        if (method != httpUrlInfo.method) {
+            return false;
+        }
+        return Objects.equals(path, httpUrlInfo.path);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = method != null ? method.hashCode() : 0;
+        result = 31 * result + (path != null ? path.hashCode() : 0);
+        return result;
     }
 }

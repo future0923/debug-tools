@@ -16,20 +16,22 @@
  */
 package io.github.future0923.debug.tools.idea.search.utils;
 
-import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
+import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJvmMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.search.HttpUrlCustomRefAnnotation;
-import io.github.future0923.debug.tools.idea.search.beans.HttpUrlInfo;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethodSpringAnnotation;
 import org.jetbrains.annotations.Contract;
@@ -41,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,14 +58,14 @@ public class SpringUtils {
      * @param module  模块
      * @return 请求集合
      */
-    public static List<HttpUrlInfo> getSpringRequestByModule(Project project, Module module) {
-        List<HttpUrlInfo> moduleList = new ArrayList<>(0);
+    public static List<HttpUrlItem> getSpringRequestByModule(Project project, Module module) {
+        List<HttpUrlItem> moduleList = new ArrayList<>(0);
         List<PsiClass> controllers = getAllControllerClass(project, module);
         if (controllers.isEmpty()) {
             return moduleList;
         }
         for (PsiClass controllerClass : controllers) {
-            moduleList.addAll(getRequests(controllerClass));
+            moduleList.addAll(getRequests(controllerClass, module));
         }
         return moduleList;
     }
@@ -96,13 +99,13 @@ public class SpringUtils {
      * @param controllerPsiClass 控制器PsiClass
      * @return 请求集合
      */
-    public static List<HttpUrlInfo> getRequests(@NotNull PsiClass controllerPsiClass) {
+    public static List<HttpUrlItem> getRequests(@NotNull PsiClass controllerPsiClass, Module module) {
         // 请求集合
-        List<HttpUrlInfo> httpUrlInfos = new ArrayList<>();
+        List<HttpUrlItem> httpUrlInfos = new ArrayList<>();
         // 类上的父请求
-        List<HttpUrlInfo> parentHttpUrlInfos = new ArrayList<>();
+        List<HttpUrlItem> parentHttpUrlInfos = new ArrayList<>();
         // 方法上的子请求
-        List<HttpUrlInfo> childrenHttpUrlInfos = new ArrayList<>();
+        List<HttpUrlItem> childrenHttpUrlInfos = new ArrayList<>();
         PsiAnnotation requestMappingPsiAnnotation = AttributeUtil.getClassAnnotation(
                 controllerPsiClass,
                 // 类上为长名字
@@ -111,18 +114,18 @@ public class SpringUtils {
                 HttpMethodSpringAnnotation.REQUEST_MAPPING.getShortName()
         );
         if (requestMappingPsiAnnotation != null) {
-            parentHttpUrlInfos = getRequests(requestMappingPsiAnnotation, null);
+            parentHttpUrlInfos = getRequests(requestMappingPsiAnnotation, null, module);
         }
         PsiMethod[] psiMethods = controllerPsiClass.getAllMethods();
         for (PsiMethod psiMethod : psiMethods) {
-            childrenHttpUrlInfos.addAll(getRequests(psiMethod));
+            childrenHttpUrlInfos.addAll(getRequests(psiMethod, module));
         }
         if (parentHttpUrlInfos.isEmpty()) {
             httpUrlInfos.addAll(childrenHttpUrlInfos);
         } else {
-            for (HttpUrlInfo parentRequestInfo : parentHttpUrlInfos) {
-                for (HttpUrlInfo childrenRequestInfo : childrenHttpUrlInfos) {
-                    HttpUrlInfo requestInfo = childrenRequestInfo.copyWithParent(parentRequestInfo);
+            for (HttpUrlItem parentRequestInfo : parentHttpUrlInfos) {
+                for (HttpUrlItem childrenRequestInfo : childrenHttpUrlInfos) {
+                    HttpUrlItem requestInfo = childrenRequestInfo.copyWithParent(parentRequestInfo);
                     httpUrlInfos.add(requestInfo);
                 }
             }
@@ -138,7 +141,7 @@ public class SpringUtils {
      * @return 请求集合
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static List<HttpUrlInfo> getRequests(@NotNull PsiAnnotation psiAnnotation, @Nullable PsiMethod psiMethod) {
+    private static List<HttpUrlItem> getRequests(@NotNull PsiAnnotation psiAnnotation, @Nullable PsiMethod psiMethod, Module module) {
         HttpMethodSpringAnnotation spring = HttpMethodSpringAnnotation.getByQualifiedName(
                 psiAnnotation.getQualifiedName()
         );
@@ -218,17 +221,21 @@ public class SpringUtils {
             }
         }
 
-        List<HttpUrlInfo> requestInfos = new ArrayList<>(paths.size());
-
+        List<HttpUrlItem> requestInfos = new ArrayList<>(paths.size());
+        String className = Optional.ofNullable(psiMethod).map(PsiJvmMember::getContainingClass).map(NavigationItem::getName).orElse(null);
+        String methodName = Optional.ofNullable(psiMethod).map(NavigationItem::getName).orElse(null);
         paths.forEach(path -> {
             for (HttpMethod method : methods) {
                 if (method.equals(HttpMethod.REQUEST) && methods.size() > 1) {
                     continue;
                 }
-                requestInfos.add(new HttpUrlInfo(
+                requestInfos.add(new HttpUrlItem(
+                        psiMethod,
                         method,
                         path,
-                        psiMethod
+                        module.getName(),
+                        className,
+                        methodName
                 ));
             }
         });
@@ -259,10 +266,10 @@ public class SpringUtils {
         return StrUtil.SLASH + currPath;
     }
 
-    private static List<HttpUrlInfo> getRequests(@NotNull PsiMethod method) {
-        List<HttpUrlInfo> requestInfos = new ArrayList<>();
+    private static List<HttpUrlItem> getRequests(@NotNull PsiMethod method, Module module) {
+        List<HttpUrlItem> requestInfos = new ArrayList<>();
         for (PsiAnnotation annotation : AttributeUtil.getMethodAnnotations(method)) {
-            requestInfos.addAll(getRequests(annotation, method));
+            requestInfos.addAll(getRequests(annotation, method, module));
         }
         return requestInfos;
     }
