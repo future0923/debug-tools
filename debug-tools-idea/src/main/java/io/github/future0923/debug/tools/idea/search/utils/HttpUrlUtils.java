@@ -19,12 +19,14 @@ package io.github.future0923.debug.tools.idea.search.utils;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import io.github.future0923.debug.tools.idea.search.beans.HttpUrlInfo;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author future0923
@@ -36,17 +38,19 @@ public class HttpUrlUtils {
      *
      * @param project 项目
      */
-    public static Map<String, List<HttpUrlInfo>> getAllRequest(Project project) {
-        Map<String, List<HttpUrlInfo>> map = new HashMap<>();
-        Module[] modules = ModuleManager.getInstance(project).getModules();
-        for (Module module : modules) {
-            List<HttpUrlInfo> requestInfos = getModuleAllRequests(project, module);
-            if (requestInfos.isEmpty()) {
-                continue;
-            }
-            map.put(module.getName(), requestInfos);
-        }
-        return map;
+    public static Map<String, HttpUrlItem[]> getAllRequest(Project project) {
+        return Arrays.stream(ModuleManager.getInstance(project).getModules())
+                .map(m -> getModuleAllRequests(project, m))
+                .flatMap(List::stream)
+                .filter(item -> item != null && StrUtil.isNotBlank(item.getPath()))
+                .collect(Collectors.groupingBy(
+                        HttpUrlItem::getPath,
+                        LinkedHashMap::new,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> list.toArray(new HttpUrlItem[0])
+                        )
+                ));
     }
 
     /**
@@ -56,12 +60,7 @@ public class HttpUrlUtils {
      * @param module  模块
      * @return 请求集合
      */
-    public static List<HttpUrlInfo> getModuleAllRequests(Project project, Module module) {
-        List<HttpUrlInfo> httpUrlInfos = new ArrayList<>();
-        List<HttpUrlInfo> springRequestInfoByModule = SpringUtils.getSpringRequestByModule(project, module);
-        if (!springRequestInfoByModule.isEmpty()) {
-            httpUrlInfos.addAll(springRequestInfoByModule);
-        }
-        return httpUrlInfos;
+    public static List<HttpUrlItem> getModuleAllRequests(Project project, Module module) {
+        return SpringUtils.getSpringRequestByModule(project, module);
     }
 }

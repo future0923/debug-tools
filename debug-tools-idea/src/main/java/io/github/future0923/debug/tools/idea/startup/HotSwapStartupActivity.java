@@ -16,8 +16,12 @@
  */
 package io.github.future0923.debug.tools.idea.startup;
 
+import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
+import com.intellij.util.concurrency.AppExecutorUtil;
+import io.github.future0923.debug.tools.idea.search.utils.HttpUrlUtils;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
@@ -34,6 +38,7 @@ public class HotSwapStartupActivity implements ProjectActivity {
     @Override
     public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
         StateUtils.setProjectOpenTime(project);
+        DumbService.getInstance(project).runWhenSmart(() -> ReadAction.nonBlocking(() -> HttpUrlUtils.getAllRequest(project)).submit(AppExecutorUtil.getAppExecutorService()));
         return null;
     }
 }
