@@ -113,7 +113,7 @@ public class QuickDebugEditorMouseMotionListener implements EditorMouseMotionLis
             return;
         }
 
-        if (BooleanUtil.isFalse(DebugToolsSettingState.getInstance(project).getLineMarkerVisible())) {
+        if (!BooleanUtil.isTrue(DebugToolsSettingState.getInstance(project).getLineMarkerVisible())) {
             return;
         }
 
