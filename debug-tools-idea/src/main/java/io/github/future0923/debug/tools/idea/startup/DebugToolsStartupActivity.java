@@ -43,7 +43,11 @@ public class DebugToolsStartupActivity implements ProjectActivity {
                     return Unit.INSTANCE;
                 })
                 .inSmartMode(project)
-                .coalesceBy(project)
+                .coalesceBy(
+                        DebugToolsStartupActivity.class, // 唯一来源
+                        project,                         // 具体工程
+                        "http-url-scan"                  // 任务标签
+                )
                 .submit(AppExecutorUtil.getAppExecutorService());
         return null;
     }
