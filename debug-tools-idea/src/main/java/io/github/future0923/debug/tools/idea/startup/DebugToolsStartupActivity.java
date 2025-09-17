@@ -33,12 +33,18 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author future0923
  */
-public class HotSwapStartupActivity implements ProjectActivity {
+public class DebugToolsStartupActivity implements ProjectActivity {
 
     @Override
     public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
         StateUtils.setProjectOpenTime(project);
-        DumbService.getInstance(project).runWhenSmart(() -> ReadAction.nonBlocking(() -> HttpUrlUtils.getAllRequest(project)).submit(AppExecutorUtil.getAppExecutorService()));
+        ReadAction.nonBlocking(() -> {
+                    HttpUrlUtils.getAllRequest(project);
+                    return Unit.INSTANCE;
+                })
+                .inSmartMode(project)
+                .coalesceBy(project)
+                .submit(AppExecutorUtil.getAppExecutorService());
         return null;
     }
 }
