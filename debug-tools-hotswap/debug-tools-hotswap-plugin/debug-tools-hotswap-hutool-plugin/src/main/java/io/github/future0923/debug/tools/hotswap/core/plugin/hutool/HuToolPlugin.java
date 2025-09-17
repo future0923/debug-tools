@@ -47,10 +47,20 @@ public class HuToolPlugin {
                 "}");
 
         CtMethod getMethods = ctClass.getDeclaredMethod("getMethods", new CtClass[]{classPool.get("java.lang.Class")});
-        getMethods.setBody("{" +
-                "   cn.hutool.core.lang.Assert.notNull($1);" +
-                "   return cn.hutool.core.util.ReflectUtil.getMethodsDirectly($1, true, true);" +
-                "}");
+        try {
+            ctClass.getDeclaredMethod("getMethodsDirectly", new CtClass[]{classPool.get("java.lang.Class"), CtClass.booleanType, CtClass.booleanType});
+            // 高版本是三个参数，如 5.8.11
+            getMethods.setBody("{" +
+                    "   cn.hutool.core.lang.Assert.notNull($1);" +
+                    "   return cn.hutool.core.util.ReflectUtil.getMethodsDirectly($1, true, true);" +
+                    "}");
+        } catch (NotFoundException e) {
+            // 低版本是两个参数，如 5.5.8
+            getMethods.setBody("{" +
+                    "   cn.hutool.core.lang.Assert.notNull($1);" +
+                    "   return cn.hutool.core.util.ReflectUtil.getMethodsDirectly($1, true);" +
+                    "}");
+        }
 
         CtMethod getConstructors = ctClass.getDeclaredMethod("getConstructors", new CtClass[]{classPool.get("java.lang.Class")});
         getConstructors.setBody("{" +
