@@ -58,6 +58,7 @@ public class DebugToolsAttach {
         String javaHome = System.getProperty("java.home");
         logger.info("JAVA_HOME:{}", javaHome);
         loadToolsJar(javaHome);
+        CtClass.debugDump = "debug/javassist";
         if (ProjectConstants.DEBUG) {
             // 开启javassist debug
             CtClass.debugDump = "debug/javassist";

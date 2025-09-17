@@ -155,7 +155,7 @@
                 implementation="io.github.future0923.debug.tools.idea.extensions.MakePluginFilesAlwaysEditable"/>
         <!--项目启动完成后，后台异步地执行-->
         <backgroundPostStartupActivity
-                implementation="io.github.future0923.debug.tools.idea.startup.HotSwapStartupActivity"/>
+                implementation="io.github.future0923.debug.tools.idea.startup.DebugToolsStartupActivity"/>
         <!--状态配置-->
         <projectService serviceImplementation="io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState"/>
         <!--文件变更-->
