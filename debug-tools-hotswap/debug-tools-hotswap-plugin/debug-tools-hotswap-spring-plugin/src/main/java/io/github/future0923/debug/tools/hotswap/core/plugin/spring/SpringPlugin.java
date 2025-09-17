@@ -23,7 +23,6 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
-import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPathBeanDefinitionScannerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.SpringBootClassLoaderPatcher;
@@ -32,6 +31,7 @@ import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.S
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanWatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.util.HotswapTransformer;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.hotswap.core.watch.Watcher;
@@ -197,7 +197,7 @@ public class SpringPlugin {
     public static void patchAbstractApplicationContext(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
         CtMethod buildSqlSessionFactory = ctClass.getDeclaredMethod("refresh");
         buildSqlSessionFactory.insertAfter("{" +
-                        ClassPathBeanDefinitionScannerAgent.class.getName() + ".initPathBeanNameMapping();" +
+                ClassPathBeanDefinitionScannerAgent.class.getName() + ".initPathBeanNameMapping();" +
                 "}");
     }
 
@@ -212,6 +212,27 @@ public class SpringPlugin {
                 "   org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), java.lang.Object.class) :" +
                 "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
                 "return " + ClassPathBeanDefinitionScannerAgent.class.getName() + ".filterDeleteBeanName(original);" +
+                "}");
+    }
+
+    // https://github.com/java-hot-deploy/debug-tools/issues/124
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.aop.framework.autoproxy.AutoProxyUtils")
+    public static void patchAutoProxyUtils(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
+        CtMethod determineTargetClass = ctClass.getDeclaredMethod("determineTargetClass", new CtClass[]{
+                classPool.get("org.springframework.beans.factory.config.ConfigurableListableBeanFactory"),
+                classPool.get("java.lang.String"),
+        });
+        determineTargetClass.insertAfter("{" +
+                "  if ($_ != null && " +
+                "      java.lang.reflect.Proxy.isProxyClass((java.lang.Class) $_)) { " +
+                "      if ($1.containsSingleton($2)) { " +
+                "           java.lang.Object bean = $1.getBean($2);" +
+                "           java.lang.Class real = org.springframework.aop.framework.AopProxyUtils.ultimateTargetClass(bean);" +
+                "           if (real != null) {" +
+                "               $_ = real;" +
+                "           }" +
+                "       }" +
+                "   }" +
                 "}");
     }
 
