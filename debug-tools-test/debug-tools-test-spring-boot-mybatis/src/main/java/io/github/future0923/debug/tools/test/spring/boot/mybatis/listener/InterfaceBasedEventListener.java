@@ -14,20 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.test.spring.boot.three;
+package io.github.future0923.debug.tools.test.spring.boot.mybatis.listener;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.controller.EventController;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 
 /**
- * @author future0923
+ * 实现自定义接口的事件监听器
  */
-@SpringBootApplication
-@EnableAsync
-public class SpringBootThreeApplication {
+@Component
+public class InterfaceBasedEventListener implements EventHandler {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringBootThreeApplication.class, args);
+    @EventListener
+    @Async
+    @Override
+    public void handleEvent(EventController.ActionEvent event) {
+        System.out.println("[接口监听器] 事件处理: " + event);
+        System.out.println("===============================================");
     }
 }

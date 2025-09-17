@@ -14,20 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.test.spring.boot.three;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableAsync;
+package io.github.future0923.debug.tools.test.spring.boot.three.listener;
 
 /**
  * @author future0923
  */
-@SpringBootApplication
-@EnableAsync
-public class SpringBootThreeApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringBootThreeApplication.class, args);
-    }
+import io.github.future0923.debug.tools.test.spring.boot.three.event.ActionEvent;
+
+/**
+ * 自定义事件处理器接口
+ */
+public interface EventHandler {
+
+    /**
+     * 处理事件
+     */
+    void handleEvent(ActionEvent event);
+
 }
+
