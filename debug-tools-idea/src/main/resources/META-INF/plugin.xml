@@ -34,6 +34,15 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.4.0</strong>
+        <ul>
+            <li>支持查看调用记录信息</li>
+            <li>调用参数窗口/响应信息窗口展示当前附着应用名称</li>
+            <li>支持 shorten command line 的 classpath file 模式</li>
+            <li>优化搜索 url 响应速度</li>
+            <li>修复Spring接口类型的listener收不到event事件的bug</li>
+            <li>修复HuTool低版本ReflectUtil找不到getMethodsDirectly方法的bug</li>
+        </ul>
         <strong>4.3.1</strong>
         <ul>
             <li>热部署支持resource目录下的文件</li>
