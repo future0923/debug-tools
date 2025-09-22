@@ -25,6 +25,8 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunR
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 
+import java.io.IOException;
+
 /**
  * @author future0923
  */
@@ -44,6 +46,21 @@ public class SocketSendUtils {
 
     public static void send(Project project, Packet packet) {
         send(project, packet, null);
+    }
+
+    public static void sendThrowException(Project project, Packet packet) throws NullPointerException, SocketCloseException, IOException {
+        sendThrowException(project, packet, null);
+    }
+
+    public static void sendThrowException(Project project, Packet packet, Runnable runnable) throws NullPointerException, SocketCloseException, IOException {
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
+            throw new NullPointerException("Project not attach");
+        }
+        info.getClient().getHolder().send(packet);
+        if (runnable != null) {
+            runnable.run();
+        }
     }
 
     public static void send(Project project, Packet packet, Runnable runnable) {
