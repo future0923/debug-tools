@@ -49,6 +49,5 @@ public class RunTargetMethodResponseHandler extends BasePacketHandler<RunTargetM
             ResponseDialog dialog = new ResponseDialog(project, packet);
             dialog.show();
         });
-
     }
 }
