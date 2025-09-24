@@ -66,7 +66,7 @@ public class ResponsePanel extends JBPanel<ResponsePanel> {
             } else {
                 resultComponent = new ExceptionTabbedPane(project, packet.getThrowable(), packet.getOffsetPath());
             }
-            DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().refreshItem(packet.getIdentity(), packet.isSuccess() ? RunStatus.SUCCESS : RunStatus.FAILED, packet.getDuration());
+            DebugToolsToolWindowFactory.consumerToolWindow(project, toolWindow -> toolWindow.getInvokeMethodRecordPanel().refreshItem(packet.getIdentity(), packet.isSuccess() ? RunStatus.SUCCESS : RunStatus.FAILED, packet.getDuration()));
         }
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         formBuilder.addLabeledComponent(

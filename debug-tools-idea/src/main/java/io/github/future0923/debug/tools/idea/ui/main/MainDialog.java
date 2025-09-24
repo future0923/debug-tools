@@ -35,10 +35,10 @@ import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.context.MethodDataContext;
+import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -173,7 +173,7 @@ public class MainDialog extends DialogWrapper {
         invokeMethodRecordDTO.setMethodParamJson(text);
         invokeMethodRecordDTO.setCacheKey(methodDataContext.getCacheKey());
         invokeMethodRecordDTO.formatRunDTO(runDTO);
-        DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO);
+        DebugToolsToolWindowFactory.consumerToolWindow(project, toolWindow -> toolWindow.getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO));
         super.doOKAction();
     }
 
