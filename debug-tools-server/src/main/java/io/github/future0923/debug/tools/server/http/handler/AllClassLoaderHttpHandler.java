@@ -20,6 +20,7 @@ import com.sun.net.httpserver.Headers;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
+import io.github.future0923.debug.tools.server.utils.ClassLoaderItemAdapterUtils;
 import org.codehaus.groovy.reflection.SunClassLoader;
 
 import java.lang.instrument.Instrumentation;
@@ -76,7 +77,7 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
     protected AllClassLoaderRes doHandle(Void req, Headers responseHeaders) {
         final Map<String, ClassLoader> loaderMap = getClassLoaderMap();
         AllClassLoaderRes res = new AllClassLoaderRes();
-        res.setItemList(loaderMap.values().stream().map(AllClassLoaderRes.Item::new).collect(Collectors.toSet()));
+        res.setItemList(loaderMap.values().stream().map(ClassLoaderItemAdapterUtils::Adapted).collect(Collectors.toSet()));
         for (AllClassLoaderRes.Item item : res.getItemList()) {
             if ("org.springframework.boot.loader.LaunchedURLClassLoader".equals(item.getName())) {
                 res.setDefaultIdentity(item.getIdentity());
