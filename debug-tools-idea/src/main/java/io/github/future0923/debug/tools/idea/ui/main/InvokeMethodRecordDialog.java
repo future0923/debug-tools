@@ -170,7 +170,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
         invokeMethodRecordDTO.setMethodParamJson(text);
         invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
         invokeMethodRecordDTO.formatRunDTO(runDTO);
-        DebugToolsToolWindowFactory.getToolWindow(project).getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO);
+        DebugToolsToolWindowFactory.consumerToolWindow(project, toolWindow -> toolWindow.getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO));
         super.doOKAction();
     }
 
