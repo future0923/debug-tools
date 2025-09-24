@@ -269,10 +269,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingState.setAutoSaveSql(settingPanel.getSaveSqlCheckBox().isSelected());
         settingState.setSqlRetentionDays(Math.max(1,settingPanel.getSaveSqlDaysField().getNumber()));
 
-        DebugToolsToolWindow toolWindow = DebugToolsToolWindowFactory.getToolWindow(project);
-        if (toolWindow != null) {
-            toolWindow.refreshToolBar();
-        }
+        DebugToolsToolWindowFactory.consumerToolWindow(project, DebugToolsToolWindow::refreshToolBar);
 
         TraceMethodDTO traceMethodDTO = new TraceMethodDTO();
         traceMethodDTO.setTraceMethod(settingPanel.getTraceMethodPanel().isTraceMethod());
