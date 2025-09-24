@@ -28,11 +28,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 /**
  * @author future0923
  */
 public class DebugToolsToolWindowFactory implements ToolWindowFactory {
+
+    public static void consumerToolWindow(@Nullable Project project, Consumer<DebugToolsToolWindow> consumer) {
+        DebugToolsToolWindow toolWindow = getToolWindow(project);
+        if (toolWindow != null) {
+            consumer.accept(toolWindow);
+        }
+    }
 
     public static DebugToolsToolWindow getToolWindow(@Nullable Project project) {
         return getToolWindow(project, false);
