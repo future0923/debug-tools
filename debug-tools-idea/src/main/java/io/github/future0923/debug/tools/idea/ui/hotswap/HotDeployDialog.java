@@ -284,8 +284,8 @@ public class HotDeployDialog extends DialogWrapper {
                         log.error(DebugToolsBundle.message("dialog.error.output.directory"));
                         return;
                     }
-                    // 如果输出目录未刷新，则刷新它
-                    if (!allOutputs.contains(outputDirectory)) {
+                    // 如果当前输出目录已经收集过，跳过此目录
+                    if (allOutputs.contains(outputDirectory)) {
                         return;
                     }
                     allOutputs.add(outputDirectory);
