@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
@@ -177,7 +178,7 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                new JsonDialogWrapper(project, showCallJson, selected.getRunDTO()).show();
+                ApplicationManager.getApplication().invokeLater(() -> new JsonDialogWrapper(project, showCallJson, selected.getRunDTO()).show());
             }
         };
         actionGroup.add(showCallJsonAction);
@@ -193,7 +194,7 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                new JsonDialogWrapper(project, showParamJson, selected.getMethodParamJson()).show();
+                ApplicationManager.getApplication().invokeLater(() -> new JsonDialogWrapper(project, showParamJson, selected.getMethodParamJson()).show());
             }
         };
         actionGroup.add(showParamJsonAction);
@@ -218,7 +219,7 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                DebugToolsActionUtil.executeLast(project, selected.getRunDTO());
+                ApplicationManager.getApplication().invokeLater(() -> DebugToolsActionUtil.executeLast(project, selected.getRunDTO()));
             }
         };
         actionGroup.add(reExecuteAction);
@@ -233,12 +234,12 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                DebugToolsActionUtil.executeLastWithDefaultClassLoader(project, selected.getRunDTO());
+                ApplicationManager.getApplication().invokeLater(() -> DebugToolsActionUtil.executeLastWithDefaultClassLoader(project, selected.getRunDTO()));
             }
         };
         actionGroup.add(reExecuteDefaultAction);
 
-        // 执行上次
+        // 移除
         removeAction = new AnAction(DebugToolsBundle.message("action.remove")) {
 
             @Override
@@ -248,8 +249,10 @@ public class InvokeMethodRecordPanel extends JPanel {
                     Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
                     return;
                 }
-                model.removeByKey(selected.getIdentity());
-                DebugToolsSettingState.getInstance(project).getInvokeMethodRecordMap().remove(selected.getIdentity());
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    model.removeByKey(selected.getIdentity());
+                    DebugToolsSettingState.getInstance(project).getInvokeMethodRecordMap().remove(selected.getIdentity());
+                });
             }
         };
         actionGroup.add(removeAction);
@@ -268,7 +271,10 @@ public class InvokeMethodRecordPanel extends JPanel {
             Messages.showErrorDialog(DebugToolsBundle.message("error.get.selected.value"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
-        new InvokeMethodRecordDialog(project, selected).show();
+        if (DebugToolsActionUtil.checkAttachSocketError(project)) {
+            return;
+        }
+        ApplicationManager.getApplication().invokeLater(() -> new InvokeMethodRecordDialog(project, selected).show());
     }
 
     private void gotoMethodSource() {
