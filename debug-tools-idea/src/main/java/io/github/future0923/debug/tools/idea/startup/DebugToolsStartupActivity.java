@@ -17,7 +17,6 @@
 package io.github.future0923.debug.tools.idea.startup;
 
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
 import com.intellij.util.concurrency.AppExecutorUtil;

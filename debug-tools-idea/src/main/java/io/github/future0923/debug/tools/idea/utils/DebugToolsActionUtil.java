@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
+import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +54,21 @@ public class DebugToolsActionUtil {
             list.add(StringUtils.substringBefore(canonicalText, "<"));
         }
         return list;
+    }
+
+    public static boolean checkAttachSocketError(Project project) {
+        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+        if (info == null) {
+            Messages.showErrorDialog(DebugToolsBundle.message("error.run.attach.first"), DebugToolsBundle.message("dialog.title.execution.failed"));
+            DebugToolsToolWindowFactory.showWindow(project, null);
+            return true;
+        }
+        if (info.getClient().isClosed()) {
+            Messages.showErrorDialog(DebugToolsBundle.message("error.attach.socket.status"), DebugToolsBundle.message("dialog.title.execution.failed"));
+            DebugToolsToolWindowFactory.showWindow(project, null);
+            return true;
+        }
+        return false;
     }
 
     public static void executeLast(Project project, String json) {
