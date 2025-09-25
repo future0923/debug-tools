@@ -45,6 +45,11 @@ public class AllClassLoaderRes implements Serializable {
             this.name = classLoader.getClass().getName();
             this.identity = Integer.toHexString(System.identityHashCode(classLoader));
         }
+
+        public Item(String name, String identity) {
+            this.name = name;
+            this.identity = identity;
+        }
     }
 
 
