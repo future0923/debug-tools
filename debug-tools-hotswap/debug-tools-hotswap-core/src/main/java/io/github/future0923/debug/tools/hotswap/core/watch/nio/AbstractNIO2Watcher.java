@@ -16,8 +16,8 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.watch.nio;
 
-import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import com.sun.nio.file.ExtendedWatchEventModifier;
+import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
@@ -267,13 +267,7 @@ public abstract class AbstractNIO2Watcher implements Watcher {
 
             // 如果创建了目录，则注册监听下面的child
             if (kind == ENTRY_CREATE) {
-                try {
-                    if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
-                        registerAll(child, true);
-                    }
-                } catch (IOException x) {
-                    LOGGER.warning("Unable to register events for directory {}", x, child);
-                }
+                registerAll(child);
             }
         }
 
@@ -293,8 +287,20 @@ public abstract class AbstractNIO2Watcher implements Watcher {
                 }
                 return false;
             }
+            // https://github.com/java-hot-deploy/debug-tools/issues/134
+            registerAll(dir);
         }
         return true;
+    }
+
+    private void registerAll(Path child) {
+        try {
+            if (Files.isDirectory(child, NOFOLLOW_LINKS) && Files.exists(child, NOFOLLOW_LINKS)) {
+                registerAll(child, true);
+            }
+        } catch (IOException x) {
+            LOGGER.warning("Unable to register events for directory {}", x, child);
+        }
     }
 
     @Override
