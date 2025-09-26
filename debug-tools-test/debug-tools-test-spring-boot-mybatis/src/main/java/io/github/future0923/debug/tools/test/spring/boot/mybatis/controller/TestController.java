@@ -18,7 +18,9 @@ package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.UserVO;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 
 
 /**
@@ -37,6 +40,7 @@ public class TestController {
 
     private final UserService userService;
     private final TestService testService;
+    private final UserMapper userMapper;
     @Autowired
     private ObjectMapper objectMapper;
     @GetMapping("/a")
@@ -55,7 +59,7 @@ public class TestController {
     }
 
     @GetMapping("/ddd")
-    public String ddd() throws JsonProcessingException {
-        return "11";
+    public List<UserVO> ddd() throws JsonProcessingException {
+        return userMapper.caoayu();
     }
 }
