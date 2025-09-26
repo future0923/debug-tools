@@ -6,4 +6,10 @@
     <select id="selectByNameAndAge" resultType="io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User">
         select id,version from dp_user where name = #{name} and age = #{age}
     </select>
+
+    <select id="caoayu" resultType="io.github.future0923.debug.tools.test.spring.boot.mybatis.model.UserVO">
+        select
+            id, name, age, version
+        from dp_user
+    </select>
 </mapper>

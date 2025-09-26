@@ -18,6 +18,11 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.patch;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.caller.XPathParserCaller;
+import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
+import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
+import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -25,11 +30,6 @@ import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.MyBatisPlugin;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.caller.XPathParserCaller;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload.MyBatisSpringResourceManager;
-import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
-import io.github.future0923.debug.tools.hotswap.core.util.PluginManagerInvoker;
 
 /**
  * @author future0923
@@ -144,4 +144,17 @@ public class IBatisPatcher {
         constructor.insertAfter(src);
     }
 
+    // https://github.com/java-hot-deploy/debug-tools/issues/130
+    @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.reflection.DefaultReflectorFactory")
+    public static void patchDefaultReflectorFactory(CtClass ctClass) throws NotFoundException, CannotCompileException {
+        for (CtConstructor constructor : ctClass.getConstructors()) {
+            constructor.insertAfter("{ this.classCacheEnabled = false; }");
+        }
+
+        CtMethod isClassCacheEnabled = ctClass.getDeclaredMethod("isClassCacheEnabled");
+        isClassCacheEnabled.setBody("{ return false; }");
+
+        CtMethod setClassCacheEnabled = ctClass.getDeclaredMethod("setClassCacheEnabled");
+        setClassCacheEnabled.setBody("{}");
+    }
 }
