@@ -118,7 +118,7 @@ public class JacksonPlugin {
     private static void instantiateJackJson(CtClass ctClass) throws CannotCompileException {
         StringBuilder src = new StringBuilder("{");
         src.append(PluginManagerInvoker.buildInitializePlugin(JacksonPlugin.class));
-        src.append(PluginManagerInvoker.buildCallPluginMethod(JacksonPlugin.class, "registerNeedToClearCacheObjects", "this", "java.lang.Object"));
+        src.append(PluginManagerInvoker.buildCallPluginMethod(JacksonPlugin.class, "registerJacksonObj", "this", "java.lang.Object"));
         src.append("}");
         for (CtConstructor constructor : ctClass.getDeclaredConstructors()) {
             constructor.insertAfter(src.toString());
