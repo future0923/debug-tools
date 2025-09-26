@@ -51,10 +51,7 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
             final ClassChangesAnalyzer analyzer = new ClassChangesAnalyzer(appClassLoader);
             className = className.replace("/", ".");
             if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
-                logger.info("watch change class event, start reloading spring bean, class name:{}", className);
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(), basePackage, className, classfileBuffer));
-            } else {
-                logger.debug("watch change class event, There is no need to reload Spring beans, className:{}", className);
             }
         }
         return classfileBuffer;
