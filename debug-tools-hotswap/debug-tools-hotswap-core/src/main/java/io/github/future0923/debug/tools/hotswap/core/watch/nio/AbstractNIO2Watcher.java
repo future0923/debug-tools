@@ -20,6 +20,7 @@ import com.sun.nio.file.ExtendedWatchEventModifier;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
@@ -288,7 +289,7 @@ public abstract class AbstractNIO2Watcher implements Watcher {
                 return false;
             }
             // https://github.com/java-hot-deploy/debug-tools/issues/134
-            registerAll(dir);
+            PluginManager.getInstance().getScheduler().scheduleCommand(() -> registerAll(dir), 5, Scheduler.DuplicateSheduleBehaviour.WAIT_AND_RUN_AFTER);
         }
         return true;
     }
