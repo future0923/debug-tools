@@ -42,6 +42,8 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
 
 import java.io.IOException;
 import java.net.URL;
@@ -206,13 +208,29 @@ public class SpringPlugin {
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.web.servlet.handler.AbstractHandlerMethodMapping")
     public static void patchAbstractHandlerMethodMapping(CtClass ctClass, ClassPool classPool) throws NotFoundException, CannotCompileException {
-        CtMethod getCandidateBeanNames = ctClass.getDeclaredMethod("getCandidateBeanNames");
-        getCandidateBeanNames.setBody("{" +
-                "java.lang.String[] original = (this.detectHandlerMethodsInAncestorContexts ? " +
-                "   org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), java.lang.Object.class) :" +
-                "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
-                "return " + ClassPathBeanDefinitionScannerAgent.class.getName() + ".filterDeleteBeanName(original);" +
-                "}");
+        try {
+            CtMethod getCandidateBeanNames = ctClass.getDeclaredMethod("getCandidateBeanNames");
+            getCandidateBeanNames.setBody("{" +
+                    "java.lang.String[] original = (this.detectHandlerMethodsInAncestorContexts ? " +
+                    "   org.springframework.beans.factory.BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), java.lang.Object.class) :" +
+                    "   obtainApplicationContext().getBeanNamesForType(java.lang.Object.class));" +
+                    "return io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.filterDeleteBeanName(original);" +
+                    "}");
+        } catch (NotFoundException e) {
+            // spring-webmvc 5.1 以前的版本没有getCandidateBeanNames方法
+            CtMethod initHandlerMethods = ctClass.getDeclaredMethod("initHandlerMethods");
+            initHandlerMethods.instrument(new ExprEditor() {
+                @Override
+                public void edit(MethodCall m) throws CannotCompileException {
+                    if (m.getMethodName().equals("beanNamesForTypeIncludingAncestors")
+                            || m.getMethodName().equals("getBeanNamesForType")) {
+                        m.replace("{ $_ = $proceed($$); "
+                                + "$_ = io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent.filterDeleteBeanName((String[])$_); }");
+                    }
+                }
+            });
+        }
+
     }
 
     // https://github.com/java-hot-deploy/debug-tools/issues/124
