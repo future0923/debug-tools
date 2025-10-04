@@ -149,27 +149,31 @@ public class SqlPrintInterceptor {
             logger.error("The current database driver is not yet supported. Driver class: {}", className);
             return;
         }
-        String resultSql = dbType.getFormat().format(sta, parameters);
+        try {
+            String resultSql = dbType.getFormat().format(sta, parameters);
 
-        if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
-            MethodTrace.enterSql(resultSql);
-            MethodTrace.exit(consume);
-        }
-        if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
-            resultSql = SqlFormatter.format(resultSql);
-        }
-        if (PrintSqlType.COMPRESS.equals(printSqlType)) {
-            resultSql = SqlCompressor.compressSql(resultSql);
-        }
-        logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
-
-        // 根据配置写入SQL记录到文件
-        if (BooleanUtil.isTrue(autoSaveSql)) {
-            try {
-                SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType.getType(), sqlRetentionDays);
-            } catch (Exception e) {
-                logger.error("Failed to write SQL record to file", e);
+            if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
+                MethodTrace.enterSql(resultSql);
+                MethodTrace.exit(consume);
             }
+            if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
+                resultSql = SqlFormatter.format(resultSql);
+            }
+            if (PrintSqlType.COMPRESS.equals(printSqlType)) {
+                resultSql = SqlCompressor.compressSql(resultSql);
+            }
+            logger.info("Execute consume Time: {} ms; Execute SQL: \n\u001B[31m{}\u001B[0m", consume, resultSql);
+
+            // 根据配置写入SQL记录到文件
+            if (BooleanUtil.isTrue(autoSaveSql)) {
+                try {
+                    SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType.getType(), sqlRetentionDays);
+                } catch (Exception e) {
+                    logger.error("Failed to write SQL record to file", e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to print SQL",e);
         }
     }
 }
