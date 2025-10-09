@@ -110,18 +110,13 @@ public class SqlFormatter {
                 this.lcToken = this.token.toLowerCase();
 
                 if ("'".equals(this.token)) {
-                    String t;
-                    do {
-                        t = this.tokens.nextToken();
-                        this.token += t;
-                    } while ((!"'".equals(t)) && (this.tokens.hasMoreTokens()));
+                    // 使用parseString方法处理字符串
+                    this.token = parseAttractionString("'");
                 } else if ("\"".equals(this.token)) {
-                    String t;
-                    do {
-                        t = this.tokens.nextToken();
-                        this.token += t;
-                    } while (!"\"".equals(t));
+                    // 处理双引号的字符串
+                    this.token = parseAttractionString("\"");
                 }
+
 
                 if ((this.afterByOrSetOrFromOrSelect) && (",".equals(this.token))) {
                     commaAfterByOrFromOrSelect();
@@ -336,6 +331,33 @@ public class SqlFormatter {
                 this.result.append(indentString);
             }
             this.beginLine = true;
+        }
+
+        // 处理引号相关的字符串
+        private String parseAttractionString(String delimiter) {
+            // 存储完整的字符串
+            StringBuilder sb = new StringBuilder();
+
+            // 追加开头的引号
+            sb.append(delimiter);
+
+            while (this.tokens.hasMoreTokens()) {
+                String t = this.tokens.nextToken();
+                sb.append(t);
+
+                // 如果遇到转义符，则跳过下一个引号（这是为了支持JSON等含有转义字符的字符串）
+                if (t.equals(delimiter) && !isEscapedString(sb.toString())) {
+                    break; // 结束字符串的解析
+                }
+            }
+
+            return sb.toString();
+        }
+
+        // 判断字符串是否是被转义的
+        private boolean isEscapedString(String str) {
+            // 判断字符串中的引号是否为转义的，假设JSON字符串中会有反斜杠作为转义符
+            return str.contains("\\'");
         }
     }
 }
