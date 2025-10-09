@@ -16,14 +16,18 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity;
 
+import java.util.Map;
+
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 
 /**
  * @author future0923
  */
-@TableName("dp_user")
+@TableName(value = "dp_user", autoResultMap = true)
 public class User {
 
     @TableId(type = IdType.ASSIGN_ID)
@@ -31,9 +35,12 @@ public class User {
 
     private String name;
 
-    private Integer age1;
+    private Integer age;
 
     private Integer version;
+
+    @TableField(value = "meta_data", typeHandler = JacksonTypeHandler.class)
+    private Map<String, Object> metaData;
 
     public Integer getId() {
         return id;
@@ -51,12 +58,12 @@ public class User {
         this.name = name;
     }
 
-    public Integer getAge1() {
-        return age1;
+    public Integer getAge() {
+        return age;
     }
 
-    public void setAge1(Integer age1) {
-        this.age1 = age1;
+    public void setAge(Integer age1) {
+        this.age = age1;
     }
 
     public Integer getVersion() {
@@ -65,5 +72,13 @@ public class User {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Map<String, Object> getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(Map<String, Object> metaData) {
+        this.metaData = metaData;
     }
 }
