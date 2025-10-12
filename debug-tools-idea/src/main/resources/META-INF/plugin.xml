@@ -218,6 +218,11 @@
     </extensions>
 
     <actions>
+        <action id="DebugToolsTool.ToggleCamelCaseAction"
+                class="io.github.future0923.debug.tools.idea.camel.ToggleCamelCaseAction">
+            <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift alt U"/>
+        </action>
         <group id="DebugTools.Tool">
             <separator/>
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
@@ -234,23 +239,44 @@
                         description="Remove method From trace"/>
             </group>
             <action id="DebugToolsTool.QuickDebug"
-                    class="io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction"
-                    text="Quick Debug"
-                    description="Quickly call to the current location for execution">
+                    class="io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl M"/>
             </action>
             <action id="DebugToolsTool.ExecuteLast"
-                    class="io.github.future0923.debug.tools.idea.action.ExecuteLastEditorPopupMenuAction"
-                    text="Execute Last"
-                    description="Quickly call last for execution">
+                    class="io.github.future0923.debug.tools.idea.action.ExecuteLastEditorPopupMenuAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl L"/>
             </action>
             <action id="DebugToolsTool.ExecuteLastWithDefaultClassLoader"
-                    class="io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction"
-                    text="Execute Last With Default ClassLoader"
-                    description="Quickly call last with default classloader for execution">
+                    class="io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction">
                 <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl D"/>
             </action>
+            <group id="DebugToolsTool.ToggleCamelCase"
+                   class="io.github.future0923.debug.tools.idea.camel.ToggleCamelCaseGroup"
+                   popup="true">
+                <action id="DebugToolsTool.CamelCase"
+                        class="io.github.future0923.debug.tools.idea.camel.CamelCaseAction">
+                    <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+                    <keyboard-shortcut keymap="$default" first-keystroke="shift alt K"/>
+                </action>
+                <action id="DebugToolsTool.LowerSnakeCase"
+                        class="io.github.future0923.debug.tools.idea.camel.LowerSnakeCaseAction">
+                    <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+                    <keyboard-shortcut keymap="$default" first-keystroke="shift alt L"/>
+                </action>
+                <action id="DebugToolsTool.PascalCase"
+                        class="io.github.future0923.debug.tools.idea.camel.PascalCaseAction">
+                    <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+                    <keyboard-shortcut keymap="$default" first-keystroke="shift alt J"/>
+                </action>
+                <action id="DebugToolsTool.UpperSnakeCase"
+                        class="io.github.future0923.debug.tools.idea.camel.UpperSnakeCaseAction">
+                    <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+                </action>
+                <action id="DebugToolsTool.KebabCase"
+                        class="io.github.future0923.debug.tools.idea.camel.KebabCaseAction">
+                    <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
+                </action>
+            </group>
             <separator/>
         </group>
         <group id="DebugTools.Run">
