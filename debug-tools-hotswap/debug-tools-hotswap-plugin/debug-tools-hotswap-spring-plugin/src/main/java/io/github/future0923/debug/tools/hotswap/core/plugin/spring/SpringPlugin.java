@@ -265,4 +265,13 @@ public class SpringPlugin {
         }
         JavassistUtil.insertClassPath(classLoader, "org.springframework.cglib.core.SpringNamingPolicy", ctClass);
     }
+
+    /**
+     * <a href="https://github.com/java-hot-deploy/debug-tools/issues/144">#144</a>
+     */
+    @OnClassLoadEvent(classNameRegexp = "org.springframework.cglib.core.AbstractClassGenerator")
+    public static void patchAbstractClassGenerator(CtClass ctClass) throws CannotCompileException, NotFoundException {
+        CtMethod create = ctClass.getDeclaredMethod("getUseCache");
+        create.setBody("return false;");
+    }
 }
