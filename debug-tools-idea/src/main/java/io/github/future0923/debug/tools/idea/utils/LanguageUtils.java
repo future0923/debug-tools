@@ -57,50 +57,107 @@ public class LanguageUtils {
      */
     private static void refreshActionGroups() {
         ActionManager actionManager = ActionManager.getInstance();
-        
+
         // Refresh TraceMethodGroup
         AnAction traceMethodAction = actionManager.getAction("DebugToolsTool.TraceMethod");
         if (traceMethodAction instanceof TraceMethodGroup traceMethodGroup) {
             // Force refresh the presentation text
             traceMethodGroup.getTemplatePresentation().setText(
-                DebugToolsBundle.message("action.trace.method.group")
+                    DebugToolsBundle.message("action.trace.method.group")
             );
         }
-        
+
         // Refresh QuickDebug action
         AnAction quickDebugAction = actionManager.getAction("DebugToolsTool.QuickDebug");
         if (quickDebugAction != null) {
             quickDebugAction.getTemplatePresentation().setText(
-                DebugToolsBundle.message("action.quick.debug.text")
+                    DebugToolsBundle.message("action.quick.debug.text")
             );
         }
-        
+
         // Refresh ExecuteLast action
         AnAction executeLastAction = actionManager.getAction("DebugToolsTool.ExecuteLast");
         if (executeLastAction != null) {
             executeLastAction.getTemplatePresentation().setText(
-                DebugToolsBundle.message("action.execute.last.text")
+                    DebugToolsBundle.message("action.execute.last.text")
             );
         }
-        
+
         // Refresh ExecuteLastWithDefaultClassLoader action
         AnAction executeLastWithDefaultClassLoaderAction = actionManager.getAction("DebugToolsTool.ExecuteLastWithDefaultClassLoader");
         if (executeLastWithDefaultClassLoaderAction != null) {
             executeLastWithDefaultClassLoaderAction.getTemplatePresentation().setText(
-                DebugToolsBundle.message("action.execute.last.with.default.classloader.text")
+                    DebugToolsBundle.message("action.execute.last.with.default.classloader.text")
             );
         }
-        
+
         // Refresh HttpUrlSearch action
         AnAction httpUrlSearchAction = actionManager.getAction("DebugTools.HttpUrl");
         if (httpUrlSearchAction != null) {
             httpUrlSearchAction.getTemplatePresentation().setText(
-                DebugToolsBundle.message("action.search.http.url.text")
+                    DebugToolsBundle.message("action.search.http.url.text")
             );
             httpUrlSearchAction.getTemplatePresentation().setDescription(
-                DebugToolsBundle.message("action.search.http.url.description")
+                    DebugToolsBundle.message("action.search.http.url.description")
+            );
+        }
+
+        AnAction toggleCamelCaseGroup = actionManager.getAction("DebugToolsTool.ToggleCamelCase");
+        if (toggleCamelCaseGroup != null) {
+            toggleCamelCaseGroup.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.toggle")
+            );
+        }
+        AnAction camelCaseAction = actionManager.getAction("DebugToolsTool.CamelCase");
+        if (camelCaseAction != null) {
+            camelCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.camel.case")
+            );
+            camelCaseAction.getTemplatePresentation().setDescription(
+                    DebugToolsBundle.message("action.convert.camel.case")
+            );
+        }
+        AnAction toggleCamelCaseAction = actionManager.getAction("DebugToolsTool.ToggleCamelCaseAction");
+        if (toggleCamelCaseAction != null) {
+            toggleCamelCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.toggle")
+            );
+        }
+        AnAction lowerSnakeCaseAction = actionManager.getAction("DebugToolsTool.LowerSnakeCase");
+        if (lowerSnakeCaseAction != null) {
+            lowerSnakeCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.lower.snake.case")
+            );
+            lowerSnakeCaseAction.getTemplatePresentation().setDescription(
+                    DebugToolsBundle.message("action.convert.lower.snake.case")
+            );
+        }
+        AnAction pascalCaseAction = actionManager.getAction("DebugToolsTool.PascalCase");
+        if (pascalCaseAction != null) {
+            pascalCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.pascal.case")
+            );
+            pascalCaseAction.getTemplatePresentation().setDescription(
+                    DebugToolsBundle.message("action.convert.pascal.case")
+            );
+        }
+        AnAction upperSnakeCaseAction = actionManager.getAction("DebugToolsTool.UpperSnakeCase");
+        if (upperSnakeCaseAction != null) {
+            upperSnakeCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.upper.pascal.case")
+            );
+            upperSnakeCaseAction.getTemplatePresentation().setDescription(
+                    DebugToolsBundle.message("action.convert.upper.pascal.case")
+            );
+        }
+        AnAction kebabCaseAction = actionManager.getAction("DebugToolsTool.KebabCase");
+        if (kebabCaseAction != null) {
+            kebabCaseAction.getTemplatePresentation().setText(
+                    DebugToolsBundle.message("action.convert.kebab.case")
+            );
+            kebabCaseAction.getTemplatePresentation().setDescription(
+                    DebugToolsBundle.message("action.convert.kebab.case")
             );
         }
     }
-
 }
