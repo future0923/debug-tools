@@ -30,8 +30,8 @@ import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
-import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
+import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -168,6 +168,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     private Map<String, String> methodAroundMap = new LinkedHashMap<>();
 
     private LinkedHashMap<String, InvokeMethodRecordDTO> invokeMethodRecordMap = new LinkedHashMap<>();
+
+    /**
+     * 搜索类型
+     */
+    private Boolean searchLibrary = false;
 
     @Override
     public @Nullable DebugToolsSettingState getState() {

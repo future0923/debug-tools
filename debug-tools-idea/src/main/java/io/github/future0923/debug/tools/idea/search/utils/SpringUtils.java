@@ -16,7 +16,6 @@
  */
 package io.github.future0923.debug.tools.idea.search.utils;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
@@ -29,11 +28,13 @@ import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.search.HttpUrlCustomRefAnnotation;
 import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethodSpringAnnotation;
+import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +80,7 @@ public class SpringUtils {
      */
     private static List<PsiClass> getAllControllerClass(Project project, Module module) {
         List<PsiClass> allControllerClass = new ArrayList<>();
-        GlobalSearchScope moduleScope = getModuleScope(module);
+        GlobalSearchScope moduleScope = getModuleScope(project, module);
         Collection<PsiAnnotation> pathList = JavaAnnotationIndex.getInstance().get("Controller", project, moduleScope);
         pathList.addAll(JavaAnnotationIndex.getInstance().get("RestController", project, moduleScope));
         for (PsiAnnotation psiAnnotation : pathList) {
@@ -280,32 +281,12 @@ public class SpringUtils {
      * @param module 模块
      * @return 返回
      */
-    public static GlobalSearchScope getModuleScope(Module module) {
-        return getModuleScope(module, scanServiceWithLibrary(module.getProject()));
-    }
-
-    /**
-     * 获取模块下范围
-     *
-     * @param module     模块
-     * @param hasLibrary 是否扫描Library
-     * @return 返回
-     */
-    protected static GlobalSearchScope getModuleScope(@NotNull Module module, boolean hasLibrary) {
-        if (hasLibrary) {
+    protected static GlobalSearchScope getModuleScope(Project project, @NotNull Module module) {
+        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        if (BooleanUtil.isTrue(settingState.getSearchLibrary())) {
             return module.getModuleWithLibrariesScope();
         } else {
-            return module.getModuleScope();
+            return module.getModuleContentScope();
         }
-    }
-
-    public static boolean scanServiceWithLibrary(@NotNull Project project) {
-        PropertiesComponent instance = PropertiesComponent.getInstance(project);
-        String value = instance.getValue(
-                "SCAN_SERVICE_WITH_LIB",
-                // TODO
-                "false"
-        );
-        return Boolean.parseBoolean(value);
     }
 }

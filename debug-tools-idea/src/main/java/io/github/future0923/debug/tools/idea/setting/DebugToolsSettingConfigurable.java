@@ -150,6 +150,13 @@ public class DebugToolsSettingConfigurable implements Configurable {
             return true;
         }
 
+        if (BooleanUtil.isTrue(settingState.getSearchLibrary()) && settingPanel.getNoSearchLib().isSelected()) {
+            return true;
+        }
+        if (BooleanUtil.isFalse(settingState.getSearchLibrary()) && settingPanel.getSearchLib().isSelected()) {
+            return true;
+        }
+
         return false;
     }
 
@@ -173,7 +180,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
                 settingPanel.getLanguageIde().setSelected(true);
                 break;
         }
-        
+
         if (GenParamType.SIMPLE.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeSimple().setSelected(true);
         }
@@ -204,6 +211,18 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingPanel.getSaveSqlCheckBox().setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
         settingPanel.getSaveSqlDaysField().setNumber(settingState.getSqlRetentionDays());
 
+        if (settingState.getSearchLibrary()) {
+            settingPanel.getSearchLib().setSelected(true);
+        } else {
+            settingPanel.getNoSearchLib().setSelected(true);
+        }
+
+        if (settingState.getLineMarkerVisible()) {
+            settingPanel.getShowLineMarker().setSelected(true);
+        } else {
+            settingPanel.getHideLineMarker().setSelected(true);
+        }
+
         TraceMethodDTO traceMethodDTO = ObjectUtil.defaultIfNull(settingState.getTraceMethodDTO(), new TraceMethodDTO());
         settingPanel.getTraceMethodPanel().setTraceMethod(traceMethodDTO.getTraceMethod());
         settingPanel.getTraceMethodPanel().setMaxDepth(traceMethodDTO.getTraceMaxDepth());
@@ -229,10 +248,10 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (settingPanel.getLanguageChinese().isSelected()) {
             globalSettingState.setLanguage(LanguageSetting.CHINESE);
         }
-        
+
         LanguageSetting newLanguage = globalSettingState.getLanguage();
         boolean languageChanged = oldLanguage != newLanguage;
-        
+
         if (settingPanel.getDefaultGenParamTypeSimple().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.SIMPLE);
         }
@@ -244,6 +263,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
         }
 
         settingState.setLineMarkerVisible(settingPanel.getShowLineMarker().isSelected());
+
+        settingState.setSearchLibrary(settingPanel.getSearchLib().isSelected());
 
         if (settingPanel.getPrintPrettySql().isSelected() && !PrintSqlType.PRETTY.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.PRETTY);
@@ -267,7 +288,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingState.setRemoveContextPath(settingPanel.getRemoveContextPath().getText());
 
         settingState.setAutoSaveSql(settingPanel.getSaveSqlCheckBox().isSelected());
-        settingState.setSqlRetentionDays(Math.max(1,settingPanel.getSaveSqlDaysField().getNumber()));
+        settingState.setSqlRetentionDays(Math.max(1, settingPanel.getSaveSqlDaysField().getNumber()));
 
         DebugToolsToolWindowFactory.consumerToolWindow(project, DebugToolsToolWindow::refreshToolBar);
 
@@ -280,7 +301,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceBusinessPackageRegexp(settingPanel.getTraceMethodPanel().getTraceBusinessPackage());
         traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
-        
+
         // 如果语言设置发生了变化，刷新UI
         if (languageChanged) {
             // 刷新设置面板的语言显示
