@@ -75,6 +75,11 @@ public class SettingPanel {
     private final JBRadioButton hideLineMarker = new JBRadioButton(DebugToolsBundle.message("common.no"));
 
     @Getter
+    private final JBRadioButton searchLib = new JBRadioButton(DebugToolsBundle.message("common.yes"));
+    @Getter
+    private final JBRadioButton noSearchLib = new JBRadioButton(DebugToolsBundle.message("common.no"));
+
+    @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
     @Getter
@@ -219,6 +224,18 @@ public class SettingPanel {
             hideLineMarker.setSelected(true);
         }
 
+        JPanel searchLibPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        searchLibPanel.add(searchLib);
+        searchLibPanel.add(noSearchLib);
+        ButtonGroup searchLibButtonGroup = new ButtonGroup();
+        searchLibButtonGroup.add(searchLib);
+        searchLibButtonGroup.add(noSearchLib);
+        if (BooleanUtil.isTrue(settingState.getSearchLibrary())) {
+            searchLib.setSelected(true);
+        } else {
+            noSearchLib.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
         Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
@@ -242,6 +259,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.quick.action.line.marker")),
                         lineMarkerPanel
+                )
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("setting.panel.search.library")),
+                        searchLibPanel
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.print.sql")),
