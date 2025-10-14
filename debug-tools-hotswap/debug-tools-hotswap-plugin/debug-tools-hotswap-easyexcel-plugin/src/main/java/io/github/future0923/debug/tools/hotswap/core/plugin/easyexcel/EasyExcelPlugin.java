@@ -19,13 +19,20 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.easyexcel;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
+import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
+
+import java.io.IOException;
 
 /**
  * @author future0923
@@ -149,10 +156,52 @@ public class EasyExcelPlugin {
                 "        headData.setLoopMergeProperty(com.alibaba.excel.metadata.property.LoopMergeProperty.build(contentLoopMerge));" +
                 "    }" +
                 "}";
-
-
         getHeadMap.insertBefore("{" + beforeHandler + "}");
         logger.info("patch easy excel ExcelHeadProperty success");
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "com.alibaba.excel.read.metadata.property.ExcelReadHeadProperty")
+    public static void patchExcelReadHeadProperty(CtClass ctClass, ClassPool classPool, ClassLoader classLoader) throws CannotCompileException, NotFoundException, IOException {
+        CtClass mapClass = classPool.get("java.util.Map");
+        CtField tmpHeadMap = new CtField(mapClass, "tmpHeadMap", ctClass);
+        tmpHeadMap.setModifiers(Modifier.PRIVATE);
+        tmpHeadMap.setGenericSignature("Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;");
+        ctClass.addField(tmpHeadMap);
+        CtMethod getTmpHeadMapMethod = CtNewMethod.getter("getTmpHeadMap", tmpHeadMap);
+        getTmpHeadMapMethod.setGenericSignature("()Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;");
+        ctClass.addMethod(getTmpHeadMapMethod);
+        CtMethod setTmpHeadMapMethod = CtNewMethod.setter("setTmpHeadMap", tmpHeadMap);
+        setTmpHeadMapMethod.setGenericSignature("(Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;)V");
+        ctClass.addMethod(setTmpHeadMapMethod);
+        JavassistUtil.insertClassPath(classLoader, "com.alibaba.excel.read.metadata.property.ExcelReadHeadProperty", ctClass);
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "com.alibaba.excel.read.listener.ModelBuildEventListener")
+    public static void patchModelBuildEventListener(CtClass ctClass) throws CannotCompileException, NotFoundException {
+        CtMethod buildUserModelMethod = ctClass.getDeclaredMethod("buildUserModel");
+        buildUserModelMethod.instrument(new ExprEditor() {
+            @Override
+            public void edit(MethodCall m) throws CannotCompileException {
+                if (m.getClassName().equals("com.alibaba.excel.read.metadata.property.ExcelReadHeadProperty")
+                        && m.getMethodName().equals("getHeadMap")) {
+                    m.replace("{ $_ = $0.getTmpHeadMap(); }");
+                }
+            }
+        });
+    }
+
+    @OnClassLoadEvent(classNameRegexp = "com.alibaba.excel.read.processor.DefaultAnalysisEventProcessor")
+    public static void patchDefaultAnalysisEventProcessor(CtClass ctClass) throws CannotCompileException, NotFoundException {
+        CtMethod buildHeadMethod = ctClass.getDeclaredMethod("buildHead");
+        buildHeadMethod.instrument(new ExprEditor() {
+            @Override
+            public void edit(MethodCall m) throws CannotCompileException {
+                if (m.getClassName().equals("com.alibaba.excel.read.metadata.property.ExcelReadHeadProperty")
+                        && m.getMethodName().equals("setHeadMap")) {
+                    m.replace("{ $0.setTmpHeadMap($1); }");
+                }
+            }
+        });
     }
 
 }
