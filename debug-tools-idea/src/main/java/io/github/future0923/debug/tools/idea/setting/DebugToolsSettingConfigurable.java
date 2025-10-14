@@ -16,9 +16,11 @@
  */
 package io.github.future0923.debug.tools.idea.setting;
 
+import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.NlsContexts;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
@@ -26,6 +28,7 @@ import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
@@ -157,6 +160,13 @@ public class DebugToolsSettingConfigurable implements Configurable {
             return true;
         }
 
+        if (BooleanUtil.isTrue(settingState.getInvokeMethodRecord()) && settingPanel.getInvokeMethodRecordNo().isSelected()) {
+            return true;
+        }
+        if (BooleanUtil.isFalse(settingState.getInvokeMethodRecord()) && settingPanel.getInvokeMethodRecordYes().isSelected()) {
+            return true;
+        }
+
         return false;
     }
 
@@ -221,6 +231,12 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingPanel.getShowLineMarker().setSelected(true);
         } else {
             settingPanel.getHideLineMarker().setSelected(true);
+        }
+
+        if (settingState.getInvokeMethodRecord()) {
+            settingPanel.getInvokeMethodRecordYes().setSelected(true);
+        } else {
+            settingPanel.getInvokeMethodRecordNo().setSelected(true);
         }
 
         TraceMethodDTO traceMethodDTO = ObjectUtil.defaultIfNull(settingState.getTraceMethodDTO(), new TraceMethodDTO());
@@ -307,6 +323,18 @@ public class DebugToolsSettingConfigurable implements Configurable {
             // 刷新设置面板的语言显示
             settingPanel.refreshLanguageDisplay();
             LanguageUtils.refreshUI(project);
+        }
+
+        if (ObjectUtil.notEqual(settingState.getInvokeMethodRecord(), settingPanel.getInvokeMethodRecordYes().isSelected())) {
+            settingState.setInvokeMethodRecord(settingPanel.getInvokeMethodRecordYes().isSelected());
+            int result = Messages.showYesNoDialog(
+                    DebugToolsBundle.message("invoke.method.record.restart.message"),
+                    DebugToolsBundle.message("restart.title"),
+                    Messages.getQuestionIcon()
+            );
+            if (result == Messages.YES) {
+                ApplicationManagerEx.getApplicationEx().restart(true);
+            }
         }
     }
 

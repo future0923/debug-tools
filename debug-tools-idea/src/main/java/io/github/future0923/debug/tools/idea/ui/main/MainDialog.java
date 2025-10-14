@@ -162,18 +162,20 @@ public class MainDialog extends DialogWrapper {
             DebugToolsNotifierUtil.notifyError(project, "参数写入json文件失败");
             return;
         }
-        InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
-        invokeMethodRecordDTO.setIdentity(identity);
-        invokeMethodRecordDTO.formatRunTime();
-        invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
-        invokeMethodRecordDTO.setClassSimpleName(methodDataContext.getPsiClass().getName());
-        invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
-        invokeMethodRecordDTO.setMethodSignature(DebugToolsIdeaClassUtil.genMethodSignature(methodDataContext.getPsiMethod()));
-        invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
-        invokeMethodRecordDTO.setMethodParamJson(text);
-        invokeMethodRecordDTO.setCacheKey(methodDataContext.getCacheKey());
-        invokeMethodRecordDTO.formatRunDTO(runDTO);
-        DebugToolsToolWindowFactory.consumerToolWindow(project, toolWindow -> toolWindow.getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO));
+        if (settingState.getInvokeMethodRecord()) {
+            InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
+            invokeMethodRecordDTO.setIdentity(identity);
+            invokeMethodRecordDTO.formatRunTime();
+            invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
+            invokeMethodRecordDTO.setClassSimpleName(methodDataContext.getPsiClass().getName());
+            invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
+            invokeMethodRecordDTO.setMethodSignature(DebugToolsIdeaClassUtil.genMethodSignature(methodDataContext.getPsiMethod()));
+            invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
+            invokeMethodRecordDTO.setMethodParamJson(text);
+            invokeMethodRecordDTO.setCacheKey(methodDataContext.getCacheKey());
+            invokeMethodRecordDTO.formatRunDTO(runDTO);
+            DebugToolsToolWindowFactory.consumerInvokeMethodRecordPanel(project, panel -> panel.addItem(invokeMethodRecordDTO));
+        }
         super.doOKAction();
     }
 
