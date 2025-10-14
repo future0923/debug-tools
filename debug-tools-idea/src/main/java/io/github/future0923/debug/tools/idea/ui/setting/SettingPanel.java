@@ -80,6 +80,11 @@ public class SettingPanel {
     private final JBRadioButton noSearchLib = new JBRadioButton(DebugToolsBundle.message("common.no"));
 
     @Getter
+    private final JBRadioButton invokeMethodRecordYes = new JBRadioButton(DebugToolsBundle.message("common.yes"));
+    @Getter
+    private final JBRadioButton invokeMethodRecordNo = new JBRadioButton(DebugToolsBundle.message("common.no"));
+
+    @Getter
     private final JBTextArea removeContextPath = new JBTextArea();
 
     @Getter
@@ -236,6 +241,18 @@ public class SettingPanel {
             noSearchLib.setSelected(true);
         }
 
+        JPanel invokeMethodRecordPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        invokeMethodRecordPanel.add(invokeMethodRecordYes);
+        invokeMethodRecordPanel.add(invokeMethodRecordNo);
+        ButtonGroup invokeMethodRecordButtonGroup = new ButtonGroup();
+        invokeMethodRecordButtonGroup.add(invokeMethodRecordYes);
+        invokeMethodRecordButtonGroup.add(invokeMethodRecordNo);
+        if (BooleanUtil.isTrue(settingState.getInvokeMethodRecord())) {
+            invokeMethodRecordYes.setSelected(true);
+        } else {
+            invokeMethodRecordNo.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
         Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
@@ -255,6 +272,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.entity.class.default.param")),
                         defaultGenParamType
+                )
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("setting.panel.invoke.method.record")),
+                        invokeMethodRecordPanel
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.quick.action.line.marker")),

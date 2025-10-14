@@ -32,11 +32,10 @@ import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
 import io.github.future0923.debug.tools.idea.tool.action.HelpAction;
 import io.github.future0923.debug.tools.idea.tool.action.SettingAction;
 import io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction;
-import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordPanel;
 import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
+import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordPanel;
 import lombok.Getter;
-
-import java.util.Arrays;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author future0923
@@ -47,7 +46,8 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     private final GlobalParamPanel globalParamPanel;
     private final Project project;
     @Getter
-    private final InvokeMethodRecordPanel invokeMethodRecordPanel;
+    @Nullable
+    private InvokeMethodRecordPanel invokeMethodRecordPanel;
 
     public DebugToolsToolWindow(Project project) {
         super(false, false);
@@ -56,8 +56,10 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
         JBSplitter content = new JBSplitter(true, DebugToolsToolWindow.class.getName(), 0.5F);
         globalParamPanel = new GlobalParamPanel(project);
         content.setFirstComponent(globalParamPanel);
-        invokeMethodRecordPanel = new InvokeMethodRecordPanel(project);
-        content.setSecondComponent(invokeMethodRecordPanel);
+        if (DebugToolsSettingState.getInstance(project).getInvokeMethodRecord()) {
+            invokeMethodRecordPanel = new InvokeMethodRecordPanel(project);
+            content.setSecondComponent(invokeMethodRecordPanel);
+        }
         this.setContent(content);
     }
 
@@ -94,7 +96,7 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     public void refreshToolBar() {
         initToolBar();
     }
-    
+
     /**
      * Refresh the tool window UI
      */

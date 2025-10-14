@@ -24,6 +24,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
+import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordPanel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,13 @@ public class DebugToolsToolWindowFactory implements ToolWindowFactory {
         DebugToolsToolWindow toolWindow = getToolWindow(project);
         if (toolWindow != null) {
             consumer.accept(toolWindow);
+        }
+    }
+
+    public static void consumerInvokeMethodRecordPanel(@Nullable Project project, Consumer<InvokeMethodRecordPanel> consumer) {
+        DebugToolsToolWindow toolWindow = getToolWindow(project);
+        if (toolWindow != null && toolWindow.getInvokeMethodRecordPanel() != null) {
+            consumer.accept(toolWindow.getInvokeMethodRecordPanel());
         }
     }
 
