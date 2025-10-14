@@ -174,6 +174,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private Boolean searchLibrary = false;
 
+    /**
+     * 是否启用调用方法记录
+     */
+    private Boolean invokeMethodRecord = true;
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;

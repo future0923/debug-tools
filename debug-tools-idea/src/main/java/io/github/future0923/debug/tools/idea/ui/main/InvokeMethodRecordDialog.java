@@ -159,18 +159,20 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
             DebugToolsNotifierUtil.notifyError(project, "参数写入json文件失败");
             return;
         }
-        InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
-        invokeMethodRecordDTO.setIdentity(recordRunDTO.getIdentity());
-        invokeMethodRecordDTO.formatRunTime();
-        invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
-        invokeMethodRecordDTO.setClassSimpleName(recordRunDTO.getClassSimpleName());
-        invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
-        invokeMethodRecordDTO.setMethodSignature(recordRunDTO.getMethodSignature());
-        invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
-        invokeMethodRecordDTO.setMethodParamJson(text);
-        invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
-        invokeMethodRecordDTO.formatRunDTO(runDTO);
-        DebugToolsToolWindowFactory.consumerToolWindow(project, toolWindow -> toolWindow.getInvokeMethodRecordPanel().addItem(invokeMethodRecordDTO));
+        if (settingState.getInvokeMethodRecord()) {
+            InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
+            invokeMethodRecordDTO.setIdentity(recordRunDTO.getIdentity());
+            invokeMethodRecordDTO.formatRunTime();
+            invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
+            invokeMethodRecordDTO.setClassSimpleName(recordRunDTO.getClassSimpleName());
+            invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
+            invokeMethodRecordDTO.setMethodSignature(recordRunDTO.getMethodSignature());
+            invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
+            invokeMethodRecordDTO.setMethodParamJson(text);
+            invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
+            invokeMethodRecordDTO.formatRunDTO(runDTO);
+            DebugToolsToolWindowFactory.consumerInvokeMethodRecordPanel(project, panel -> panel.addItem(invokeMethodRecordDTO));
+        }
         super.doOKAction();
     }
 
@@ -178,7 +180,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
     protected Action @NotNull [] createActions() {
         return new Action[]{getOKAction(), getCancelAction()};
     }
-    
+
     @Override
     protected Action getCancelAction() {
         Action cancelAction = super.getCancelAction();
