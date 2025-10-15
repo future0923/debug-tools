@@ -19,7 +19,7 @@
     <ul>
         <li>hot deploy, hotswap, hot reload, Similar to jrebel.</li>
         <li>Call any Java method, Similar to api tool. </li>
-        <li>Others: SQL statements and time consumption, Search HttpUrl, Groovy.</li>
+        <li>Others: SQL statements and time consumption, Search HttpUrl, Groovy, Camel Case.</li>
     </ul>
     专注于提升开发效率与缩短调试周期。<a href="https://debug-tools.cc">官网</a>。
     <ul>
@@ -29,11 +29,21 @@
         <li>SQL语句与耗时: 不修改任何应用代码的情况下可以打印执行的SQL语句与耗时。</li>
         <li>搜索HttpUrl: 通过给定的URL信息直接跳转到相应的方法定义位置。</li>
         <li>Groovy: 执行Groovy脚本。</li>
+        <li>命名格式转换。</li>
     </ul>
   ]]></description>
 
     <change-notes>
         <![CDATA[
+        <strong>4.4.2</strong>
+        <ul>
+            <li>支持命名格式切换</li>
+            <li>支持配置是否搜索依赖jar中的url</li>
+            <li>支持配置是否启用调用方法记录</li>
+            <li>修复Spring的BeanCopier热重载失败的bug</li>
+            <li>修复SQL打印时单引号没有转义导致打印sql失败的bug</li>
+            <li>修复easyexcel读取时不加@ExcelIgnore顺序错乱的bug</li>
+        </ul>
         <strong>4.4.1</strong>
         <ul>
             <li>修复切换项目时ToolWindow偶发返回null</li>
