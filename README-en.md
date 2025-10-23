@@ -39,6 +39,7 @@
     <img src="https://img.shields.io/badge/JDK-11-blue.svg" alt="jdk 11" />
     <img src="https://img.shields.io/badge/JDK-17-blue.svg" alt="jdk 17" />
     <img src="https://img.shields.io/badge/JDK-21-blue.svg" alt="jdk 21" />
+    <img src="https://img.shields.io/badge/JDK-25-blue.svg" alt="jdk 25" />
     <img src="https://img.shields.io/badge/QQ群-518757118-blue.svg" alt="518757118" />
     <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
 </p>

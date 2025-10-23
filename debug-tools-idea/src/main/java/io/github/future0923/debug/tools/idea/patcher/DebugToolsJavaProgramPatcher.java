@@ -86,7 +86,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             DebugToolsNotifierUtil.notifyError(project, "Failed to obtain the running version of jdk.");
             return;
         }
-        if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+        if (jdkVersion.startsWith("17") || jdkVersion.startsWith("21") || jdkVersion.startsWith("25")) {
             javaParameters.getVMParametersList().add("-XX:+EnableDynamicAgentLoading");
         }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
@@ -102,7 +102,12 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
             if (hotswap) {
                 //ProjectRootManager rootManager = ProjectRootManager.getInstance(project);
                 //rootManager.getProjectSdk();
-                if (jdkVersion.startsWith("11") || jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
+                if (jdkVersion.startsWith("25")) {
+                    agentArgs.setHotswap(Boolean.TRUE.toString());
+                    javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
+                    javaParameters.getVMParametersList().add("--enable-native-access=ALL-UNNAMED");
+                    addVm(javaParameters);
+                } else if (jdkVersion.startsWith("11") || jdkVersion.startsWith("17") || jdkVersion.startsWith("21")) {
                     agentArgs.setHotswap(Boolean.TRUE.toString());
                     javaParameters.getVMParametersList().add("-XX:+AllowEnhancedClassRedefinition");
                     addVm(javaParameters);
