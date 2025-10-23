@@ -20,6 +20,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
@@ -31,6 +33,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.context.ClassDataContext;
 import io.github.future0923.debug.tools.idea.context.DataContext;
@@ -69,34 +72,41 @@ public class QuickDebugEditorPopupMenuAction extends AnAction {
         if (DebugToolsActionUtil.checkAttachSocketError(project)) {
             return;
         }
-        try {
-            PsiMethod psiMethod = null;
-            if (e.getDataContext() instanceof UserDataHolder) {
-                psiMethod = ((UserDataHolder) e.getDataContext()).getUserData(USER_DATE_ELEMENT_KEY);
-            }
-            if (psiMethod == null) {
-                PsiFile file = e.getData(CommonDataKeys.PSI_FILE);
-                psiMethod = PsiTreeUtil.getParentOfType(getElement(editor, file), PsiMethod.class);
-                if (psiMethod == null) {
-                    throw new IllegalArgumentException("idea arg error (method is null)");
-                }
-            }
+        ReadAction.nonBlocking(() -> {
+                    PsiMethod psiMethod = null;
+                    if (e.getDataContext() instanceof UserDataHolder) {
+                        psiMethod = ((UserDataHolder) e.getDataContext()).getUserData(USER_DATE_ELEMENT_KEY);
+                    }
+                    if (psiMethod == null) {
+                        PsiFile file = e.getData(CommonDataKeys.PSI_FILE);
+                        psiMethod = PsiTreeUtil.getParentOfType(getElement(editor, file), PsiMethod.class);
+                        if (psiMethod == null) {
+                            throw new IllegalArgumentException("idea arg error (method is null)");
+                        }
+                    }
 
-            DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-            if (settingState == null) {
-                DebugToolsNotifierUtil.notifyError(project, "state not exists");
-                return;
-            }
-            PsiClass psiClass = (PsiClass) psiMethod.getParent();
+                    DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+                    if (settingState == null) {
+                        DebugToolsNotifierUtil.notifyError(project, "state not exists");
+                        return null;
+                    }
 
-            ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass);
-            MethodDataContext methodDataContext = new MethodDataContext(classDataContext, psiMethod, project);
-            MainDialog dialog = new MainDialog(methodDataContext, project);
-            dialog.show();
-        } catch (Exception exception) {
-            log.error("debug tools invoke exception", exception);
-            DebugToolsNotifierUtil.notifyError(project, "invoke exception " + exception.getMessage());
-        }
+                    PsiClass psiClass = (PsiClass) psiMethod.getParent();
+                    ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass);
+                    return new MethodDataContext(classDataContext, psiMethod, project);
+                })
+                .withDocumentsCommitted(project)
+                .finishOnUiThread(ModalityState.any(), methodDataContext -> {
+                    if (methodDataContext != null) {
+                        MainDialog dialog = new MainDialog(methodDataContext, project);
+                        dialog.show();
+                    }
+                })
+                .submit(AppExecutorUtil.getAppExecutorService())
+                .onError(throwable -> {
+                    log.error("debug tools invoke exception", throwable);
+                    DebugToolsNotifierUtil.notifyError(project, "invoke exception " + throwable.getMessage());
+                });
     }
 
     @Override
