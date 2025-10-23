@@ -17,7 +17,6 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.proxy.command;
 
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
-import sun.security.action.GetBooleanAction;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -38,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * {@link sun.misc.ProxyGenerator}
+ * 生成代理类
  */
 public class ProxyGenerator {
     /*
@@ -288,15 +287,23 @@ public class ProxyGenerator {
 
     // end of constants copied from sun.tools.java.RuntimeConstants
 
-    /** name of the superclass of proxy classes */
+    /**
+     * name of the superclass of proxy classes
+     */
     private final static String superclassName = "java/lang/reflect/Proxy";
 
-    /** name of field for storing a proxy instance's invocation handler */
+    /**
+     * name of field for storing a proxy instance's invocation handler
+     */
     private final static String handlerFieldName = "h";
 
-    /** debugging flag for saving generated class files */
-    private final static boolean saveGeneratedFiles = java.security.AccessController.doPrivileged(
-            new GetBooleanAction("java.lang.reflect.ProxyGenerator.saveGeneratedFiles")).booleanValue();
+    /**
+     * debugging flag for saving generated class files
+     */
+    private static final boolean saveGeneratedFiles = java.security.AccessController.doPrivileged(
+            (java.security.PrivilegedAction<Boolean>) () ->
+                    Boolean.getBoolean("java.lang.reflect.ProxyGenerator.saveGeneratedFiles")
+    );
 
     /**
      * Generate a public proxy class given a name and a list of proxy interfaces.
@@ -308,12 +315,9 @@ public class ProxyGenerator {
     /**
      * Generate a proxy class given a name and a list of proxy interfaces.
      *
-     * @param name
-     *            the class name of the proxy class
-     * @param interfaces
-     *            proxy interfaces
-     * @param accessFlags
-     *            access flags of the proxy class
+     * @param name        the class name of the proxy class
+     * @param interfaces  proxy interfaces
+     * @param accessFlags access flags of the proxy class
      */
     public static byte[] generateProxyClass(final String name, Class<?>[] interfaces, int accessFlags) {
         ProxyGenerator gen = new ProxyGenerator(name, interfaces, accessFlags);
@@ -348,35 +352,48 @@ public class ProxyGenerator {
     private static Method hashCodeMethod;
     private static Method equalsMethod;
     private static Method toStringMethod;
+
     static {
         try {
             hashCodeMethod = Object.class.getMethod("hashCode");
-            equalsMethod = Object.class.getMethod("equals", new Class<?>[] { Object.class });
+            equalsMethod = Object.class.getMethod("equals", new Class<?>[]{Object.class});
             toStringMethod = Object.class.getMethod("toString");
         } catch (NoSuchMethodException e) {
             throw new NoSuchMethodError(e.getMessage());
         }
     }
 
-    /** name of proxy class */
+    /**
+     * name of proxy class
+     */
     private String className;
     private String random = UUID.randomUUID().toString().replace("-", "");
     private String initFieldName = "clinitCalled" + random;
     private String initMethodName = "clinitMethodByJavaAgentForHotSwap";
 
-    /** proxy interfaces */
+    /**
+     * proxy interfaces
+     */
     private Class<?>[] interfaces;
 
-    /** proxy class access flags */
+    /**
+     * proxy class access flags
+     */
     private int accessFlags;
 
-    /** constant pool of class being generated */
+    /**
+     * constant pool of class being generated
+     */
     private ConstantPool cp = new ConstantPool();
 
-    /** FieldInfo struct for each field of generated class */
+    /**
+     * FieldInfo struct for each field of generated class
+     */
     private List<FieldInfo> fields = new ArrayList<>();
 
-    /** MethodInfo struct for each method of generated class */
+    /**
+     * MethodInfo struct for each method of generated class
+     */
     private List<MethodInfo> methods = new ArrayList<>();
 
     /**
@@ -384,12 +401,14 @@ public class ProxyGenerator {
      */
     private Map<String, List<ProxyMethod>> proxyMethods = new HashMap<>();
 
-    /** count of ProxyMethod objects added to proxyMethods */
+    /**
+     * count of ProxyMethod objects added to proxyMethods
+     */
     private int proxyMethodCount = 0;
 
     /**
      * Construct a ProxyGenerator to generate a proxy class with the specified name and for the given interfaces.
-     *
+     * <p>
      * A ProxyGenerator object contains the state for the ongoing generation of a particular proxy class.
      */
     private ProxyGenerator(String className, Class<?>[] interfaces, int accessFlags) {
@@ -549,7 +568,7 @@ public class ProxyGenerator {
     /**
      * Add another method to be proxied, either by creating a new ProxyMethod object or augmenting an old one for a
      * duplicate method.
-     *
+     * <p>
      * "fromClass" indicates the proxy interface that the method was found through, which may be different from (a
      * subinterface of) the method's "declaring class". Note that the first Method object passed for a given name and
      * descriptor identifies the Method object (and thus the declaring class) that will be passed to the invocation
@@ -588,7 +607,7 @@ public class ProxyGenerator {
     /**
      * For a given set of proxy methods with the same signature, check that their return types are compatible according
      * to the Proxy specification.
-     *
+     * <p>
      * Specifically, if there is more than one such method, then all of the return types must be reference types, and
      * there must be one return type that is assignable to each of the rest of them.
      */
@@ -606,7 +625,8 @@ public class ProxyGenerator {
          */
         LinkedList<Class<?>> uncoveredReturnTypes = new LinkedList<>();
 
-        nextNewReturnType: for (ProxyMethod pm : methods) {
+        nextNewReturnType:
+        for (ProxyMethod pm : methods) {
             Class<?> newReturnType = pm.returnType;
             if (newReturnType.isPrimitive()) {
                 throw new IllegalArgumentException("methods with same signature "
@@ -719,7 +739,9 @@ public class ProxyGenerator {
             this.handlerPc = handlerPc;
             this.catchType = catchType;
         }
-    };
+    }
+
+    ;
 
     /**
      * A MethodInfo object contains information about a particular method in the class being generated. This class
@@ -822,7 +844,7 @@ public class ProxyGenerator {
         public String methodFieldName;
 
         private ProxyMethod(String methodName, Class<?>[] parameterTypes, Class<?> returnType,
-                Class<?>[] exceptionTypes, Class<?> fromClass) {
+                            Class<?>[] exceptionTypes, Class<?> fromClass) {
             this.methodName = methodName;
             this.parameterTypes = parameterTypes;
             this.returnType = returnType;
@@ -1236,7 +1258,7 @@ public class ProxyGenerator {
     /**
      * Generate code for a load or store instruction for the given local variable. The code is written to the supplied
      * stream.
-     *
+     * <p>
      * "opcode" indicates the opcode form of the desired load or store instruction that takes an explicit local variable
      * index, and "opcode_0" indicates the corresponding form of the instruction with the implicit index 0.
      */
@@ -1334,7 +1356,7 @@ public class ProxyGenerator {
     /**
      * Return the number of abstract "words", or consecutive local variable indexes, required to contain a value of the
      * given type. See JVMS section 3.6.1.
-     *
+     * <p>
      * Note that the original version of the JVMS contained a definition of this abstract notion of a "word" in section
      * 3.4, but that definition was removed for the second edition.
      */
@@ -1349,7 +1371,7 @@ public class ProxyGenerator {
     /**
      * Add to the given list all of the types in the "from" array that are not already contained in the list and are
      * assignable to at least one of the types in the "with" array.
-     *
+     * <p>
      * This method is useful for computing the greatest common set of declared exceptions from duplicate methods
      * inherited from different interfaces.
      */
@@ -1370,15 +1392,15 @@ public class ProxyGenerator {
      * Given the exceptions declared in the throws clause of a proxy method, compute the exceptions that need to be
      * caught from the invocation handler's invoke method and rethrown intact in the method's implementation before
      * catching other Throwables and wrapping them in UndeclaredThrowableExceptions.
-     *
+     * <p>
      * The exceptions to be caught are returned in a List object. Each exception in the returned list is guaranteed to
      * not be a subclass of any of the other exceptions in the list, so the catch blocks for these exceptions may be
      * generated in any order relative to each other.
-     *
+     * <p>
      * Error and RuntimeException are each always contained by the returned list (if none of their superclasses are
      * contained), since those unchecked exceptions should always be rethrown intact, and thus their subclasses will
      * never appear in the returned list.
-     *
+     * <p>
      * The returned List will be empty if java.lang.Throwable is in the given list of declared exceptions, indicating
      * that no exceptions need to be caught.
      */
@@ -1389,7 +1411,8 @@ public class ProxyGenerator {
         uniqueList.add(Error.class); // always catch/rethrow these
         uniqueList.add(RuntimeException.class);
 
-        nextException: for (Class<?> ex : exceptions) {
+        nextException:
+        for (Class<?> ex : exceptions) {
             if (ex.isAssignableFrom(Throwable.class)) {
                 /*
                  * If Throwable is declared to be thrown by the proxy method, then no catch blocks are necessary,
@@ -1406,7 +1429,7 @@ public class ProxyGenerator {
             /*
              * Compare this exception against the current list of exceptions that need to be caught:
              */
-            for (int j = 0; j < uniqueList.size();) {
+            for (int j = 0; j < uniqueList.size(); ) {
                 Class<?> ex2 = uniqueList.get(j);
                 if (ex2.isAssignableFrom(ex)) {
                     /*
@@ -1435,22 +1458,33 @@ public class ProxyGenerator {
      */
     private static class PrimitiveTypeInfo {
 
-        /** "base type" used in various descriptors (see JVMS section 4.3.2) */
+        /**
+         * "base type" used in various descriptors (see JVMS section 4.3.2)
+         */
         public String baseTypeString;
 
-        /** name of corresponding wrapper class */
+        /**
+         * name of corresponding wrapper class
+         */
         public String wrapperClassName;
 
-        /** method descriptor for wrapper class "valueOf" factory method */
+        /**
+         * method descriptor for wrapper class "valueOf" factory method
+         */
         public String wrapperValueOfDesc;
 
-        /** name of wrapper class method for retrieving primitive value */
+        /**
+         * name of wrapper class method for retrieving primitive value
+         */
         public String unwrapMethodName;
 
-        /** descriptor of same method */
+        /**
+         * descriptor of same method
+         */
         public String unwrapMethodDesc;
 
         private static Map<Class<?>, PrimitiveTypeInfo> table = new HashMap<>();
+
         static {
             add(byte.class, Byte.class);
             add(char.class, Character.class);
@@ -1486,18 +1520,18 @@ public class ProxyGenerator {
      * constant pool is designed specifically for use by ProxyGenerator; in particular, it assumes that constant pool
      * entries will not need to be resorted (for example, by their type, as the Java compiler does), so that the final
      * index value can be assigned and used when an entry is first created.
-     *
+     * <p>
      * Note that new entries cannot be created after the constant pool has been written to a class file. To prevent such
      * logic errors, a ConstantPool instance can be marked "read only", so that further attempts to add new entries will
      * fail with a runtime exception.
-     *
+     * <p>
      * See JVMS section 4.4 for more information about the constant pool of a class file.
      */
     private static class ConstantPool {
 
         /**
          * list of constant pool entries, in constant pool index order.
-         *
+         * <p>
          * This list is used when writing the constant pool to a stream and for assigning the next index value. Note
          * that element 0 of this list corresponds to constant pool index 1.
          */
@@ -1505,12 +1539,14 @@ public class ProxyGenerator {
 
         /**
          * maps constant pool data of all types to constant pool indexes.
-         *
+         * <p>
          * This map is used to look up the index of an existing entry for values of all types.
          */
         private Map<Object, Short> map = new HashMap<>(16);
 
-        /** true if no new constant pool entries may be added */
+        /**
+         * true if no new constant pool entries may be added
+         */
         private boolean readOnly = false;
 
         /**
@@ -1591,7 +1627,7 @@ public class ProxyGenerator {
 
         /**
          * Set this ConstantPool instance to be "read only".
-         *
+         * <p>
          * After this method has been called, further requests to get an index for a non-existent entry will cause an
          * InternalError to be thrown instead of creating of the entry.
          */
@@ -1601,7 +1637,7 @@ public class ProxyGenerator {
 
         /**
          * Write this constant pool to a stream as part of the class file format.
-         *
+         * <p>
          * This consists of writing the "constant_pool_count" and "constant_pool[]" items of the "ClassFile" structure,
          * as described in JVMS section 4.1.
          */
@@ -1634,7 +1670,7 @@ public class ProxyGenerator {
         /**
          * Get or assign the index for an entry of a type that contains a direct value. The type of the given object
          * determines the type of the desired entry as follows:
-         *
+         * <p>
          * java.lang.String CONSTANT_Utf8 java.lang.Integer CONSTANT_Integer java.lang.Float CONSTANT_Float
          * java.lang.Long CONSTANT_Long java.lang.Double CONSTANT_DOUBLE
          */
@@ -1680,7 +1716,7 @@ public class ProxyGenerator {
         /**
          * ValueEntry represents a constant pool entry of a type that contains a direct value (see the comments for the
          * "getValue" method for a list of such types).
-         *
+         * <p>
          * ValueEntry objects are not used as keys for their entries in the Map "map", so no useful hashCode or equals
          * methods are defined.
          */
@@ -1716,12 +1752,12 @@ public class ProxyGenerator {
         /**
          * IndirectEntry represents a constant pool entry of a type that references other constant pool entries, i.e.,
          * the following types:
-         *
+         * <p>
          * CONSTANT_Class, CONSTANT_String, CONSTANT_Fieldref, CONSTANT_Methodref, CONSTANT_InterfaceMethodref, and
          * CONSTANT_NameAndType.
-         *
+         * <p>
          * Each of these entry types contains either one or two indexes of other constant pool entries.
-         *
+         * <p>
          * IndirectEntry objects are used as the keys for their entries in the Map "map", so the hashCode and equals
          * methods are overridden to allow matching.
          */
