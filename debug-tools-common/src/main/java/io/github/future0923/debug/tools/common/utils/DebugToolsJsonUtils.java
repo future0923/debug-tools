@@ -47,7 +47,7 @@ public class DebugToolsJsonUtils extends JSONUtil {
 
     static {
         JSON_CONFIG = JSONConfig.create()
-                .setDateFormat(DatePattern.NORM_DATETIME_MS_PATTERN)
+                .setDateFormat(DatePattern.NORM_DATETIME_PATTERN)
                 .setIgnoreNullValue(false);
     }
 
@@ -78,6 +78,16 @@ public class DebugToolsJsonUtils extends JSONUtil {
      */
     public static String pretty(String jsonStr) {
         return toJsonPrettyStr(parse(jsonStr));
+    }
+
+    /**
+     * 转换为JSON字符串
+     *
+     * @param obj 被转为JSON的对象
+     * @return JSON字符串
+     */
+    public static String toJsonStr(Object obj) {
+        return toJsonStr(obj, JSON_CONFIG);
     }
 
     /**
