@@ -21,8 +21,6 @@ import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
 
-import java.io.ByteArrayInputStream;
-
 /**
  * 解析Class是否需要进行Bean重新加载{@link #isReloadNeeded}
  * <p>
@@ -34,28 +32,26 @@ public class ClassChangesAnalyzer {
 
     private static final Logger LOGGER = Logger.getLogger(ClassChangesAnalyzer.class);
 
-    private final ClassPool classPool;
-
-    public ClassChangesAnalyzer(final ClassLoader classLoader) {
-        this.classPool = JavassistUtil.getClassPool(classLoader);
-    }
-
-    public boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer) {
+    public static boolean isReloadNeeded(Class<?> classBeingRedefined, byte[] classfileBuffer, ClassLoader classLoader) {
         // jvm合成的类不需要
         if (classBeingRedefined.isSynthetic() || isSyntheticClass(classBeingRedefined)) {
             return false;
         }
-        return classChangeNeedsReload(classBeingRedefined, classfileBuffer);
+        return classChangeNeedsReload(classBeingRedefined, classfileBuffer, classLoader);
     }
 
-    private boolean classChangeNeedsReload(Class<?> classBeingRedefined, byte[] classfileBuffer) {
+    private static boolean classChangeNeedsReload(Class<?> classBeingRedefined, byte[] classfileBuffer, ClassLoader classLoader) {
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
         CtClass makeClass = null;
         try {
-            makeClass = classPool.makeClass(new ByteArrayInputStream(classfileBuffer));
+            ClassPool classPool = JavassistUtil.getClassPool(classLoader);
+            makeClass = JavassistUtil.createCtClass(classPool, classfileBuffer);
             return ClassSignatureComparer.isPoolClassDifferent(classBeingRedefined, classPool);
         } catch (Exception e) {
             LOGGER.error("Error analyzing class {} for reload necessity. Defaulting to yes.", e, classBeingRedefined.getName());
         } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
             if (makeClass != null) {
                 makeClass.detach();
             }
@@ -63,7 +59,7 @@ public class ClassChangesAnalyzer {
         return true;
     }
 
-    protected boolean isSyntheticClass(Class<?> classBeingRedefined) {
+    protected static boolean isSyntheticClass(Class<?> classBeingRedefined) {
         return classBeingRedefined.getSimpleName().contains("$$_javassist")
                 || classBeingRedefined.getName().startsWith("com.sun.proxy.$Proxy")
                 || classBeingRedefined.getSimpleName().contains("$$Enhancer")

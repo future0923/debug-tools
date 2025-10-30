@@ -45,9 +45,8 @@ public class SolonBeanClassFileTransformer implements HaClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (classBeingRedefined != null) {
-            final ClassChangesAnalyzer analyzer = new ClassChangesAnalyzer(appClassLoader);
             className = className.replace("/", ".");
-            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
+            if (ClassChangesAnalyzer.isReloadNeeded(classBeingRedefined, classfileBuffer, appClassLoader)) {
                 logger.info("watch change class event, start reloading solon bean, class name:{}", className);
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(), basePackage, className, classfileBuffer));
             } else {

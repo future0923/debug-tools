@@ -48,9 +48,8 @@ public class SpringBeanClassFileTransformer implements HaClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (classBeingRedefined != null) {
-            final ClassChangesAnalyzer analyzer = new ClassChangesAnalyzer(appClassLoader);
             className = className.replace("/", ".");
-            if (analyzer.isReloadNeeded(classBeingRedefined, classfileBuffer)) {
+            if (ClassChangesAnalyzer.isReloadNeeded(classBeingRedefined, classfileBuffer, appClassLoader)) {
                 scheduler.scheduleCommand(new ClassPathBeanRefreshCommand(classBeingRedefined.getClassLoader(), basePackage, className, classfileBuffer));
             }
         }
