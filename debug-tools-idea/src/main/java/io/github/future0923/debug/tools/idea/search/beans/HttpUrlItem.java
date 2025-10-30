@@ -164,31 +164,19 @@ public class HttpUrlItem implements NavigationItem {
     }
 
     @Override
-    public String toString() {
-        HttpMethod method = this.method == null ? HttpMethod.REQUEST : this.method;
-        String path = this.path == null ? "" : this.path;
-        return String.format("[%s]%s(%s)", method, path, icon.getClass());
-    }
+    public final boolean equals(Object o) {
+        if (!(o instanceof HttpUrlItem that)) return false;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        HttpUrlItem httpUrlInfo = (HttpUrlItem) o;
-        if (method != httpUrlInfo.method) {
-            return false;
-        }
-        return Objects.equals(path, httpUrlInfo.path);
+        return method == that.method && Objects.equals(path, that.path) && Objects.equals(moduleName, that.moduleName) && Objects.equals(className, that.className) && Objects.equals(methodName, that.methodName);
     }
 
     @Override
     public int hashCode() {
-        int result = method != null ? method.hashCode() : 0;
-        result = 31 * result + (path != null ? path.hashCode() : 0);
+        int result = Objects.hashCode(method);
+        result = 31 * result + Objects.hashCode(path);
+        result = 31 * result + Objects.hashCode(moduleName);
+        result = 31 * result + Objects.hashCode(className);
+        result = 31 * result + Objects.hashCode(methodName);
         return result;
     }
 }
