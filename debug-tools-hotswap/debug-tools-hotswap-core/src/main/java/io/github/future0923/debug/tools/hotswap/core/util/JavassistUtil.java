@@ -57,6 +57,13 @@ public class JavassistUtil {
     }
 
     /**
+     * 创建javassist CtClass
+     */
+    public static CtClass createCtClass(ClassPool classPool, byte[] bytes) throws IOException {
+        return classPool.makeClass(new ByteArrayInputStream(bytes));
+    }
+
+    /**
      * 插入修改CtClass的，再从ClassPool获取时可以拿到最新的
      */
     public static void insertClassPath(ClassLoader classLoader, String name, CtClass ctClass) throws IOException, CannotCompileException {
