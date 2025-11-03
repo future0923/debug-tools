@@ -288,7 +288,7 @@ public abstract class AbstractNIO2Watcher implements Watcher {
                 }
                 return false;
             }
-            // https://github.com/java-hot-deploy/debug-tools/issues/134
+            // https://github.com/future0923/debug-tools/issues/134
             PluginManager.getInstance().getScheduler().scheduleCommand(() -> registerAll(dir), 5, Scheduler.DuplicateSheduleBehaviour.WAIT_AND_RUN_AFTER);
         }
         return true;
