@@ -1,11 +1,11 @@
 <br/>
 
 <p align="center">
-    <a href="https://github.com/java-hot-deploy/debug-tools/blob/main/README.md">
+    <a href="https://github.com/future0923/debug-tools/blob/main/README.md">
       中文
     </a>
     |
-    <a href="https://github.com/java-hot-deploy/debug-tools/blob/main/README-en.md" >
+    <a href="https://github.com/future0923/debug-tools/blob/main/README-en.md" >
       English
     </a>
 </p>
@@ -30,9 +30,9 @@
 <p align="center">
     <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg?label=license" alt="GPL 3.0" />
     <img src="https://img.shields.io/jetbrains/plugin/d/24463?style=flat&color=blue" alt="github contributors"/>
-    <img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools.svg?style=flat&label=stars" alt="github stars"/>
-    <img src="https://img.shields.io/github/forks/java-hot-deploy/debug-tools.svg?style=flat&label=forks" alt="github forks"/>
-    <img src="https://img.shields.io/github/contributors/java-hot-deploy/debug-tools.svg?style=flat&label=contributors&color=blue" alt="github contributors"/>
+    <img src="https://img.shields.io/github/stars/future0923/debug-tools.svg?style=flat&label=stars" alt="github stars"/>
+    <img src="https://img.shields.io/github/forks/future0923/debug-tools.svg?style=flat&label=forks" alt="github forks"/>
+    <img src="https://img.shields.io/github/contributors/future0923/debug-tools.svg?style=flat&label=contributors&color=blue" alt="github contributors"/>
     <img src='https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark' alt='star' />
     <img src='https://gitee.com/future94/debug-tools/badge/fork.svg?theme=dark' alt='fork' />
     <img src="https://img.shields.io/badge/JDK-8-blue.svg" alt="jdk 8" />
@@ -91,15 +91,15 @@
 
 ## 支持这个项目
 
-本项目完全开源，实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools"><img src="https://img.shields.io/github/stars/java-hot-deploy/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a> <a target="_blank" href="https://gitee.com/future94/debug-tools"><img src="https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。
+本项目完全开源，实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a> <a target="_blank" href="https://gitee.com/future94/debug-tools"><img src="https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。
 
-如果项目没有达到预期效果，麻烦提交 <a target="_blank" href="https://github.com/java-hot-deploy/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/java-hot-deploy/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下，我将尽快处理。
+如果项目没有达到预期效果，麻烦提交 <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下，我将尽快处理。
 
 如果你对 DebugTools 有兴趣，诚邀您加入 DebugTools 开源项目！在这里，我们共同打造，用代码解决实际问题。无论您擅长 Java 、Idea 插件开发还是热衷于前端开发，亦或是对架构设计、文档撰写有独到见解，都能在这里找到发挥的舞台。我们鼓励不同的想法碰撞，期待您带来新的思路与解决方案。本项目代码完全开源，让我们携手将项目打磨得更加完善，在开源社区留下属于我们的精彩印记！
 
 ## 联系我
 
-- Issue：[issues](https://github.com/java-hot-deploy/debug-tools/issues)
+- Issue：[issues](https://github.com/future0923/debug-tools/issues)
 - 邮箱：[future94@qq.com](mailto:future94@qq.com)
 - QQ群：[518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - 微信

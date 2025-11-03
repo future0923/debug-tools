@@ -35,6 +35,14 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.4.3</strong>
+        <ul>
+            <li>支持jdk25热重载</li>
+            <li>json方式查看调用结果配置变更</li>
+            <li>优化调试窗口</li>
+            <li>修复不同模块url相同时只能一个的bug</li>
+            <li>修复热部署相同的类第二次远程编译时找不到类的bug</li>
+        </ul>
         <strong>4.4.2</strong>
         <ul>
             <li>支持命名格式切换</li>

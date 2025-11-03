@@ -27,14 +27,14 @@ Check_Download()
     Download_File https://download.debug-tools.cc/${Debug_Tools_Properties_File_Name} ${Debug_Tools_Properties_File_Name}
     Download_File https://download.debug-tools.cc/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
     if [ $? -ne 0 ]; then
-        Download_File https://github.com/java-hot-deploy/debug-tools/releases/latest/download/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
+        Download_File https://github.com/future0923/debug-tools/releases/latest/download/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
         if [ $? -ne 0 ]; then
             Download_File https://gitee.com/future94/debug-tools/releases/download/latest/${Debug_Tools_Agent_File_Name} ${Debug_Tools_Agent_File_Name}
         fi
     fi
     Download_File https://download.debug-tools.cc/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
     if [ $? -ne 0 ]; then
-        Download_File https://github.com/java-hot-deploy/debug-tools/releases/latest/download/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
+        Download_File https://github.com/future0923/debug-tools/releases/latest/download/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
         if [ $? -ne 0 ]; then
             Download_File https://gitee.com/future94/debug-tools/releases/download/latest/${Debug_Tools_Boot_File_Name} ${Debug_Tools_Boot_File_Name}
         fi
@@ -43,7 +43,7 @@ Check_Download()
         if [[ "${Jdk8Select}" = "1" ]]; then
             Download_File https://download.debug-tools.cc/dcevm-jdk-1.8.0_181/${Jdk_8_File_Name} ${Jdk_8_File_Name}
             if [ $? -ne 0 ]; then
-                Download_File https://github.com/java-hot-deploy/debug-tools/releases/download/dcevm-jdk-1.8.0_181/${Jdk_8_File_Name} ${Jdk_8_File_Name}
+                Download_File https://github.com/future0923/debug-tools/releases/download/dcevm-jdk-1.8.0_181/${Jdk_8_File_Name} ${Jdk_8_File_Name}
             fi
         elif [[ "${Jdk8Select}" = "2" ]]; then
             Get_Java_Major_Ver
@@ -62,7 +62,7 @@ Check_Download()
             fi
             Download_File https://download.debug-tools.cc/libjvm/libjvm${LIB_JVM_VERSION}.so libjvm${LIB_JVM_VERSION}.so
             if [ $? -ne 0 ]; then
-                Download_File https://github.com/java-hot-deploy/debug-tools/releases/download/libjvm.so/libjvm${LIB_JVM_VERSION}.so libjvm${LIB_JVM_VERSION}.so
+                Download_File https://github.com/future0923/debug-tools/releases/download/libjvm.so/libjvm${LIB_JVM_VERSION}.so libjvm${LIB_JVM_VERSION}.so
             fi
         fi
     elif [[ "${JdkSelect}" = "2" ]] && ! Check_Jdk11_Dcevm_Install; then
