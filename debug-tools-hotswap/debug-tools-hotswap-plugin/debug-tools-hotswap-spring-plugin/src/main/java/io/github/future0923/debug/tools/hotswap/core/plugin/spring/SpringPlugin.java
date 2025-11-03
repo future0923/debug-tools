@@ -233,7 +233,7 @@ public class SpringPlugin {
 
     }
 
-    // https://github.com/java-hot-deploy/debug-tools/issues/124
+    // https://github.com/future0923/debug-tools/issues/124
     @OnClassLoadEvent(classNameRegexp = "org.springframework.aop.framework.autoproxy.AutoProxyUtils")
     public static void patchAutoProxyUtils(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
         CtMethod determineTargetClass = ctClass.getDeclaredMethod("determineTargetClass", new CtClass[]{
@@ -267,7 +267,7 @@ public class SpringPlugin {
     }
 
     /**
-     * <a href="https://github.com/java-hot-deploy/debug-tools/issues/144">#144</a>
+     * <a href="https://github.com/future0923/debug-tools/issues/144">#144</a>
      */
     @OnClassLoadEvent(classNameRegexp = "org.springframework.cglib.core.AbstractClassGenerator")
     public static void patchAbstractClassGenerator(CtClass ctClass) throws CannotCompileException, NotFoundException {

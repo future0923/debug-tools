@@ -144,7 +144,7 @@ public class IBatisPatcher {
         constructor.insertAfter(src);
     }
 
-    // https://github.com/java-hot-deploy/debug-tools/issues/130
+    // https://github.com/future0923/debug-tools/issues/130
     @OnClassLoadEvent(classNameRegexp = "org.apache.ibatis.reflection.DefaultReflectorFactory")
     public static void patchDefaultReflectorFactory(CtClass ctClass) throws NotFoundException, CannotCompileException {
         for (CtConstructor constructor : ctClass.getConstructors()) {
