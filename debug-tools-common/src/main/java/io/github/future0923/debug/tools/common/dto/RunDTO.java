@@ -78,4 +78,9 @@ public class RunDTO {
      */
     private String methodAroundContent;
 
+    /**
+     * 调用方法around内容唯一标识(用来判断是否需要重新编译)
+     */
+    private String methodAroundContentIdentity;
+
 }
