@@ -130,6 +130,7 @@ public class MainDialog extends DialogWrapper {
             String filePath = project.getBasePath() + IdeaPluginProjectConstants.METHOD_AROUND_DIR + methodAroundName + ".java";
             if (FileUtil.exist(filePath)) {
                 runDTO.setMethodAroundContent(FileUtil.readUtf8String(filePath));
+                runDTO.setMethodAroundContentIdentity(DebugToolsDigestUtil.md5(runDTO.getMethodAroundContent()));
             }
         }
         String identity = DebugToolsDigestUtil.md5(runDTO.toString());

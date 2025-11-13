@@ -61,6 +61,8 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
 
     public static final RunTargetMethodRequestHandler INSTANCE = new RunTargetMethodRequestHandler();
 
+    public String methodAroundContentIdentity;
+
     @Override
     public void handle(OutputStream outputStream, RunTargetMethodRequestPacket packet) throws Exception {
         RunDTO runDTO = packet.getRunDTO();
@@ -130,7 +132,8 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
         Class<?> aroundClass = DebugToolsClassUtils.loadClass(RunMethodAround.class.getName(), classLoader);
-        if (StrUtil.isNotBlank(runDTO.getMethodAroundContent())) {
+        if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && !StrUtil.equals(methodAroundContentIdentity, runDTO.getMethodAroundContentIdentity())) {
+            methodAroundContentIdentity = runDTO.getMethodAroundContentIdentity();
             Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
             DynamicCompiler dynamicCompiler = new DynamicCompiler(classLoader);
             dynamicCompiler.addSource(RunMethodAround.class.getName(), runDTO.getMethodAroundContent());

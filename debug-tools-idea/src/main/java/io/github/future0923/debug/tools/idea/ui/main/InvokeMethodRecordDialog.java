@@ -23,6 +23,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
@@ -128,6 +129,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
             String filePath = project.getBasePath() + IdeaPluginProjectConstants.METHOD_AROUND_DIR + methodAroundName + ".java";
             if (FileUtil.exist(filePath)) {
                 runDTO.setMethodAroundContent(FileUtil.readUtf8String(filePath));
+                runDTO.setMethodAroundContentIdentity(DebugToolsDigestUtil.md5(runDTO.getMethodAroundContent()));
             }
         }
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
