@@ -59,9 +59,6 @@ public class MyBatisSpringMapperReload extends AbstractMyBatisResourceReload<MyB
         }
         String loadedResource = buildLoadedResource(className);
         for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
-            if (configuration.getClass().getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
-                continue;
-            }
             synchronized (MyBatisUtils.getReloadLockObject()) {
                 if (!RELOADING_CLASS.add(className)) {
                     if (ProjectConstants.DEBUG) {

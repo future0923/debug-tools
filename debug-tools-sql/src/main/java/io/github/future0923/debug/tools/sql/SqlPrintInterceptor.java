@@ -151,6 +151,7 @@ public class SqlPrintInterceptor {
         }
         try {
             String resultSql = dbType.getFormat().format(sta, parameters);
+            resultSql = resultSql.endsWith(";") ? resultSql : resultSql + ";";
 
             if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
                 MethodTrace.enterSql(resultSql);
