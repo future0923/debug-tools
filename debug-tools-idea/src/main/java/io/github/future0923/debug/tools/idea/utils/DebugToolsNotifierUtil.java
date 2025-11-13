@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class DebugToolsNotifierUtil {
 
-  private final static String msgPre = "DebugToolsTool: ";
+  private final static String msgPre = "DebugTools: ";
 
   public static void notifyError(@Nullable Project project,
                                  String content) {

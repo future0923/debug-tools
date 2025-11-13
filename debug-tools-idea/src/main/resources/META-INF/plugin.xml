@@ -182,6 +182,8 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
     <depends>com.intellij.modules.json</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>Git4Idea</depends>
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
@@ -325,6 +327,12 @@
                 class="io.github.future0923.debug.tools.idea.action.HotswapDebugAction" popup="true">
             <!-- 添加到services -->
             <add-to-group group-id="RunDashboardContentToolbar" anchor="after" relative-to-action="RunDashboard.Stop"/>
+        </action>
+
+        <action id="MergeToBranchAction"
+                class="io.github.future0923.debug.tools.idea.action.GitMergeAction" >
+            <add-to-group group-id="Git.Branch" anchor="after" relative-to-action="Git.Branches"/>
+
         </action>
     </actions>
 

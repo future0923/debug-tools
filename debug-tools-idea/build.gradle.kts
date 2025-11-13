@@ -70,6 +70,7 @@ allprojects {
             testFramework(TestFrameworkType.Bundled)
 
             bundledPlugin("com.intellij.java")
+            bundledPlugin("Git4Idea")
 
             bundledModule("com.intellij.modules.json")
 
