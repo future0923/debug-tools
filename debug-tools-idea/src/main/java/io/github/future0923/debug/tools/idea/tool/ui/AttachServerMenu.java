@@ -69,6 +69,7 @@ public class AttachServerMenu extends JBPopupMenu {
                 if (DebugToolsStringUtils.isNotBlank(agentPath)) {
                     DebugToolsAttachUtils.attachLocal(project, serverDisplayValue.getKey(), serverDisplayValue.getValue(), agentPath);
                     StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
+                    StateUtils.getPrintSqlPanel(project).refresh();
                 }
                 settingState.setLocal(true);
             }

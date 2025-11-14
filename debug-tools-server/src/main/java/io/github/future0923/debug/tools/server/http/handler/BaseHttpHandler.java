@@ -41,12 +41,15 @@ public abstract class BaseHttpHandler<Req, Res> implements HttpHandler {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void handle(HttpExchange httpExchange) throws IOException {
         InputStream inputStream = httpExchange.getRequestBody();
         String requestBody = new String(DebugToolsIOUtils.readAllBytes(inputStream), StandardCharsets.UTF_8);
         Req req;
         if (reqClass.isAssignableFrom(Void.class)) {
             req = null;
+        } else if (reqClass.isAssignableFrom(String.class)) {
+            req = (Req) requestBody;
         } else {
             req = DebugToolsJsonUtils.toBean(requestBody, reqClass);
         }
