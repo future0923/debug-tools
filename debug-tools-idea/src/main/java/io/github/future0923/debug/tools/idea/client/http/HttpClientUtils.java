@@ -45,6 +45,10 @@ public class HttpClientUtils {
 
     private static final String GET_APPLICATION_NAME_URI = "/getApplicationName";
 
+    private static final String GET_PRINT_SQL_TYPE_URI = "/getPrintSqlType";
+
+    private static final String CHANGE_PRINT_SQL_TYPE_URI = "/changePrintSqlType";
+
     private static final int TIMEOUT = 5000;
 
     public static String resultType(Project project, String offsetPath, String printResultType) {
@@ -89,5 +93,13 @@ public class HttpClientUtils {
 
     public static String getApplicationName(Project project, boolean local) throws IOException, InterruptedException {
         return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_APPLICATION_NAME_URI, local), TIMEOUT);
+    }
+
+    public static String getPrintSqlType(Project project) throws IOException, InterruptedException {
+        return HttpUtil.get(DebugToolsSettingState.getInstance(project).getUrl(GET_PRINT_SQL_TYPE_URI), TIMEOUT);
+    }
+
+    public static String changePrintSqlType(Project project, String printSqlType) throws IOException, InterruptedException {
+        return HttpUtil.post(DebugToolsSettingState.getInstance(project).getUrl(CHANGE_PRINT_SQL_TYPE_URI), printSqlType, TIMEOUT);
     }
 }
