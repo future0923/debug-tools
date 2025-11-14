@@ -18,8 +18,8 @@ package io.github.future0923.debug.tools.idea.utils;
 
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
+import io.github.future0923.debug.tools.idea.tool.ui.PrintSqlPanel;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +44,11 @@ public class StateUtils {
      * 项目默认类加载器选择框
      */
     private static final Map<Project, ClassLoaderComboBox> CLASS_LOADER_COMBO_BOX_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 项目默认类加载器选择框
+     */
+    private static final Map<Project, PrintSqlPanel> PRINT_SQL_PANEL_MAP = new ConcurrentHashMap<>();
 
     /**
      * 项目跟踪方法
@@ -78,6 +83,10 @@ public class StateUtils {
 
     public static ClassLoaderComboBox getClassLoaderComboBox(Project project) {
         return CLASS_LOADER_COMBO_BOX_MAP.computeIfAbsent(project, ClassLoaderComboBox::new);
+    }
+
+    public static PrintSqlPanel getPrintSqlPanel(Project project) {
+        return PRINT_SQL_PANEL_MAP.computeIfAbsent(project, PrintSqlPanel::new);
     }
 
     public static Set<String> getTraceMethod(Project project) {

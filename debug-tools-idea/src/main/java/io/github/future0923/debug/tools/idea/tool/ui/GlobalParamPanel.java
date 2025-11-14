@@ -74,6 +74,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
 
     private JPanel jPanel;
 
+    private final PrintSqlPanel printSqlPanel;
+
     private final MethodAroundComboBox methodAroundComboBox;
     
     // Keep references to components that need to be refreshed
@@ -93,6 +95,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         this.project = project;
         this.settingState = DebugToolsSettingState.getInstance(project);
         this.methodAroundComboBox = new MethodAroundComboBox(project, 300);
+        this.printSqlPanel = StateUtils.getPrintSqlPanel(project);
+        this.printSqlPanel.setVisible(false);
         initLayout();
     }
 
@@ -177,6 +181,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         formBuilder.addComponent(attachStatusPanel);
         formBuilder.addComponent(classLoaderPanel);
         formBuilder.addComponent(attachButtonPanel);
+        formBuilder.addComponent(printSqlPanel);
         formBuilder.addComponent(methodAroundPanel);
         formBuilder.addComponent(methodAroundComboBox.getMethodAroundPanel());
         formBuilder.addComponent(globalHeaderPanel);
@@ -238,6 +243,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         textField.setVisible(false);
         attachButtonPanel.setVisible(false);
         classLoaderPanel.setVisible(false);
+        printSqlPanel.setVisible(false);
     }
 
     public void clearHeader() {
@@ -300,6 +306,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         }
 
         methodAroundComboBox.refreshBundle();
+
+        printSqlPanel.refreshBundle();
         
         // Update status messages
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
