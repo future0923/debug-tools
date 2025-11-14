@@ -111,6 +111,7 @@ public class DebugToolsAttachUtils {
         try {
             client.start();
             StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
+            StateUtils.getPrintSqlPanel(project).refresh();
         } catch (Exception ex) {
             ApplicationProjectHolder.close(project);
             Messages.showErrorDialog(project, ex.getMessage(), "Connection Error");
@@ -141,6 +142,7 @@ public class DebugToolsAttachUtils {
         try {
             client.reconnect();
             StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
+            StateUtils.getPrintSqlPanel(project).refresh();
         } catch (ConnectException e) {
             // attach;
             AgentArgs agentArgs = new AgentArgs();

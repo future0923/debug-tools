@@ -47,7 +47,7 @@ public class SqlPrintInterceptor {
 
     private static final List<String> PREPARED_STATEMENT_METHODS = Arrays.asList("execute", "executeUpdate", "executeQuery", "addBatch");
 
-    private static PrintSqlType printSqlType;
+    public static PrintSqlType printSqlType = PrintSqlType.NO;
     private static Boolean autoSaveSql = false;
     private static Integer sqlRetentionDays = 7;
 
@@ -121,6 +121,9 @@ public class SqlPrintInterceptor {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            if (!PrintSqlType.isPrint(printSqlType.getType())) {
+                return method.invoke(statement, args);
+            }
             long startTime = System.currentTimeMillis();
             Object result = method.invoke(statement, args);
             long endTime = System.currentTimeMillis();
