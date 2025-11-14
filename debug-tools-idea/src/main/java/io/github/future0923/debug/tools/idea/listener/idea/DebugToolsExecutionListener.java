@@ -80,6 +80,7 @@ public class DebugToolsExecutionListener implements ExecutionListener {
                                 agentPath,
                                 () -> {
                                     StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
+                                    StateUtils.getPrintSqlPanel(project).refresh();
                                     settingState.setLocal(true);
                                 }
                         );
