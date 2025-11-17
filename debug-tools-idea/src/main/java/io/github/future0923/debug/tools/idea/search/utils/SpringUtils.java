@@ -196,6 +196,9 @@ public class SpringUtils {
                 continue;
             }
             Object value = AttributeUtil.getAttributeValue(attribute.getAttributeValue());
+            if (value == null) {
+                continue;
+            }
             if (value instanceof String) {
                 paths.add(formatPath(value));
             } else if (value instanceof List) {
@@ -206,7 +209,7 @@ public class SpringUtils {
                         "Scan api: %s\n" +
                                 "Class: %s",
                         value,
-                        value != null ? value.getClass() : null
+                        value.getClass()
                 ));
             }
             hasImplicitPath = false;
