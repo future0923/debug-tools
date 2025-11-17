@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.getbean;
 
+import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.util.JavassistUtil;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
@@ -118,11 +119,24 @@ public class EnhancerProxyCreater {
             } else {
                 Object invoke = proxyCreater.invoke(null, beanFactory, bean, paramClasses, paramValues);
                 try {
-                    Field[] declaredFields = invoke.getClass().getSuperclass().getDeclaredFields();
-                    for (Field declaredField : declaredFields) {
-                        Object o = ReflectionHelper.get(invoke, declaredField.getName());
-                        if (o == null) {
-                            ReflectionHelper.set(invoke, declaredField.getName(), ReflectionHelper.get(bean, declaredField.getName()));
+                    for (Field beanField : ReflectUtil.getFields(bean.getClass())) {
+                        if (beanField.getName().startsWith("CGLIB$") || beanField.getName().equals("$$beanFactory")) {
+                            continue;
+                        }
+                        Object fieldValue;
+                        try {
+                            fieldValue = ReflectionHelper.get(invoke, beanField.getName());
+                        } catch (Exception e) {
+                            continue;
+                        }
+                        Object beanFieldValue;
+                        try {
+                            beanFieldValue = ReflectionHelper.get(bean, beanField.getName());
+                        } catch (Exception e) {
+                            continue;
+                        }
+                        if (fieldValue == null && beanFieldValue != null) {
+                            ReflectionHelper.set(invoke, beanField.getName(), beanFieldValue);
                         }
                     }
                 } catch (Exception e) {
