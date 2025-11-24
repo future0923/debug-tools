@@ -35,6 +35,15 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.4.4</strong>
+        <ul>
+            <li>增加动态控制打印SQL配置</li>
+            <li>打印sql结尾增加分号</li>
+            <li>优化MethodAround执行性能</li>
+            <li>修复MyBatis和MyBatisPlus混用时MyBatis热重载失效的bug</li>
+            <li>修复扫描url时spring注解value为null的bug</li>
+            <li>修复继承GenericFilterBean类后热重载无法启动的bug</li>
+        </ul>
         <strong>4.4.3</strong>
         <ul>
             <li>支持jdk25热重载</li>
