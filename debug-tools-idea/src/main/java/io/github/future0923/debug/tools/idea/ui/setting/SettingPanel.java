@@ -26,6 +26,7 @@ import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsGlobalSettingState;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
@@ -103,6 +104,19 @@ public class SettingPanel {
 
     @Getter
     private final JBRadioButton languageChinese = new JBRadioButton(LanguageSetting.CHINESE.getDisplayName());
+
+    @Getter
+    private final JBRadioButton logLevelError = new JBRadioButton("Error");
+    @Getter
+    private final JBRadioButton logLevelReload = new JBRadioButton("Reload");
+    @Getter
+    private final JBRadioButton logLevelWarning = new JBRadioButton("Warning");
+    @Getter
+    private final JBRadioButton logLevelInfo = new JBRadioButton("Info");
+    @Getter
+    private final JBRadioButton logLevelDebug = new JBRadioButton("Debug");
+    @Getter
+    private final JBRadioButton logLevelTrace = new JBRadioButton("Trace");
 
     public SettingPanel(Project project) {
         this.project = project;
@@ -253,6 +267,39 @@ public class SettingPanel {
             invokeMethodRecordNo.setSelected(true);
         }
 
+        JBRadioButton[] logLevelButtons = {
+                logLevelError,
+                logLevelReload,
+                logLevelWarning,
+                logLevelInfo,
+                logLevelDebug,
+                logLevelTrace
+        };
+
+        JPanel logLevel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        ButtonGroup logLevelButtonGroup = new ButtonGroup();
+
+        for (JBRadioButton logLevelButton : logLevelButtons) {
+            logLevel.add(logLevelButton);
+            logLevelButtonGroup.add(logLevelButton);
+        }
+
+        Logger.Level[] levels = Logger.Level.values();
+        for (int i = 0; i < levels.length; i++) {
+            if (levels[i] == settingState.getLogLevel()) {
+                logLevelButtons[i].setSelected(true);
+                break;
+            }
+        }
+
+        if (Logger.Level.ERROR.equals(settingState.getLogLevel())) {
+            logLevelError.setSelected(true);
+        } else if (GenParamType.CURRENT.equals(settingState.getDefaultGenParamType())) {
+            defaultGenParamTypeCurrent.setSelected(true);
+        } else if (GenParamType.ALL.equals(settingState.getDefaultGenParamType())) {
+            defaultGenParamTypeAll.setSelected(true);
+        }
+
         removeContextPath.setText(settingState.getRemoveContextPath());
         // 添加边框
         Border border = BorderFactory.createLineBorder(JBColor.GRAY); // 创建灰色线条边框
@@ -304,6 +351,10 @@ public class SettingPanel {
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.trace.method")),
                         traceMethodPanel.getComponent()
+                )
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("setting.panel.log.level")),
+                        logLevel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
@@ -166,6 +167,24 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (BooleanUtil.isFalse(settingState.getInvokeMethodRecord()) && settingPanel.getInvokeMethodRecordYes().isSelected()) {
             return true;
         }
+        if (Logger.Level.ERROR.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelError().isSelected()) {
+            return true;
+        }
+        if (Logger.Level.RELOAD.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelReload().isSelected()) {
+            return true;
+        }
+        if (Logger.Level.WARNING.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelWarning().isSelected()) {
+            return true;
+        }
+        if (Logger.Level.INFO.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelInfo().isSelected()) {
+            return true;
+        }
+        if (Logger.Level.DEBUG.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelDebug().isSelected()) {
+            return true;
+        }
+        if (Logger.Level.TRACE.equals(settingState.getLogLevel()) && !settingPanel.getLogLevelTrace().isSelected()) {
+            return true;
+        }
 
         return false;
     }
@@ -200,6 +219,26 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (GenParamType.ALL.equals(settingState.getDefaultGenParamType())) {
             settingPanel.getDefaultGenParamTypeAll().setSelected(true);
         }
+
+        if (Logger.Level.ERROR.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelError().setSelected(true);
+        }
+        if (Logger.Level.RELOAD.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelReload().setSelected(true);
+        }
+        if (Logger.Level.WARNING.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelWarning().setSelected(true);
+        }
+        if (Logger.Level.INFO.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelInfo().setSelected(true);
+        }
+        if (Logger.Level.DEBUG.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelDebug().setSelected(true);
+        }
+        if (Logger.Level.TRACE.equals(settingState.getLogLevel())) {
+            settingPanel.getLogLevelTrace().setSelected(true);
+        }
+
 
         if (PrintSqlType.PRETTY.equals(settingState.getPrintSql()) || PrintSqlType.YES.equals(settingState.getPrintSql())) {
             settingPanel.getPrintPrettySql().setSelected(true);
@@ -277,6 +316,44 @@ public class DebugToolsSettingConfigurable implements Configurable {
         if (settingPanel.getDefaultGenParamTypeAll().isSelected()) {
             settingState.setDefaultGenParamType(GenParamType.ALL);
         }
+
+        if (settingPanel.getLogLevelError().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.ERROR) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "ERROR"));
+            }
+            settingState.setLogLevel(Logger.Level.ERROR);
+        }
+        if (settingPanel.getLogLevelReload().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.RELOAD) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "RELOAD"));
+            }
+            settingState.setLogLevel(Logger.Level.RELOAD);
+        }
+        if (settingPanel.getLogLevelWarning().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.WARNING) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "WARNING"));
+            }
+            settingState.setLogLevel(Logger.Level.WARNING);
+        }
+        if (settingPanel.getLogLevelInfo().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.INFO) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "INFO"));
+            }
+            settingState.setLogLevel(Logger.Level.INFO);
+        }
+        if (settingPanel.getLogLevelDebug().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.DEBUG) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "DEBUG"));
+            }
+            settingState.setLogLevel(Logger.Level.DEBUG);
+        }
+        if (settingPanel.getLogLevelTrace().isSelected()) {
+            if (settingState.getLogLevel() != Logger.Level.TRACE) {
+                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "TRACE"));
+            }
+            settingState.setLogLevel(Logger.Level.TRACE);
+        }
+
 
         settingState.setLineMarkerVisible(settingPanel.getShowLineMarker().isSelected());
 

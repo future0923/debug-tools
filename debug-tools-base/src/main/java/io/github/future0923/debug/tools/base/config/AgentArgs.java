@@ -119,6 +119,9 @@ public class AgentArgs {
                         field.setAccessible(true);
                         if (field.getType() == Integer.class) {
                             field.set(config, Integer.valueOf(keyValue[1]));
+                        } else if (field.getType().isEnum()) {
+                            Class<? extends Enum> enumType = (Class<? extends Enum>) field.getType();
+                            field.set(config, Enum.valueOf(enumType, keyValue[1]));
                         } else {
                             field.set(config, keyValue[1]);
                         }

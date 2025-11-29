@@ -98,6 +98,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     private Boolean lineMarkerVisible;
 
     /**
+     * 插件日志级别
+     */
+    private io.github.future0923.debug.tools.base.logging.Logger.Level logLevel = io.github.future0923.debug.tools.base.logging.Logger.Level.ERROR;
+
+    /**
      * 本地的http端口
      */
     private Integer localHttpPort;
