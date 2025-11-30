@@ -22,7 +22,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.lang.TypeReference;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.hutool.json.JSON;
+import io.github.future0923.debug.tools.base.hutool.json.JSONArray;
+import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
@@ -49,9 +53,14 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.github.future0923.debug.tools.base.hutool.json.JSONUtil.parse;
+import static io.github.future0923.debug.tools.base.hutool.json.JSONUtil.toBean;
 
 /**
  * @author future0923
@@ -109,7 +118,7 @@ public class MainDialog extends DialogWrapper {
         paramCacheDto.setTraceMethodDTO(traceMethodDTO);
         paramCacheDto.setMethodAround(methodAroundName);
         settingState.putMethodParamCache(methodDataContext.getCacheKey(), paramCacheDto);
-        Map<String, RunContentDTO> contentMap = DebugToolsJsonUtils.toRunContentDTOMap(text);
+        Map<String, RunContentDTO> contentMap = toRunContentDTOMap(text);
         Map<String, String> headers = Stream.of(itemHeaderMap, settingState.getGlobalHeader())
                 .flatMap(map -> map.entrySet().stream())
                 .collect(Collectors.toMap(
@@ -191,4 +200,46 @@ public class MainDialog extends DialogWrapper {
         cancelAction.putValue(Action.NAME, DebugToolsBundle.message("action.cancel"));
         return cancelAction;
     }
+
+    private Map<String, RunContentDTO> toRunContentDTOMap(String jsonInput) {
+        JSON json = parse(jsonInput, DebugToolsJsonUtils.JSON_CONFIG);
+        json = handleJSON(json);
+        return toBean(json, new TypeReference<Map<String, RunContentDTO>>() {
+        }, true);
+    }
+
+    private JSON handleJSON(JSON json) {
+        if (json instanceof JSONArray a) {
+            return handleJSONArray(a);
+        } else if (json instanceof JSONObject o) {
+            return handleJSONObject(o);
+        }
+        return json;
+    }
+
+    private JSONArray handleJSONArray(JSONArray array) {
+        final ListIterator<Object> iterator = array.listIterator();
+        while (iterator.hasNext()) {
+            Object ele = iterator.next();
+            if (ele instanceof JSONArray a) {
+                handleJSONArray(a);
+            } else if (ele instanceof JSONObject o) {
+                iterator.set(handleJSONObject(o));
+            }
+        }
+        return array;
+    }
+
+    private JSONObject handleJSONObject(JSONObject jsonObject) {
+        final JSONObject result = new JSONObject(DebugToolsJsonUtils.JSON_CONFIG);
+        for (Entry<String, Object> entry : jsonObject) {
+            // json字符串中，字段名首字母 转为小写，避免符合 set方法的字段不能赋值
+            result.set(StrUtil.lowerFirst(entry.getKey()), entry.getValue());
+            if (entry.getValue() instanceof JSON json) {
+                handleJSON(json);
+            }
+        }
+        return result;
+    }
+
 }
