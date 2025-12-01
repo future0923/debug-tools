@@ -268,12 +268,12 @@ public class SettingPanel {
         }
 
         JBRadioButton[] logLevelButtons = {
-                logLevelError,
-                logLevelReload,
-                logLevelWarning,
-                logLevelInfo,
+                logLevelTrace,
                 logLevelDebug,
-                logLevelTrace
+                logLevelInfo,
+                logLevelWarning,
+                logLevelReload,
+                logLevelError,
         };
 
         JPanel logLevel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
