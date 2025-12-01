@@ -130,6 +130,7 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 }
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
+            agentArgs.setLogLevel(settingState.getLogLevel());
             agentArgs.setTraceSql(Boolean.toString(traceSql));
             agentArgs.setAutoAttach(settingState.getAutoAttach().toString());
             agentArgs.setAutoSaveSql(settingState.getAutoSaveSql().toString());
