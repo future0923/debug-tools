@@ -102,7 +102,13 @@ public enum DataSourceDriverClassEnum {
             "dm.jdbc",
             Collections.singletonList("dm.jdbc.driver.DmDriver"),
             (sta, parameters) -> {
-                String statementQuery = ReflectUtil.getFieldValue(ReflectUtil.getFieldValue(sta, "rpstmt"), "originalSql").toString();
+                String statementQuery;
+                Object rpstmt = ReflectUtil.getFieldValue(sta, "rpstmt");
+                if (rpstmt == null) {
+                    statementQuery = ReflectUtil.getFieldValue(sta, "nativeSql").toString();
+                } else {
+                    statementQuery = ReflectUtil.getFieldValue(rpstmt, "originalSql").toString();
+                }
                 return formatStringSql(statementQuery, parameters);
             }
     ),
