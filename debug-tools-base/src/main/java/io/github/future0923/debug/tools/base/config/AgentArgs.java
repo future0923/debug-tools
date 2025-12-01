@@ -107,6 +107,7 @@ public class AgentArgs {
      * @param agentArgs key1=value1,key2=value2
      * @return AgentArgs
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static AgentArgs parse(String agentArgs) {
         AgentArgs config = new AgentArgs();
         if (DebugToolsStringUtils.isNotBlank(agentArgs)) {

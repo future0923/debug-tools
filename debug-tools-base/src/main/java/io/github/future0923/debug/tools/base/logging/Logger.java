@@ -107,8 +107,9 @@ public class Logger {
     }
 
     public void log(Level level, String message, Throwable throwable, Object... args) {
-        if (isLevelEnabled(level))
+        if (isLevelEnabled(level)) {
             handler.print(clazz, level, message, throwable, args);
+        }
     }
 
     public void log(Level level, String message, Object... args) {
@@ -141,6 +142,10 @@ public class Logger {
 
     public void info(String message, Object... args) {
         log(Level.INFO, message, args);
+    }
+
+    public void infoForce(String message, Object... args) {
+        handler.print(clazz, Level.INFO, message, null, args);
     }
 
     public void info(String message, Throwable throwable, Object... args) {

@@ -100,7 +100,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 插件日志级别
      */
-    private io.github.future0923.debug.tools.base.logging.Logger.Level logLevel = io.github.future0923.debug.tools.base.logging.Logger.Level.ERROR;
+    private io.github.future0923.debug.tools.base.logging.Logger.Level logLevel = io.github.future0923.debug.tools.base.logging.Logger.Level.INFO;
 
     /**
      * 本地的http端口
