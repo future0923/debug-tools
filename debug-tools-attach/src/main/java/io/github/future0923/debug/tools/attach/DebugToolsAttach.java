@@ -53,7 +53,12 @@ public class DebugToolsAttach {
      * @throws Exception 启动失败
      */
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
+        AgentArgs parse = AgentArgs.parse(agentArgs);
+        if (parse.getLogLevel() != null) {
+            Logger.setLevel(parse.getLogLevel());
+        }
         String javaHome = System.getProperty("java.home");
+        logger.info("JAVA_HOME:{}", javaHome);
         loadToolsJar(javaHome);
         if (ProjectConstants.DEBUG) {
             // 开启javassist debug
@@ -61,11 +66,6 @@ public class DebugToolsAttach {
             // 开启cglib debug
             System.setProperty("cglib.debugLocation", "debug/cglib");
         }
-        AgentArgs parse = AgentArgs.parse(agentArgs);
-        if (parse.getLogLevel() != null) {
-            Logger.setLevel(parse.getLogLevel());
-        }
-        logger.info("JAVA_HOME:{}", javaHome);
         JvmToolsUtils.init();
         SqlPrintByteCodeEnhance.enhance(inst, parse);
         if (Objects.equals(parse.getHotswap(), "true")) {
