@@ -52,7 +52,7 @@ public class PrintSqlPanel extends JBPanel<PrintSqlPanel> {
         this.settingState = DebugToolsSettingState.getInstance(project);
         printSqlLabel = new JBLabel(DebugToolsBundle.message("setting.panel.print.sql"));
         this.add(printSqlLabel);
-        printSqlComboBox = new ComboBox<>(new PrintSqlType[]{PrintSqlType.NO, PrintSqlType.COMPRESS, PrintSqlType.PRETTY}, 130);
+        printSqlComboBox = new ComboBox<>(new PrintSqlType[]{PrintSqlType.NO, PrintSqlType.COMPRESS, PrintSqlType.PRETTY}, 150);
         printSqlComboBox.setRenderer(new DefaultListCellRenderer(){
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

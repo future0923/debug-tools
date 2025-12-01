@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.watcher;
+package io.github.future0923.debug.tools.hotswap.core.plugin.feign.watcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.FileEvent;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.command.MyBatisPlusMapperReloadCommand;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
+import io.github.future0923.debug.tools.hotswap.core.plugin.feign.command.FeignClientReloadCommand;
+import io.github.future0923.debug.tools.hotswap.core.plugin.feign.utils.FeignUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.IOUtils;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchEventListener;
 import io.github.future0923.debug.tools.hotswap.core.watch.WatchFileEvent;
@@ -31,9 +31,9 @@ import java.util.Objects;
 /**
  * @author future0923
  */
-public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
+public class FeignClientWatchEventListener implements WatchEventListener {
 
-    private static final Logger logger = Logger.getLogger(MyBatisPlusMapperWatchEventListener.class);
+    private static final Logger logger = Logger.getLogger(FeignClientWatchEventListener.class);
 
     private final Scheduler scheduler;
 
@@ -41,7 +41,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
 
     private final String basePackage;
 
-    public MyBatisPlusMapperWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
+    public FeignClientWatchEventListener(Scheduler scheduler, ClassLoader appClassLoader, String basePackage) {
         this.scheduler = scheduler;
         this.appClassLoader = appClassLoader;
         this.basePackage = basePackage;
@@ -49,7 +49,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
-        logger.debug("{}, {}", event.getEventType(), event.getURI().toString());
+        logger.info("{}, {}", event.getEventType(), event.getURI().toString());
         // 创建了class新文件
         if (FileEvent.CREATE.equals(event.getEventType()) && event.isFile() && event.getURI().toString().endsWith(".class")) {
             String className;
@@ -66,9 +66,9 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
                 logger.warning("not found class", e);
                 return;
             }
-            if (MyBatisUtils.isMyBatisMapper(appClassLoader, clazz)) {
+            if (FeignUtils.isFeignClient(appClassLoader, clazz)) {
                 byte[] bytes = IOUtils.toByteArray(event.getURI());
-                scheduler.scheduleCommand(new MyBatisPlusMapperReloadCommand(appClassLoader, clazz, bytes, event.getURI().getPath(), event), 1000);
+                scheduler.scheduleCommand(new FeignClientReloadCommand(appClassLoader, className, bytes, event.getURI().getPath(), event), 1000);
             }
         }
     }
@@ -77,7 +77,7 @@ public class MyBatisPlusMapperWatchEventListener implements WatchEventListener {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MyBatisPlusMapperWatchEventListener that = (MyBatisPlusMapperWatchEventListener) o;
+        FeignClientWatchEventListener that = (FeignClientWatchEventListener) o;
         return Objects.equals(appClassLoader, that.appClassLoader) && Objects.equals(basePackage, that.basePackage);
     }
 
