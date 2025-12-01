@@ -52,8 +52,6 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
 
     private static final Logger logger = Logger.getLogger(MyBatisPlusEntityReload.class);
 
-    public static final MyBatisPlusEntityReload INSTANCE = new MyBatisPlusEntityReload();
-
     private static final Set<String> RELOADING_CLASS = ConcurrentHashMap.newKeySet();
 
     private MyBatisPlusEntityReload() {
@@ -63,13 +61,14 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
     protected void doReload(MyBatisPlusEntityReloadDTO dto) throws Exception {
         Class<?> clazz = dto.getClazz();
         String className = clazz.getName();
-        if (RELOADING_CLASS.contains(className)) {
+        ClassLoader classLoader = dto.getUserClassLoader();
+        // 同类中取重
+        if (!RELOADING_CLASS.add(className)) {
             if (ProjectConstants.DEBUG) {
-                logger.info("{} is currently processing reload task.", className);
+                logger.info("{} plus reload task is already running, skip.", className);
             }
             return;
         }
-        ClassLoader classLoader = dto.getUserClassLoader();
         try {
             logger.debug("reload class: {}", className);
             ClassPathMapperScanner mapperScanner = MyBatisSpringResourceManager.getMapperScanner();
@@ -82,16 +81,12 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
                 logger.debug("mybatis configuration is empty");
                 return;
             }
-            for (Configuration configuration : configurationList) {
-                Class<? extends Configuration> configurationClass = configuration.getClass();
-                if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
-                    synchronized (MyBatisUtils.getReloadLockObject()) {
-                        if (!RELOADING_CLASS.add(className)) {
-                            if (ProjectConstants.DEBUG) {
-                                logger.info("{} is currently processing reload task.", className);
-                            }
-                            return;
-                        }
+            // 不同类中串行
+            Object lock = MyBatisUtils.getLock(className);
+            synchronized (lock) {
+                for (Configuration configuration : configurationList) {
+                    Class<? extends Configuration> configurationClass = configuration.getClass();
+                    if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
                         MapperRegistry mapperRegistry = configuration.getMapperRegistry();
                         Collection<Class<?>> mappers = mapperRegistry.getMappers();
                         List<Class<?>> mapperClassList = new LinkedList<>();
@@ -147,13 +142,14 @@ public class MyBatisPlusEntityReload extends AbstractMyBatisResourceReload<MyBat
                             Object iSqlInjector = ReflectionHelper.invoke(null, classLoader.loadClass("com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils"), "getSqlInjector", new Class[]{Configuration.class}, configuration);
                             ReflectionHelper.invoke(iSqlInjector, iSqlInjector.getClass(), "inspectInject", new Class[]{MapperBuilderAssistant.class, Class.class}, builderAssistant, mapperClass);
                         }
-                        RELOADING_CLASS.remove(className);
                         logger.reload("reload entity class {}", className);
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("refresh mybatis error", e);
+            logger.error("refresh mybatis entity error", e);
+        } finally {
+            RELOADING_CLASS.remove(className);
         }
     }
 }

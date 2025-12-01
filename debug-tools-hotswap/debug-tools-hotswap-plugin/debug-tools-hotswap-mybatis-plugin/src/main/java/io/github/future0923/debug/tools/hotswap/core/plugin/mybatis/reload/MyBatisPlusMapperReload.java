@@ -36,8 +36,6 @@ public class MyBatisPlusMapperReload extends AbstractMyBatisResourceReload<MyBat
 
     private static final Logger logger = Logger.getLogger(MyBatisPlusMapperReload.class);
 
-    public static final MyBatisPlusMapperReload INSTANCE = new MyBatisPlusMapperReload();
-
     private static final Set<String> RELOADING_CLASS = ConcurrentHashMap.newKeySet();
 
     private MyBatisPlusMapperReload() {
@@ -47,9 +45,10 @@ public class MyBatisPlusMapperReload extends AbstractMyBatisResourceReload<MyBat
     protected void doReload(MyBatisPlusMapperReloadDTO dto) throws Exception {
         Class<?> clazz = dto.getClazz();
         String className = clazz.getName();
-        if (RELOADING_CLASS.contains(className)) {
+        // 同类中取重
+        if (!RELOADING_CLASS.add(className)) {
             if (ProjectConstants.DEBUG) {
-                logger.info("{} is currently processing reload task.", className);
+                logger.info("{} plus reload task is already running, skip.", className);
             }
             return;
         }
@@ -65,26 +64,23 @@ public class MyBatisPlusMapperReload extends AbstractMyBatisResourceReload<MyBat
                 logger.debug("mybatis configuration is empty");
                 return;
             }
-            for (Configuration configuration : configurationList) {
-                Class<? extends Configuration> configurationClass = configuration.getClass();
-                if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
-                    synchronized (MyBatisUtils.getReloadLockObject()) {
-                        if (!RELOADING_CLASS.add(className)) {
-                            if (ProjectConstants.DEBUG) {
-                                logger.info("{} is currently processing reload task.", className);
-                            }
-                            return;
-                        }
+            // 不同类中串行
+            Object lock = MyBatisUtils.getLock(className);
+            synchronized (lock) {
+                for (Configuration configuration : configurationList) {
+                    Class<? extends Configuration> configurationClass = configuration.getClass();
+                    if (configurationClass.getName().equals("com.baomidou.mybatisplus.core.MybatisConfiguration")) {
                         ReflectionHelper.invoke(configuration, configurationClass, "removeMapper", new Class[]{Class.class}, clazz);
                         ReflectionHelper.invoke(configuration, configurationClass, "addMapper", new Class[]{Class.class}, clazz);
                         defineBean(className, dto.getBytes(), dto.getPath());
-                        RELOADING_CLASS.remove(className);
                         logger.reload("reload {} in {}", className, configuration);
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("refresh mybatis error", e);
+            logger.error("refresh mybatis plus mapper error", e);
+        } finally {
+            RELOADING_CLASS.remove(className);
         }
     }
 }

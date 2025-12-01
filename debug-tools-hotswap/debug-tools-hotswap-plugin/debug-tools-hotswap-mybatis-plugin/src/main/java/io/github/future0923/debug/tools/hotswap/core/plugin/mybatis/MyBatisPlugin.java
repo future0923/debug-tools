@@ -65,7 +65,7 @@ public class MyBatisPlugin {
     private final Map<String, Object> configurationMap = new HashMap<>();
 
     /**
-     * 打印Solon信息
+     * 打印信息
      */
     public void init(ClassLoader classLoader) {
         MyBatisPlugin.userClassLoader = classLoader;
