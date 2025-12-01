@@ -54,7 +54,6 @@ public class DebugToolsAttach {
      */
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         String javaHome = System.getProperty("java.home");
-        logger.info("JAVA_HOME:{}", javaHome);
         loadToolsJar(javaHome);
         if (ProjectConstants.DEBUG) {
             // 开启javassist debug
@@ -66,6 +65,7 @@ public class DebugToolsAttach {
         if (parse.getLogLevel() != null) {
             Logger.setLevel(parse.getLogLevel());
         }
+        logger.info("JAVA_HOME:{}", javaHome);
         JvmToolsUtils.init();
         SqlPrintByteCodeEnhance.enhance(inst, parse);
         if (Objects.equals(parse.getHotswap(), "true")) {
