@@ -25,6 +25,7 @@ import org.xml.sax.EntityResolver;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.lang.annotation.Annotation;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author future0923
@@ -34,10 +35,10 @@ public class MyBatisUtils {
 
     private static final Logger logger = Logger.getLogger(MyBatisUtils.class);
 
-    private static final Object reload_lock = new Object();
+    private static final ConcurrentHashMap<String, Object> LOCKS = new ConcurrentHashMap<>();
 
-    public static Object getReloadLockObject () {
-        return reload_lock;
+    public static Object getLock(String className) {
+        return LOCKS.computeIfAbsent(className, k -> new Object());
     }
 
     /**

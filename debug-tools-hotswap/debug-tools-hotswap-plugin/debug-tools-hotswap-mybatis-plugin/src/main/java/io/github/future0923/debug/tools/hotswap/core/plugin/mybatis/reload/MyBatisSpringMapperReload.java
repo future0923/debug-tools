@@ -40,8 +40,6 @@ public class MyBatisSpringMapperReload extends AbstractMyBatisResourceReload<MyB
 
     private static final Logger logger = Logger.getLogger(MyBatisSpringMapperReload.class);
 
-    public static final MyBatisSpringMapperReload INSTANCE = new MyBatisSpringMapperReload();
-
     private static final Set<String> RELOADING_CLASS = ConcurrentHashMap.newKeySet();
 
     private MyBatisSpringMapperReload() {
@@ -51,31 +49,33 @@ public class MyBatisSpringMapperReload extends AbstractMyBatisResourceReload<MyB
     @Override
     protected void doReload(MyBatisSpringMapperReloadDTO dto) throws Exception {
         String className = dto.getClassName();
-        if (RELOADING_CLASS.contains(className)) {
+        // 同类中取重
+        if (!RELOADING_CLASS.add(className)) {
             if (ProjectConstants.DEBUG) {
-                logger.info("{} is currently processing reload task.", className);
+                logger.info("{} plus reload task is already running, skip.", className);
             }
             return;
         }
         String loadedResource = buildLoadedResource(className);
-        for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
-            synchronized (MyBatisUtils.getReloadLockObject()) {
-                if (!RELOADING_CLASS.add(className)) {
-                    if (ProjectConstants.DEBUG) {
-                        logger.info("{} is currently processing reload task.", className);
-                    }
-                    return;
+        // 不同类中串行
+        Object lock = MyBatisUtils.getLock(className);
+        try {
+            synchronized (lock) {
+                for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
+                    Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
+                    loadedResources.remove(loadedResource);
+                    MapperRegistry mapperRegistry = (MapperRegistry) ReflectionHelper.get(configuration, "mapperRegistry");
+                    Map<Class<?>, MapperProxyFactory<?>> knownMappers = (Map<Class<?>, MapperProxyFactory<?>>) ReflectionHelper.get(mapperRegistry, "knownMappers");
+                    knownMappers.keySet().removeIf(mapperClass -> loadedResource.contains(mapperClass.getName()));
+                    new MapperAnnotationBuilder(configuration, Class.forName(className)).parse();
+                    defineBean(className, dto.getBytes(), dto.getPath());
+                    logger.reload("reload {} in {}", className, configuration);
                 }
-                Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
-                loadedResources.remove(loadedResource);
-                MapperRegistry mapperRegistry = (MapperRegistry) ReflectionHelper.get(configuration, "mapperRegistry");
-                Map<Class<?>, MapperProxyFactory<?>> knownMappers = (Map<Class<?>, MapperProxyFactory<?>>) ReflectionHelper.get(mapperRegistry, "knownMappers");
-                knownMappers.keySet().removeIf(mapperClass -> loadedResource.contains(mapperClass.getName()));
-                new MapperAnnotationBuilder(configuration, Class.forName(className)).parse();
-                defineBean(className, dto.getBytes(), dto.getPath());
-                RELOADING_CLASS.remove(className);
             }
-            logger.reload("reload {} in {}", className, configuration);
+        } catch (Exception e) {
+            logger.error("refresh mybatis mapper error", e);
+        } finally {
+            RELOADING_CLASS.remove(className);
         }
     }
 
