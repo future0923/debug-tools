@@ -56,9 +56,13 @@ public class AnonymousClassInfo {
         }
         this.fieldsSignature = fieldsSignature.toString();
         StringBuilder enclosingMethodSignature = new StringBuilder();
-        Method enclosingMethod = c.getEnclosingMethod();
-        if (enclosingMethod != null) {
-            getMethodSignature(enclosingMethodSignature, enclosingMethod);
+        try {
+            Method enclosingMethod = c.getEnclosingMethod();
+            if (enclosingMethod != null) {
+                getMethodSignature(enclosingMethodSignature, enclosingMethod);
+            }
+        } catch (Throwable ignored) {
+
         }
         this.enclosingMethodSignature = enclosingMethodSignature.toString();
 
