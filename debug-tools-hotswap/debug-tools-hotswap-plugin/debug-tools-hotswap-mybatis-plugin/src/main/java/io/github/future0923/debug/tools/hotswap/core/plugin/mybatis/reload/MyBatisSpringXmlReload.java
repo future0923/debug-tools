@@ -18,7 +18,6 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.reload;
 
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.hotswap.core.plugin.mybatis.utils.MyBatisUtils;
 import io.github.future0923.debug.tools.hotswap.core.util.ReflectionHelper;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -42,8 +41,6 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
 
     private static final Logger logger = Logger.getLogger(MyBatisSpringXmlReload.class);
 
-    public static final MyBatisSpringXmlReload INSTANCE = new MyBatisSpringXmlReload();
-
     private static final Set<String> RELOADING_XML = ConcurrentHashMap.newKeySet();
 
     private MyBatisSpringXmlReload() {
@@ -54,20 +51,14 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
     protected void doReload(URL url) throws Exception {
         String loadedResource = buildLoadedResource(url);
         String path = url.getPath();
-        if (RELOADING_XML.contains(path)) {
+        if (!RELOADING_XML.add(path)) {
             if (ProjectConstants.DEBUG) {
                 logger.info("{} is currently processing reload task.", path);
             }
             return;
         }
-        for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
-            synchronized (MyBatisUtils.getReloadLockObject()) {
-                if (!RELOADING_XML.add(path)) {
-                    if (ProjectConstants.DEBUG) {
-                        logger.info("{} is currently processing reload task.", path);
-                    }
-                    return;
-                }
+        try {
+            for (Configuration configuration : MyBatisSpringResourceManager.getConfigurationList()) {
                 Set<String> loadedResources = (Set<String>) ReflectionHelper.get(configuration, LOADED_RESOURCES_FIELD);
                 loadedResources.remove(loadedResource);
                 XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(
@@ -82,10 +73,14 @@ public class MyBatisSpringXmlReload extends AbstractMyBatisResourceReload<URL> {
                     logger.error("mybatis 重置selectKey失败，url：{}", url);
                 }
                 xmlMapperBuilder.parse();
-                RELOADING_XML.remove(path);
+                logger.reload("reload MyBatis xml file {}", path);
             }
-            logger.reload("reload MyBatis xml file {}", path);
+        } catch (Exception e) {
+            logger.error("refresh mybatis xml error", e);
+        } finally {
+            RELOADING_XML.remove(path);
         }
+
     }
 
     private String buildLoadedResource(URL url) {
