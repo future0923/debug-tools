@@ -16,40 +16,41 @@
  */
 package io.github.future0923.debug.tools.idea.listener.data;
 
-import io.github.future0923.debug.tools.common.utils.DebugToolsTypeUtils;
 import io.github.future0923.debug.tools.idea.listener.data.event.DataEvent;
 
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author future0923
  */
 public class DefaultDataEventMulticaster implements DataEventMulticaster {
 
-    private final Map<String, List<DataListener>> cacheTypeListenerMap = new ConcurrentHashMap<>();
+    // 简化为广播给所有监听器，监听器内部自行判断事件类型，避免泛型推断为空导致的 NPE
+    private final List<DataListener> listeners = new CopyOnWriteArrayList<>();
 
     @Override
     public void addListener(DataListener listener) {
-        String typeName = DebugToolsTypeUtils.getTypeArgument(listener.getClass()).getTypeName();
-        List<DataListener> dataListeners = cacheTypeListenerMap.computeIfAbsent(typeName, k -> new LinkedList<>());
-        dataListeners.add(listener);
+        if (listener != null) {
+            listeners.add(listener);
+        }
     }
 
     @Override
     public void removeListener(DataListener listener) {
-        String typeName = DebugToolsTypeUtils.getTypeArgument(listener.getClass()).getTypeName();
-        cacheTypeListenerMap.computeIfPresent(typeName, (k,v) -> {
-            v.remove(listener);
-            return v;
-        });
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 
     @Override
     public void multicastEvent(DataEvent event) {
-        cacheTypeListenerMap.getOrDefault(event.getClass().getTypeName(), Collections.emptyList()).forEach(dataListener -> dataListener.event(event));
+        for (DataListener listener : listeners) {
+            try {
+                listener.event(event);
+            } catch (Throwable ignore) {
+                // 单个监听器异常不影响其他监听器
+            }
+        }
     }
 }

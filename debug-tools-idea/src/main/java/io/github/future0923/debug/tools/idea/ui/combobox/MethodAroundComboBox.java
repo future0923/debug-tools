@@ -16,23 +16,29 @@
  */
 package io.github.future0923.debug.tools.idea.ui.combobox;
 
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Around.*;
+
+import java.awt.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.*;
+
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
+import io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton;
 import io.github.future0923.debug.tools.idea.ui.main.JavaEditorDialogWrapper;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import lombok.Getter;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.List;
 
 /**
  * @author future0923
@@ -45,6 +51,8 @@ public class MethodAroundComboBox extends ComboBox<String> {
 
     @Getter
     private final JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
+    private final List<JButton> buttons = new ArrayList<>();
 
     private final JButton methodAroundReloadButton;
 
@@ -62,17 +70,24 @@ public class MethodAroundComboBox extends ComboBox<String> {
         super(width);
         this.project = project;
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        methodAroundReloadButton = new JButton(DebugToolsBundle.message("action.reload"));
+        methodAroundReloadButton = new RoundedIconButton(Reload);
+        methodAroundReloadButton.setToolTipText(DebugToolsBundle.message("action.reload"));
         methodAroundReloadButton.addActionListener(e -> {
             reload(project, settingState);
             DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("reload.successful"));
         });
-        methodAroundDetailButton = new JButton(DebugToolsBundle.message("action.detail"));
+        methodAroundDetailButton = new RoundedIconButton(View);
+        methodAroundDetailButton.setDisabledIcon(ViewDisabled);
+        methodAroundDetailButton.setDisabledSelectedIcon(DeleteDisabled);
+        methodAroundDetailButton.setToolTipText(DebugToolsBundle.message("action.detail"));
         methodAroundDetailButton.addActionListener(e -> {
             JavaEditorDialogWrapper javaEditorDialogWrapper = new JavaEditorDialogWrapper(project, this, (String) getSelectedItem());
             javaEditorDialogWrapper.show();
         });
-        methodAroundDeleteButton = new JButton(DebugToolsBundle.message("action.delete"));
+        methodAroundDeleteButton = new RoundedIconButton(Delete);
+        methodAroundDeleteButton.setDisabledIcon(DeleteDisabled);
+        methodAroundDeleteButton.setDisabledSelectedIcon(DeleteDisabled);
+        methodAroundDeleteButton.setToolTipText(DebugToolsBundle.message("action.delete"));
         methodAroundDeleteButton.addActionListener(e -> {
             String filePath = settingState.getMethodAroundMap().remove((String) getSelectedItem());
             if (StrUtil.isNotBlank(filePath) && FileUtil.exist(filePath)) {
@@ -80,17 +95,20 @@ public class MethodAroundComboBox extends ComboBox<String> {
             }
             refresh();
         });
-        methodAroundAddButton = new JButton(DebugToolsBundle.message("action.add"));
+        methodAroundAddButton = new RoundedIconButton(Add);
+        methodAroundAddButton.setToolTipText(DebugToolsBundle.message("action.add"));
         methodAroundAddButton.addActionListener(e -> {
             JavaEditorDialogWrapper javaEditorDialogWrapper = new JavaEditorDialogWrapper(project, this, "");
             javaEditorDialogWrapper.show();
         });
         addActionListener(e -> buttonVisible(methodAroundDetailButton, methodAroundDeleteButton));
         buttonVisible(methodAroundDetailButton, methodAroundDeleteButton);
-        methodAroundPanel.add(methodAroundReloadButton);
-        methodAroundPanel.add(methodAroundDetailButton);
-        methodAroundPanel.add(methodAroundDeleteButton);
-        methodAroundPanel.add(methodAroundAddButton);
+
+        buttons.add(methodAroundReloadButton);
+        buttons.add(methodAroundDetailButton);
+        buttons.add(methodAroundDeleteButton);
+        buttons.add(methodAroundAddButton);
+        buttons.forEach(methodAroundPanel::add);
         reload(project, settingState);
     }
 
@@ -120,8 +138,8 @@ public class MethodAroundComboBox extends ComboBox<String> {
 
     public void buttonVisible(JButton methodAroundDetailButton, JButton methodAroundDeleteButton) {
         boolean selected = StrUtil.isNotBlank((String) getSelectedItem());
-        methodAroundDetailButton.setVisible(selected);
-        methodAroundDeleteButton.setVisible(selected);
+        methodAroundDetailButton.setEnabled(selected);
+        methodAroundDeleteButton.setEnabled(selected);
     }
 
     public void refreshBundle() {

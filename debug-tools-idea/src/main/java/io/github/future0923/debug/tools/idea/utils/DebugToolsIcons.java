@@ -16,9 +16,9 @@
  */
 package io.github.future0923.debug.tools.idea.utils;
 
-import com.intellij.openapi.util.IconLoader;
-
 import javax.swing.*;
+
+import com.intellij.openapi.util.IconLoader;
 
 /**
  * DebugTools图标工具类
@@ -35,6 +35,7 @@ public class DebugToolsIcons {
     public static final Icon Compress = IconLoader.getIcon("/icon/compress.svg", DebugToolsIcons.class);
     public static final Icon Import = IconLoader.getIcon("/icon/import.svg", DebugToolsIcons.class);
     public static final Icon Export = IconLoader.getIcon("/icon/export.svg", DebugToolsIcons.class);
+    public static final Icon Convert = IconLoader.getIcon("/icon/convert.svg", DebugToolsIcons.class);
     public static final Icon Add = IconLoader.getIcon("/icon/add.svg", DebugToolsIcons.class);
     public static final Icon Clear = IconLoader.getIcon("/icon/clear.svg", DebugToolsIcons.class);
     public static final Icon Groovy = IconLoader.getIcon("/icon/groovy.svg", DebugToolsIcons.class);
@@ -88,6 +89,37 @@ public class DebugToolsIcons {
         public static final Icon Ok = IconLoader.getIcon("/icon/status/ok.svg", DebugToolsIcons.class);
         public static final Icon Fail = IconLoader.getIcon("/icon/status/fail.svg", DebugToolsIcons.class);
         public static final Icon Running = IconLoader.getIcon("/icon/status/running.svg", DebugToolsIcons.class);
+    }
+
+    public static final class Around {
+        public static final Icon Reload =
+            IconLoader.getIcon("/icon/around/reload.svg", DebugToolsIcons.class.getClassLoader());
+        public static final Icon Add =
+            IconLoader.getIcon("/icon/around/add.svg", DebugToolsIcons.class.getClassLoader());
+        public static final Icon View =
+            IconLoader.getIcon("/icon/around/view.svg", DebugToolsIcons.class.getClassLoader());
+        public static final Icon Delete =
+            IconLoader.getIcon("/icon/around/delete.svg", DebugToolsIcons.class.getClassLoader());
+        public static final Icon ViewDisabled =
+            IconLoader.getIcon("/icon/around/view_dis.svg", DebugToolsIcons.class.getClassLoader());
+        public static final Icon DeleteDisabled =
+            IconLoader.getIcon("/icon/around/delete_dis.svg", DebugToolsIcons.class.getClassLoader());
+    }
+
+    public static final class Attach {
+        public static final Icon Link = IconLoader.getIcon("/icon/attach/link.svg", DebugToolsIcons.class);
+        public static final Icon Unlink = IconLoader.getIcon("/icon/attach/unlink.svg", DebugToolsIcons.class);
+        public static final Icon Linking = IconLoader.getIcon("/icon/attach/linking.svg", DebugToolsIcons.class);
+        public static final Icon Relinking = IconLoader.getIcon("/icon/attach/relink.svg", DebugToolsIcons.class);
+        public static final Icon FairLink = IconLoader.getIcon("/icon/attach/fair_link.svg", DebugToolsIcons.class);
+
+    }
+
+    public static final class Header {
+        public static final Icon Add = IconLoader.getIcon("/icon/header/add.svg", DebugToolsIcons.class);
+        public static final Icon Auth = IconLoader.getIcon("/icon/header/auth.svg", DebugToolsIcons.class);
+        public static final Icon Clear = IconLoader.getIcon("/icon/header/clear.svg", DebugToolsIcons.class);
+        public static final Icon Save = IconLoader.getIcon("/icon/header/save.svg", DebugToolsIcons.class);
     }
 
 }
