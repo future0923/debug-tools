@@ -16,29 +16,35 @@
  */
 package io.github.future0923.debug.tools.idea.utils;
 
-import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBTextField;
-import com.intellij.util.ui.FormBuilder;
-import com.intellij.util.ui.JBDimension;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+
+import javax.swing.*;
+
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.components.fields.ExpandableTextField;
+import com.intellij.util.ui.FormBuilder;
+import com.intellij.util.ui.JBDimension;
 
 /**
  * @author future0923
  */
 public class DebugToolsUIHelper {
 
-    public static JPanel addHeaderComponentItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
-        return addHeaderItem(false, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
+    public static JPanel addHeaderComponentItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth,
+        String k, String v, Map<JBTextField, JBTextField> headerItemMap, Project project) {
+        return addHeaderItem(false, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap, project);
     }
 
-    public static JPanel addHeaderLabelItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
-        return addHeaderItem(true, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap);
+    public static JPanel addHeaderLabelItem(JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth,
+        String k, String v, Map<JBTextField, JBTextField> headerItemMap, Project project) {
+        return addHeaderItem(true, jPanel, formBuilder, keyWidth, valueWidth, k, v, headerItemMap, project);
     }
 
-    public static JPanel addHeaderItem(boolean label, JPanel jPanel, FormBuilder formBuilder, int keyWidth, int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap) {
+    public static JPanel addHeaderItem(boolean label, JPanel jPanel, FormBuilder formBuilder, int keyWidth,
+        int valueWidth, String k, String v, Map<JBTextField, JBTextField> headerItemMap, Project project) {
         JPanel headerItem = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
         JBTextField headerKeyField = new JBTextField();
         if (k != null) {
@@ -47,21 +53,22 @@ public class DebugToolsUIHelper {
         headerKeyField.setToolTipText("Header Key");
         headerKeyField.getEmptyText().setText("Key");
         headerKeyField.setPreferredSize(new JBDimension(keyWidth, headerKeyField.getPreferredSize().height));
-        JBTextField headerValueField = new JBTextField();
-        if (v != null) {
-            headerValueField.setText(v);
-        }
-        headerValueField.setToolTipText("Header Value");
-        headerValueField.getEmptyText().setText("Value");
-        headerValueField.setPreferredSize(new JBDimension(valueWidth, headerValueField.getPreferredSize().height));
-        headerItemMap.put(headerKeyField, headerValueField);
+
+        // 使用新的ExpandableTextField替换原来的JBTextFieldproject
+        ExpandableTextField headerValueField = new ExpandableTextField();
+
+        // 更新map以适应新的组件类型
+        JBTextField valueTextField = new JBTextField(headerValueField.getText());
+        headerItemMap.put(headerKeyField, valueTextField);
+
         JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(e1 -> {
             jPanel.remove(headerItem);
             jPanel.revalidate();
             jPanel.repaint();
-            headerItemMap.remove(headerKeyField, headerValueField);
+            headerItemMap.remove(headerKeyField, valueTextField);
         });
+
         headerItem.add(headerKeyField);
         headerItem.add(headerValueField, FlowLayout.CENTER);
         headerItem.add(removeButton);
