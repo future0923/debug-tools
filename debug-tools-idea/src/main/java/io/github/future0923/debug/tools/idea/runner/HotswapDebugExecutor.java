@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.idea.runner;
 
 import com.intellij.execution.Executor;
 import com.intellij.execution.ExecutorRegistry;
+import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.NlsActions;
@@ -37,7 +38,7 @@ public class HotswapDebugExecutor extends Executor {
 
     @Override
     public @NotNull String getToolWindowId() {
-        return getId();
+        return DefaultDebugExecutor.EXECUTOR_ID;
     }
 
     @Override
