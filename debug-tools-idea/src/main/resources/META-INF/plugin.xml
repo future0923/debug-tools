@@ -242,6 +242,8 @@
         <!-- 注册HotswapDebugRunner和HotswapDebugExecutor -->
         <programRunner implementation="io.github.future0923.debug.tools.idea.runner.HotswapDebugRunner"/>
         <executor implementation="io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor"/>
+
+        <searchEverywhereContributor implementation="io.github.future0923.debug.tools.idea.search.HttpUrlSearchContributorFactory"/>
     </extensions>
 
     <actions>

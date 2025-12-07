@@ -50,15 +50,15 @@ public class DebugToolsIcons {
     public static final Icon SqlHistory = IconLoader.getIcon("/icon/sql_history.svg", DebugToolsIcons.class);
 
     public static final class HttpMethod {
-        public static final Icon Delete = IconLoader.getIcon("/icon/request/delete.png", DebugToolsIcons.class);
-        public static final Icon Get = IconLoader.getIcon("/icon/request/get.png", DebugToolsIcons.class);
-        public static final Icon Head = IconLoader.getIcon("/icon/request/head.png", DebugToolsIcons.class);
-        public static final Icon Options = IconLoader.getIcon("/icon/request/options.png", DebugToolsIcons.class);
-        public static final Icon Patch = IconLoader.getIcon("/icon/request/patch.png", DebugToolsIcons.class);
-        public static final Icon Post = IconLoader.getIcon("/icon/request/post.png", DebugToolsIcons.class);
-        public static final Icon Put = IconLoader.getIcon("/icon/request/put.png", DebugToolsIcons.class);
-        public static final Icon Request = IconLoader.getIcon("/icon/request/request.png", DebugToolsIcons.class);
-        public static final Icon Trace = IconLoader.getIcon("/icon/request/trace.png", DebugToolsIcons.class);
+        public static final Icon Delete = IconLoader.getIcon("/icon/request/delete.svg", DebugToolsIcons.class);
+        public static final Icon Get = IconLoader.getIcon("/icon/request/get.svg", DebugToolsIcons.class);
+        public static final Icon Head = IconLoader.getIcon("/icon/request/head.svg", DebugToolsIcons.class);
+        public static final Icon Options = IconLoader.getIcon("/icon/request/options.svg", DebugToolsIcons.class);
+        public static final Icon Patch = IconLoader.getIcon("/icon/request/patch.svg", DebugToolsIcons.class);
+        public static final Icon Post = IconLoader.getIcon("/icon/request/post.svg", DebugToolsIcons.class);
+        public static final Icon Put = IconLoader.getIcon("/icon/request/put.svg", DebugToolsIcons.class);
+        public static final Icon Request = IconLoader.getIcon("/icon/request/request.svg", DebugToolsIcons.class);
+        public static final Icon Trace = IconLoader.getIcon("/icon/request/trace.svg", DebugToolsIcons.class);
     }
 
     public static final class Hotswap {
