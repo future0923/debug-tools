@@ -16,6 +16,9 @@
  */
 package io.github.future0923.debug.tools.idea.ui.main;
 
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.Expand;
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.ExpandDown;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -35,7 +38,6 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.dualView.TreeTableView;
-import com.intellij.ui.table.JBTable;
 import com.intellij.ui.treeStructure.treetable.ListTreeTableModelOnColumns;
 import com.intellij.ui.treeStructure.treetable.TreeColumnInfo;
 import com.intellij.ui.treeStructure.treetable.TreeTable;
@@ -57,8 +59,8 @@ import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIdeaClassUtil;
-import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
 
@@ -100,10 +102,6 @@ public class MainPanel extends JBPanel<MainPanel> {
     @Getter
     private final MainJsonEditor editor;
 
-    // 表格视图相关
-    // 旧的平面表格保留定义以减少侵入，但不再使用
-    private JBTable paramTable;
-    private ParamTableModel paramTableModel;
     // 新增：层级 TreeTable 视图
     private TreeTableView paramTreeTable;
     private ListTreeTableModelOnColumns treeTableModel;
@@ -113,6 +111,13 @@ public class MainPanel extends JBPanel<MainPanel> {
     private static final String CARD_TABLE = "table";
     private boolean syncing = false; // 防抖，避免双向同步循环
     private String currentViewCard = CARD_JSON;
+    // Header 区域折叠/表格支持
+    private JPanel headerContainer; // 含工具条+表格
+    private JTable headerTable;
+    private javax.swing.table.DefaultTableModel headerTableModel;
+    private JButton headerExpandButton; // 位于“Header:”这一行，用于展开/折叠
+    private GridBagConstraints headerGbcRef; // 保存用于动态调整的约束
+    private GridBagConstraints contentGbcRef; // 保存内容区的约束
 
     public MainPanel(Project project, MethodDataContext methodDataContext) {
         super(new GridBagLayout());
@@ -166,7 +171,9 @@ public class MainPanel extends JBPanel<MainPanel> {
         JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         methodAroundPanel.add(methodAroundComboBox);
         methodAroundPanel.add(methodAroundComboBox.getMethodAroundPanel());
-        JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        // Header 折叠区容器（按钮工具 + 表格）
+        headerContainer = buildHeaderTableContainer();
+        headerContainer.setVisible(false); // 默认折叠
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
@@ -199,22 +206,14 @@ public class MainPanel extends JBPanel<MainPanel> {
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.header")),
-                        headerButtonPanel
+                buildHeaderToggleStrip()
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
-        JButton addHeaderButton = new JButton(DebugToolsBundle.message("action.add"));
-        headerButtonPanel.add(addHeaderButton);
-        addHeaderButton.addActionListener(e -> {
-            DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap, project);
-            DebugToolsUIHelper.refreshUI(formBuilder);
-        });
+        // 旧的 Key/Value 行式 UI 替换为表格，加载缓存项到表格
         Optional.of(methodDataContext)
-                .map(MethodDataContext::getCache)
-                .map(ParamCache::getItemHeaderMap)
-            .ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder,
-                150, 400, key, value, headerItemMap, project)));
-        DebugToolsUIHelper.refreshUI(formBuilder);
+            .map(MethodDataContext::getCache).map(ParamCache::getItemHeaderMap)
+            .ifPresent(map -> map.forEach((k, v) -> headerTableModel.addRow(new Object[] {Boolean.TRUE, k, v, ""})));
 
         GridBagConstraints gbc = new GridBagConstraints();
         // 将组件的填充方式设置为水平填充。这意味着组件将在水平方向上拉伸以填充其在容器中的可用空间，但不会在垂直方向上拉伸。
@@ -233,6 +232,15 @@ public class MainPanel extends JBPanel<MainPanel> {
         gbc.gridx = 0;
         gbc.gridy = 1;
         add(toolBar, gbc);
+
+        // 将 Header 容器作为可折叠区域加入主布局（默认收起，不占权重）
+        headerGbcRef = new GridBagConstraints();
+        headerGbcRef.fill = GridBagConstraints.BOTH;
+        headerGbcRef.weightx = 1;
+        headerGbcRef.weighty = 0; // 折叠状态不占据额外空间
+        headerGbcRef.gridx = 0;
+        headerGbcRef.gridy = 2;
+        add(headerContainer, headerGbcRef);
 
         // 初始化 TreeTable（层级展示 json_entity 内容）
         buildEmptyTree();
@@ -286,7 +294,8 @@ public class MainPanel extends JBPanel<MainPanel> {
         treeTableModel = new ListTreeTableModelOnColumns(treeRoot, columns);
         paramTreeTable = new TreeTableView(treeTableModel);
         paramTreeTable.setRootVisible(false);
-        paramTreeTable.setRowHeight(24);
+        // 稍微增大行高，避免右侧小按钮被裁切
+        paramTreeTable.setRowHeight(26);
         // 在 Key（树）列展示“+”按钮，并在点击时新增数组元素
         installArrayAddButtonOnKeyColumn(paramTreeTable);
 
@@ -302,12 +311,185 @@ public class MainPanel extends JBPanel<MainPanel> {
             }
         });
 
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        this.add(contentPanel, gbc);
+        contentGbcRef = new GridBagConstraints();
+        contentGbcRef.fill = GridBagConstraints.BOTH;
+        contentGbcRef.weightx = 1;
+        contentGbcRef.weighty = 1; // 默认由编辑器区域占据剩余空间
+        contentGbcRef.gridx = 0;
+        contentGbcRef.gridy = 3;
+        this.add(contentPanel, contentGbcRef);
+    }
+
+    // 构建“Header:”行的展开/折叠条
+    private JComponent buildHeaderToggleStrip() {
+        JPanel strip = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        headerExpandButton = new JButton(Expand);
+        headerExpandButton.setMargin(JBUI.emptyInsets());
+        headerExpandButton.setFocusable(false);
+        headerExpandButton.setToolTipText(DebugToolsBundle.message("action.expand"));
+        headerExpandButton.addActionListener(e -> toggleHeaderExpanded());
+        strip.add(headerExpandButton);
+        return strip;
+    }
+
+    // Header 工具条 + 表格
+    private JPanel buildHeaderTableContainer() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+
+        // 工具按钮：Add / Auth / Clear / Save / Collapse
+        JButton btnAdd = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Action.Add);
+        btnAdd.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
+        toolbar.add(btnAdd);
+
+        JButton btnAuth = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.Auth);
+        btnAuth.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
+        toolbar.add(btnAuth);
+
+        JButton btnClear = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Action.Clear);
+        btnClear.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
+        toolbar.add(btnClear);
+
+        panel.add(toolbar, BorderLayout.NORTH);
+
+        // 简化版表格：启用、Key、Value、删除
+        headerTableModel =
+            new javax.swing.table.DefaultTableModel(new Object[] {"", "Header Name", "Header Value", ""}, 0) {
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    return columnIndex == 0 ? Boolean.class : String.class;
+                }
+
+                @Override
+                public boolean isCellEditable(int row, int col) {
+                    return true;
+                }
+            };
+        headerTable = new javax.swing.JTable(headerTableModel);
+        headerTable.setRowHeight(28);
+        headerTable.setFillsViewportHeight(true);
+        JScrollPane sp = new JScrollPane(headerTable);
+        sp.setBorder(null);
+        sp.setPreferredSize(new JBDimension(0, 240));
+        panel.add(sp, BorderLayout.CENTER);
+
+        // 列配置：缩窄 Enabled 列，并为删除列提供按钮
+        javax.swing.table.TableColumnModel colModel = headerTable.getColumnModel();
+        // 0: Enabled
+        if (colModel.getColumnCount() > 0) {
+            javax.swing.table.TableColumn enCol = colModel.getColumn(0);
+            enCol.setMinWidth(32);
+            enCol.setMaxWidth(44);
+            enCol.setPreferredWidth(36);
+            enCol.setResizable(false);
+        }
+        // 3: Delete 按钮
+        if (colModel.getColumnCount() > 3) {
+            javax.swing.table.TableColumn delCol = colModel.getColumn(3);
+            delCol.setCellRenderer(new DeleteButtonRendererMP());
+            delCol.setCellEditor(new DeleteButtonEditorMP(headerTable));
+            delCol.setMinWidth(40);
+            delCol.setMaxWidth(52);
+            delCol.setPreferredWidth(44);
+            delCol.setResizable(false);
+        }
+
+        // 初始化事件
+        btnAdd.addActionListener(e -> headerTableModel.addRow(new Object[] {Boolean.TRUE, "", "", ""}));
+        btnAuth.addActionListener(e -> headerTableModel.addRow(new Object[] {Boolean.TRUE, "Authorization", "", ""}));
+        btnClear.addActionListener(e -> headerTableModel.setRowCount(0));
+
+        return panel;
+    }
+
+    private void toggleHeaderExpanded() {
+        boolean expand = !headerContainer.isVisible();
+        headerContainer.setVisible(expand);
+        // 切换箭头
+        headerExpandButton.setIcon(expand ? ExpandDown : Expand);
+        // 互斥：展开 Header 时折叠编辑器；收起 Header 时显示编辑器
+        contentPanel.setVisible(!expand);
+        // 同时联动隐藏/显示顶部工具栏
+        toolBar.setVisible(!expand);
+
+        // 调整权重：展开时给 Header 占据剩余空间；收起时给内容区
+        GridBagLayout layout = (GridBagLayout)getLayout();
+        headerGbcRef.weighty = expand ? 1 : 0;
+        contentGbcRef.weighty = expand ? 0 : 1;
+        layout.setConstraints(headerContainer, headerGbcRef);
+        layout.setConstraints(contentPanel, contentGbcRef);
+        revalidate();
+        repaint();
+    }
+
+    // ========== Header 表格专用渲染/编辑器（删除按钮） ==========
+    private static class DeleteButtonRendererMP extends JButton implements javax.swing.table.TableCellRenderer {
+        DeleteButtonRendererMP() {
+            setOpaque(true);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setIcon(DebugToolsIcons.Action.Delete);
+            setToolTipText("Delete");
+            setFocusable(false);
+            setMargin(new Insets(0, 0, 0, 0));
+            Dimension d = new Dimension(20, 20);
+            setPreferredSize(d);
+            setMinimumSize(d);
+            setMaximumSize(new Dimension(24, 24));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+            int row, int column) {
+            return this;
+        }
+    }
+
+    private static class DeleteButtonEditorMP extends AbstractCellEditor
+        implements javax.swing.table.TableCellEditor, java.awt.event.ActionListener {
+        private final JButton button = new JButton();
+        private final JTable table;
+
+        DeleteButtonEditorMP(JTable table) {
+            this.table = table;
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(false);
+            button.setIcon(DebugToolsIcons.Action.Delete);
+            button.setToolTipText("Delete");
+            button.addActionListener(this);
+            button.setFocusable(false);
+            button.setMargin(new Insets(0, 0, 0, 0));
+            Dimension d = new Dimension(20, 20);
+            button.setPreferredSize(d);
+            button.setMinimumSize(d);
+            button.setMaximumSize(new Dimension(24, 24));
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return null;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+            int column) {
+            return button;
+        }
+
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            int row = table.getEditingRow();
+            if (row >= 0) {
+                javax.swing.table.TableModel model = table.getModel();
+                if (model instanceof javax.swing.table.DefaultTableModel) {
+                    ((javax.swing.table.DefaultTableModel)model).removeRow(row);
+                }
+            }
+            fireEditingStopped();
+        }
     }
 
     private void getAllClassLoader() {
@@ -316,7 +498,20 @@ public class MainPanel extends JBPanel<MainPanel> {
     }
 
     public Map<String, String> getItemHeaderMap() {
-        Map<String, String> headerMap = new HashMap<>(headerItemMap.size());
+        // 优先从表格读取（新的表格样式）
+        Map<String, String> headerMap = new HashMap<>();
+        if (headerTableModel != null) {
+            for (int i = 0; i < headerTableModel.getRowCount(); i++) {
+                Object enabled = headerTableModel.getValueAt(i, 0);
+                Object key = headerTableModel.getValueAt(i, 1);
+                Object val = headerTableModel.getValueAt(i, 2);
+                if (Boolean.TRUE.equals(enabled) && key != null && StringUtils.isNotBlank(String.valueOf(key))) {
+                    headerMap.put(String.valueOf(key), val == null ? "" : String.valueOf(val));
+                }
+            }
+            return headerMap;
+        }
+        // 兼容旧实现（基于文本框行）
         headerItemMap.forEach((k, v) -> {
             String key = k.getText();
             if (StringUtils.isNotBlank(key)) {
@@ -673,17 +868,17 @@ public class MainPanel extends JBPanel<MainPanel> {
     private void installArrayAddButtonOnKeyColumn(TreeTable table) {
         final JTree tree = table.getTree();
         final TreeCellRenderer base = tree.getCellRenderer();
+        // 右侧小按钮尺寸/间距（渲染与点击区域一致）
+        final int BTN_W = 18;
+        final int BTN_H = 18;
+        final int BTN_GAP = 4; // 与单元格右侧/按钮之间的水平间距
 
         // 自定义树列渲染：为数组节点在 Key 列右侧放置一个更小的“+”按钮
         tree.setCellRenderer((t, value, selected, expanded, leaf, row, hasFocus) -> {
             Component baseComp = base.getTreeCellRendererComponent(t, value, selected, expanded, leaf, row, hasFocus);
             JPanel panel = new JPanel(new BorderLayout());
-            panel.setOpaque(true);
-            if (selected) {
-                panel.setBackground(table.getSelectionBackground());
-            } else {
-                panel.setBackground(table.getBackground());
-            }
+            // 透明，避免覆盖选择高亮；由表格背景负责绘制
+            panel.setOpaque(false);
             panel.add(baseComp, BorderLayout.CENTER);
 
             // 判断是否数组节点
@@ -696,19 +891,31 @@ public class MainPanel extends JBPanel<MainPanel> {
                 }
             }
             if (showPlus) {
+                // 在渲染器右侧放置“-”和“+”两个小按钮，仅用于显示
+                JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, BTN_GAP, 0));
+                btnPanel.setOpaque(false);
+                JButton minus = new JButton("-");
+                minus.setMargin(JBUI.emptyInsets());
+                minus.setFocusable(false);
+                minus.setBorderPainted(false);
+                minus.setContentAreaFilled(false);
+                minus.setPreferredSize(new Dimension(BTN_W, BTN_H));
+
                 JButton plus = new JButton("+");
-                plus.setMargin(JBUI.insets(0, 4));
+                plus.setMargin(JBUI.emptyInsets());
                 plus.setFocusable(false);
-                plus.setPreferredSize(new Dimension(18, 18));
-                plus.setBorderPainted(true);
-                plus.setOpaque(false);
-                // 渲染器中的按钮不处理事件，仅用于视觉提示
-                panel.add(plus, BorderLayout.EAST);
+                plus.setBorderPainted(false);
+                plus.setContentAreaFilled(false);
+                plus.setPreferredSize(new Dimension(BTN_W, BTN_H));
+
+                btnPanel.add(minus);
+                btnPanel.add(plus);
+                panel.add(btnPanel, BorderLayout.EAST);
             }
             return panel;
         });
 
-        // 点击 Key 列时处理“添加元素”动作（包括点击到按钮区域）
+        // 点击 Key 列时处理“添加/删除元素”动作（仅在按钮可点击区域内生效）
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
@@ -726,12 +933,34 @@ public class MainPanel extends JBPanel<MainPanel> {
                 ParamNode pn = (ParamNode)uo;
                 if (pn.kind != NodeKind.ARRAY)
                     return;
-                int newIdx = arrNode.getChildCount();
-                ParamNode child =
-                    new ParamNode(String.valueOf(newIdx), "", String.valueOf(newIdx), NodeKind.VALUE, "", false);
-                arrNode.add(new DefaultMutableTreeNode(child));
-                treeTableModel.reload(arrNode);
-                tree.expandPath(path);
+                // 判断点击是否落在右侧按钮区域
+                Rectangle cell = table.getCellRect(row, col, false);
+                int x = e.getX();
+                // 两个按钮的总宽度：minus 与 plus 及其间距和右侧边距
+                int totalButtonsWidth = BTN_W + BTN_W + BTN_GAP + BTN_GAP; // 左间距 + 中间间距
+                int rightEdge = cell.x + cell.width;
+                int plusLeft = rightEdge - BTN_W - BTN_GAP; // 预留右边距
+                int minusLeft = plusLeft - BTN_W - BTN_GAP; // 减号在加号左侧
+
+                if (x >= minusLeft && x <= rightEdge) {
+                    if (x >= plusLeft) {
+                        // 点击“+”区域：新增一个元素
+                        int newIdx = arrNode.getChildCount();
+                        ParamNode child = new ParamNode(String.valueOf(newIdx), "", String.valueOf(newIdx),
+                            NodeKind.VALUE, "", false);
+                        arrNode.add(new DefaultMutableTreeNode(child));
+                        treeTableModel.reload(arrNode);
+                        tree.expandPath(path);
+                    } else if (x >= minusLeft) {
+                        // 点击“-”区域：删除最后一个元素（若存在）
+                        int count = arrNode.getChildCount();
+                        if (count > 0) {
+                            arrNode.remove(count - 1);
+                            treeTableModel.reload(arrNode);
+                            tree.expandPath(path);
+                        }
+                    }
+                }
             }
         });
     }

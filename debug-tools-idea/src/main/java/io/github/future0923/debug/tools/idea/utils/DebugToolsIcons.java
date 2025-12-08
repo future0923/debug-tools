@@ -120,6 +120,14 @@ public class DebugToolsIcons {
         public static final Icon Auth = IconLoader.getIcon("/icon/header/auth.svg", DebugToolsIcons.class);
         public static final Icon Clear = IconLoader.getIcon("/icon/header/clear.svg", DebugToolsIcons.class);
         public static final Icon Save = IconLoader.getIcon("/icon/header/save.svg", DebugToolsIcons.class);
+        public static final Icon Expand = IconLoader.getIcon("/icon/header/expand.svg", DebugToolsIcons.class);
+        public static final Icon ExpandDown = IconLoader.getIcon("/icon/header/expand-down.svg", DebugToolsIcons.class);
+    }
+
+    public static final class ClassLoader {
+        public static final Icon Stop = IconLoader.getIcon("/icon/classloader/stop.svg", DebugToolsIcons.class);
+        public static final Icon Close = IconLoader.getIcon("/icon/classloader/close.svg", DebugToolsIcons.class);
+
     }
 
 }
