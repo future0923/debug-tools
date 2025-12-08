@@ -120,19 +120,7 @@ public class DebugToolsFileUtils {
         File tmpLibFile = new File(tempDir, fileName);
 
         if (tmpLibFile.exists()) {
-            // 尝试删除。在 Windows 上，如果文件被其他进程(JVM)加载，delete() 会返回 false
-            boolean deleted = tmpLibFile.delete();
-
-            if (!deleted) {
-                // 删除失败，说明文件被锁定。
-                // 必须生成一个新的文件名，否则后续 new FileOutputStream 会崩溃。
-                // 这里加上时间戳或随机数来避免冲突
-                String uniqueName = prefix + "_" + System.nanoTime() + (suffix != null ? suffix : "");
-                tmpLibFile = new File(tempDir, uniqueName);
-
-                // 标记该临时文件在虚拟机退出时删除，防止磁盘堆积
-                tmpLibFile.deleteOnExit();
-            }
+            tmpLibFile.delete();
         }
         // 3. 此时 tmpLibFile 指向的要么是已删除的原位置，要么是一个全新的位置
         // 可以安全地写入
