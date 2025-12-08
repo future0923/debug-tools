@@ -67,6 +67,7 @@ import com.intellij.ui.ColoredListCellRenderer;
 
 /**
  * 集成到 Search Anywhere (Double Shift) - 老版本 SDK 适配
+ *
  * @author caoayu
  */
 public class HttpUrlSearchEverywhereContributor extends AbstractGotoSEContributor {
@@ -84,10 +85,12 @@ public class HttpUrlSearchEverywhereContributor extends AbstractGotoSEContributo
     public @Nls String getAdvertisement() {
         return super.getAdvertisement();
     }
+
     @Override
     public boolean isEmptyPatternSupported() {
         return false;
     }
+
     @Override
     public void fetchWeightedElements(@NotNull String pattern, @NotNull ProgressIndicator progressIndicator, @NotNull Processor<? super FoundItemDescriptor<Object>> consumer) {
         if (isDumbAware()) {
@@ -106,15 +109,24 @@ public class HttpUrlSearchEverywhereContributor extends AbstractGotoSEContributo
             return HttpUrlUtils.getAllRequest(project);
         });
 
-        MinusculeMatcher matcher = NameUtil.buildMatcher("*" + removeParam(pattern) + "*", NameUtil.MatchingCaseSensitivity.ALL);
+        String searchPattern = removeParam(pattern);
+
+        // 核心修改：
+        // 1. 使用 NameUtil.MatchingCaseSensitivity.NONE 忽略大小写
+        // 2. 模式字符串前加 "*" 确保可以匹配路径中间的字符串 (Contains 逻辑)
+        // 3. 移除末尾的 "*" (通常不需要，NameUtil 会自动处理剩余部分的匹配，加上反而可能导致某些精确匹配逻辑混淆，保留也可以但没必要)
+        MinusculeMatcher matcher = NameUtil.buildMatcher("*" + searchPattern, NameUtil.MatchingCaseSensitivity.NONE);
+
         List<HttpUrlItem> mathchController = new ArrayList<>();
         allController.forEach((name, items) -> {
             for (HttpUrlItem item : items) {
+                // 使用 matcher 进行匹配
                 if (matcher.matches(item.getPath())) {
                     mathchController.add(item);
                 }
             }
         });
+
         mathchController.sort(Comparator.comparingInt(o -> o.getPath().length()));
         for (HttpUrlItem controller : mathchController) {
             if (!consumer.process(new FoundItemDescriptor<>(controller, 0))) {
