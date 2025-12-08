@@ -17,6 +17,8 @@
 package io.github.future0923.debug.tools.idea.tool.ui;
 
 import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Action.Delete;
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.ClassLoader.Close;
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.ClassLoader.Stop;
 import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.*;
 
 import java.awt.*;
@@ -76,9 +78,8 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
 
     private final JTextPane local = new JTextPane();
 
-    private final JPanel attachButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-
-    private final JPanel classLoaderPanel = new JPanel(new BorderLayout(5, 5));
+    // Default ClassLoader 区域采用两行布局（第一行：标题+按钮靠右；第二行：下拉框占满）
+    private final JPanel classLoaderPanel = new JPanel(new GridBagLayout());
     @Getter
     private final JTextPane attached = new JTextPane();
 
@@ -143,36 +144,19 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setVisible(false);
         attachStatusPanel.add(statusIconLabel);
 
-        ClassLoaderComboBox classLoaderComboBox = StateUtils.getClassLoaderComboBox(project);
-        defaultClassLoaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader"));
-        classLoaderPanel.add(defaultClassLoaderLabel, BorderLayout.WEST);
-        classLoaderPanel.add(classLoaderComboBox);
-        closeButton = new JButton(DebugToolsBundle.message("global.param.panel.close"));
-        attachButtonPanel.add(closeButton);
-        closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
-        stopButton = new JButton(DebugToolsBundle.message("global.param.panel.stop"));
-        attachButtonPanel.add(stopButton);
-        stopButton.addActionListener(e -> {
-            try {
-                ApplicationProjectHolder.send(project, new ServerCloseRequestPacket());
-            } catch (Exception ex) {
-                Messages.showErrorDialog(project, ex.getMessage(), DebugToolsBundle.message("global.param.panel.stop"));
-            }
-            ApplicationProjectHolder.close(project);
-            unAttached();
-        });
+        // --- Default ClassLoader 区域布局，参考 Method Around 的两行布局 ---
+        fillClassLoaderPanel();
         // 主面板与“全局Header”面板分离到两个 Tab
         FormBuilder mainFormBuilder = FormBuilder.createFormBuilder();
         FormBuilder headerFormBuilder = FormBuilder.createFormBuilder();
         // 注意：不要在 Header Tab 中添加多余的占位面板，避免产生大段空白
 
-        JPanel methodAroundPanel = getMethodAroundPandel();
+        JPanel methodAroundPanel = getMethodAroundPanel();
 
         JPanel globalHeaderPanel = getHeaderPanel();
         // 主 Tab 内容
         mainFormBuilder.addComponent(attachStatusPanel);
         mainFormBuilder.addComponent(classLoaderPanel);
-        mainFormBuilder.addComponent(attachButtonPanel);
         mainFormBuilder.addComponent(printSqlPanel);
         mainFormBuilder.addComponent(methodAroundPanel);
         // 移除这一行，因为我们已经将按钮整合到methodAroundPanel中了
@@ -204,32 +188,113 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         scheduledExecutorService.scheduleWithFixedDelay(
                 () -> {
                     try {
+                    // 先在后台线程获取信息，再将 UI 更新切换到 EDT
                         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-                        if (info == null || info.getClient() == null) {
-                            unAttached();
-                        } else {
-                            local.setText(settingState.isLocal() ? "L" : "R");
-                            local.setVisible(true);
-                            if (!info.getClient().isClosed()) {
-                                textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
-                                textField.setVisible(true);
-                            setStatusConnected();
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            if (info == null || info.getClient() == null) {
+                                unAttached();
                             } else {
-                                if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
-                                setStatusFail();
-                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
-                                setStatusReconnect();
-                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
-                                setStatusConnecting();
+                                local.setText(settingState.isLocal() ? "L" : "R");
+                                local.setVisible(true);
+                                if (!info.getClient().isClosed()) {
+                                    textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
+                                    textField.setVisible(true);
+                                    setStatusConnected();
+                                } else {
+                                    if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
+                                        setStatusFail();
+                                    } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
+                                        setStatusReconnect();
+                                    } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
+                                        setStatusConnecting();
+                                    }
                                 }
                             }
+                        } catch (Exception ignored2) {
                         }
+                    });
                     } catch (Exception ignored) {}
                 },
                 0,
                 2,
                 TimeUnit.SECONDS
         );
+    }
+
+    private void fillClassLoaderPanel() {
+        ClassLoaderComboBox classLoaderComboBox = StateUtils.getClassLoaderComboBox(project);
+        defaultClassLoaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader"));
+
+        GridBagConstraints clGbc = new GridBagConstraints();
+        // 第一行：左侧标题
+        clGbc.gridx = 0;
+        clGbc.gridy = 0;
+        clGbc.weightx = 0.0;
+        clGbc.weighty = 0.0;
+        clGbc.gridwidth = 1;
+        clGbc.anchor = GridBagConstraints.WEST;
+        clGbc.fill = GridBagConstraints.NONE;
+        clGbc.insets = JBUI.insets(5, 0, 5, 5);
+        classLoaderPanel.add(defaultClassLoaderLabel, clGbc);
+
+        // 第一行：中间弹性占位（用于将右侧按钮顶到右边，当前无按钮亦可）
+        clGbc.gridx = 1;
+        clGbc.gridy = 0;
+        clGbc.weightx = 1.0;
+        clGbc.gridwidth = 1;
+        clGbc.fill = GridBagConstraints.HORIZONTAL;
+        clGbc.insets = JBUI.emptyInsets();
+        classLoaderPanel.add(Box.createHorizontalGlue(), clGbc);
+
+        // 第一行：右侧按钮容器（靠右对齐）
+        closeButton = new RoundedIconButton(Close);
+        stopButton = new RoundedIconButton(Stop);
+
+        // 统一设置按钮尺寸，避免由于图标或 LAF 差异导致首选大小为 0 而不显示
+        Dimension btnSize = new Dimension(22, 22);
+        closeButton.setPreferredSize(btnSize);
+        closeButton.setMinimumSize(btnSize);
+        stopButton.setPreferredSize(btnSize);
+        stopButton.setMinimumSize(btnSize);
+
+        // 设置提示文本，避免 refresh() 中 setText 造成图标按钮样式异常
+        closeButton.setToolTipText(DebugToolsBundle.message("global.param.panel.close"));
+        stopButton.setToolTipText(DebugToolsBundle.message("global.param.panel.stop"));
+
+        JPanel classButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+        classButtonPanel.setOpaque(false);
+        classButtonPanel.add(closeButton);
+        classButtonPanel.add(stopButton);
+        closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
+        clGbc.gridx = 2;
+        clGbc.gridy = 0;
+        clGbc.weightx = 0.0;
+        clGbc.gridwidth = 1;
+        clGbc.anchor = GridBagConstraints.EAST;
+        clGbc.fill = GridBagConstraints.NONE;
+        clGbc.insets = JBUI.insets(5, 5, 5, 0);
+        classLoaderPanel.add(classButtonPanel, clGbc);
+
+        // 第二行：下拉框，占满整行
+        clGbc.gridx = 0;
+        clGbc.gridy = 1;
+        clGbc.gridwidth = 3;
+        clGbc.weightx = 1.0;
+        clGbc.weighty = 0.0;
+        clGbc.fill = GridBagConstraints.HORIZONTAL;
+        clGbc.insets = JBUI.insetsBottom(5);
+        classLoaderPanel.add(classLoaderComboBox, clGbc);
+
+        stopButton.addActionListener(e -> {
+            try {
+                ApplicationProjectHolder.send(project, new ServerCloseRequestPacket());
+            } catch (Exception ex) {
+                Messages.showErrorDialog(project, ex.getMessage(), DebugToolsBundle.message("global.param.panel.stop"));
+            }
+            ApplicationProjectHolder.close(project);
+            unAttached();
+        });
     }
 
     private void createTable(FormBuilder headerFormBuilder) {
@@ -354,7 +419,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         return globalHeaderPanel;
     }
 
-    private @NotNull JPanel getMethodAroundPandel() {
+    private @NotNull JPanel getMethodAroundPanel() {
         // Method Around Panel
         JPanel methodAroundPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -423,7 +488,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         local.setVisible(false);
         setStatusUnattached();
         textField.setVisible(false);
-        attachButtonPanel.setVisible(false);
         classLoaderPanel.setVisible(false);
         printSqlPanel.setVisible(false);
     }
@@ -435,7 +499,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setToolTipText(DebugToolsBundle.message("global.param.panel.status.connected"));
         statusIconLabel.setVisible(true);
         attached.setBackground(JBColor.GREEN);
-        attachButtonPanel.setVisible(true);
         classLoaderPanel.setVisible(true);
     }
 
@@ -447,7 +510,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setVisible(true);
         attached.setBackground(JBColor.RED);
         textField.setVisible(true);
-        attachButtonPanel.setVisible(true);
     }
 
     // 新增设置重连状态的方法
@@ -458,7 +520,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setVisible(true);
         attached.setBackground(JBColor.ORANGE);
         textField.setVisible(true);
-        attachButtonPanel.setVisible(true);
     }
 
     // 新增设置连接中状态的方法
@@ -469,7 +530,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setVisible(true); // 显示图标
         attached.setBackground(JBColor.YELLOW);
         textField.setVisible(true);
-        attachButtonPanel.setVisible(true);
     }
 
     // 新增设置未附着状态的方法
@@ -480,7 +540,6 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         statusIconLabel.setVisible(true);
         attached.setBackground(JBColor.GRAY);
         textField.setVisible(false);
-        attachButtonPanel.setVisible(false);
         classLoaderPanel.setVisible(false);
         printSqlPanel.setVisible(false);
     }
@@ -516,11 +575,12 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         }
         
         if (closeButton != null) {
-            closeButton.setText(DebugToolsBundle.message("global.param.panel.close"));
+            // 图标按钮仅更新提示文本
+            closeButton.setToolTipText(DebugToolsBundle.message("global.param.panel.close"));
         }
         
         if (stopButton != null) {
-            stopButton.setText(DebugToolsBundle.message("global.param.panel.stop"));
+            // 图标按钮仅更新提示文本
             stopButton.setToolTipText(DebugToolsBundle.message("global.param.panel.stop"));
         }
         
