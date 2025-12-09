@@ -25,6 +25,8 @@ import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -357,7 +359,7 @@ public class MainPanel extends JBPanel<MainPanel> {
 
         // 简化版表格：启用、Key、Value、删除
         headerTableModel =
-            new javax.swing.table.DefaultTableModel(new Object[] {"", "Header Name", "Header Value", ""}, 0) {
+            new DefaultTableModel(new Object[] {"", "Header Name", "Header Value", ""}, 0) {
                 @Override
                 public Class<?> getColumnClass(int columnIndex) {
                     return columnIndex == 0 ? Boolean.class : String.class;
@@ -368,7 +370,7 @@ public class MainPanel extends JBPanel<MainPanel> {
                     return true;
                 }
             };
-        headerTable = new javax.swing.JTable(headerTableModel);
+        headerTable = new JTable(headerTableModel);
         headerTable.setRowHeight(28);
         headerTable.setFillsViewportHeight(true);
         JScrollPane sp = new JScrollPane(headerTable);
@@ -377,12 +379,12 @@ public class MainPanel extends JBPanel<MainPanel> {
         panel.add(sp, BorderLayout.CENTER);
 
         // 列配置：缩窄 Enabled 列，并为删除列提供按钮
-        javax.swing.table.TableColumnModel colModel = headerTable.getColumnModel();
+        TableColumnModel colModel = headerTable.getColumnModel();
         // 0: Enabled
         if (colModel.getColumnCount() > 0) {
             javax.swing.table.TableColumn enCol = colModel.getColumn(0);
-            enCol.setMinWidth(32);
-            enCol.setMaxWidth(44);
+            enCol.setMinWidth(50);
+            enCol.setMaxWidth(60);
             enCol.setPreferredWidth(36);
             enCol.setResizable(false);
         }
@@ -481,14 +483,32 @@ public class MainPanel extends JBPanel<MainPanel> {
 
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
+            // 先记录当前编辑行，再停止编辑，最后再修改模型，避免按钮渲染残留
             int row = table.getEditingRow();
+            // 提前终止编辑，释放单元格编辑器，防止删除后按钮仍留在单元格中
+            fireEditingStopped();
+
             if (row >= 0) {
                 javax.swing.table.TableModel model = table.getModel();
                 if (model instanceof javax.swing.table.DefaultTableModel) {
                     ((javax.swing.table.DefaultTableModel)model).removeRow(row);
                 }
+                // 调整选中行，避免焦点停留在已删除的索引上
+                int rowCount = table.getRowCount();
+                if (rowCount > 0) {
+                    int newSel = Math.min(row, rowCount - 1);
+                    if (newSel >= 0) {
+                        try {
+                            table.setRowSelectionInterval(newSel, newSel);
+                        } catch (IllegalArgumentException ignore) {
+                            // ignore
+                        }
+                    }
+                }
             }
-            fireEditingStopped();
+            // 强制刷新表格绘制
+            table.revalidate();
+            table.repaint();
         }
     }
 
