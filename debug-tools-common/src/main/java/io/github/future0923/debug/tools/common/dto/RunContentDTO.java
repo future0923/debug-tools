@@ -32,6 +32,4 @@ public class RunContentDTO {
 
     private Object content;
 
-    private Object value;
-
 }
