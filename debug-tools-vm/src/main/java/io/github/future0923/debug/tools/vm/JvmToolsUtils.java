@@ -97,7 +97,7 @@ public class JvmToolsUtils {
         File jniLibraryFile;
         try {
             // 使用版本号新建lib文件，防止多版本插件冲突
-            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugToolsJniLibrary-"+AgentConfig.INSTANCE.getVersion(), DebugToolsFileUtils.extName(libName, true));
+            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugToolsJniLibrary-"+ProjectConstants.VERSION, DebugToolsFileUtils.extName(libName, true));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
