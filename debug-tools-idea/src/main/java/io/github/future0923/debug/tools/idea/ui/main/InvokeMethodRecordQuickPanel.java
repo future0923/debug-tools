@@ -16,6 +16,9 @@
  */
 package io.github.future0923.debug.tools.idea.ui.main;
 
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.Expand;
+import static io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.ExpandDown;
+
 import java.awt.*;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +60,7 @@ import io.github.future0923.debug.tools.idea.listener.data.impl.SimpleDataListen
 import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.ui.combobox.ClassLoaderComboBox;
 import io.github.future0923.debug.tools.idea.ui.combobox.MethodAroundComboBox;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsUIHelper;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import lombok.Getter;
@@ -104,6 +110,13 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
     private boolean syncing = false; // 防抖，避免双向同步循环
     // 使用显式状态记录当前卡片，避免依赖 isShowing() 导致首次切换判断错误
     private String currentViewCard = CARD_JSON;
+    // Header 区域折叠/表格支持（与 MainPanel 保持一致）
+    private JPanel headerContainer; // 含工具条+表格
+    private JTable headerTable;
+    private javax.swing.table.DefaultTableModel headerTableModel;
+    private JButton headerExpandButton; // 位于“Header:”这一行，用于展开/折叠
+    private GridBagConstraints headerGbcRef; // 保存用于动态调整的约束
+    private GridBagConstraints contentGbcRef; // 保存内容区的约束
 
     public InvokeMethodRecordQuickPanel(final Project project, final InvokeMethodRecordDTO recordDTO) {
         super(new GridBagLayout());
@@ -150,7 +163,9 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
         JPanel methodAroundPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         methodAroundPanel.add(methodAroundComboBox);
         methodAroundPanel.add(methodAroundComboBox.getMethodAroundPanel());
-        JPanel headerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        // Header 折叠区容器（按钮工具 + 表格）
+        headerContainer = buildHeaderTableContainer();
+        headerContainer.setVisible(false); // 默认折叠
         FormBuilder formBuilder = FormBuilder.createFormBuilder();
         JPanel jPanel = formBuilder
                 .addLabeledComponent(
@@ -183,19 +198,13 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("main.panel.header")),
-                        headerButtonPanel
+                        buildHeaderToggleStrip()
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
-        JButton addHeaderButton = new JButton(DebugToolsBundle.message("action.add"));
-        headerButtonPanel.add(addHeaderButton);
-        addHeaderButton.addActionListener(e -> {
-            DebugToolsUIHelper.addHeaderLabelItem(jPanel, formBuilder, 150, 400, null, null, headerItemMap, project);
-            DebugToolsUIHelper.refreshUI(formBuilder);
-        });
-        Optional.ofNullable(formatRunDTO.getHeaders()).ifPresent(map -> map.forEach((key, value) -> DebugToolsUIHelper
-            .addHeaderLabelItem(jPanel, formBuilder, 150, 400, key, value, headerItemMap, project)));
-        DebugToolsUIHelper.refreshUI(formBuilder);
+        // 旧的 Key/Value 行式 UI 替换为表格，加载历史项到表格
+        Optional.ofNullable(formatRunDTO.getHeaders())
+            .ifPresent(map -> map.forEach((k, v) -> headerTableModel.addRow(new Object[] {Boolean.TRUE, k, v, ""})));
 
         GridBagConstraints gbc = new GridBagConstraints();
         // 将组件的填充方式设置为水平填充。这意味着组件将在水平方向上拉伸以填充其在容器中的可用空间，但不会在垂直方向上拉伸。
@@ -216,6 +225,15 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
         // 在工具栏右侧添加“视图切换”按钮
         // 工具栏（切换按钮已放入 MainToolBar 内，由事件驱动）
         add(toolBar, gbc);
+
+        // 将 Header 容器作为可折叠区域加入主布局（默认收起，不占权重）
+        headerGbcRef = new GridBagConstraints();
+        headerGbcRef.fill = GridBagConstraints.BOTH;
+        headerGbcRef.weightx = 1;
+        headerGbcRef.weighty = 0; // 折叠状态不占据额外空间
+        headerGbcRef.gridx = 0;
+        headerGbcRef.gridy = 2;
+        add(headerContainer, headerGbcRef);
 
         // 初始化 TreeTable（层级展示 json_entity 内容）
         buildEmptyTree();
@@ -292,12 +310,13 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
             }
         });
 
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        this.add(contentPanel, gbc);
+        contentGbcRef = new GridBagConstraints();
+        contentGbcRef.fill = GridBagConstraints.BOTH;
+        contentGbcRef.weightx = 1;
+        contentGbcRef.weighty = 1; // 默认由编辑器区域占据剩余空间
+        contentGbcRef.gridx = 0;
+        contentGbcRef.gridy = 3;
+        this.add(contentPanel, contentGbcRef);
     }
 
     private void getAllClassLoader() {
@@ -321,6 +340,196 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
             }
             cl.show(contentPanel, CARD_TABLE);
             currentViewCard = CARD_TABLE;
+        }
+    }
+
+    // 构建“Header:”行的展开/折叠条
+    private JComponent buildHeaderToggleStrip() {
+        JPanel strip = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        headerExpandButton = new JButton(Expand);
+        headerExpandButton.setMargin(new Insets(0, 0, 0, 0));
+        headerExpandButton.setFocusable(false);
+        headerExpandButton.setToolTipText(DebugToolsBundle.message("action.expand"));
+        headerExpandButton.addActionListener(e -> toggleHeaderExpanded());
+        strip.add(headerExpandButton);
+        return strip;
+    }
+
+    // Header 工具条 + 表格
+    private JPanel buildHeaderTableContainer() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JPanel toolbar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 4));
+
+        // 工具按钮：Add / Auth / Clear
+        JButton btnAdd = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Action.Add);
+        btnAdd.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
+        toolbar.add(btnAdd);
+
+        JButton btnAuth = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Header.Auth);
+        btnAuth.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
+        toolbar.add(btnAuth);
+
+        JButton btnClear = new io.github.future0923.debug.tools.idea.ui.button.RoundedIconButton(
+            io.github.future0923.debug.tools.idea.utils.DebugToolsIcons.Action.Clear);
+        btnClear.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
+        toolbar.add(btnClear);
+
+        panel.add(toolbar, BorderLayout.NORTH);
+
+        // 简化版表格：启用、Key、Value、删除
+        headerTableModel =
+            new DefaultTableModel(new Object[] {"", "Header Name", "Header Value", ""}, 0) {
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    return columnIndex == 0 ? Boolean.class : String.class;
+                }
+
+                @Override
+                public boolean isCellEditable(int row, int col) {
+                    return true;
+                }
+            };
+        headerTable = new JTable(headerTableModel);
+        headerTable.setRowHeight(28);
+        headerTable.setFillsViewportHeight(true);
+        JScrollPane sp = new JScrollPane(headerTable);
+        sp.setBorder(null);
+        sp.setPreferredSize(new JBDimension(0, 240));
+        panel.add(sp, BorderLayout.CENTER);
+
+        // 列配置：缩窄 Enabled 列，并为删除列提供按钮
+        TableColumnModel colModel = headerTable.getColumnModel();
+        // 0: Enabled
+        if (colModel.getColumnCount() > 0) {
+            javax.swing.table.TableColumn enCol = colModel.getColumn(0);
+            enCol.setMinWidth(50);
+            enCol.setMaxWidth(60);
+            enCol.setPreferredWidth(36);
+            enCol.setResizable(false);
+        }
+        // 3: Delete 按钮
+        if (colModel.getColumnCount() > 3) {
+            javax.swing.table.TableColumn delCol = colModel.getColumn(3);
+            delCol.setCellRenderer(new DeleteButtonRendererMP());
+            delCol.setCellEditor(new DeleteButtonEditorMP(headerTable));
+            delCol.setMinWidth(40);
+            delCol.setMaxWidth(52);
+            delCol.setPreferredWidth(44);
+            delCol.setResizable(false);
+        }
+
+        // 初始化事件
+        btnAdd.addActionListener(e -> headerTableModel.addRow(new Object[] {Boolean.TRUE, "", "", ""}));
+        btnAuth.addActionListener(e -> headerTableModel.addRow(new Object[] {Boolean.TRUE, "Authorization", "", ""}));
+        btnClear.addActionListener(e -> headerTableModel.setRowCount(0));
+
+        return panel;
+    }
+
+    private void toggleHeaderExpanded() {
+        boolean expand = !headerContainer.isVisible();
+        headerContainer.setVisible(expand);
+        // 切换箭头
+        headerExpandButton.setIcon(expand ? ExpandDown : Expand);
+        // 互斥：展开 Header 时折叠编辑器；收起 Header 时显示编辑器
+        contentPanel.setVisible(!expand);
+        // 同时联动隐藏/显示顶部工具栏
+        toolBar.setVisible(!expand);
+
+        // 调整权重：展开时给 Header 占据剩余空间；收起时给内容区
+        GridBagLayout layout = (GridBagLayout)getLayout();
+        headerGbcRef.weighty = expand ? 1 : 0;
+        contentGbcRef.weighty = expand ? 0 : 1;
+        layout.setConstraints(headerContainer, headerGbcRef);
+        layout.setConstraints(contentPanel, contentGbcRef);
+        revalidate();
+        repaint();
+    }
+
+    // ========== Header 表格专用渲染/编辑器（删除按钮） ==========
+    private static class DeleteButtonRendererMP extends JButton implements javax.swing.table.TableCellRenderer {
+        DeleteButtonRendererMP() {
+            setOpaque(true);
+            setBorderPainted(false);
+            setContentAreaFilled(false);
+            setIcon(DebugToolsIcons.Action.Delete);
+            setToolTipText("Delete");
+            setFocusable(false);
+            setMargin(new Insets(0, 0, 0, 0));
+            Dimension d = new Dimension(20, 20);
+            setPreferredSize(d);
+            setMinimumSize(d);
+            setMaximumSize(new Dimension(24, 24));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+            int row, int column) {
+            return this;
+        }
+    }
+
+    private static class DeleteButtonEditorMP extends AbstractCellEditor
+        implements javax.swing.table.TableCellEditor, java.awt.event.ActionListener {
+        private final JButton button = new JButton();
+        private final JTable table;
+
+        DeleteButtonEditorMP(JTable table) {
+            this.table = table;
+            button.setBorderPainted(false);
+            button.setContentAreaFilled(false);
+            button.setIcon(DebugToolsIcons.Action.Delete);
+            button.setToolTipText("Delete");
+            button.addActionListener(this);
+            button.setFocusable(false);
+            button.setMargin(new Insets(0, 0, 0, 0));
+            Dimension d = new Dimension(20, 20);
+            button.setPreferredSize(d);
+            button.setMinimumSize(d);
+            button.setMaximumSize(new Dimension(24, 24));
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return null;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+            int column) {
+            return button;
+        }
+
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            // 先记录当前编辑行，再停止编辑，最后再修改模型，避免按钮渲染残留
+            int row = table.getEditingRow();
+            // 提前终止编辑，释放单元格编辑器，防止删除后按钮仍留在单元格中
+            fireEditingStopped();
+
+            if (row >= 0) {
+                javax.swing.table.TableModel model = table.getModel();
+                if (model instanceof javax.swing.table.DefaultTableModel) {
+                    ((javax.swing.table.DefaultTableModel)model).removeRow(row);
+                }
+                // 调整选中行，避免焦点停留在已删除的索引上
+                int rowCount = table.getRowCount();
+                if (rowCount > 0) {
+                    int newSel = Math.min(row, rowCount - 1);
+                    if (newSel >= 0) {
+                        try {
+                            table.setRowSelectionInterval(newSel, newSel);
+                        } catch (IllegalArgumentException ignore) {
+                            // ignore
+                        }
+                    }
+                }
+            }
+            // 强制刷新表格绘制
+            table.revalidate();
+            table.repaint();
         }
     }
 
@@ -400,14 +609,31 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
     }
 
     public Map<String, String> getItemHeaderMap() {
-        Map<String, String> headerMap = new HashMap<>(headerItemMap.size());
+        Map<String, String> map = new HashMap<>();
+        // 优先从新表格模型读取
+        if (headerTableModel != null && headerTableModel.getRowCount() > 0) {
+            int rows = headerTableModel.getRowCount();
+            for (int i = 0; i < rows; i++) {
+                Object enabled = headerTableModel.getValueAt(i, 0);
+                Object keyObj = headerTableModel.getValueAt(i, 1);
+                Object valObj = headerTableModel.getValueAt(i, 2);
+                boolean on = !(enabled instanceof Boolean) || (Boolean)enabled;
+                String key = keyObj == null ? "" : String.valueOf(keyObj).trim();
+                String val = valObj == null ? "" : String.valueOf(valObj);
+                if (on && StringUtils.isNotBlank(key)) {
+                    map.put(key, val);
+                }
+            }
+            return map;
+        }
+        // 兼容旧的行式 UI（理论上不会再走到这里）
         headerItemMap.forEach((k, v) -> {
             String key = k.getText();
             if (StringUtils.isNotBlank(key)) {
-                headerMap.put(key, v.getText());
+                map.put(key, v.getText());
             }
         });
-        return headerMap;
+        return map;
     }
 
     // ====== TreeTable 支撑结构与工具（与 MainPanel 一致） ======
