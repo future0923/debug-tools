@@ -114,10 +114,16 @@ public class DebugToolsFileUtils {
 
     public static File getTmpLibFile(InputStream inputStream, String prefix, String suffix) throws IOException {
         File tempDir = createTempDir();
-        File tmpLibFile = new File(tempDir, prefix + (suffix != null ? suffix : ""));
+
+        // 1. 构造默认文件名
+        String fileName = prefix + (suffix != null ? suffix : "");
+        File tmpLibFile = new File(tempDir, fileName);
+
         if (tmpLibFile.exists()) {
             tmpLibFile.delete();
         }
+        // 3. 此时 tmpLibFile 指向的要么是已删除的原位置，要么是一个全新的位置
+        // 可以安全地写入
         try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
              InputStream inputStreamNew = inputStream) {
             DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
