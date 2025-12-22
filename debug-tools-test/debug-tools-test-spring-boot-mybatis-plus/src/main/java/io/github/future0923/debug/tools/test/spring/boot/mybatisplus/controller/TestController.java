@@ -18,7 +18,8 @@ package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.controller
 
 import java.util.Map;
 
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.service.UserServiceImpl;
@@ -39,6 +40,7 @@ public class TestController {
     public String test() {
         return "hello world";
     }
+
     @GetMapping("test2")
     public User test2() {
         return userService.getById(1);
@@ -54,23 +56,5 @@ public class TestController {
         entity.setMetaData(Map.of("key", "1'2333"));
 
         return userService.save(entity);
-    }
-    @PostMapping("testPost")
-    public String testPost() {
-        return "hello world";
-    }
-
-    @PutMapping("testPut")
-    public String testPut() {
-        return "hello world";
-    }
-
-    @DeleteMapping("testDelete")
-    public String testDelete() {
-        return "hello world";
-    }
-    @PatchMapping("testPatch")
-    public String testPatch() {
-        return "hello world";
     }
 }
