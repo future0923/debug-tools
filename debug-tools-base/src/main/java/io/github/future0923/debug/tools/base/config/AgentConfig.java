@@ -80,7 +80,7 @@ public class AgentConfig {
         String version = getVersion();
         isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
-            setVersionAndStore(ProjectConstants.VERSION);
+            setVersion(ProjectConstants.VERSION);
         }
     }
 
