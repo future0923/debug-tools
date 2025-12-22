@@ -54,8 +54,7 @@ public class DebugToolsFileUtils {
                 throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
                         + classLoader);
             }
-            // 实际写入拼接版本号
-            debugToolsCoreJarFile = DebugToolsFileUtils.getTmpLibFile(coreJarUrl.openStream(), name + "-" + ProjectConstants.VERSION, ".jar");
+            debugToolsCoreJarFile = DebugToolsFileUtils.getTmpLibFile(coreJarUrl.openStream(), name, ".jar");
         } catch (Exception e) {
             throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
                     + classLoader);
@@ -120,14 +119,15 @@ public class DebugToolsFileUtils {
         String fileName = prefix + (suffix != null ? suffix : "");
         File tmpLibFile = new File(tempDir, fileName);
 
-        // 不存在当前版本的依赖,创建
-        if (!tmpLibFile.exists()) {
-            try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
-                 InputStream inputStreamNew = inputStream) {
-                DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
-            }
+        if (tmpLibFile.exists()) {
+            tmpLibFile.delete();
         }
-
+        // 3. 此时 tmpLibFile 指向的要么是已删除的原位置，要么是一个全新的位置
+        // 可以安全地写入
+        try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
+             InputStream inputStreamNew = inputStream) {
+            DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
+        }
         return tmpLibFile;
     }
 
