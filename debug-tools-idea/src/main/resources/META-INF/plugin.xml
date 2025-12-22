@@ -35,6 +35,16 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.5.0</strong>
+        <ul>
+            <li>热重载/热部署支持openfeign</li>
+            <li>增加日志级别控制</li>
+            <li>修复达梦8打印sql时空指针的bug</li>
+            <li>修复用DebugTools的执行器启动时断点的标识未及时变化的bug</li>
+            <li>修复windows系统同时启动2个应用会显示dll文件占用的bug</li>
+            <li>优化MyBatis/MyBatisPlus热重载锁机制</li>
+            <li>修复热重载修改匿名内部类偶尔导致jvm崩溃的bug</li>
+        </ul>
         <strong>4.4.4</strong>
         <ul>
             <li>增加动态控制打印SQL配置</li>
