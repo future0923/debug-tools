@@ -50,6 +50,7 @@ public class JvmToolsUtils {
         if (DebugToolsOSUtils.isMac() && changeJdk()) {
             AgentConfig.INSTANCE.setCurrentOsArch(DebugToolsOSUtils.arch());
             storeLib(getLibName());
+            return;
         }
 
         String jniPath = AgentConfig.INSTANCE.getJniLibraryPath();
@@ -96,7 +97,8 @@ public class JvmToolsUtils {
         }
         File jniLibraryFile;
         try {
-            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugToolsJniLibrary", DebugToolsFileUtils.extName(libName, true));
+            // 使用版本号新建lib文件，防止多版本插件冲突
+            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugToolsJniLibrary-"+ProjectConstants.VERSION, DebugToolsFileUtils.extName(libName, true));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

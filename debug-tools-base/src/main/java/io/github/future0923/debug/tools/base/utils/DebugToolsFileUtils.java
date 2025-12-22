@@ -54,7 +54,8 @@ public class DebugToolsFileUtils {
                 throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
                         + classLoader);
             }
-            debugToolsCoreJarFile = DebugToolsFileUtils.getTmpLibFile(coreJarUrl.openStream(), name, ".jar");
+            // 实际写入拼接版本号
+            debugToolsCoreJarFile = DebugToolsFileUtils.getTmpLibFile(coreJarUrl.openStream(), name + "-" + ProjectConstants.VERSION, ".jar");
         } catch (Exception e) {
             throw new IllegalArgumentException("can not getResources " + fullName + " from classloader: "
                     + classLoader);
@@ -114,14 +115,19 @@ public class DebugToolsFileUtils {
 
     public static File getTmpLibFile(InputStream inputStream, String prefix, String suffix) throws IOException {
         File tempDir = createTempDir();
-        File tmpLibFile = new File(tempDir, prefix + (suffix != null ? suffix : ""));
-        if (tmpLibFile.exists()) {
-            tmpLibFile.delete();
+
+        // 1. 构造默认文件名
+        String fileName = prefix + (suffix != null ? suffix : "");
+        File tmpLibFile = new File(tempDir, fileName);
+
+        // 不存在当前版本的依赖,创建
+        if (!tmpLibFile.exists()) {
+            try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
+                 InputStream inputStreamNew = inputStream) {
+                DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
+            }
         }
-        try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
-             InputStream inputStreamNew = inputStream) {
-            DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
-        }
+
         return tmpLibFile;
     }
 

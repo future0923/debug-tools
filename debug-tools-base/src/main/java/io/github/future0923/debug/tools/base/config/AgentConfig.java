@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.base.SpyAPI;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsLibUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 
 import java.io.File;
@@ -80,7 +81,7 @@ public class AgentConfig {
         String version = getVersion();
         isUpgrade = !ProjectConstants.VERSION.equals(version);
         if (isUpgrade) {
-            setVersion(ProjectConstants.VERSION);
+            setVersionAndStore(ProjectConstants.VERSION);
         }
     }
 
@@ -89,6 +90,7 @@ public class AgentConfig {
         createSolonJar();
         createXxlJobJar();
         store();
+        cleanOldVersionDependencies();
     }
 
     private void createSpringJar() {
@@ -250,5 +252,65 @@ public class AgentConfig {
         } catch (IOException e) {
             logger.error("store properties error", e);
         }
+    }
+
+    /**
+     * 清理其他版本的依赖文件
+     * 扫描临时目录，删除非当前版本的jar和lib文件
+     * 如果文件被占用则跳过删除
+     */
+    private void cleanOldVersionDependencies() {
+        try {
+            File libDir = DebugToolsLibUtils.getDebugToolsLibDir();
+            if (libDir == null || !libDir.exists() || !libDir.isDirectory()) {
+                return;
+            }
+
+            File[] files = libDir.listFiles();
+            if (files == null || files.length == 0) {
+                return;
+            }
+
+            String currentVersion = ProjectConstants.VERSION;
+            for (File file : files) {
+                if (file.isFile() && shouldDeleteFile(file, currentVersion)) {
+                    try {
+                        file.delete();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * 判断文件是否应该被删除
+     * 规则：文件名包含版本号，但不是当前版本
+     */
+    private boolean shouldDeleteFile(File file, String currentVersion) {
+        String fileName = file.getName();
+
+        // 检查是否是带版本号的文件
+        // 例如: debug-tools-extension-spring-4.4.0-SNAPSHOT.jar
+        //      DebugToolsJniLibrary-4.4.0-SNAPSHOT.dll
+        if (!fileName.contains("-")) {
+            return false;
+        }
+
+        // 如果文件名包含当前版本号，则不删除
+        if (fileName.contains(currentVersion)) {
+            return false;
+        }
+
+        // 检查是否是我们管理的文件类型
+        // 1. debug-tools-extension-* 开头的jar文件
+        // 2. DebugToolsJniLibrary-* 开头的lib文件
+        boolean isExtensionJar = fileName.startsWith("debug-tools-extension-") && fileName.endsWith(".jar");
+        boolean isAgentJar = fileName.startsWith("debug-tools-agent-") && fileName.endsWith(".jar");
+        boolean isJniLib = fileName.startsWith("DebugToolsJniLibrary-") &&
+                (fileName.endsWith(".dll") || fileName.endsWith(".so") || fileName.endsWith(".dylib"));
+
+        return isExtensionJar || isAgentJar || isJniLib;
     }
 }
