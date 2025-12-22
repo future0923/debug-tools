@@ -21,6 +21,7 @@ import io.github.future0923.debug.tools.idea.listener.data.event.DataEvent;
 /**
  * @author future0923
  */
+@SuppressWarnings("unchecked")
 public abstract class BaseDataListener<E extends DataEvent> implements DataListener {
 
     @Override
