@@ -1,8 +1,0 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <!-- 背景圆：半径8，圆心8,8 -->
-    <circle cx="8" cy="8" r="8" fill="#895789"/>
-
-    <path fill="#232323" d="M4 3h8v2H9v8H7V5H4V3z"/>
-
-</svg>
-
