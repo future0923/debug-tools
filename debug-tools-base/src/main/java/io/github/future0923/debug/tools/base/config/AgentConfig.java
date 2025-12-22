@@ -305,10 +305,10 @@ public class AgentConfig {
 
         // 检查是否是我们管理的文件类型
         // 1. debug-tools-extension-* 开头的jar文件
-        // 2. DebugToolsJniLibrary-* 开头的lib文件
+        // 2. DebugToolsJniLibrary* 开头的lib文件
         boolean isExtensionJar = fileName.startsWith("debug-tools-extension-") && fileName.endsWith(".jar");
         boolean isAgentJar = fileName.startsWith("debug-tools-agent-") && fileName.endsWith(".jar");
-        boolean isJniLib = fileName.startsWith("DebugToolsJniLibrary-") &&
+        boolean isJniLib = fileName.startsWith("DebugToolsJniLibrary") &&
                 (fileName.endsWith(".dll") || fileName.endsWith(".so") || fileName.endsWith(".dylib"));
 
         return isExtensionJar || isAgentJar || isJniLib;

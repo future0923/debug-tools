@@ -29,7 +29,7 @@ buildscript {
 plugins {
     idea
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.5.0"
+    id("org.jetbrains.intellij.platform") version "2.10.5"
     id("com.github.hierynomus.license") version "0.16.1"
 }
 
@@ -155,9 +155,14 @@ project(":") {
         }
 
         pluginVerification {
-//
+
             ides {
-                ides(prop("ideVersionVerifier").split(","))
+                prop("ideVersionVerifier")
+                    .split(",")
+                    .forEach { ide ->
+                        val (type, version) = ide.split("-", limit = 2)
+                        create(type, version)
+                    }
             }
 
             failureLevel.set(
