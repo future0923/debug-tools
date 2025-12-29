@@ -31,7 +31,9 @@ import java.lang.reflect.Parameter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,7 +100,25 @@ public class DebugToolsParamConvertUtils {
         } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
             return null;
         } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
-            return new File(runContentDTO.getContent().toString());
+            // 处理数组类型的文件参数
+            if (runContentDTO.getContent() instanceof Iterable) {
+                List<File> fileList = new ArrayList<>();
+                for (Object item : (Iterable<?>) runContentDTO.getContent()) {
+                    fileList.add(new File(item.toString()));
+                }
+                if (parameter.getType().isArray()) {
+                    return fileList.toArray(new File[0]);
+                }
+                return fileList;
+            }
+
+            File file = new File(runContentDTO.getContent().toString());
+            if (parameter.getType().isArray() && File.class.isAssignableFrom(parameter.getType().getComponentType())) {
+                File[] files = new File[1];
+                files[0] = file;
+                return files;
+            }
+            return file;
         } else if (RunContentType.CLASS.getType().equals(runContentDTO.getType())) {
             try {
                 return Class.forName(runContentDTO.getContent().toString());
