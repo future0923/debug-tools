@@ -16,13 +16,16 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.controller;
 
-import java.util.Map;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.service.UserServiceImpl;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
+
 
 /**
  * @author future0923
@@ -56,5 +59,18 @@ public class TestController {
         entity.setMetaData(Map.of("key", "1'2333"));
 
         return userService.save(entity);
+    }
+
+    @PostMapping("/file/batch")
+    public String uploadFiles(@RequestParam(required = false) MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            return "未接收到文件或文件为空";
+        }
+        return "上传成功，文件数量：" + files.length;
+    }
+
+    @PostMapping("/file/single")
+    public String uploadFile(@RequestParam MultipartFile file) {
+        return "上传成功，文件数量：" + file.getName();
     }
 }

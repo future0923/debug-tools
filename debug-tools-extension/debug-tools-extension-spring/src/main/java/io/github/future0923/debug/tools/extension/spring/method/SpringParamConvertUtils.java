@@ -41,7 +41,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -134,7 +136,27 @@ public class SpringParamConvertUtils {
             }
             return null;
         } else if (RunContentType.FILE.getType().equals(runContentDTO.getType())) {
+            // 处理数组格式的文件参数（手动传入的数组）
+            if (runContentDTO.getContent() instanceof Iterable) {
+                List<MultipartFile> multipartFiles = new ArrayList<>();
+                for (Object item : (Iterable<?>) runContentDTO.getContent()) {
+                    File file = new File(item.toString());
+                    try {
+                        multipartFiles.add(new MockMultipartFile(file.getName(), FileUtil.getInputStream(file)));
+                    } catch (IOException e) {
+                        log.error("转换MockMultipartFile异常", e);
+                    }
+                }
+                if (parameter.getParameterType().isArray() &&
+                    MultipartFile.class.isAssignableFrom(parameter.getParameterType().getComponentType())) {
+                    return multipartFiles.toArray(new MultipartFile[0]);
+                }
+                return multipartFiles;
+            }
+
+            // 处理单个文件
             File file = new File(runContentDTO.getContent().toString());
+            // 处理单个MultipartFile
             if (MultipartFile.class.isAssignableFrom(parameter.getParameterType())) {
                 try {
                     return new MockMultipartFile(file.getName(), FileUtil.getInputStream(file));

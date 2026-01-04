@@ -80,6 +80,14 @@ public class DebugToolsJsonElementUtil {
             return RunContentType.SIMPLE.getType();
         }
         if (type instanceof PsiArrayType) {
+            PsiType componentType = ((PsiArrayType) type).getComponentType();
+            // 检查数组元素类型是否为MultipartFile
+            if (componentType instanceof PsiClassType) {
+                PsiClass componentClass = ((PsiClassType) componentType).resolve();
+                if (componentClass != null && "org.springframework.web.multipart.MultipartFile".equals(componentClass.getQualifiedName())) {
+                    return RunContentType.FILE.getType();
+                }
+            }
             return RunContentType.JSON_ENTITY.getType();
         }
         if (type instanceof PsiClassType) {
@@ -164,9 +172,18 @@ public class DebugToolsJsonElementUtil {
             return 0;
         }
         if (type instanceof PsiArrayType) {
+            PsiType componentType = ((PsiArrayType) type).getComponentType();
+            // 对于MultipartFile[]数组，返回空字符串作为文件路径占位符
+            if (componentType instanceof PsiClassType) {
+                PsiClass componentClass = ((PsiClassType) componentType).resolve();
+                if (componentClass != null && "org.springframework.web.multipart.MultipartFile".equals(componentClass.getQualifiedName())) {
+                    return new JSONArray(); // 返回空数组作为初始值
+                }
+            }
+            // 其他类型的数组保持原有逻辑
             JSONArray jsonElements = new JSONArray();
             if (!deep.isMaxDeep()) {
-                jsonElements.add(toJson(((PsiArrayType) type).getComponentType(), genParamType, deep.increment()));
+                jsonElements.add(toJson(componentType, genParamType, deep.increment()));
             }
             return jsonElements;
         }
@@ -277,6 +294,14 @@ public class DebugToolsJsonElementUtil {
             return JSONNull.NULL;
         }
         if (type instanceof PsiArrayType) {
+            PsiType componentType = ((PsiArrayType) type).getComponentType();
+            // 对于MultipartFile[]数组，返回空数组
+            if (componentType instanceof PsiClassType) {
+                PsiClass componentClass = ((PsiClassType) componentType).resolve();
+                if (componentClass != null && "org.springframework.web.multipart.MultipartFile".equals(componentClass.getQualifiedName())) {
+                    return new JSONArray(); // 返回空数组
+                }
+            }
             return new JSONArray();
         }
         if (type instanceof PsiClassType) {
