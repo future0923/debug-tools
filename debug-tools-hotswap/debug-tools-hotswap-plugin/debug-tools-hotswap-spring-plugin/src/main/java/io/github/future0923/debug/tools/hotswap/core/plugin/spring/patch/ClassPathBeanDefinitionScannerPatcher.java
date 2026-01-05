@@ -18,13 +18,13 @@ package io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.SpringPlugin;
-import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
 
