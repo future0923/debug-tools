@@ -23,8 +23,6 @@ import java.lang.annotation.Annotation;
  */
 public class FeignUtils {
 
-    private static final Object reload_lock = new Object();
-
     /**
      * 判断是否是@FeignClient标记的接口
      * <p>

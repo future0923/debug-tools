@@ -67,7 +67,7 @@ public class FeignClientReload {
             return;
         }
         try {
-            ClassPathScanningCandidateComponentProvider scanner = FeignPlugin.getScanner();
+            ClassPathScanningCandidateComponentProvider scanner = (ClassPathScanningCandidateComponentProvider) FeignPlugin.getScanner();
             ByteArrayResource resource = new ByteArrayResource(dto.getBytes());
             MetadataReader metadataReader = scanner.getMetadataReaderFactory().getMetadataReader(resource);
             ScannedGenericBeanDefinition beanDefinition = new ScannedGenericBeanDefinition(metadataReader);
@@ -84,10 +84,11 @@ public class FeignClientReload {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(feignClientSpecificationClass);
             builder.addConstructorArgValue(name);
             builder.addConstructorArgValue(attributes.get("configuration"));
-            FeignPlugin.getRegistry().registerBeanDefinition(name + "." + feignClientSpecificationClass.getSimpleName(),
+            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) FeignPlugin.getRegistry();
+            registry.registerBeanDefinition(name + "." + feignClientSpecificationClass.getSimpleName(),
                     builder.getBeanDefinition());
             //ReflectUtil.invoke(FeignPlugin.getFeignClientsRegistrar(), "registerFeignClient", FeignPlugin.getRegistry(), annotationMetadata, attributes);
-            registerFeignClient(FeignPlugin.getRegistry(), annotationMetadata, attributes);
+            registerFeignClient(registry, annotationMetadata, attributes);
             logger.reload("Reload FeignClient: {}", className);
         } catch (Exception e) {
             logger.error("refresh feign client error", e);
@@ -148,7 +149,7 @@ public class FeignClientReload {
             alias = qualifier;
         }
 
-        BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className, new String[] { alias });
+        BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinition, className, new String[]{alias});
         BeanDefinitionReaderUtils.registerBeanDefinition(holder, registry);
     }
 }

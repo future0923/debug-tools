@@ -36,8 +36,6 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
 import java.io.IOException;
 import java.net.URL;
@@ -81,12 +79,12 @@ public class FeignPlugin {
     /**
      * openfeign 重写之后的 scanner
      */
-    private static ClassPathScanningCandidateComponentProvider scanner;
+    private static Object scanner;
 
     /**
      * spring 的 BeanDefinition 注册表
      */
-    private static BeanDefinitionRegistry registry;
+    private static Object registry;
 
     /**
      * 获取OpenFeign的类加载器和注册者
@@ -128,14 +126,14 @@ public class FeignPlugin {
     /**
      * 注册 scanner
      */
-    public static void registerScanner(ClassPathScanningCandidateComponentProvider scanner) {
+    public static void registerScanner(Object scanner) {
         FeignPlugin.scanner = scanner;
     }
 
     /**
      * 注册 BeanDefinitionRegistry
      */
-    public static void registerBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+    public static void registerBeanDefinitionRegistry(Object registry) {
         FeignPlugin.registry = registry;
     }
 
@@ -185,11 +183,11 @@ public class FeignPlugin {
         return feignClientsRegistrar;
     }
 
-    public static ClassPathScanningCandidateComponentProvider getScanner() {
+    public static Object getScanner() {
         return scanner;
     }
 
-    public static BeanDefinitionRegistry getRegistry() {
+    public static Object getRegistry() {
         return registry;
     }
 
