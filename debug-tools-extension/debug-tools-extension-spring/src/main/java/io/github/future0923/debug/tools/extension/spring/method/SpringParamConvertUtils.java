@@ -142,7 +142,9 @@ public class SpringParamConvertUtils {
                 for (Object item : (Iterable<?>) runContentDTO.getContent()) {
                     File file = new File(item.toString());
                     try {
-                        multipartFiles.add(new MockMultipartFile(file.getName(), FileUtil.getInputStream(file)));
+                        String originalFilename = file.getName();
+                        String contentType = FileUtil.getMimeType(file.getPath());
+                        multipartFiles.add(new MockMultipartFile(originalFilename, originalFilename, contentType, FileUtil.getInputStream(file)));
                     } catch (IOException e) {
                         log.error("转换MockMultipartFile异常", e);
                     }
@@ -159,7 +161,9 @@ public class SpringParamConvertUtils {
             // 处理单个MultipartFile
             if (MultipartFile.class.isAssignableFrom(parameter.getParameterType())) {
                 try {
-                    return new MockMultipartFile(file.getName(), FileUtil.getInputStream(file));
+                    String originalFilename = file.getName();
+                    String contentType = FileUtil.getMimeType(file.getPath());
+                    return new MockMultipartFile(originalFilename, originalFilename, contentType, FileUtil.getInputStream(file));
                 } catch (IOException e) {
                     log.error("转换MockMultipartFile异常", e);
                     return null;
