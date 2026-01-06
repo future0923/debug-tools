@@ -35,6 +35,11 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.5.1</strong>
+        <ul>
+            <li>修复openfeign与spring的class冲突导致spring项目热重载识别失败的bug</li>
+            <li>调用java方法支持file数组类型参数</li>
+        </ul>
         <strong>4.5.0</strong>
         <ul>
             <li>热重载/热部署支持openfeign</li>
