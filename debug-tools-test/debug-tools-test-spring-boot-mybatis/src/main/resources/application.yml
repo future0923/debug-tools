@@ -30,3 +30,5 @@ spring:
 mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: io.github.future0923.debug.tools.test.spring.boot.mybatis.model
+server:
+  port: 8111
