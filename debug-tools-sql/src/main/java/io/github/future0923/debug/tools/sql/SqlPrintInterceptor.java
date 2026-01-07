@@ -78,7 +78,7 @@ public class SqlPrintInterceptor {
     private static Statement proxyStatement(final Statement statement) {
         Object c = Proxy.newProxyInstance(
                 SqlPrintByteCodeEnhance.class.getClassLoader(),
-                new Class[]{PreparedStatement.class},
+                new Class[]{PreparedStatement.class, Statement.class},
                 new StatementHandler(statement)
         );
         return (Statement) c;

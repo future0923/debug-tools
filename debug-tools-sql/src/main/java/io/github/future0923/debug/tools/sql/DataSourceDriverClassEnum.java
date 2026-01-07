@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.sql;
 
 
+import constants.SqlFormatConstant;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
@@ -40,7 +41,10 @@ public enum DataSourceDriverClassEnum {
             Arrays.asList("com.mysql.jdbc.NonRegisteringDriver", "com.mysql.cj.jdbc.NonRegisteringDriver"),
             (sta, parameters) -> {
                 String sql = sta.toString().replace("** BYTE ARRAY DATA **", "NULL");
-                return sql.replace("com.mysql.jdbc.ClientPreparedStatement:", "").replace("com.mysql.cj.jdbc.ClientPreparedStatement:", "");
+                for (String prefix : SqlFormatConstant.MYSQL_DRIVER_REPLACE_PREFIX_WHITE_LIST) {
+                    sql = sql.replace(prefix, "");
+                }
+                return sql;
             }
     ),
 
