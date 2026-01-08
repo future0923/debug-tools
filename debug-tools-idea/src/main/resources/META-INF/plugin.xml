@@ -250,6 +250,8 @@
         <!--Gutter行头展示-->
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="io.github.future0923.debug.tools.idea.line.QuickDebugLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="io.github.future0923.debug.tools.idea.line.IgnoreStaticFieldLineMarkerProvider"/>
 
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider
@@ -319,6 +321,9 @@
                     <add-to-group group-id="EditSmartGroup" anchor="after" relative-to-action="EditorToggleCase"/>
                 </action>
             </group>
+            <action id="DebugToolsTool.IgnoreStaticField"
+                    class="io.github.future0923.debug.tools.idea.action.IgnoreStaticFieldAction">
+            </action>
             <separator/>
         </group>
         <group id="DebugTools.Run">

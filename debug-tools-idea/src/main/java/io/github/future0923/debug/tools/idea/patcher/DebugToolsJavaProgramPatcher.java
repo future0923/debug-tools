@@ -28,12 +28,15 @@ import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.idea.runner.HotswapDebugExecutor;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.utils.DcevmUtils;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+
+import java.util.Optional;
 
 /**
  * java参数Patcher
@@ -128,6 +131,12 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                 } else {
                     DebugToolsNotifierUtil.notifyError(project, "hotswap not support " + jdkVersion + " version");
                 }
+                Optional.ofNullable(settingState.getIgnoreStaticFieldConfName())
+                        .filter(StrUtil::isNotBlank)
+                        .map(name -> settingState.getIgnoreStaticFieldPathMap().get(name))
+                        .filter(StrUtil::isNotBlank)
+                        .filter(FileUtil::exist)
+                        .ifPresent(agentArgs::setIgnoreStaticFieldPath);
             }
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
             agentArgs.setLogLevel(settingState.getLogLevel());

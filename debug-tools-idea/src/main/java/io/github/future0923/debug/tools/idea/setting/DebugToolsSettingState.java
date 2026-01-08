@@ -16,16 +16,23 @@
  */
 package io.github.future0923.debug.tools.idea.setting;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.json.JSONUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.HotswapIgnoreStaticFieldUtils;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.action.QuickDebugEditorPopupMenuAction;
@@ -45,6 +52,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -184,6 +192,27 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private Boolean invokeMethodRecord = true;
 
+    /**
+     * 选中的热重载时忽略哪些静态配置名称
+     */
+    private String ignoreStaticFieldConfName;
+
+    /**
+     * 选中的热重载忽略哪些静态配置信息
+     * <p>
+     * key:类名
+     * value:字段规则
+     */
+    private Map<String, Set<String>> ignoreStaticFieldRuleMap = new HashMap<>();
+
+    /**
+     * 热重载忽略静态字段
+     * <p>
+     * key:配置名
+     * value:配置文件路径
+     */
+    private Map<String, String> ignoreStaticFieldPathMap = new LinkedHashMap<>();
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;
@@ -310,6 +339,30 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
 
     public void delAllHost() {
         getRemoteHosts().clear();
+    }
+
+    /**
+     * 根据{@link #ignoreStaticFieldConfName}重新初始化{@link #ignoreStaticFieldRuleMap}信息并刷新行头状态
+     */
+    public void reloadIgnoreStaticFieldByPath(Project project) {
+        setIgnoreStaticFieldRuleMap(HotswapIgnoreStaticFieldUtils.getContentRuleMap(ignoreStaticFieldPathMap.get(ignoreStaticFieldConfName)));
+
+        if (project.isDisposed()) {
+            return;
+        }
+
+        ApplicationManager.getApplication().invokeLater(() -> {
+            DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(project);
+            PsiManager psiManager = PsiManager.getInstance(project);
+
+            for (VirtualFile vf : FileEditorManager.getInstance(project).getOpenFiles()) {
+                PsiFile psiFile = psiManager.findFile(vf);
+                if (psiFile != null) {
+                    analyzer.restart(psiFile);
+                }
+            }
+        });
+
     }
 
 }

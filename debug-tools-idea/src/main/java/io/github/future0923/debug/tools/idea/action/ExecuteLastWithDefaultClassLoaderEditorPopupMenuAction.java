@@ -18,7 +18,6 @@ package io.github.future0923.debug.tools.idea.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.io.FileUtil;
@@ -36,8 +35,6 @@ import java.nio.charset.StandardCharsets;
  * @author future0923
  */
 public class ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction extends AnAction {
-
-    private static final Logger log = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
     public ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction() {
         getTemplatePresentation().setText(DebugToolsBundle.message("action.execute.last.with.default.classloader.text"));
