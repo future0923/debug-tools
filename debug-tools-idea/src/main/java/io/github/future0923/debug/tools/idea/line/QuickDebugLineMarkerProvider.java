@@ -45,7 +45,6 @@ public class QuickDebugLineMarkerProvider implements LineMarkerProvider {
         if (psiElement instanceof PsiIdentifier
                 && psiElement.getParent() instanceof PsiMethod method) {
             if (method.getContainingClass() != null) {
-                method.getContainingClass().getQualifiedName();
                 String qualifierMethod = DebugToolsClassUtils.getQualifierMethod(
                         method.getContainingClass().getQualifiedName(),
                         method.getName(),

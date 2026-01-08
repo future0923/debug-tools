@@ -32,6 +32,7 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsGlobalSettingStat
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
+import io.github.future0923.debug.tools.idea.ui.combobox.IgnoreStaticFieldComboBox;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
@@ -117,6 +118,9 @@ public class SettingPanel {
     private final JBRadioButton logLevelDebug = new JBRadioButton("Debug");
     @Getter
     private final JBRadioButton logLevelTrace = new JBRadioButton("Trace");
+
+    @Getter
+    private IgnoreStaticFieldComboBox ignoreStaticFieldComboBox;
 
     public SettingPanel(Project project) {
         this.project = project;
@@ -311,10 +315,19 @@ public class SettingPanel {
 
         traceMethodPanel.processDefaultInfo(project);
 
+        JPanel ignoreStaticFieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        ignoreStaticFieldComboBox = new IgnoreStaticFieldComboBox(project, 220);
+        ignoreStaticFieldPanel.add(ignoreStaticFieldComboBox);
+        ignoreStaticFieldPanel.add(ignoreStaticFieldComboBox.getPanel());
+
         settingPanel = FormBuilder.createFormBuilder()
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.language")),
                         languagePanel
+                )
+                .addLabeledComponent(
+                        new JBLabel(DebugToolsBundle.message("setting.panel.log.level")),
+                        logLevel
                 )
                 .addLabeledComponent(
                         new JBLabel(DebugToolsBundle.message("setting.panel.entity.class.default.param")),
@@ -353,8 +366,8 @@ public class SettingPanel {
                         traceMethodPanel.getComponent()
                 )
                 .addLabeledComponent(
-                        new JBLabel(DebugToolsBundle.message("setting.panel.log.level")),
-                        logLevel
+                        new JBLabel(DebugToolsBundle.message("setting.panel.ignore.static.field")),
+                        ignoreStaticFieldPanel
                 )
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();

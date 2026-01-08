@@ -186,6 +186,10 @@ public class DebugToolsSettingConfigurable implements Configurable {
             return true;
         }
 
+        if (!StrUtil.equals(settingState.getIgnoreStaticFieldConfName(), (String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem())) {
+            return true;
+        }
+
         return false;
     }
 
@@ -286,6 +290,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingPanel.getTraceMethodPanel().setTraceSkipStartGetSetCheckBox(traceMethodDTO.getTraceSkipStartGetSetCheckBox());
         settingPanel.getTraceMethodPanel().setTraceBusinessPackage(traceMethodDTO.getTraceBusinessPackageRegexp());
         settingPanel.getTraceMethodPanel().setTraceIgnorePackage(traceMethodDTO.getTraceIgnorePackageRegexp());
+
+        settingPanel.getIgnoreStaticFieldComboBox().setSelected(settingState.getIgnoreStaticFieldConfName());
     }
 
     @Override
@@ -394,6 +400,9 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceBusinessPackageRegexp(settingPanel.getTraceMethodPanel().getTraceBusinessPackage());
         traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
+
+        settingState.setIgnoreStaticFieldConfName((String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem());
+        settingState.reloadIgnoreStaticFieldByPath(project);
 
         // 如果语言设置发生了变化，刷新UI
         if (languageChanged) {

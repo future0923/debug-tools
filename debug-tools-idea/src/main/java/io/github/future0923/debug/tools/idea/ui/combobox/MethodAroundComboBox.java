@@ -16,12 +16,10 @@
  */
 package io.github.future0923.debug.tools.idea.ui.combobox;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
-import io.github.future0923.debug.tools.idea.action.ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
@@ -38,8 +36,6 @@ import java.util.List;
  * @author future0923
  */
 public class MethodAroundComboBox extends ComboBox<String> {
-
-    private static final Logger logger = Logger.getInstance(ExecuteLastWithDefaultClassLoaderEditorPopupMenuAction.class);
 
     private final Project project;
 
