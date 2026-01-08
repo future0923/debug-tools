@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.hotswap.core.plugin.classes.transformer;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.base.utils.HotswapIgnoreStaticFieldUtils;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Init;
 import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
@@ -27,6 +28,8 @@ import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.expr.ExprEditor;
+import javassist.expr.FieldAccess;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -63,6 +66,17 @@ public class ClassInitTransformer {
             haClinit.getMethodInfo().setName(HOTSWAP_AGENT_CLINIT_METHOD);
             haClinit.setModifiers(Modifier.PUBLIC | Modifier.STATIC);
             ctClass.addConstructor(haClinit);
+            haClinit.instrument(new ExprEditor() {
+                @Override
+                public void edit(FieldAccess f) throws CannotCompileException {
+                    if (f.isStatic()
+                            && f.isWriter()
+                            && HotswapIgnoreStaticFieldUtils.isIgnored(f.getClassName(), f.getFieldName())) {
+                        // 移出静态变量忽略字段的赋值操作
+                        f.replace("{}");
+                    }
+                }
+            });
         }
         scheduler.scheduleCommand(() -> {
             try {

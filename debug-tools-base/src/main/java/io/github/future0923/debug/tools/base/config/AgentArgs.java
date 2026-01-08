@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.base.config;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsProperties;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -102,6 +103,11 @@ public class AgentArgs {
     private Integer sqlRetentionDays;
 
     /**
+     * 热重载时忽略哪些静态配置路径
+     */
+    private String ignoreStaticFieldPath;
+
+    /**
      * 将agent上的string参数转为AgentArgs对象
      *
      * @param agentArgs key1=value1,key2=value2
@@ -152,10 +158,14 @@ public class AgentArgs {
                 field.setAccessible(true);
                 Object value = field.get(config);
                 if (value != null) {
+                    String valueStr = String.valueOf(value);
+                    if (StrUtil.isBlank(valueStr)) {
+                        continue;
+                    }
                     if (argsBuilder.length() > 0) {
                         argsBuilder.append(",");
                     }
-                    argsBuilder.append(field.getName()).append("=").append(value);
+                    argsBuilder.append(field.getName()).append("=").append(valueStr);
                 }
             } catch (Exception ignored) {
             }
