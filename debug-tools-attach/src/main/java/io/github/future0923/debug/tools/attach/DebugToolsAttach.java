@@ -22,6 +22,7 @@ import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.HotswapIgnoreStaticFieldUtils;
 import io.github.future0923.debug.tools.hotswap.core.HotswapAgent;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.sql.SqlPrintByteCodeEnhance;
@@ -69,6 +70,7 @@ public class DebugToolsAttach {
         JvmToolsUtils.init();
         SqlPrintByteCodeEnhance.enhance(inst, parse);
         if (Objects.equals(parse.getHotswap(), "true")) {
+            HotswapIgnoreStaticFieldUtils.create(parse.getIgnoreStaticFieldPath());
             HotswapAgent.init(parse, inst);
         }
         if (Objects.equals(parse.getServer(), "true")) {

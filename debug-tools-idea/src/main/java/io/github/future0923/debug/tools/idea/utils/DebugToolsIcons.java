@@ -68,6 +68,7 @@ public class DebugToolsIcons {
         public static final Icon Publish = IconLoader.getIcon("/icon/hotswap/publish.svg", DebugToolsIcons.class);
         public static final Icon Deploy = IconLoader.getIcon("/icon/hotswap/hot_deployment.svg", DebugToolsIcons.class);
         public static final Icon RemoteCompiler = IconLoader.getIcon("/icon/hotswap/remote_compiler.svg", DebugToolsIcons.class);
+        public static final Icon Ignore = IconLoader.getIcon("/icon/hotswap/ignore.svg", DebugToolsIcons.class);
     }
 
     public static final class Action {
