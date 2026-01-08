@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
 import io.github.future0923.debug.tools.base.logging.Logger;
@@ -36,14 +37,13 @@ import java.util.List;
 
 /**
  * 打印SQL字节码拦截器
- *
  * @author future0923
  */
 public class SqlPrintInterceptor {
 
     private static final Logger logger = Logger.getLogger(SqlPrintInterceptor.class);
 
-    private static final String CONNECTION_AGENT_METHODS = "prepareStatement";
+    private static final List<String> CONNECTION_AGENT_METHODS = Arrays.asList("prepareStatement", "createStatement");
 
     private static final List<String> PREPARED_STATEMENT_METHODS = Arrays.asList("execute", "executeUpdate", "executeQuery", "addBatch");
 
@@ -75,13 +75,13 @@ public class SqlPrintInterceptor {
     }
 
 
-    private static PreparedStatement proxyPreparedStatement(final PreparedStatement statement) {
+    private static Statement proxyStatement(final Statement statement) {
         Object c = Proxy.newProxyInstance(
                 SqlPrintByteCodeEnhance.class.getClassLoader(),
-                new Class[]{PreparedStatement.class},
-                new PreparedStatementHandler(statement)
+                new Class[]{PreparedStatement.class, Statement.class},
+                new StatementHandler(statement)
         );
-        return (PreparedStatement) c;
+        return (Statement) c;
     }
 
     /**
@@ -98,8 +98,8 @@ public class SqlPrintInterceptor {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Object result = method.invoke(connection, args);
-            if (CONNECTION_AGENT_METHODS.equals(method.getName())) {
-                return proxyPreparedStatement((PreparedStatement) result);
+            if (CONNECTION_AGENT_METHODS.contains(method.getName())) {
+                return proxyStatement((Statement) result);
             }
             return result;
         }
@@ -108,13 +108,13 @@ public class SqlPrintInterceptor {
     /**
      * PreparedStatement 代理处理
      */
-    private static class PreparedStatementHandler implements InvocationHandler {
+    private static class StatementHandler implements InvocationHandler {
 
-        private final PreparedStatement statement;
+        private final Statement statement;
 
         private final List<Object> parameters = new ArrayList<>();
 
-        public PreparedStatementHandler(PreparedStatement statement) {
+        public StatementHandler(Statement statement) {
             this.statement = statement;
 
         }
@@ -132,20 +132,20 @@ public class SqlPrintInterceptor {
                 int index = (Integer) args[0];
                 while (parameters.size() < index) parameters.add(null);
                 parameters.set(index - 1, "NULL"); // 标记为 SQL NULL
-            }else if (method.getName().startsWith("set") && args != null && args.length >= 2) {
+            } else if (method.getName().startsWith("set") && args != null && args.length >= 2) {
                 int index = (Integer) args[0];
                 while (parameters.size() < index) parameters.add(null);
                 parameters.set(index - 1, args[1]);
             }
             if (PREPARED_STATEMENT_METHODS.stream().anyMatch(s -> s.equals(method.getName()))) {
-                printSql(endTime - startTime, statement, parameters.toArray(new Object[0]));
+                printSql(endTime - startTime, statement, parameters.toArray(new Object[0]), method, args);
                 parameters.clear();
             }
             return result;
         }
     }
 
-    private static void printSql(long consume, Statement sta, Object[] parameters) {
+    private static void printSql(long consume, Statement sta, Object[] parameters, Method method, Object[] args) {
         String className = sta.getClass().getName();
         DataSourceDriverClassEnum dbType = DataSourceDriverClassEnum.of(className);
         if (dbType == null) {
@@ -153,7 +153,7 @@ public class SqlPrintInterceptor {
             return;
         }
         try {
-            String resultSql = dbType.getFormat().format(sta, parameters);
+            String resultSql = ObjectUtil.isNull(args) ? dbType.getFormat().format(sta, parameters) : args[0].toString();
             resultSql = resultSql.endsWith(";") ? resultSql : resultSql + ";";
 
             if (BooleanUtil.isTrue(MethodTrace.getTraceSqlStatus())) {
