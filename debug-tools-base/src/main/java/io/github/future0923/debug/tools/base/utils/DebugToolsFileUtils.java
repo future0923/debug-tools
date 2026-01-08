@@ -120,8 +120,8 @@ public class DebugToolsFileUtils {
         String fileName = prefix + (suffix != null ? suffix : "");
         File tmpLibFile = new File(tempDir, fileName);
 
-        // 不存在当前版本的依赖,创建
-        if (!tmpLibFile.exists()) {
+        // 不存在当前版本的依赖或mac更换了jdk版本,创建
+        if ((!tmpLibFile.exists()) || (DebugToolsOSUtils.isMac() && DebugToolsJvmUtils.changeJdk(Boolean.TRUE))) {
             try (FileOutputStream tmpLibOutputStream = new FileOutputStream(tmpLibFile);
                  InputStream inputStreamNew = inputStream) {
                 DebugToolsIOUtils.copy(inputStreamNew, tmpLibOutputStream);
