@@ -16,7 +16,10 @@
  */
 package io.github.future0923.debug.tools.base.utils;
 
+import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,9 @@ import java.util.jar.JarFile;
  * @author future0923
  */
 public class DebugToolsJvmUtils {
+
+    private static final Logger logger = Logger.getLogger(DebugToolsJvmUtils.class);
+
 
     public static String getMainClass() {
         String javaClassPath = getJavaClassPath();
@@ -68,5 +74,21 @@ public class DebugToolsJvmUtils {
 
     public static String getSunJavaCommand() {
         return ManagementFactory.getRuntimeMXBean().getSystemProperties().get("sun.java.command");
+    }
+
+    public static boolean changeJdk(Boolean ignoreChangeLog) {
+        String storedArch = AgentConfig.INSTANCE.getCurrentOsArch();
+        // 第一次运行
+        if (StrUtil.isBlank(storedArch)) {
+            logger.info("DebugTools first use, current os arch:", DebugToolsOSUtils.arch());
+            return true;
+        }
+
+        boolean changed = !StrUtil.equals(DebugToolsOSUtils.arch(), storedArch);
+
+        if (changed && !ignoreChangeLog) {
+            logger.info("Jvm os arch has changed,current os arch: {},stored os arch: {}", DebugToolsOSUtils.arch(), storedArch);
+        }
+        return changed;
     }
 }
