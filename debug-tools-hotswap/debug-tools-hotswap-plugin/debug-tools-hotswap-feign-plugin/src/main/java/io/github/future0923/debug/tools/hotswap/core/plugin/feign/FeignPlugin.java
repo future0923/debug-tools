@@ -99,7 +99,7 @@ public class FeignPlugin {
         StringBuilder src = new StringBuilder("{");
         src.append(PluginManagerInvoker.buildInitializePlugin(FeignPlugin.class));
         src.append(PluginManagerInvoker.buildCallPluginMethod(FeignPlugin.class, "init",
-                "org.mybatis.spring.SqlSessionFactoryBean.class.getClassLoader()", ClassLoader.class.getName(),
+                "org.springframework.cloud.openfeign.FeignClientsRegistrar.class.getClassLoader()", ClassLoader.class.getName(),
                 "this", Object.class.getName()));
         src.append("}");
         CtConstructor[] constructors = ctClass.getConstructors();
