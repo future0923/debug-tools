@@ -80,14 +80,14 @@ public class DebugToolsJvmUtils {
         String storedArch = AgentConfig.INSTANCE.getCurrentOsArch();
         // 第一次运行
         if (StrUtil.isBlank(storedArch)) {
-            logger.info("DebugTools first use, current os arch:", DebugToolsOSUtils.arch());
+            logger.debug("DebugTools first use, current os arch:", DebugToolsOSUtils.arch());
             return true;
         }
 
         boolean changed = !StrUtil.equals(DebugToolsOSUtils.arch(), storedArch);
 
         if (changed && !ignoreChangeLog) {
-            logger.info("Jvm os arch has changed,current os arch: {},stored os arch: {}", DebugToolsOSUtils.arch(), storedArch);
+            logger.debug("Jvm os arch has changed,current os arch: {},stored os arch: {}", DebugToolsOSUtils.arch(), storedArch);
         }
         return changed;
     }
