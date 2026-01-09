@@ -18,9 +18,8 @@ package io.github.future0923.debug.tools.vm;
 
 import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
-import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
-import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsOSUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 
@@ -39,17 +38,15 @@ public class JvmToolsUtils {
 
     private static boolean load = false;
 
-    private static final Logger logger = Logger.getLogger(JvmToolsUtils.class);
-
     public static synchronized void init() {
         if (init) {
             return;
         }
 
         // 目前只针对mac特殊处理
-        if (DebugToolsOSUtils.isMac() && changeJdk()) {
-            AgentConfig.INSTANCE.setCurrentOsArch(DebugToolsOSUtils.arch());
+        if (DebugToolsOSUtils.isMac() && DebugToolsJvmUtils.changeJdk(Boolean.FALSE)) {
             storeLib(getLibName());
+            AgentConfig.INSTANCE.setCurrentOsArchAndStore(DebugToolsOSUtils.arch());
             return;
         }
 
@@ -106,19 +103,4 @@ public class JvmToolsUtils {
         AgentConfig.INSTANCE.setJniLibraryPathAndStore(jniLibraryFile.getAbsolutePath());
     }
 
-    private static boolean changeJdk() {
-        String storedArch = AgentConfig.INSTANCE.getCurrentOsArch();
-        // 第一次运行
-        if (StrUtil.isBlank(storedArch)) {
-            logger.info("DebugTools first use, current os arch:", DebugToolsOSUtils.arch());
-            return true;
-        }
-
-        boolean changed = !StrUtil.equals(DebugToolsOSUtils.arch(), storedArch);
-
-        if (changed) {
-            logger.info("Jvm os arch has changed,current os arch: {},stored os arch: {}", DebugToolsOSUtils.arch(), storedArch);
-        }
-        return changed;
-    }
 }
