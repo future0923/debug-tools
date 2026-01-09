@@ -325,37 +325,37 @@ public class DebugToolsSettingConfigurable implements Configurable {
 
         if (settingPanel.getLogLevelError().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.ERROR) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "ERROR"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "ERROR"));
             }
             settingState.setLogLevel(Logger.Level.ERROR);
         }
         if (settingPanel.getLogLevelReload().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.RELOAD) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "RELOAD"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "RELOAD"));
             }
             settingState.setLogLevel(Logger.Level.RELOAD);
         }
         if (settingPanel.getLogLevelWarning().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.WARNING) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "WARNING"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "WARNING"));
             }
             settingState.setLogLevel(Logger.Level.WARNING);
         }
         if (settingPanel.getLogLevelInfo().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.INFO) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "INFO"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "INFO"));
             }
             settingState.setLogLevel(Logger.Level.INFO);
         }
         if (settingPanel.getLogLevelDebug().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.DEBUG) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "DEBUG"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "DEBUG"));
             }
             settingState.setLogLevel(Logger.Level.DEBUG);
         }
         if (settingPanel.getLogLevelTrace().isSelected()) {
             if (settingState.getLogLevel() != Logger.Level.TRACE) {
-                DebugToolsNotifierUtil.notifyInfo(project, StrUtil.format("Log level changed from {} to {}", settingState.getLogLevel(), "TRACE"));
+                DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.log.level", "TRACE"));
             }
             settingState.setLogLevel(Logger.Level.TRACE);
         }
@@ -367,15 +367,15 @@ public class DebugToolsSettingConfigurable implements Configurable {
 
         if (settingPanel.getPrintPrettySql().isSelected() && !PrintSqlType.PRETTY.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.PRETTY);
-            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to pretty sql, you need to restart App Service.");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.print.sql", DebugToolsBundle.message(PrintSqlType.PRETTY.getBundleKey())));
         }
         if (settingPanel.getPrintCompressSql().isSelected() && !PrintSqlType.COMPRESS.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.COMPRESS);
-            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to compress sql, you need to restart App Service.");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.print.sql", DebugToolsBundle.message(PrintSqlType.COMPRESS.getBundleKey())));
         }
         if (settingPanel.getPrintNoSql().isSelected() && !PrintSqlType.NO.equals(settingState.getPrintSql())) {
             settingState.setPrintSql(PrintSqlType.NO);
-            DebugToolsNotifierUtil.notifyInfo(project, "You've set it to no print sql, you need to restart App Service.");
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.print.sql", DebugToolsBundle.message(PrintSqlType.NO.getBundleKey())));
         }
 
         if (settingPanel.getAutoAttachYes().isSelected()) {
@@ -401,8 +401,11 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
 
-        settingState.setIgnoreStaticFieldConfName((String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem());
-        settingState.reloadIgnoreStaticFieldByPath(project);
+        if (StrUtil.equals(settingState.getIgnoreStaticFieldConfName(), (String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem())) {
+            settingState.setIgnoreStaticFieldConfName((String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem());
+            settingState.reloadIgnoreStaticFieldByPath(project);
+            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.ignore.static.field"));
+        }
 
         // 如果语言设置发生了变化，刷新UI
         if (languageChanged) {

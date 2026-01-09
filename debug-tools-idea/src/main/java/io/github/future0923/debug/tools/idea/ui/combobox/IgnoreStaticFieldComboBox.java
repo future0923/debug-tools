@@ -59,6 +59,10 @@ public class IgnoreStaticFieldComboBox extends ComboBox<String> {
     public IgnoreStaticFieldComboBox(Project project, int width) {
         super(width);
         this.project = project;
+        String defaultConfPath = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR + "default.conf";
+        if (!FileUtil.exist(defaultConfPath)) {
+            FileUtil.touch(defaultConfPath);
+        }
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         reloadButton = new JButton(DebugToolsBundle.message("action.reload"));
         reloadButton.addActionListener(e -> {
@@ -93,6 +97,10 @@ public class IgnoreStaticFieldComboBox extends ComboBox<String> {
     }
 
     private void reload(Project project, DebugToolsSettingState settingState) {
+        String defaultConfPath = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR + "default.conf";
+        if (!FileUtil.exist(defaultConfPath)) {
+            FileUtil.touch(defaultConfPath);
+        }
         String dir = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR;
         List<File> files = FileUtil.loopFiles(dir);
         settingState.getIgnoreStaticFieldPathMap().clear();
@@ -104,13 +112,13 @@ public class IgnoreStaticFieldComboBox extends ComboBox<String> {
 
     public void refresh() {
         removeAllItems();
-        addItem("");
         DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
         settingState.getIgnoreStaticFieldPathMap().forEach((key, value) -> addItem(key));
     }
 
     public void setSelected(String identity) {
         if (identity == null) {
+            setSelectedItem("default");
             return;
         }
         setSelectedItem(identity);
