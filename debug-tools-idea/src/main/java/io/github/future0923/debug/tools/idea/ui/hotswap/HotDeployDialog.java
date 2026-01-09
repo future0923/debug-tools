@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.ui.hotswap;
 
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.compiler.CompileScope;
 import com.intellij.openapi.compiler.CompilerManager;
@@ -62,8 +63,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -197,13 +200,23 @@ public class HotDeployDialog extends DialogWrapper {
             Messages.showErrorDialog(DebugToolsBundle.message("dialog.empty.content.error"), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;
         }
+        // java
         if (isJava) {
+            if (!checkVCS) {
+                FileChangedService.getInstance(project).clearModifiedJavaFile();
+            }
             if (local) {
+                // 本地编译
                 localCompiler(virtualFiles);
             } else {
+                // 远程编译
                 remoteCompiler(virtualFiles);
             }
         } else {
+            if (!checkVCS) {
+                FileChangedService.getInstance(project).clearModifiedResourceFile();
+            }
+            // resource
             ResourceHotDeployRequestPacket hotSwapRequestPacket = new ResourceHotDeployRequestPacket();
             for (VirtualFile virtualFile : virtualFiles) {
                 if (virtualFile == null) {
@@ -229,35 +242,35 @@ public class HotDeployDialog extends DialogWrapper {
     private void remoteCompiler(List<VirtualFile> virtualFiles) {
         // 编译成功后，更新文件并上传
         ReadAction.nonBlocking(() -> {
-            RemoteCompilerHotDeployRequestPacket packet = new RemoteCompilerHotDeployRequestPacket();
-            for (VirtualFile virtualFile : virtualFiles) {
-                String content = VirtualFileUtil.readText(virtualFile);
-                // 获取源文件路径和内容
-                String packageName = DebugToolsIdeaClassUtil.getPackageName(content);
-                if (packageName == null) {
+                    RemoteCompilerHotDeployRequestPacket packet = new RemoteCompilerHotDeployRequestPacket();
+                    for (VirtualFile virtualFile : virtualFiles) {
+                        String content = VirtualFileUtil.readText(virtualFile);
+                        // 获取源文件路径和内容
+                        String packageName = DebugToolsIdeaClassUtil.getPackageName(content);
+                        if (packageName == null) {
+                            return null;
+                        }
+                        String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
+                        packet.add(packetAllName, content);
+                        packet.setIdentity(projectDefaultClassLoader.getIdentity());
+                    }
+                    SocketSendUtils.sendThrowException(project, packet);
                     return null;
-                }
-                String packetAllName = packageName + "." + virtualFile.getName().replace(".java", "");
-                packet.add(packetAllName, content);
-                packet.setIdentity(projectDefaultClassLoader.getIdentity());
-            }
-            SocketSendUtils.sendThrowException(project, packet);
-            return null;
-        }).submit(AppExecutorUtil.getAppExecutorService())
-        .onError(throwable -> {
-            if (throwable instanceof NullPointerException) {
-                DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("error.run.attach.first"));
-                DebugToolsToolWindowFactory.showWindow(project, null);
-                return;
-            }
-            if (throwable instanceof SocketCloseException) {
-                DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("dialog.error.socket.close"));
-                DebugToolsToolWindowFactory.showWindow(project, null);
-                return;
-            }
-            Messages.showErrorDialog("Socket send error " + throwable.getMessage(), "Send Error");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        });
+                }).submit(AppExecutorUtil.getAppExecutorService())
+                .onError(throwable -> {
+                    if (throwable instanceof NullPointerException) {
+                        DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("error.run.attach.first"));
+                        DebugToolsToolWindowFactory.showWindow(project, null);
+                        return;
+                    }
+                    if (throwable instanceof SocketCloseException) {
+                        DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("dialog.error.socket.close"));
+                        DebugToolsToolWindowFactory.showWindow(project, null);
+                        return;
+                    }
+                    Messages.showErrorDialog("Socket send error " + throwable.getMessage(), "Send Error");
+                    DebugToolsToolWindowFactory.showWindow(project, null);
+                });
     }
 
     private void localCompiler(List<VirtualFile> virtualFiles) {
@@ -272,70 +285,104 @@ public class HotDeployDialog extends DialogWrapper {
                 log.error("Compilation failed with errors: " + errors + ", warnings: " + warnings);
                 return;
             }
-            // 编译成功后，更新文件并上传
+            // =========================
+            // 第一阶段：ReadAction，只做读取与计算
+            // =========================
             ReadAction.nonBlocking(() -> {
-                Set<VirtualFile> allOutputs = new HashSet<>();
-                List<ClassFilePath> allOutputClasses = new ArrayList<>();
-                // 遍历所有虚拟文件
-                virtualFiles.forEach((selectedFile) -> {
-                    // 获取输出目录
-                    VirtualFile outputDirectory = compileContext.getModuleOutputDirectory(compileContext.getModuleByFile(selectedFile));
-                    if (outputDirectory == null) {
-                        log.error(DebugToolsBundle.message("dialog.error.output.directory"));
-                        return;
-                    }
-                    // 如果当前输出目录已经收集过，跳过此目录
-                    if (allOutputs.contains(outputDirectory)) {
-                        return;
-                    }
-                    allOutputs.add(outputDirectory);
-                    // 获取源文件路径和内容
-                    String sourceFilePath = selectedFile.getPath();
-                    Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
-                    String packageName = DebugToolsIdeaClassUtil.getPackageName(document.getText());
-                    if (packageName == null) {
-                        log.error(DebugToolsBundle.message("dialog.error.parse.package"));
-                        return;
-                    }
-                    String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");
-                    // 构建源文件的基本名称
-                    String sourceFileBaseName = packageName.replace(".", "/") + "/" + className;
-                    // 收集编译后的类文件
-                    List<ClassFilePath> outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
-                    // 如果未找到类文件，再次刷新输出目录并尝试收集
-                    if (outputClasses.isEmpty()) {
-                        outputDirectory.refresh(false, true);
-                        outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
-                    }
-                    allOutputClasses.addAll(outputClasses);
-                });
-                if (CollUtil.isEmpty(allOutputClasses)) {
-                    DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("dialog.error.local.compiler.error"));
-                    return null;
-                }
-                LocalCompilerHotDeployRequestPacket hotSwapRequestPacket = new LocalCompilerHotDeployRequestPacket();
-                for (ClassFilePath allOutputClass : allOutputClasses) {
-                    hotSwapRequestPacket.add(allOutputClass.getClassName(), allOutputClass.getPayload());
-                }
-                hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
-                SocketSendUtils.sendThrowException(project, hotSwapRequestPacket);
-                return null;
-            })
-            .submit(AppExecutorUtil.getAppExecutorService())
-            .onError(throwable -> {
-                if (throwable instanceof NullPointerException) {
-                    DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("error.run.attach.first"));
-                    DebugToolsToolWindowFactory.showWindow(project, null);
-                    return;
-                }
-                if (throwable instanceof SocketCloseException) {
-                    DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("dialog.error.socket.close"));
-                    DebugToolsToolWindowFactory.showWindow(project, null);
-                    return;
-                }
-                Messages.showErrorDialog("Socket send error " + throwable.getMessage(), "Send Error");
-                DebugToolsToolWindowFactory.showWindow(project, null);
-            });
+                        Set<VirtualFile> allOutputs = new HashSet<>();
+                        Map<VirtualFile, List<String>> outputDirToBaseNames = new HashMap<>();
+                        // 遍历所有虚拟文件
+                        virtualFiles.forEach((selectedFile) -> {
+                            // 获取输出目录
+                            VirtualFile outputDirectory = compileContext.getModuleOutputDirectory(compileContext.getModuleByFile(selectedFile));
+                            if (outputDirectory == null) {
+                                log.error(DebugToolsBundle.message("dialog.error.output.directory"));
+                                return;
+                            }
+                            // 如果当前输出目录已经收集过，跳过此目录
+                            allOutputs.add(outputDirectory);
+                            // 获取源文件路径和内容
+                            String sourceFilePath = selectedFile.getPath();
+                            Document document = FileDocumentManager.getInstance().getDocument(selectedFile);
+                            if (document == null) {
+                                return;
+                            }
+                            String packageName = DebugToolsIdeaClassUtil.getPackageName(document.getText());
+                            if (packageName == null) {
+                                log.error(DebugToolsBundle.message("dialog.error.parse.package"));
+                                return;
+                            }
+                            String className = sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1).replace(".java", "");
+                            // 构建源文件的基本名称
+                            String sourceFileBaseName = packageName.replace(".", "/") + "/" + className;
+                            outputDirToBaseNames.computeIfAbsent(outputDirectory, k -> new ArrayList<>()).add(sourceFileBaseName);
+                        });
+                        return Map.entry(allOutputs, outputDirToBaseNames);
+                    })
+                    // =========================
+                    // 第二阶段：UI 线程，允许 refresh + IO
+                    // =========================
+                    .finishOnUiThread(ModalityState.defaultModalityState(), result -> {
+                        Set<VirtualFile> allOutputs = result.getKey();
+                        Map<VirtualFile, List<String>> outputDirToBaseNames = result.getValue();
+                        List<ClassFilePath> allOutputClasses = new ArrayList<>();
+                        for (VirtualFile outputDirectory : allOutputs) {
+                            if (!outputDirectory.isValid()) {
+                                continue;
+                            }
+                            // 如果未找到类文件，再次刷新输出目录并尝试收集
+                            outputDirectory.refresh(false, true);
+                            List<String> baseNames = outputDirToBaseNames.get(outputDirectory);
+                            if (baseNames == null) {
+                                continue;
+                            }
+                            for (String sourceFileBaseName : baseNames) {
+                                // 收集编译后的类文件
+                                List<ClassFilePath> outputClasses = collectClassFiles(outputDirectory, sourceFileBaseName);
+                                allOutputClasses.addAll(outputClasses);
+                            }
+                        }
+                        if (CollUtil.isEmpty(allOutputClasses)) {
+                            DebugToolsNotifierUtil.notifyError(
+                                    project,
+                                    DebugToolsBundle.message("dialog.error.local.compiler.error")
+                            );
+                            return;
+                        }
+                        LocalCompilerHotDeployRequestPacket hotSwapRequestPacket = new LocalCompilerHotDeployRequestPacket();
+                        for (ClassFilePath allOutputClass : allOutputClasses) {
+                            hotSwapRequestPacket.add(
+                                    allOutputClass.getClassName(),
+                                    allOutputClass.getPayload()
+                            );
+                        }
+                        hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
+                        SocketSendUtils.send(project, hotSwapRequestPacket);
+                    })
+                    .submit(AppExecutorUtil.getAppExecutorService())
+                    .onError(throwable -> {
+                        if (throwable instanceof NullPointerException) {
+                            DebugToolsNotifierUtil.notifyError(
+                                    project,
+                                    DebugToolsBundle.message("error.run.attach.first")
+                            );
+                            DebugToolsToolWindowFactory.showWindow(project, null);
+                            return;
+                        }
+                        if (throwable instanceof SocketCloseException) {
+                            DebugToolsNotifierUtil.notifyError(
+                                    project,
+                                    DebugToolsBundle.message("dialog.error.socket.close")
+                            );
+                            DebugToolsToolWindowFactory.showWindow(project, null);
+                            return;
+                        }
+                        Messages.showErrorDialog(
+                                "Socket send error " + throwable.getMessage(),
+                                "Send Error"
+                        );
+                        DebugToolsToolWindowFactory.showWindow(project, null);
+                    });
         });
     }
 
@@ -379,63 +426,61 @@ public class HotDeployDialog extends DialogWrapper {
     public void fillInJavaFiles() {
         // 清空 hotUndoShowList 中的内容
         this.hotUndoShowList.clear();
-        // 如果 fullPathJavaFiles 为空，则获取已修改的 Java 文件
-        if (this.fullPathJavaFiles.isEmpty()) {
-            // 获取文件变更管理实例
-            FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
-            // 获取已修改的 Java 文件集合，将已修改的文件路径添加到 fullPathJavaFiles
-            fileChangedBean.getModifiedJavaFiles().onSuccess(files -> {
-                this.fullPathJavaFiles.addAll(files);
-                // 获取项目的基础路径
-                String basePath = this.project.getBasePath();
-                // 如果 basePath 不为空且不以斜杠结尾，则添加斜杠
-                if (basePath != null && !basePath.endsWith("/")) {
-                    basePath = basePath + "/";
+        this.fullPathResourceFiles.clear();
+        this.fullPathJavaFiles.clear();
+        // 获取文件变更管理实例
+        FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
+        // 获取已修改的 Java 文件集合，将已修改的文件路径添加到 fullPathJavaFiles
+        fileChangedBean.getModifiedJavaFiles().onSuccess(files -> {
+            this.fullPathJavaFiles.addAll(files);
+            // 获取项目的基础路径
+            String basePath = this.project.getBasePath();
+            // 如果 basePath 不为空且不以斜杠结尾，则添加斜杠
+            if (basePath != null && !basePath.endsWith("/")) {
+                basePath = basePath + "/";
+            }
+            // 遍历 fullPathJavaFiles 中的所有 Java 文件路径
+            for (String filePath : this.fullPathJavaFiles) {
+                // 将每个文件路径存入 relaPath
+                String relaPath = filePath;
+                // 如果 basePath 不为 null，则从路径中去除 basePath 部分
+                if (basePath != null) {
+                    relaPath = relaPath.replace(basePath, "");
                 }
-                // 遍历 fullPathJavaFiles 中的所有 Java 文件路径
-                for (String filePath : this.fullPathJavaFiles) {
-                    // 将每个文件路径存入 relaPath
-                    String relaPath = filePath;
-                    // 如果 basePath 不为 null，则从路径中去除 basePath 部分
-                    if (basePath != null) {
-                        relaPath = relaPath.replace(basePath, "");
-                    }
-                    // 将修改后的路径添加到 hotUndoShowList
-                    this.hotUndoShowList.addElement(relaPath);
-                }
-            });
-        }
+                // 将修改后的路径添加到 hotUndoShowList
+                this.hotUndoShowList.addElement(relaPath);
+            }
+        });
     }
 
     public void fillInResourceFiles() {
         // 清空 hotUndoShowList 中的内容
         this.hotUndoShowList.clear();
-        // 如果 fullPathResourceFiles 为空，则获取已修改的资源文件
-        if (this.fullPathResourceFiles.isEmpty()) {
-            // 获取文件变更工具实例
-            FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
-            // 获取已修改的资源文件集合, 将修改的资源文件路径添加到 fullPathResourceFiles
-            fileChangedBean.getModifiedResourceFiles().onSuccess(files -> {
-                this.fullPathResourceFiles.addAll(files);
-                // 获取项目的基础路径
-                String basePath = this.project.getBasePath();
-                // 如果基础路径不为空且不以斜杠结尾，则添加斜杠
-                if (basePath != null && !basePath.endsWith("/")) {
-                    basePath = basePath + "/";
+        this.fullPathJavaFiles.clear();
+        this.fullPathResourceFiles.clear();
+        // 获取文件变更工具实例
+        FileChangedService fileChangedBean = FileChangedService.getInstance(this.project);
+        // 获取已修改的资源文件集合, 将修改的资源文件路径添加到 fullPathResourceFiles
+        fileChangedBean.getModifiedResourceFiles().onSuccess(files -> {
+            this.fullPathResourceFiles.addAll(files);
+            // 获取项目的基础路径
+            String basePath = this.project.getBasePath();
+            // 如果基础路径不为空且不以斜杠结尾，则添加斜杠
+            if (basePath != null && !basePath.endsWith("/")) {
+                basePath = basePath + "/";
+            }
+            // 遍历 fullPathResourceFiles 中的每个文件路径
+            for (String filePath : this.fullPathResourceFiles) {
+                // 初始化 relaPath 为当前文件路径
+                String relaPath = filePath;
+                // 如果基础路径不为空，则从文件路径中去除基础路径部分，得到相对路径
+                if (basePath != null) {
+                    relaPath = relaPath.replace(basePath, "");
                 }
-                // 遍历 fullPathResourceFiles 中的每个文件路径
-                for (String filePath : this.fullPathResourceFiles) {
-                    // 初始化 relaPath 为当前文件路径
-                    String relaPath = filePath;
-                    // 如果基础路径不为空，则从文件路径中去除基础路径部分，得到相对路径
-                    if (basePath != null) {
-                        relaPath = relaPath.replace(basePath, "");
-                    }
-                    // 将相对路径添加到 hotUndoShowList 中
-                    this.hotUndoShowList.addElement(relaPath);
-                }
-            });
-        }
+                // 将相对路径添加到 hotUndoShowList 中
+                this.hotUndoShowList.addElement(relaPath);
+            }
+        });
     }
 
     public boolean isResource() {
