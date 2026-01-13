@@ -23,6 +23,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiJvmMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
@@ -51,6 +52,10 @@ import java.util.Set;
  * @author future0923
  */
 public class SpringUtils {
+    private static final Set<String> CONTROLLER_ANNOTATIONS = Set.of(
+            "org.springframework.web.bind.annotation.RestController",
+            "org.springframework.stereotype.Controller"
+    );
 
     /**
      * 获取Spring环境下的所有请求
@@ -81,17 +86,86 @@ public class SpringUtils {
     private static List<PsiClass> getAllControllerClass(Project project, Module module) {
         List<PsiClass> allControllerClass = new ArrayList<>();
         GlobalSearchScope moduleScope = getModuleScope(project, module);
-        Collection<PsiAnnotation> pathList = JavaAnnotationIndex.getInstance().get("Controller", project, moduleScope);
-        pathList.addAll(JavaAnnotationIndex.getInstance().get("RestController", project, moduleScope));
-        for (PsiAnnotation psiAnnotation : pathList) {
-            PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
-            PsiElement psiElement = psiModifierList.getParent();
-            if (!(psiElement instanceof PsiClass psiClass)) {
-                continue;
+        Collection<String> annotationNames = JavaAnnotationIndex.getInstance().getAllKeys(project);
+        Set<String> controllerAnnotationNames = new HashSet<>();
+
+        for (String annotationName : annotationNames) {
+            Collection<PsiAnnotation> annotations = JavaAnnotationIndex.getInstance().get(annotationName, project, moduleScope);
+            for (PsiAnnotation usage : annotations) {
+                PsiJavaCodeReferenceElement ref = usage.getNameReferenceElement();
+                if (ref == null) continue;
+
+                PsiElement resolved = ref.resolve();
+                if (!(resolved instanceof PsiClass annoClass)) continue;
+
+                if (!annoClass.isAnnotationType()) continue;
+
+                if (isControllerAnnotation(annoClass)) {
+                    String qualifiedName = annoClass.getQualifiedName();
+                    if (qualifiedName != null) {
+                        controllerAnnotationNames.add(qualifiedName);
+                    }
+                }
             }
-            allControllerClass.add(psiClass);
         }
+
+        for (String annotationName : controllerAnnotationNames) {
+            String annotationShortName = getShortName(annotationName);
+
+            Collection<PsiAnnotation> usages = JavaAnnotationIndex.getInstance().getAnnotations(annotationShortName, project, moduleScope);
+
+            for (PsiAnnotation usage : usages) {
+                PsiElement owner = usage.getParent().getParent();
+                if (owner instanceof PsiClass psiClass) {
+                    allControllerClass.add(psiClass);
+                }
+            }
+        }
+
         return allControllerClass;
+    }
+
+    private static boolean isControllerAnnotation(PsiClass annoClass) {
+        PsiModifierList modifierList = annoClass.getModifierList();
+        if (modifierList == null) return false;
+
+        for (PsiAnnotation annotation : modifierList.getAnnotations()) {
+            if (hasControllerMeta(annotation, new HashSet<>())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasControllerMeta(PsiAnnotation annotation, Set<String> visited) {
+        String qName = annotation.getQualifiedName();
+        if (qName == null || !visited.add(qName)) {
+            return false;
+        }
+
+        if (CONTROLLER_ANNOTATIONS.contains(qName)) {
+            return true;
+        }
+
+        PsiJavaCodeReferenceElement ref = annotation.getNameReferenceElement();
+        if (ref == null) return false;
+
+        PsiElement resolved = ref.resolve();
+        if (!(resolved instanceof PsiClass annoClass)) return false;
+
+        PsiModifierList modifierList = annoClass.getModifierList();
+        if (modifierList == null) return false;
+
+        for (PsiAnnotation meta : modifierList.getAnnotations()) {
+            if (hasControllerMeta(meta, visited)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String getShortName(String qualifiedName) {
+        return qualifiedName.substring(qualifiedName.lastIndexOf(".") + 1);
     }
 
     /**
