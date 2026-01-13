@@ -49,11 +49,13 @@ public class HttpUrlItem implements NavigationItem {
 
     private final String methodName;
 
+    private final String comment;
+
     private Navigatable navigationElement;
 
     private Icon icon = DebugToolsIcons.HttpMethod.Request;
 
-    public HttpUrlItem(PsiElement psiElement, HttpMethod method, String urlPath, String moduleName, String className, String methodName) {
+    public HttpUrlItem(PsiElement psiElement, HttpMethod method, String urlPath, String moduleName, String className, String methodName, String comment) {
         if (psiElement instanceof PsiMethod) {
             this.psiMethod = (PsiMethod) psiElement;
         }
@@ -64,6 +66,7 @@ public class HttpUrlItem implements NavigationItem {
         if (psiElement instanceof Navigatable) {
             navigationElement = (Navigatable) psiElement;
         }
+        this.comment = comment;
         this.moduleName = moduleName;
         this.className = className;
         this.methodName = methodName;
@@ -90,13 +93,21 @@ public class HttpUrlItem implements NavigationItem {
             @Override
             public String getLocationString() {
                 String location = "";
+                String classMethodInfo = "";
+                if (StrUtil.isNotBlank(comment)) {
+                    location += "[" + StrUtil.subPre(comment, 40) + "]";
+                }
+
                 if (StrUtil.isNotBlank(className)) {
-                    location = className;
+                    classMethodInfo = className;
                 }
+
                 if (StrUtil.isNotBlank(methodName)) {
-                    location += "#" + psiMethod.getName();
+                    classMethodInfo += "#" + psiMethod.getName();
                 }
-                location = "Java: (" + location + ")";
+
+                location += "(" + classMethodInfo + ")";
+
                 if (StrUtil.isNotBlank(moduleName)) {
                     location += " in Module '" + moduleName + "'";
                 }
@@ -130,7 +141,7 @@ public class HttpUrlItem implements NavigationItem {
 
     @NotNull
     public HttpUrlItem copyWithParent(@Nullable HttpUrlItem parent) {
-        HttpUrlItem requestInfo = new HttpUrlItem(this.psiMethod, this.method, this.path, this.moduleName, this.className, this.methodName);
+        HttpUrlItem requestInfo = new HttpUrlItem(this.psiMethod, this.method, this.path, this.moduleName, this.className, this.methodName, this.comment);
         if (parent != null) {
             requestInfo.setParent(parent);
         }
