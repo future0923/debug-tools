@@ -43,12 +43,16 @@ public class HttpUrlItem implements NavigationItem {
     @Getter
     private String path;
 
+    @Getter
     private final String moduleName;
 
+    @Getter
     private final String className;
 
+    @Getter
     private final String methodName;
 
+    @Getter
     private final String comment;
 
     private Navigatable navigationElement;
@@ -75,7 +79,7 @@ public class HttpUrlItem implements NavigationItem {
     @Nullable
     @Override
     public String getName() {
-        return this.path;
+        return this.path + this.getComment();
     }
 
     @Nullable
@@ -87,7 +91,7 @@ public class HttpUrlItem implements NavigationItem {
             @Nullable
             @Override
             public String getPresentableText() {
-                return getPath();
+                return getPath() + getComment();
             }
 
             @Override

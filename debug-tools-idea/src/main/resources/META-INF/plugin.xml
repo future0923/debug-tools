@@ -252,6 +252,7 @@
                                         implementationClass="io.github.future0923.debug.tools.idea.line.QuickDebugLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="io.github.future0923.debug.tools.idea.line.IgnoreStaticFieldLineMarkerProvider"/>
+        <searchEverywhereContributor implementation="io.github.future0923.debug.tools.idea.search.HttpUrlSearchContributorFactory"/>
 
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider
