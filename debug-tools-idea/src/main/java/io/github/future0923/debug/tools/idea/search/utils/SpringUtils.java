@@ -20,7 +20,13 @@ import com.intellij.lang.jvm.annotation.JvmAnnotationAttribute;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiJavaCodeReferenceElement;
+import com.intellij.psi.PsiJvmMember;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
@@ -80,11 +86,11 @@ public class SpringUtils {
     private static List<PsiClass> getAllControllerClass(Project project, Module module) {
         List<PsiClass> allControllerClass = new ArrayList<>();
         GlobalSearchScope moduleScope = getModuleScope(project, module);
-        Collection<String> annotationNames =JavaAnnotationIndex.getInstance().getAllKeys(project);
+        Collection<String> annotationNames = JavaAnnotationIndex.getInstance().getAllKeys(project);
         Set<String> controllerAnnotationNames = new HashSet<>();
 
         for (String annotationName : annotationNames) {
-            Collection<PsiAnnotation> annotations =JavaAnnotationIndex.getInstance().get(annotationName, project, moduleScope);
+            Collection<PsiAnnotation> annotations = JavaAnnotationIndex.getInstance().get(annotationName, project, moduleScope);
             for (PsiAnnotation usage : annotations) {
                 PsiJavaCodeReferenceElement ref = usage.getNameReferenceElement();
                 if (ref == null) continue;
