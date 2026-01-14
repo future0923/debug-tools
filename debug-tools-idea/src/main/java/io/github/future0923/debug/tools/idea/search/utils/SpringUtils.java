@@ -27,6 +27,7 @@ import com.intellij.psi.PsiJvmMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
+import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.search.GlobalSearchScope;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
@@ -40,12 +41,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author future0923
@@ -228,6 +231,7 @@ public class SpringUtils {
         List<HttpUrlItem> requestInfos = new ArrayList<>(paths.size());
         String className = Optional.ofNullable(psiMethod).map(PsiJvmMember::getContainingClass).map(NavigationItem::getName).orElse(null);
         String methodName = Optional.ofNullable(psiMethod).map(NavigationItem::getName).orElse(null);
+        String comment = Optional.ofNullable(psiMethod).map(method -> getDocComment(psiMethod)).orElse(null);
         paths.forEach(path -> {
             for (HttpMethod method : methods) {
                 if (method.equals(HttpMethod.REQUEST) && methods.size() > 1) {
@@ -239,7 +243,8 @@ public class SpringUtils {
                         path,
                         module.getName(),
                         className,
-                        methodName
+                        methodName,
+                        comment
                 ));
             }
         });
@@ -291,5 +296,20 @@ public class SpringUtils {
         } else {
             return module.getModuleContentScope();
         }
+    }
+
+    private static String getDocComment(PsiMethod psiMethod) {
+        String comment = null;
+        PsiDocComment docComment = psiMethod.getDocComment();
+        if (docComment != null) {
+
+            PsiElement[] descriptionElements = docComment.getDescriptionElements();
+            comment = Arrays.stream(descriptionElements)
+                    .map(PsiElement::getText)
+                    .collect(Collectors.joining())
+                    .replace("*", "")
+                    .trim();
+        }
+        return comment;
     }
 }
