@@ -384,6 +384,10 @@ public class SpringUtils {
                     .replace("*", "")
                     .trim();
         }
-        return comment;
+        if (comment == null) {
+            return "";
+        }
+        int lineBreak = comment.indexOf('\n');
+        return lineBreak > -1 ? comment.substring(0, lineBreak).trim() : comment;
     }
 }

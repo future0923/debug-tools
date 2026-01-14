@@ -79,7 +79,7 @@ public class HttpUrlItem implements NavigationItem {
     @Nullable
     @Override
     public String getName() {
-        return this.path + this.getComment();
+        return this.path + (StrUtil.isNotBlank(this.comment) ? " [" + StrUtil.subPre(this.comment, 40) + "]" : "");
     }
 
     @Nullable
@@ -91,26 +91,22 @@ public class HttpUrlItem implements NavigationItem {
             @Nullable
             @Override
             public String getPresentableText() {
-                return getPath() + getComment();
+                return getPath() + (StrUtil.isNotBlank(getComment()) ? " [" + StrUtil.subPre(comment, 40) + "]" : "");
             }
 
             @Override
             public String getLocationString() {
                 String location = "";
-                String classMethodInfo = "";
-                if (StrUtil.isNotBlank(comment)) {
-                    location += "[" + StrUtil.subPre(comment, 40) + "]";
-                }
 
                 if (StrUtil.isNotBlank(className)) {
-                    classMethodInfo = className;
+                    location = className;
                 }
 
                 if (StrUtil.isNotBlank(methodName)) {
-                    classMethodInfo += "#" + psiMethod.getName();
+                    location += "#" + psiMethod.getName();
                 }
 
-                location += "(" + classMethodInfo + ")";
+                location = "(" + location + ")";
 
                 if (StrUtil.isNotBlank(moduleName)) {
                     location += " in Module '" + moduleName + "'";
