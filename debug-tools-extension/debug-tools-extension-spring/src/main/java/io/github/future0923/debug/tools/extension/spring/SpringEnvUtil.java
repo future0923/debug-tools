@@ -30,6 +30,8 @@ import org.springframework.aop.framework.AopProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -43,13 +45,7 @@ import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author future0923
@@ -166,7 +162,34 @@ public class SpringEnvUtil {
         for (BeanFactory beanFactory : beanFactories) {
             if (beanFactory instanceof DefaultSingletonBeanRegistry) {
                 DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) beanFactory;
-                registry.destroySingleton(beanName);
+                // 原有的销毁单例
+                if (registry.containsSingleton(beanName)) {
+                    registry.destroySingleton(beanName);
+                    logger.warning("Bean " + beanName + " has been unregistered");
+                }
+                // 新增：如果是DefaultListableBeanFactory，移除Bean定义
+                if (beanFactory instanceof DefaultListableBeanFactory) {
+                    DefaultListableBeanFactory defaultBeanFactory = (DefaultListableBeanFactory) beanFactory;
+
+                    // 确保Bean定义也被移除
+                    if (defaultBeanFactory.containsBeanDefinition(beanName)) {
+                        defaultBeanFactory.removeBeanDefinition(beanName);
+                        logger.warning("Bean definition for " + beanName + " has been removed");
+                    }
+
+                    // 可选：清理Bean的别名
+                    try {
+                        String[] aliases = defaultBeanFactory.getAliases(beanName);
+                        for (String alias : aliases) {
+                            defaultBeanFactory.removeAlias(alias);
+                            logger.warning("Alias " + alias + " for bean " + beanName + " has been removed");
+                        }
+                    } catch (Exception e) {
+                        // 忽略别名异常
+                        logger.warning("Error removing alias for bean " + beanName, e);
+                    }
+                }
+
                 factoryFound = true;
                 break;
             }
@@ -178,6 +201,9 @@ public class SpringEnvUtil {
                     if (factory instanceof DefaultSingletonBeanRegistry) {
                         ((DefaultSingletonBeanRegistry) factory).destroySingleton(beanName);
                         break;
+                    }
+                    if(factory instanceof BeanDefinitionRegistry){
+                        ((BeanDefinitionRegistry) factory).removeBeanDefinition(beanName);
                     }
                 }
             }
@@ -241,7 +267,7 @@ public class SpringEnvUtil {
         }
         return beanList;
     }
-    
+
     public static Object getSpringConfig(String value) {
         Environment environment = getLastBean(Environment.class);
         Object property = environment.getProperty(value, Object.class);
