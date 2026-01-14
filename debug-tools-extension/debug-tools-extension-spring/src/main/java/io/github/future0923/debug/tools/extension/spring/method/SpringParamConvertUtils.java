@@ -115,6 +115,27 @@ public class SpringParamConvertUtils {
                 }
             }
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
+            // 处理数组格式的枚举参数（手动传入的数组）
+            if (runContentDTO.getContent() instanceof Iterable) {
+                List<Object> enumList = new ArrayList<>();
+                Class<?> enumType;
+                if (parameter.getParameterType().isArray()) {
+                    enumType = parameter.getParameterType().getComponentType();
+                } else {
+                    // 处理泛型类型，如 List<SomeEnum>
+                    enumType = ResolvableType.forMethodParameter(parameter).getGeneric().resolve();
+                }
+                if (enumType != null && enumType.isEnum()) {
+                    for (Object item : (Iterable<?>) runContentDTO.getContent()) {
+                        enumList.add(Enum.valueOf((Class<? extends Enum>) enumType, item.toString()));
+                    }
+                    if (parameter.getParameterType().isArray()) {
+                        return enumList.toArray((Object[]) java.lang.reflect.Array.newInstance(enumType, enumList.size()));
+                    }
+                    return enumList;
+                }
+            }
+            // 处理单个枚举
             return Enum.valueOf((Class<? extends Enum>) parameter.getParameterType(), runContentDTO.getContent().toString());
         } else if (RunContentType.REQUEST.getType().equals(runContentDTO.getType())) {
             if (parameter.getParameterType().getName().equals("javax.servlet.http.HttpServletRequest")) {
