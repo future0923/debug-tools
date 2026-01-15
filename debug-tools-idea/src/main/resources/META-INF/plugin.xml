@@ -35,6 +35,18 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.5.2</strong>
+        <ul>
+            <li>增加热重载保留类静态变量用运行时数据的配置</li>
+            <li>修复 JdbcTemplate 无法打印sql的bug</li>
+            <li>修复修复热部署本地编译 VFS 同步刷新死锁的bug</li>
+            <li>修复 OpenFeign 的项目如果没有 Mybatis 无法启动的bug</li>
+            <li>修复MacOS切换jdk8与jdk17时dylib无法重新加载的bug</li>
+            <li>修复使用 ServerPreparedStatement 的无法格式化打印 sql 的bug</li>
+            <li>修复搜索 url 无法识别 controller 注解放入自定注解中的bug</li>
+            <li>优化搜索 url 返回样式</li>
+            <li>增加double shift展示搜索url选项</li>
+        </ul>
         <strong>4.5.1</strong>
         <ul>
             <li>修复openfeign与spring的class冲突导致spring项目热重载识别失败的bug</li>
