@@ -12,4 +12,12 @@
             id, name, age, version
         from dp_user
     </select>
+
+    <update id="updateUser">
+        <foreach collection="list" item="item" separator=";">
+            update ${config.tableName}
+            set ${config.age} = #{item.age}
+            where ${config.id} = #{item.id}
+        </foreach>
+    </update>
 </mapper>

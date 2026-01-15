@@ -62,6 +62,8 @@ public interface UserMapper {
     @Update("update dp_user set update_date = #{updateDate} where id = 1")
     void updateDate(@Param("updateDate") LocalDate updateDate);
 
+    void updateUser(@Param("config") Config config, @Param("list") List<User> list);
+
     @SelectProvider(type = UserProvider.class, method = "selectTest")
     List<User> testProvider();
 
