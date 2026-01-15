@@ -115,7 +115,7 @@ public class SpringUtils {
         for (String annotationName : controllerAnnotationNames) {
             String annotationShortName = getShortName(annotationName);
 
-            Collection<PsiAnnotation> usages = JavaAnnotationIndex.getInstance().getAnnotations(annotationShortName, project, moduleScope);
+            Collection<PsiAnnotation> usages = JavaAnnotationIndex.getInstance().get(annotationShortName, project, moduleScope);
 
             for (PsiAnnotation usage : usages) {
                 PsiElement owner = usage.getParent().getParent();
