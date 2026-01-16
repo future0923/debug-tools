@@ -23,16 +23,18 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiJavaCodeReferenceElement;
 import com.intellij.psi.PsiJvmMember;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.javadoc.PsiDocComment;
 import com.intellij.psi.search.GlobalSearchScope;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.idea.search.HttpUrlCustomRefAnnotation;
+import io.github.future0923.debug.tools.idea.search.annotations.PathMappingAnnotation;
+import io.github.future0923.debug.tools.idea.search.annotations.SpringControllerAnnotation;
 import io.github.future0923.debug.tools.idea.search.beans.HttpUrlItem;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethod;
 import io.github.future0923.debug.tools.idea.search.enums.HttpMethodSpringAnnotation;
@@ -89,82 +91,44 @@ public class SpringUtils {
     private static List<PsiClass> getAllControllerClass(Project project, Module module) {
         List<PsiClass> allControllerClass = new ArrayList<>();
         GlobalSearchScope moduleScope = getModuleScope(project, module);
-        Collection<String> annotationNames = JavaAnnotationIndex.getInstance().getAllKeys(project);
-        Set<String> controllerAnnotationNames = new HashSet<>();
 
-        for (String annotationName : annotationNames) {
-            Collection<PsiAnnotation> annotations = JavaAnnotationIndex.getInstance().get(annotationName, project, moduleScope);
-            for (PsiAnnotation usage : annotations) {
-                PsiJavaCodeReferenceElement ref = usage.getNameReferenceElement();
-                if (ref == null) continue;
+        SpringControllerAnnotation[] supportedAnnotations = SpringControllerAnnotation.values();
+        Set<String> consumerAnnotationNames = new HashSet<>();
 
-                PsiElement resolved = ref.resolve();
-                if (!(resolved instanceof PsiClass annoClass)) continue;
+        for (PathMappingAnnotation controllerAnnotation : supportedAnnotations) {
+            Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(controllerAnnotation.getShortName(), project, moduleScope);
 
-                if (!annoClass.isAnnotationType()) continue;
+            for (PsiAnnotation psiAnnotation : psiAnnotations) {
+                PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
+                PsiElement psiElement = psiModifierList.getParent();
 
-                if (isControllerAnnotation(annoClass)) {
-                    String qualifiedName = annoClass.getQualifiedName();
-                    if (qualifiedName != null) {
-                        controllerAnnotationNames.add(qualifiedName);
-                    }
+                PsiClass psiClass = (PsiClass) psiElement;
+                if (psiClass.isAnnotationType()) {
+                    consumerAnnotationNames.add(getShortName(psiClass.getQualifiedName()));
+                    continue;
                 }
+                allControllerClass.add(psiClass);
             }
         }
 
-        for (String annotationName : controllerAnnotationNames) {
-            String annotationShortName = getShortName(annotationName);
+        if(CollUtil.isNotEmpty(consumerAnnotationNames)){
+            for (String consumerAnnotationName : consumerAnnotationNames) {
+                Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(consumerAnnotationName, project, moduleScope);
 
-            Collection<PsiAnnotation> usages = JavaAnnotationIndex.getInstance().get(annotationShortName, project, moduleScope);
+                for (PsiAnnotation psiAnnotation : psiAnnotations) {
+                    PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
+                    PsiElement psiElement = psiModifierList.getParent();
 
-            for (PsiAnnotation usage : usages) {
-                PsiElement owner = usage.getParent().getParent();
-                if (owner instanceof PsiClass psiClass) {
+                    PsiClass psiClass = (PsiClass) psiElement;
+                    if (psiClass.isAnnotationType()) {
+                        continue;
+                    }
                     allControllerClass.add(psiClass);
                 }
             }
         }
 
         return allControllerClass;
-    }
-
-    private static boolean isControllerAnnotation(PsiClass annoClass) {
-        PsiModifierList modifierList = annoClass.getModifierList();
-        if (modifierList == null) return false;
-
-        for (PsiAnnotation annotation : modifierList.getAnnotations()) {
-            if (hasControllerMeta(annotation, new HashSet<>())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean hasControllerMeta(PsiAnnotation annotation, Set<String> visited) {
-        String qName = annotation.getQualifiedName();
-        if (qName == null || !visited.add(qName)) {
-            return false;
-        }
-
-        if (CONTROLLER_ANNOTATIONS.contains(qName)) {
-            return true;
-        }
-
-        PsiJavaCodeReferenceElement ref = annotation.getNameReferenceElement();
-        if (ref == null) return false;
-
-        PsiElement resolved = ref.resolve();
-        if (!(resolved instanceof PsiClass annoClass)) return false;
-
-        PsiModifierList modifierList = annoClass.getModifierList();
-        if (modifierList == null) return false;
-
-        for (PsiAnnotation meta : modifierList.getAnnotations()) {
-            if (hasControllerMeta(meta, visited)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static String getShortName(String qualifiedName) {
