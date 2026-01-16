@@ -29,8 +29,9 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.beans.factory.support.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
@@ -43,13 +44,7 @@ import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author future0923
@@ -160,13 +155,48 @@ public class SpringEnvUtil {
         }
     }
 
+    public static <T> void registerBean(String beanName, Class<T> beanClass) {
+        initSpringContext();
+        boolean factoryFound = false;
+        for (BeanFactory beanFactory : beanFactories) {
+            if (beanFactory instanceof DefaultListableBeanFactory) {
+                DefaultListableBeanFactory registry = (DefaultListableBeanFactory) beanFactory;
+                // 1. 构建 Bean 定义
+                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
+                // 如果需要延迟加载
+                // builder.setLazyInit(true);
+                // 2. 注册定义 (此时并没有创建对象)
+                registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+                factoryFound = true;
+                break;
+            }
+        }
+        if (!factoryFound) {
+            for (ApplicationContext applicationContext : applicationContexts) {
+                if (applicationContext instanceof BeanDefinitionRegistry) {
+                    BeanDefinitionRegistry registry = (BeanDefinitionRegistry) applicationContext;
+                    // 2. 构建 Bean 定义
+                    BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
+                    // builder.setLazyInit(true); // 如果需要延迟
+                    // 3. 注册定义
+                    registry.registerBeanDefinition(beanName, builder.getBeanDefinition());
+                    break;
+                }
+            }
+        }
+    }
+
     public static void unregisterBean(String beanName) {
         initSpringContext();
         boolean factoryFound = false;
         for (BeanFactory beanFactory : beanFactories) {
             if (beanFactory instanceof DefaultSingletonBeanRegistry) {
                 DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) beanFactory;
-                registry.destroySingleton(beanName);
+                // 原有的销毁单例
+                if (registry.containsSingleton(beanName)) {
+                    registry.destroySingleton(beanName);
+                    logger.warning("Bean " + beanName + " has been unregistered");
+                }
                 factoryFound = true;
                 break;
             }
@@ -178,6 +208,60 @@ public class SpringEnvUtil {
                     if (factory instanceof DefaultSingletonBeanRegistry) {
                         ((DefaultSingletonBeanRegistry) factory).destroySingleton(beanName);
                         break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void unregisterBeanAndDefinition(String beanName) {
+        initSpringContext();
+        boolean factoryFound = false;
+        for (BeanFactory beanFactory : beanFactories) {
+            if (beanFactory instanceof DefaultSingletonBeanRegistry) {
+                DefaultSingletonBeanRegistry registry = (DefaultSingletonBeanRegistry) beanFactory;
+                // 原有的销毁单例
+                if (registry.containsSingleton(beanName)) {
+                    registry.destroySingleton(beanName);
+                    logger.warning("Bean " + beanName + " has been unregistered");
+                }
+                // 新增：如果是DefaultListableBeanFactory，移除Bean定义
+                if (beanFactory instanceof DefaultListableBeanFactory) {
+                    DefaultListableBeanFactory defaultBeanFactory = (DefaultListableBeanFactory) beanFactory;
+
+                    // 确保Bean定义也被移除
+                    if (defaultBeanFactory.containsBeanDefinition(beanName)) {
+                        defaultBeanFactory.removeBeanDefinition(beanName);
+                        logger.warning("Bean definition for " + beanName + " has been removed");
+                    }
+
+                    // 可选：清理Bean的别名
+                    try {
+                        String[] aliases = defaultBeanFactory.getAliases(beanName);
+                        for (String alias : aliases) {
+                            defaultBeanFactory.removeAlias(alias);
+                            logger.warning("Alias " + alias + " for bean " + beanName + " has been removed");
+                        }
+                    } catch (Exception e) {
+                        // 忽略别名异常
+                        logger.warning("Error removing alias for bean " + beanName, e);
+                    }
+                }
+
+                factoryFound = true;
+                break;
+            }
+        }
+        if (!factoryFound) {
+            for (ApplicationContext applicationContext : applicationContexts) {
+                if (applicationContext instanceof ConfigurableApplicationContext) {
+                    ConfigurableListableBeanFactory factory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+                    if (factory instanceof DefaultSingletonBeanRegistry) {
+                        ((DefaultSingletonBeanRegistry) factory).destroySingleton(beanName);
+                        break;
+                    }
+                    if(factory instanceof BeanDefinitionRegistry){
+                        ((BeanDefinitionRegistry) factory).removeBeanDefinition(beanName);
                     }
                 }
             }
@@ -241,7 +325,7 @@ public class SpringEnvUtil {
         }
         return beanList;
     }
-    
+
     public static Object getSpringConfig(String value) {
         Environment environment = getLastBean(Environment.class);
         Object property = environment.getProperty(value, Object.class);
@@ -321,6 +405,28 @@ public class SpringEnvUtil {
 
     public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
         return SpringParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
+    }
+
+    public static String[] getBeanNamesForType(Class<?> type) {
+        initSpringContext();
+        for (BeanFactory beanFactory : beanFactories) {
+            if(beanFactory instanceof DefaultListableBeanFactory){
+                DefaultListableBeanFactory factory =  (DefaultListableBeanFactory) beanFactory;
+                return factory.getBeanNamesForType(type);
+            }
+        }
+        return new String[0];
+    }
+
+     public static BeanDefinition getBeanDefinition(String beanName) {
+         initSpringContext();
+         for (BeanFactory beanFactory : beanFactories) {
+             if(beanFactory instanceof DefaultListableBeanFactory){
+                 DefaultListableBeanFactory factory =  (DefaultListableBeanFactory) beanFactory;
+                 return factory.getBeanDefinition(beanName);
+             }
+         }
+         return null;
     }
 
 }
