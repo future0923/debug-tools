@@ -19,8 +19,11 @@ package io.github.future0923.debug.tools.server.groovy;
 import groovy.lang.Script;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
+import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 /**
  * @author future0923
@@ -56,8 +59,9 @@ public abstract class DebugToolsGroovyScript extends Script {
      * @param <T>       具体类型
      * @return 实例数组
      */
-    public <T> T[] gb(Class<T> beanClass) throws Exception {
-        return getBean(beanClass);
+    @SuppressWarnings("unchecked")
+    public <T> T[] getBean(Class<T> beanClass) throws Exception {
+        return DebugToolsEnvUtils.getBeans(beanClass).toArray((T[]) Array.newInstance(beanClass, 0));
     }
 
     /**
@@ -67,9 +71,8 @@ public abstract class DebugToolsGroovyScript extends Script {
      * @param <T>       具体类型
      * @return 实例数组
      */
-    @SuppressWarnings("unchecked")
-    public <T> T[] getBean(Class<T> beanClass) throws Exception {
-        return DebugToolsEnvUtils.getBeans(beanClass).toArray((T[]) Array.newInstance(beanClass, 0));
+    public <T> T[] gb(Class<T> beanClass) throws Exception {
+        return getBean(beanClass);
     }
 
     /**
@@ -95,6 +98,49 @@ public abstract class DebugToolsGroovyScript extends Script {
         return (T[]) DebugToolsEnvUtils.getBeans(beanName).toArray(new Object[0]);
     }
 
+    /**
+     * 获取Spring容器中指定类型的所有Bean名称
+     *
+     * @param type 要查询的类类型
+     * @return Bean名称数组
+     * @throws Exception 如果获取过程中出现异常
+     */
+    public String[] gtbn(Class<?> type) throws Exception {
+        return getBeanNamesForType(type);
+    }
+
+    /**
+     * 获取Spring容器中指定类型的所有Bean名称
+     *
+     * @param type 要查询的类类型
+     * @return Bean名称数组
+     * @throws Exception 如果获取过程中出现异常
+     */
+    public String[] getBeanNamesForType(Class<?> type) throws Exception {
+        return DebugToolsEnvUtils.getBeanNamesForType(type);
+    }
+
+    /**
+     * 获取Spring容器中指定Bean的定义信息
+     *
+     * @param beanName 要查询的Bean名称
+     * @return Bean定义信息
+     * @throws Exception 如果获取过程中出现异常
+     */
+    public BeanDefinition gtbd(String beanName) throws Exception {
+        return getBeanDefinition(beanName);
+    }
+
+    /**
+     * 获取Spring容器中指定Bean的定义信息
+     *
+     * @param beanName 要查询的Bean名称
+     * @return Bean定义信息
+     * @throws Exception 如果获取过程中出现异常
+     */
+    public BeanDefinition getBeanDefinition(String beanName) throws Exception {
+        return DebugToolsEnvUtils.getBeanDefinition(beanName);
+    }
     /**
      * 向Spring容器中注入实例，通过Spring的BeanName规则生成BeanName
      *
@@ -127,6 +173,18 @@ public abstract class DebugToolsGroovyScript extends Script {
     }
 
     /**
+     * 向Spring容器中注册指定类型的Bean并指定Bean名称
+     *
+     * @param beanName 注入的Bean名称
+     * @param beanClazz 要注册的Bean类
+     * @param <T> 具体类型
+     * @throws Exception 如果注册过程中出现异常
+     */
+    public <T> void rb(String beanName,Class<T> beanClazz) throws Exception {
+        DebugToolsEnvUtils.registerBean(beanName, beanClazz);
+    }
+
+    /**
      * 向Spring容器中注入实例并指定BeanName
      *
      * @param beanName 注入的BeanName
@@ -153,6 +211,24 @@ public abstract class DebugToolsGroovyScript extends Script {
      */
     public void unregisterBean(String beanName) throws Exception {
         DebugToolsEnvUtils.unregisterBean(beanName);
+    }
+
+    /**
+     * 销毁指定名称的Bean以及Bean的定义
+     *
+     * @param beanName 要销毁的Bean名称
+     */
+    public void urbd(String beanName) throws Exception {
+        unregisterBeanAndDefinition(beanName);
+    }
+
+    /**
+     * 销毁指定名称的Bean以及Bean的定义
+     *
+     * @param beanName 要销毁的Bean名称
+     */
+    public void unregisterBeanAndDefinition(String beanName) throws Exception {
+        DebugToolsEnvUtils.unregisterBeanAndDefinition(beanName);
     }
 
     /**
@@ -191,5 +267,52 @@ public abstract class DebugToolsGroovyScript extends Script {
      */
     public Object getSpringConfig(String key) throws Exception {
         return DebugToolsEnvUtils.getSpringConfig(key);
+    }
+
+
+    /**
+     * 获取AOP代理对象的原始目标对象
+     * @param candidate 可能是代理对象
+     * @param <T> 目标对象类型
+     * @return 原始目标对象，如果不是代理对象则返回自身
+     */
+    public <T> T getTargetObject(Object candidate) {
+        return DebugToolsEnvUtils.getTargetObject(candidate);
+    }
+
+    /**
+     * 获取AOP代理对象的原始目标类
+     * @param candidate 可能是代理对象
+     * @return 原始目标类，如果不是代理对象则返回自身的类
+     */
+    public Class<?> gtClass(Object candidate) {
+        return DebugToolsEnvUtils.getTargetClass(candidate);
+    }
+
+    /**
+     * 获取AOP代理对象的原始目标类
+     * @param candidate 可能是代理对象
+     * @return 原始目标类，如果不是代理对象则返回自身的类
+     */
+    public Class<?> getTargetClass(Object candidate) {
+        return DebugToolsEnvUtils.getTargetClass(candidate);
+    }
+
+    /**
+     * 判断调用处理器是否为Spring AOP代理
+     * @param invocationHandler 调用处理器
+     * @return 如果是Spring AOP代理返回true，否则返回false
+     */
+    public boolean isAopProxy(InvocationHandler invocationHandler) {
+        return DebugToolsEnvUtils.isAopProxy(invocationHandler);
+    }
+
+    /**
+     * 查找桥接方法对应的原始方法
+     * @param targetMethod 可能是桥接方法
+     * @return 原始方法，如果不是桥接方法则返回自身
+     */
+    public Method findBridgedMethod(Method targetMethod) {
+        return DebugToolsEnvUtils.findBridgedMethod(targetMethod);
     }
 }
