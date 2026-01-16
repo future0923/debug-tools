@@ -133,6 +133,18 @@ public class DebugToolsJsonElementUtil {
                             return RunContentType.FILE.getType();
                         } else if (aClass.isAssignableFrom(Class.class)) {
                             return RunContentType.CLASS.getType();
+                        } else if (isCollType(aClass)) {
+                            // 检查集合的泛型参数是否为枚举类型
+                            PsiType[] parameters = ((PsiClassType) type).getParameters();
+                            if (parameters.length > 0) {
+                                PsiType genericType = parameters[0];
+                                if (genericType instanceof PsiClassType) {
+                                    PsiClass genericClass = ((PsiClassType) genericType).resolve();
+                                    if (genericClass != null && genericClass.isEnum()) {
+                                        return RunContentType.ENUM.getType();
+                                    }
+                                }
+                            }
                         }
                     } catch (Exception ignored) {
                     }

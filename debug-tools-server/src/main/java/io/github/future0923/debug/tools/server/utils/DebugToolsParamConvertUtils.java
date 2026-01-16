@@ -24,6 +24,7 @@ import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
+import org.springframework.core.ResolvableType;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -94,6 +95,27 @@ public class DebugToolsParamConvertUtils {
                 }
             }
         } else if (RunContentType.ENUM.getType().equals(runContentDTO.getType())) {
+            // 处理数组格式的枚举参数（手动传入的数组）
+            if (runContentDTO.getContent() instanceof Iterable) {
+                List<Object> enumList = new ArrayList<>();
+                Class<?> enumType;
+                if (parameter.getType().isArray()) {
+                    enumType = parameter.getType().getComponentType();
+                } else {
+                    // 处理泛型类型，如 List<SomeEnum>
+                    enumType = ResolvableType.forType(parameter.getParameterizedType()).getGeneric().resolve();
+                }
+                if (enumType != null && enumType.isEnum()) {
+                    for (Object item : (Iterable<?>) runContentDTO.getContent()) {
+                        enumList.add(Enum.valueOf((Class<? extends Enum>) enumType, item.toString()));
+                    }
+                    if (parameter.getType().isArray()) {
+                        return enumList.toArray((Object[]) java.lang.reflect.Array.newInstance(enumType, enumList.size()));
+                    }
+                    return enumList;
+                }
+            }
+            // 处理单个枚举
             return Enum.valueOf((Class<? extends Enum>) parameter.getType(), runContentDTO.getContent().toString());
         } else if (RunContentType.REQUEST.getType().equals(runContentDTO.getType())) {
             return null;
