@@ -138,6 +138,10 @@ public class DebugToolsJavaProgramPatcher extends JavaProgramPatcher {
                         .filter(FileUtil::exist)
                         .ifPresent(agentArgs::setIgnoreStaticFieldPath);
             }
+            Optional.ofNullable(settingState.getIgnoreSqlConfigPath())
+                    .filter(StrUtil::isNotBlank)
+                    .filter(FileUtil::exist)
+                    .ifPresent(agentArgs::setIgnoreSqlConfigPath);
             agentArgs.setPrintSql(settingState.getPrintSql().getType());
             agentArgs.setLogLevel(settingState.getLogLevel());
             agentArgs.setTraceSql(Boolean.toString(traceSql));

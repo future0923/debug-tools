@@ -213,6 +213,11 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private Map<String, String> ignoreStaticFieldPathMap = new LinkedHashMap<>();
 
+    /**
+     * 忽略sql配置文件路径
+     */
+    private String ignoreSqlConfigPath;
+
     @Override
     public @Nullable DebugToolsSettingState getState() {
         return this;

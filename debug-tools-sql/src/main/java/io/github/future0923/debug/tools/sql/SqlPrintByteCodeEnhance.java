@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.sql;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.utils.DebugToolsIgnoreSqlUtils;
 
 import java.lang.instrument.Instrumentation;
 
@@ -39,6 +40,7 @@ public class SqlPrintByteCodeEnhance {
         if (PrintSqlType.isPrint(agentArgs.getPrintSql()) || BooleanUtil.toBoolean(agentArgs.getTraceSql())) {
             SqlPrintInterceptor.setAutoSaveSql(BooleanUtil.toBoolean(agentArgs.getAutoSaveSql()));
             SqlPrintInterceptor.setSqlRetentionDays(agentArgs.getSqlRetentionDays());
+            DebugToolsIgnoreSqlUtils.create(agentArgs.getIgnoreSqlConfigPath());
             inst.addTransformer(new SqlDriverClassFileTransformer(), true);
         }
     }
