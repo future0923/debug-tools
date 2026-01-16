@@ -108,6 +108,11 @@ public class AgentArgs {
     private String ignoreStaticFieldPath;
 
     /**
+     * 忽略sql文件配置路径
+     */
+    private String ignoreSqlConfigPath;
+
+    /**
      * 将agent上的string参数转为AgentArgs对象
      *
      * @param agentArgs key1=value1,key2=value2
