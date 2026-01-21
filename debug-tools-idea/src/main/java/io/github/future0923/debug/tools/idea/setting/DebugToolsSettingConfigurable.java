@@ -254,7 +254,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
             settingPanel.getPrintNoSql().setSelected(true);
         }
 
-        if (settingState.getAutoAttach()) {
+        if (BooleanUtil.isTrue(settingState.getAutoAttach())) {
             settingPanel.getAutoAttachYes().setSelected(true);
         } else {
             settingPanel.getAutoAttachNo().setSelected(true);
@@ -264,19 +264,19 @@ public class DebugToolsSettingConfigurable implements Configurable {
         settingPanel.getSaveSqlCheckBox().setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
         settingPanel.getSaveSqlDaysField().setNumber(settingState.getSqlRetentionDays());
 
-        if (settingState.getSearchLibrary()) {
+        if (BooleanUtil.isTrue(settingState.getSearchLibrary())) {
             settingPanel.getSearchLib().setSelected(true);
         } else {
             settingPanel.getNoSearchLib().setSelected(true);
         }
 
-        if (settingState.getLineMarkerVisible()) {
+        if (BooleanUtil.isTrue(settingState.getLineMarkerVisible())) {
             settingPanel.getShowLineMarker().setSelected(true);
         } else {
             settingPanel.getHideLineMarker().setSelected(true);
         }
 
-        if (settingState.getInvokeMethodRecord()) {
+        if (BooleanUtil.isTrue(settingState.getInvokeMethodRecord())) {
             settingPanel.getInvokeMethodRecordYes().setSelected(true);
         } else {
             settingPanel.getInvokeMethodRecordNo().setSelected(true);
