@@ -20,6 +20,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbService;
@@ -27,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiMethod;
+import com.intellij.util.concurrency.AppExecutorUtil;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.context.ClassDataContext;
 import io.github.future0923.debug.tools.idea.context.DataContext;
@@ -34,6 +37,7 @@ import io.github.future0923.debug.tools.idea.context.MethodDataContext;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import io.github.future0923.debug.tools.idea.ui.main.MainDialog;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
@@ -67,33 +71,31 @@ public class MouseQuickDebugAction extends AnAction {
         if (null == project || editor == null) {
             throw new IllegalArgumentException("idea arg error (project or editor is null)");
         }
-
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null) {
-            Messages.showErrorDialog(DebugToolsBundle.message("error.run.attach.first"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            DebugToolsToolWindowFactory.showWindow(project, null);
+        if (DebugToolsActionUtil.checkAttachSocketError(project)) {
             return;
         }
-        if (info.getClient().isClosed()) {
-            Messages.showErrorDialog(DebugToolsBundle.message("error.attach.socket.status"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            DebugToolsToolWindowFactory.showWindow(project, null);
+        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
+        if (settingState == null) {
+            DebugToolsNotifierUtil.notifyError(project, "state not exists");
             return;
         }
-        try {
-            DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-            if (settingState == null) {
-                DebugToolsNotifierUtil.notifyError(project, "state not exists");
-                return;
-            }
-            PsiClass psiClass = (PsiClass) psiMethod.getParent();
-            ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass);
-            MethodDataContext methodDataContext = new MethodDataContext(classDataContext, psiMethod, project);
-            MainDialog dialog = new MainDialog(methodDataContext, project);
-            dialog.show();
-        } catch (Exception exception) {
-            log.error("debug tools invoke exception", exception);
-            DebugToolsNotifierUtil.notifyError(project, "invoke exception " + exception.getMessage());
-        }
+        ReadAction.nonBlocking(() -> {
+                    PsiClass psiClass = (PsiClass) psiMethod.getParent();
+                    ClassDataContext classDataContext = DataContext.instance(project).getClassDataContext(psiClass);
+                    return new MethodDataContext(classDataContext, psiMethod, project);
+                })
+                .withDocumentsCommitted(project)
+                .finishOnUiThread(ModalityState.any(), methodDataContext -> {
+                    if (methodDataContext != null) {
+                        MainDialog dialog = new MainDialog(methodDataContext, project);
+                        dialog.show();
+                    }
+                })
+                .submit(AppExecutorUtil.getAppExecutorService())
+                .onError(throwable -> {
+                    log.error("debug tools invoke exception", throwable);
+                    DebugToolsNotifierUtil.notifyError(project, "invoke exception " + throwable.getMessage());
+                });
     }
 
     @Override

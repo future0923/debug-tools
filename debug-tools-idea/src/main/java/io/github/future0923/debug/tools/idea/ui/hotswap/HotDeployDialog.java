@@ -234,7 +234,7 @@ public class HotDeployDialog extends DialogWrapper {
                 }
             }
             hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
-            SocketSendUtils.send(project, hotSwapRequestPacket);
+            SocketSendUtils.sendAsync(project, hotSwapRequestPacket);
         }
         super.doOKAction();
     }
@@ -256,7 +256,8 @@ public class HotDeployDialog extends DialogWrapper {
                     }
                     SocketSendUtils.sendThrowException(project, packet);
                     return null;
-                }).submit(AppExecutorUtil.getAppExecutorService())
+                })
+                .submit(AppExecutorUtil.getAppExecutorService())
                 .onError(throwable -> {
                     if (throwable instanceof NullPointerException) {
                         DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("error.run.attach.first"));
@@ -357,7 +358,7 @@ public class HotDeployDialog extends DialogWrapper {
                             );
                         }
                         hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
-                        SocketSendUtils.send(project, hotSwapRequestPacket);
+                        SocketSendUtils.sendAsync(project, hotSwapRequestPacket);
                     })
                     .submit(AppExecutorUtil.getAppExecutorService())
                     .onError(throwable -> {

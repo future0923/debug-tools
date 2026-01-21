@@ -67,7 +67,7 @@ public abstract class AbstractTraceMethodAction extends AnAction {
         packet.setClassName(psiMethod.getContainingClass().getQualifiedName());
         packet.setMethodName(psiMethod.getName());
         packet.setMethodDescription(DebugToolsIdeaClassUtil.getMethodDescriptor(psiMethod));
-        SocketSendUtils.send(e.getProject(), packet, () -> {
+        SocketSendUtils.sendAsync(e.getProject(), packet, () -> {
             if (isAddTraceMethod()) {
                 StateUtils.setTraceMethod(e.getProject(), DebugToolsClassUtils.getQualifierMethod(packet.getClassName(), packet.getMethodName(), packet.getMethodDescription()));
             } else {

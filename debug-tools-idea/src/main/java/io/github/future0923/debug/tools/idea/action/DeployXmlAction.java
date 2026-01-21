@@ -86,7 +86,7 @@ public class DeployXmlAction extends AnAction {
                 throw new RuntimeException(ex);
             }
             hotSwapRequestPacket.setIdentity(projectDefaultClassLoader.getIdentity());
-            SocketSendUtils.send(project, hotSwapRequestPacket);
+            SocketSendUtils.sendAsync(project, hotSwapRequestPacket);
         }
     }
 

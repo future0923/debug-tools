@@ -16,6 +16,8 @@
  */
 package io.github.future0923.debug.tools.idea.client.socket.utils;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -24,6 +26,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -44,8 +47,8 @@ public class SocketSendUtils {
         }
     }
 
-    public static void send(Project project, Packet packet) {
-        send(project, packet, null);
+    public static void sendAsync(Project project, Packet packet) {
+        sendAsync(project, packet, null);
     }
 
     public static void sendThrowException(Project project, Packet packet) throws NullPointerException, SocketCloseException, IOException {
@@ -63,24 +66,39 @@ public class SocketSendUtils {
         }
     }
 
-    public static void send(Project project, Packet packet, Runnable runnable) {
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null) {
-            Messages.showErrorDialog("Run attach first", "Send Error");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-            return;
-        }
-        try {
-            info.getClient().getHolder().send(packet);
-            if (runnable != null) {
-                runnable.run();
+    public static void sendAsync(Project project, Packet packet, @Nullable Runnable successUiCallback) {
+        Application app = ApplicationManager.getApplication();
+        app.executeOnPooledThread(() -> {
+            ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
+            if (info == null) {
+                // 回到 UI 线程
+                app.invokeLater(() -> {
+                    Messages.showErrorDialog(project, "Run attach first", "Send Error");
+                    DebugToolsToolWindowFactory.showWindow(project, null);
+                });
+                return;
             }
-        } catch (SocketCloseException e) {
-            Messages.showErrorDialog("Socket close", "Send Error");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        } catch (Exception e) {
-            Messages.showErrorDialog("Socket send error " + e.getMessage(), "Send Error");
-            DebugToolsToolWindowFactory.showWindow(project, null);
-        }
+            try {
+                info.getClient().getHolder().send(packet);
+                if (successUiCallback != null) {
+                    app.invokeLater(successUiCallback);
+                }
+            } catch (SocketCloseException e) {
+                app.invokeLater(() -> {
+                    Messages.showErrorDialog(project, "Socket closed", "Send Error");
+                    DebugToolsToolWindowFactory.showWindow(project, null);
+                });
+            } catch (Exception e) {
+                app.invokeLater(() -> {
+                    Messages.showErrorDialog(
+                            project,
+                            "Socket send error: " + e.getMessage(),
+                            "Send Error"
+                    );
+                    DebugToolsToolWindowFactory.showWindow(project, null);
+                });
+            }
+        });
     }
+
 }

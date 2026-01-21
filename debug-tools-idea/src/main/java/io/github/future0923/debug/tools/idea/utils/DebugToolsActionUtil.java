@@ -77,7 +77,7 @@ public class DebugToolsActionUtil {
 
     public static void executeLast(Project project, RunDTO runDTO) {
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        SocketSendUtils.send(project, packet);
+        SocketSendUtils.sendAsync(project, packet);
     }
 
     public static void executeLastWithDefaultClassLoader(Project project, String json) {

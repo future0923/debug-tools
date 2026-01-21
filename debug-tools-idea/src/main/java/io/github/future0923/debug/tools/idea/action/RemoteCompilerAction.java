@@ -76,7 +76,7 @@ public class RemoteCompilerAction extends AnAction {
         RemoteCompilerHotDeployRequestPacket packet = new RemoteCompilerHotDeployRequestPacket();
         packet.add(packetAllName, content);
         packet.setIdentity(projectDefaultClassLoader.getIdentity());
-        SocketSendUtils.send(project, packet);
+        SocketSendUtils.sendAsync(project, packet);
     }
 
     @Override
