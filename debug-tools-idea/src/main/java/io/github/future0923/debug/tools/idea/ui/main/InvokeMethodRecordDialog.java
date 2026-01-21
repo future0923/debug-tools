@@ -38,6 +38,7 @@ import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
+import io.github.future0923.debug.tools.idea.utils.DebugToolsActionUtil;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -84,6 +85,9 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
+        if (DebugToolsActionUtil.checkAttachSocketError(project)) {
+            return;
+        }
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         AllClassLoaderRes.Item classLoaderRes = (AllClassLoaderRes.Item) mainPanel.getClassLoaderComboBox().getSelectedItem();
         MainJsonEditor editor = mainPanel.getEditor();

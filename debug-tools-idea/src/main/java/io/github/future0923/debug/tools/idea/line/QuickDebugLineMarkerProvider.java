@@ -63,7 +63,7 @@ public class QuickDebugLineMarkerProvider implements LineMarkerProvider {
                                 packet.setClassName(method.getContainingClass().getQualifiedName());
                                 packet.setMethodName(method.getName());
                                 packet.setMethodDescription(DebugToolsIdeaClassUtil.getMethodDescriptor(method));
-                                SocketSendUtils.send(psiElement.getProject(), packet, () -> {
+                                SocketSendUtils.sendAsync(psiElement.getProject(), packet, () -> {
                                     traceMethodSet.remove(qualifierMethod);
                                     DaemonCodeAnalyzer.getInstance(psiElement.getProject()).restart(psiElement.getContainingFile());
                                 });

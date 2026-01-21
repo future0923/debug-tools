@@ -28,9 +28,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiFile;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
+import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.utils.StateUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,7 +62,7 @@ public class RunGroovyAction extends AnAction {
         RunGroovyScriptRequestPacket packet = new RunGroovyScriptRequestPacket();
         packet.setScript(content);
         packet.setIdentity(projectDefaultClassLoader.getIdentity());
-        SocketSendUtils.send(project, packet);
+        SocketSendUtils.sendAsync(project, packet);
     }
 
 
