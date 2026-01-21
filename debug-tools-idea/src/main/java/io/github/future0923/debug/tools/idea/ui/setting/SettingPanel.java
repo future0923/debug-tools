@@ -33,6 +33,7 @@ import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 import io.github.future0923.debug.tools.idea.setting.GenParamType;
 import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
 import io.github.future0923.debug.tools.idea.ui.combobox.IgnoreStaticFieldComboBox;
+import io.github.future0923.debug.tools.idea.ui.main.IgnoreSqlConfDialogWrapper;
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel;
 import lombok.Getter;
 
@@ -122,6 +123,9 @@ public class SettingPanel {
     @Getter
     private IgnoreStaticFieldComboBox ignoreStaticFieldComboBox;
 
+    @Getter
+    private JButton ignoreSqlConfigButton = new JButton(DebugToolsBundle.message("action.ignore.sql.config"));
+
     public SettingPanel(Project project) {
         this.project = project;
         this.settingState = DebugToolsSettingState.getInstance(project);
@@ -159,6 +163,8 @@ public class SettingPanel {
         printSqlPanel.add(printCompressSql);
         printSqlPanel.add(printNoSql);
         printSqlPanel.add(saveSqlCheckBox);
+        printSqlPanel.add(ignoreSqlConfigButton);
+
         ButtonGroup printSqlButtonGroup = new ButtonGroup();
         printSqlButtonGroup.add(printPrettySql);
         printSqlButtonGroup.add(printCompressSql);
@@ -177,6 +183,7 @@ public class SettingPanel {
         sqlRetentionPanel.add(new JLabel(DebugToolsBundle.message("setting.panel.minimum.settable.value")));
 
         saveSqlCheckBox.setVisible(!printNoSql.isSelected());
+        ignoreSqlConfigButton.setVisible(!printNoSql.isSelected());
         saveSqlCheckBox.setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
         if (settingState.getSqlRetentionDays() != null) {
             saveSqlDaysField.setNumber(settingState.getSqlRetentionDays());
@@ -184,13 +191,18 @@ public class SettingPanel {
         sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected());
         // 监听开关变化
         saveSqlCheckBox.addItemListener(e -> sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected()));
-
+        ignoreSqlConfigButton.addActionListener(e -> {
+            IgnoreSqlConfDialogWrapper wrapper = new IgnoreSqlConfDialogWrapper(project);
+            wrapper.show();
+        });
         Runnable updateSaveSqlPanels = () -> {
             if (printNoSql.isSelected()) {
                 saveSqlCheckBox.setVisible(false);
+                ignoreSqlConfigButton.setVisible(false);
                 saveSqlCheckBox.setSelected(false);
             } else {
                 saveSqlCheckBox.setVisible(true);
+                ignoreSqlConfigButton.setVisible(true);
             }
         };
         // 监听printSql单选按钮变化

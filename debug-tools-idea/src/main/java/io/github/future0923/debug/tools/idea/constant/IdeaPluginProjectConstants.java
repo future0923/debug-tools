@@ -37,6 +37,8 @@ public interface IdeaPluginProjectConstants {
 
     String IGNORE_STATIC_FIELD_DIR = "/.idea/DebugTools/IgnoreStaticField/";
 
+    String IGNORE_SQL_CONFIG_DIR = "/.idea/DebugTools/IgnoreSqlConfig/";
+
     String TOOL_WINDOW_ID = "DebugTools";
 
     String SCRATCH_PATH = "/debug-tools-plugins";

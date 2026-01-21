@@ -17,12 +17,15 @@
 package io.github.future0923.debug.tools.sql;
 
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
+import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.base.utils.DebugToolsIgnoreSqlUtils;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
 
 import java.lang.reflect.InvocationHandler;
@@ -34,6 +37,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * 打印SQL字节码拦截器
@@ -160,6 +165,25 @@ public class SqlPrintInterceptor {
                 MethodTrace.enterSql(resultSql);
                 MethodTrace.exit(consume);
             }
+
+            if (StrUtil.isNotBlank(resultSql) && CollUtil.isNotEmpty(DebugToolsIgnoreSqlUtils.CACHE)) {
+                if (CollUtil.contains(DebugToolsIgnoreSqlUtils.CACHE, resultSql)) {
+                    return;
+                }
+
+                String finalResultSql = resultSql;
+                if (DebugToolsIgnoreSqlUtils.CACHE.stream().anyMatch(s -> {
+                    try {
+                        return Pattern.compile(s).matcher(finalResultSql).find();
+                    } catch (PatternSyntaxException e) {
+                        return Pattern.compile(Pattern.quote(s)).matcher(finalResultSql).find();
+                    }
+                })
+                ) {
+                    return;
+                }
+            }
+
             if (PrintSqlType.PRETTY.equals(printSqlType) || PrintSqlType.YES.equals(printSqlType)) {
                 resultSql = SqlFormatter.format(resultSql);
             }
