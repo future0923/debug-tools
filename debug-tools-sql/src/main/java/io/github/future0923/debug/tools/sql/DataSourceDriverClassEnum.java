@@ -54,7 +54,7 @@ public enum DataSourceDriverClassEnum {
             "postgresql",
             "org.postgresql",
             Collections.singletonList("org.postgresql.Driver"),
-            (sta, parameters) -> sta.toString()
+            (sta, parameters) -> formatStringSql(sta.toString(), parameters)
     ),
 
     /**
