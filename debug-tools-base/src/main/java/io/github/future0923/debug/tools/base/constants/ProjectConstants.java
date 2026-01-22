@@ -40,4 +40,6 @@ public interface ProjectConstants {
     String PROJECT_PACKAGE_PREFIX = "io.github.future0923.debug.tools";
 
     String PROJECT_PACKAGE_PATH = "io/github/future0923/debug/tools";
+
+    String PLUGIN_ID = "io.github.future0923.DebugPower";
 }

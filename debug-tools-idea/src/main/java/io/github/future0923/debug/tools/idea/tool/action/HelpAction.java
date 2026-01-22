@@ -19,10 +19,8 @@ package io.github.future0923.debug.tools.idea.tool.action;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
+import io.github.future0923.debug.tools.idea.ui.AboutDialog;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
-
-import javax.swing.*;
-import java.awt.*;
 
 /**
  * @author caoayu
@@ -36,10 +34,7 @@ public class HelpAction extends BaseToolAction {
 
     @Override
     protected void doActionPerformed(Project project, DebugToolsToolWindow toolWindow) {
-        try {
-            Desktop.getDesktop().browse(new java.net.URI("https://debug-tools.cc/"));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, DebugToolsBundle.message("notification.browser.open.error"), DebugToolsBundle.message("notification.browser.open.error.title"), JOptionPane.INFORMATION_MESSAGE);
-        }
+        AboutDialog aboutDialog = new AboutDialog(project);
+        aboutDialog.show();
     }
-} 
+}

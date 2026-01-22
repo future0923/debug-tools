@@ -28,6 +28,7 @@ import javax.swing.*;
 public class DebugToolsIcons {
 
     public static final Icon DebugTools = IconLoader.getIcon("/icon/plugin_icon.svg", DebugToolsIcons.class);
+    public static final Icon DebugToolsMax = IconLoader.getIcon("/icon/plugin_icon_max.svg", DebugToolsIcons.class);
     public static final Icon ExampleSimple = IconLoader.getIcon("/icon/example_simple.svg", DebugToolsIcons.class);
     public static final Icon ExampleCurrent = IconLoader.getIcon("/icon/example_current.svg", DebugToolsIcons.class);
     public static final Icon ExampleAll = IconLoader.getIcon("/icon/example_all.svg", DebugToolsIcons.class);
