@@ -73,4 +73,10 @@ public class TestController {
     public String uploadFile(@RequestParam MultipartFile file) {
         return "上传成功，文件数量：" + file.getName();
     }
+
+    @GetMapping("/test/param12")
+    public String testParam(@RequestParam("name123") String name){
+        System.out.println(name);
+        return name;
+    }
 }

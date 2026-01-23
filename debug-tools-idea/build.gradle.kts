@@ -17,6 +17,8 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildSearchableOptionsTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask.FailureLevel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 buildscript {
     repositories {
@@ -113,8 +115,19 @@ allprojects {
         }
         
         withType<ProcessResources> {
+            // 1. 生成构建时间字符串
+            val buildDate = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
             filesMatching("**/*.properties") {
                 filter(org.apache.tools.ant.filters.EscapeUnicode::class)
+            }
+            // 1. 将变量注入到 build-info.properties 文件中
+            filesMatching("**/build-info.properties") {
+                expand(mapOf(
+                    "buildDate" to buildDate,
+                    "pluginVersion" to pluginVersionString,
+                    "sinceBuild" to prop("sinceBuild")
+                ))
             }
         }
         withType<BuildSearchableOptionsTask> {
