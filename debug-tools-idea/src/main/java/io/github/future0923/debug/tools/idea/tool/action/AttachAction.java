@@ -19,8 +19,10 @@ package io.github.future0923.debug.tools.idea.tool.action;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
-import io.github.future0923.debug.tools.idea.tool.ui.AttachServerMenu;
+import io.github.future0923.debug.tools.idea.tool.ui.AttachServerPopup;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
+
+import java.awt.*;
 
 /**
  * @author future0923
@@ -34,7 +36,10 @@ public class AttachAction extends BaseToolAction {
 
     @Override
     protected void doActionPerformed(Project project, DebugToolsToolWindow toolWindow) {
-        AttachServerMenu attachServerMenu = new AttachServerMenu(project);
-        attachServerMenu.show(toolWindow, 0, attachServerMenu.getY());
+        AttachServerPopup popup = new AttachServerPopup(project);
+        Point location = MouseInfo.getPointerInfo().getLocation();
+        location.x += 10;
+        location.y -= 10;
+        popup.show(location);
     }
 }

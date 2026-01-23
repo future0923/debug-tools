@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.utils;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -37,7 +38,6 @@ import java.net.ConnectException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -167,7 +167,7 @@ public class DebugToolsAttachUtils {
     }
 
     public static void attach(Runnable runnable, Project project, String pid, String agentPath, String agentParam) {
-        CompletableFuture.runAsync(() -> {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
             VirtualMachine virtualMachine = null;
             try {
                 virtualMachine = VirtualMachine.attach(pid);
