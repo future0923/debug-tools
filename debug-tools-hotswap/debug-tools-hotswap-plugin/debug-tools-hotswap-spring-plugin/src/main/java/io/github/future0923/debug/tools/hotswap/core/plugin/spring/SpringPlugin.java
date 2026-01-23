@@ -25,6 +25,7 @@ import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ClassPathBeanDefinitionScannerPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.ProxyReplacerPatcher;
+import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.RequestParamPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch.SpringBootClassLoaderPatcher;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.scanner.ClassPathBeanDefinitionScannerAgent;
 import io.github.future0923.debug.tools.hotswap.core.plugin.spring.transformer.SpringBeanClassFileTransformer;
@@ -62,7 +63,8 @@ import java.util.List;
         supportClass = {
                 ClassPathBeanDefinitionScannerPatcher.class,
                 ProxyReplacerPatcher.class,
-                SpringBootClassLoaderPatcher.class
+                SpringBootClassLoaderPatcher.class,
+                RequestParamPatcher.class
         }
 )
 public class SpringPlugin {
