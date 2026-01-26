@@ -32,14 +32,13 @@ import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
-import io.github.future0923.debug.tools.idea.ui.setting.SettingPanel;
+import io.github.future0923.debug.tools.idea.ui.setting.NewSettingPanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
 import io.github.future0923.debug.tools.idea.utils.LanguageUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Objects;
 
 /**
  * @author future0923
@@ -48,7 +47,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
 
     private Project project;
 
-    private SettingPanel settingPanel;
+    private NewSettingPanel settingPanel;
 
     public DebugToolsSettingConfigurable(Project project) {
         this.project = project;
@@ -62,8 +61,8 @@ public class DebugToolsSettingConfigurable implements Configurable {
 
     @Override
     public @Nullable JComponent createComponent() {
-        settingPanel = new SettingPanel(project);
-        return settingPanel.getSettingPanel();
+        settingPanel = new NewSettingPanel(project);
+        return settingPanel.getMainPanel();
     }
 
     /**
