@@ -33,6 +33,7 @@ plugins {
     id("java")
     id("org.jetbrains.intellij.platform") version "2.10.5"
     id("com.github.hierynomus.license") version "0.16.1"
+    kotlin("jvm") version "2.3.0"
 }
 
 val pluginVersionString = prop("pluginVersion")
@@ -92,8 +93,6 @@ allprojects {
     }
 
     configure<JavaPluginExtension> {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
 
     license {
@@ -109,8 +108,6 @@ allprojects {
 
     tasks {
         withType<JavaCompile> {
-            sourceCompatibility = "17"
-            targetCompatibility = "17"
             options.encoding = "UTF-8"
         }
         
@@ -208,4 +205,13 @@ tasks.named("clean") {
 
 fun prop(name: String): String {
     return extra.properties[name] as? String ?: error("Property `$name` is not defined in gradle.properties")
+}
+dependencies {
+    implementation(kotlin("stdlib-jdk8"))
+}
+repositories {
+    mavenCentral()
+}
+kotlin {
+    jvmToolchain(17)
 }

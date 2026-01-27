@@ -29,7 +29,7 @@ public enum GenParamType {
     ALL("gen.param.type.all"),
     ;
 
-    private final String bundleKey;
+    public final String bundleKey;
 
     GenParamType(String bundleKey) {
         this.bundleKey = bundleKey;

@@ -41,6 +41,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.Objects;
 
+import static io.github.future0923.debug.tools.idea.ui.setting.SettingPanelV2Kt.settingPanel;
+
+
 /**
  * @author future0923
  */
@@ -63,7 +66,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
     @Override
     public @Nullable JComponent createComponent() {
         settingPanel = new SettingPanel(project);
-        return settingPanel.getSettingPanel();
+        return settingPanel(project);
     }
 
     /**

@@ -1,3 +1,6 @@
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 /*
  * Copyright (C) 2024-2025 the original author or authors.
  *

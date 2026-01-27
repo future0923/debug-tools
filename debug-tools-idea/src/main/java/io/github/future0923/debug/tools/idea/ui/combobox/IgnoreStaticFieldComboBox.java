@@ -42,7 +42,7 @@ public class IgnoreStaticFieldComboBox extends ComboBox<String> {
     private final Project project;
 
     @Getter
-    private final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    public final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
     private final JButton reloadButton;
 
