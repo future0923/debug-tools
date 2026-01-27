@@ -329,7 +329,6 @@ public class SettingPanel {
 
         JPanel ignoreStaticFieldPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         ignoreStaticFieldComboBox = new IgnoreStaticFieldComboBox(project, 220);
-        ignoreStaticFieldPanel.add(ignoreStaticFieldComboBox);
         ignoreStaticFieldPanel.add(ignoreStaticFieldComboBox.getPanel());
 
         settingPanel = FormBuilder.createFormBuilder()

@@ -18,39 +18,19 @@ package io.github.future0923.debug.tools.idea.ui.combobox;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
-import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
-import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
-import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.ui.main.ConfDialogWrapper;
-import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
-import lombok.Getter;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.List;
 
 /**
  * 热重载忽略指定静态字段配置UI
  *
  * @author future0923
  */
-public class IgnoreStaticFieldComboBox extends ComboBox<String> {
+public class IgnoreStaticFieldComboBox extends ComboBox<Object> {
 
     private final Project project;
 
-    @Getter
-    public final JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-
-    private final JButton reloadButton;
-
-    private final JButton detailButton;
-
-    private final JButton deleteButton;
-
-    private final JButton addButton;
+    private IgnoreStaticFieldComboBoxV2 delegate;
 
     public IgnoreStaticFieldComboBox(Project project) {
         this(project, -1);
@@ -59,75 +39,30 @@ public class IgnoreStaticFieldComboBox extends ComboBox<String> {
     public IgnoreStaticFieldComboBox(Project project, int width) {
         super(width);
         this.project = project;
-        String defaultConfPath = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR + "default.conf";
-        if (!FileUtil.exist(defaultConfPath)) {
-            FileUtil.touch(defaultConfPath);
-        }
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        reloadButton = new JButton(DebugToolsBundle.message("action.reload"));
-        reloadButton.addActionListener(e -> {
-            reload(project, settingState);
-            DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("reload.successful"));
-        });
-        detailButton = new JButton(DebugToolsBundle.message("action.detail"));
-        detailButton.addActionListener(e -> {
-            ConfDialogWrapper wrapper = new ConfDialogWrapper(project, this, (String) getSelectedItem());
-            wrapper.show();
-        });
-        deleteButton = new JButton(DebugToolsBundle.message("action.delete"));
-        deleteButton.addActionListener(e -> {
-            String filePath = settingState.getIgnoreStaticFieldPathMap().remove((String) getSelectedItem());
-            if (StrUtil.isNotBlank(filePath) && FileUtil.exist(filePath)) {
-                FileUtil.del(filePath);
-            }
-            refresh();
-        });
-        addButton = new JButton(DebugToolsBundle.message("action.add"));
-        addButton.addActionListener(e -> {
-            ConfDialogWrapper wrapper = new ConfDialogWrapper(project, this, "");
-            wrapper.show();
-        });
-        addActionListener(e -> buttonVisible(detailButton, deleteButton));
-        buttonVisible(detailButton, deleteButton);
-        panel.add(reloadButton);
-        panel.add(detailButton);
-        panel.add(deleteButton);
-        panel.add(addButton);
-        reload(project, settingState);
+        delegate = new IgnoreStaticFieldComboBoxV2(project);
     }
 
-    private void reload(Project project, DebugToolsSettingState settingState) {
-        String defaultConfPath = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR + "default.conf";
-        if (!FileUtil.exist(defaultConfPath)) {
-            FileUtil.touch(defaultConfPath);
-        }
-        String dir = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_STATIC_FIELD_DIR;
-        List<File> files = FileUtil.loopFiles(dir);
-        settingState.getIgnoreStaticFieldPathMap().clear();
-        for (File file : files) {
-            settingState.getIgnoreStaticFieldPathMap().put(FileUtil.mainName(file), file.getAbsolutePath());
-        }
-        refresh();
+    public JPanel getPanel() {
+        return delegate != null ? delegate.getComponent() : new JPanel();
     }
 
     public void refresh() {
-        removeAllItems();
-        DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
-        settingState.getIgnoreStaticFieldPathMap().forEach((key, value) -> addItem(key));
+        if (delegate != null) {
+            delegate.refresh();
+        }
     }
 
     public void setSelected(String identity) {
-        if (identity == null) {
-            setSelectedItem("default");
-            return;
+        if (delegate != null) {
+            delegate.setSelected(identity);
         }
-        setSelectedItem(identity);
     }
 
-    public void buttonVisible(JButton detailButton, JButton deleteButton) {
-        boolean selected = StrUtil.isNotBlank((String) getSelectedItem());
-        detailButton.setVisible(selected);
-        deleteButton.setVisible(selected);
+    @Override
+    public Object getSelectedItem() {
+        if (delegate != null) {
+            return delegate.getSelectedItem();
+        }
+        return super.getSelectedItem();
     }
-
 }

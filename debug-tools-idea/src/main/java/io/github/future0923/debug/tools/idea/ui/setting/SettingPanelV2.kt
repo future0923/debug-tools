@@ -2,7 +2,8 @@ package io.github.future0923.debug.tools.idea.ui.setting
 
 
 import com.intellij.openapi.project.Project
-import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.dsl.listCellRenderer.textListCellRenderer
 import io.github.future0923.debug.tools.base.enums.PrintSqlType
 import io.github.future0923.debug.tools.base.logging.Logger
@@ -14,9 +15,9 @@ import io.github.future0923.debug.tools.idea.ui.main.IgnoreSqlConfDialogWrapper
 import io.github.future0923.debug.tools.idea.ui.main.TraceMethodPanel
 import javax.swing.JPanel
 
+private lateinit var saveSqlCheck: Cell<JBCheckBox>
 fun settingPanel(project: Project): JPanel {
     val traceMethodPanel = TraceMethodPanel()
-    traceMethodPanel.processDefaultInfo(project)
     val ignoreStaticFieldComboBox = IgnoreStaticFieldComboBox(project, 220)
     return panel {
         group("Basic") {
@@ -66,27 +67,36 @@ fun settingPanel(project: Project): JPanel {
                     textListCellRenderer { DebugToolsBundle.message(it?.bundleKey ?: "") }
                 )
             }
-            row {
-                checkBox(DebugToolsBundle.message("setting.panel.auto.save.sql"))
-                button(DebugToolsBundle.message("action.ignore.sql.config")) {
+            row(DebugToolsBundle.message("action.ignore.sql.config")) {
+                button("编辑") {
                     IgnoreSqlConfDialogWrapper(project).show()
                 }
             }
-            row(DebugToolsBundle.message("setting.panel.sql.retention.days")) {
-                spinner(1..Int.MAX_VALUE)
-                comment(DebugToolsBundle.message("setting.panel.minimum.settable.value"))
+            row("") {
+                saveSqlCheck = checkBox(DebugToolsBundle.message("setting.panel.auto.save.sql"))
             }
+            rowsRange {
+                row("") {
+                    spinner(1..Int.MAX_VALUE)
+                    comment(
+                        DebugToolsBundle.message("setting.panel.sql.retention.days") + "," + DebugToolsBundle.message(
+                            "setting.panel.minimum.settable.value"
+                        )
+                    )
+                }
+            }.enabledIf(saveSqlCheck.selected)
         }
 
         group("Other") {
             row(DebugToolsBundle.message("setting.panel.remove.context.path")) {
                 textArea()
             }
-            row(DebugToolsBundle.message("setting.panel.trace.method")) {
+            row {
+                label(DebugToolsBundle.message("setting.panel.trace.method")).align(AlignY.TOP)
                 cell(traceMethodPanel.component)
-            }
+            }.layout(RowLayout.PARENT_GRID)
+            traceMethodPanel.processDefaultInfo(project)
             row(DebugToolsBundle.message("setting.panel.ignore.static.field")) {
-                cell(ignoreStaticFieldComboBox)
                 cell(ignoreStaticFieldComboBox.panel)
             }
         }

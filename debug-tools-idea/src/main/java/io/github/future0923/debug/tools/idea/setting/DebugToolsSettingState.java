@@ -167,7 +167,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
     /**
      * 追踪方法信息
      */
-    private TraceMethodDTO traceMethodDTO;
+    public TraceMethodDTO traceMethodDTO;
 
     /**
      * 默认选中的MethodAround名
@@ -211,7 +211,7 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      * key:配置名
      * value:配置文件路径
      */
-    private Map<String, String> ignoreStaticFieldPathMap = new LinkedHashMap<>();
+    public Map<String, String> ignoreStaticFieldPathMap = new LinkedHashMap<>();
 
     /**
      * 忽略sql配置文件路径
