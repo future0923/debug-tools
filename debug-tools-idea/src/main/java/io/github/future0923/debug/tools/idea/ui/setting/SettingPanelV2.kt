@@ -45,16 +45,16 @@ fun settingPanel(project: Project): JPanel {
         }
 
         group("Quick Debug") {
-            row() {
+            row {
                 checkBox(DebugToolsBundle.message("setting.panel.invoke.method.record"))
             }
-            row() {
+            row {
                 checkBox(DebugToolsBundle.message("setting.panel.quick.action.line.marker"))
             }
-            row() {
+            row {
                 checkBox(DebugToolsBundle.message("setting.panel.search.library"))
             }
-            row() {
+            row {
                 checkBox(DebugToolsBundle.message("setting.panel.auto.attach.start.application"))
             }
         }
@@ -66,7 +66,7 @@ fun settingPanel(project: Project): JPanel {
                     textListCellRenderer { DebugToolsBundle.message(it?.bundleKey ?: "") }
                 )
             }
-            row() {
+            row {
                 checkBox(DebugToolsBundle.message("setting.panel.auto.save.sql"))
                 button(DebugToolsBundle.message("action.ignore.sql.config")) {
                     IgnoreSqlConfDialogWrapper(project).show()
