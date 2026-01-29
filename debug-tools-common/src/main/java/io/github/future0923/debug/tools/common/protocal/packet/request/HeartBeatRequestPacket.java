@@ -18,26 +18,33 @@ package io.github.future0923.debug.tools.common.protocal.packet.request;
 
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.netty.buffer.ByteBuf;
 
 /**
- * @author future0923
+ * 心跳请求：无 payload
  */
-public class HeartBeatRequestPacket extends Packet {
+public final class HeartBeatRequestPacket extends Packet {
 
     public static final HeartBeatRequestPacket INSTANCE = new HeartBeatRequestPacket();
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.HEARTBEAT_REQUEST;
     }
 
+    /**
+     * 无 body，不写任何字节
+     */
     @Override
-    public byte[] binarySerialize() {
-        return new byte[0];
+    public void binarySerialize(ByteBuf out) {
+        // do nothing
     }
 
+    /**
+     * 无 body，不读任何字节
+     */
     @Override
-    public void binaryDeserialization(byte[] bytes) {
-
+    public void binaryDeserialization(ByteBuf in) {
+        // do nothing
     }
 }

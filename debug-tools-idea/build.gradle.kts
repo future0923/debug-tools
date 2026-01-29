@@ -81,7 +81,6 @@ allprojects {
             }
             pluginVerifier(version = "1.398")
         }
-        implementation("io.github.future0923:debug-tools-common:${version}")
         implementation("io.github.future0923:debug-tools-client:${version}")
         compileOnly("org.projectlombok:lombok:1.18.32")
         annotationProcessor("org.projectlombok:lombok:1.18.32")

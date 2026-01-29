@@ -21,13 +21,11 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.protocal.Command;
-import io.github.future0923.debug.tools.common.protocal.packet.Packet;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.common.protocal.packet.EntityPacket;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -36,7 +34,7 @@ import java.util.List;
 @Setter
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class RunTargetMethodResponsePacket extends Packet {
+public class RunTargetMethodResponsePacket extends EntityPacket<RunTargetMethodResponsePacket> {
 
     private static final Logger logger = Logger.getLogger(RunTargetMethodResponsePacket.class);
 
@@ -65,26 +63,12 @@ public class RunTargetMethodResponsePacket extends Packet {
     private Long duration;
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.RUN_TARGET_METHOD_RESPONSE;
     }
 
     @Override
-    public byte[] binarySerialize() {
-        return DebugToolsJsonUtils.toJsonStr(this).getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void binaryDeserialization(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
-            return;
-        }
-        String jsonString = new String(bytes, StandardCharsets.UTF_8);
-        if (!DebugToolsJsonUtils.isTypeJSON(jsonString)) {
-            logger.warning("The data RunTargetMethodResponsePacket received is not JSON, {}", jsonString);
-            return;
-        }
-        RunTargetMethodResponsePacket packet = DebugToolsJsonUtils.toBean(jsonString, RunTargetMethodResponsePacket.class);
+    public void doDeserialize(RunTargetMethodResponsePacket packet) {
         this.setIdentity(packet.getIdentity());
         this.setDuration(packet.getDuration());
         this.setApplicationName(packet.getApplicationName());

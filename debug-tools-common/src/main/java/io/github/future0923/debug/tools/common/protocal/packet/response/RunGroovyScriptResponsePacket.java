@@ -20,13 +20,10 @@ import io.github.future0923.debug.tools.base.hutool.core.exceptions.ExceptionUti
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.protocal.Command;
-import io.github.future0923.debug.tools.common.protocal.packet.Packet;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.common.protocal.packet.EntityPacket;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author future0923
@@ -34,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 @Setter
 @Getter
 @EqualsAndHashCode(callSuper = true)
-public class RunGroovyScriptResponsePacket extends Packet {
+public class RunGroovyScriptResponsePacket extends EntityPacket<RunGroovyScriptResponsePacket> {
 
     private static final Logger logger = Logger.getLogger(RunGroovyScriptResponsePacket.class);
 
@@ -49,26 +46,12 @@ public class RunGroovyScriptResponsePacket extends Packet {
     private String offsetPath;
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.RUN_GROOVY_SCRIPT_RESPONSE;
     }
 
     @Override
-    public byte[] binarySerialize() {
-        return DebugToolsJsonUtils.toJsonStr(this).getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void binaryDeserialization(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
-            return;
-        }
-        String jsonString = new String(bytes, StandardCharsets.UTF_8);
-        if (!DebugToolsJsonUtils.isTypeJSON(jsonString)) {
-            logger.warning("The data RunGroovyScriptResponsePacket received is not JSON, {}", jsonString);
-            return;
-        }
-        RunGroovyScriptResponsePacket packet = DebugToolsJsonUtils.toBean(jsonString, RunGroovyScriptResponsePacket.class);
+    public void doDeserialize(RunGroovyScriptResponsePacket packet) {
         this.setApplicationName(packet.getApplicationName());
         this.setResultClassType(packet.getResultClassType());
         this.setPrintResult(packet.getPrintResult());

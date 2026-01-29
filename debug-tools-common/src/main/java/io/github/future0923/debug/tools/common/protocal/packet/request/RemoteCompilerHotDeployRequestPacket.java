@@ -17,86 +17,55 @@
 package io.github.future0923.debug.tools.common.protocal.packet.request;
 
 import io.github.future0923.debug.tools.common.protocal.Command;
-import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-/**
- * @author future0923
- */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class RemoteCompilerHotDeployRequestPacket extends Packet {
-
-    private Map<String, String> filePathByteCodeMap = new HashMap<>();
-
-    private static final String CLASS_SEPARATOR = ";;";
-
-    private static final String CLASS_INFO_SEPARATOR = "::";
+public final class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     /**
-     * 类加载器
+     * 目标 ClassLoader identity
      */
     private String identity;
 
+    /**
+     * 文件路径 -> 源码内容
+     */
+    private final Map<String, String> filePathContentMap = new HashMap<>();
+
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.REMOTE_COMPILER_HOT_DEPLOY_REQUEST;
     }
 
     @Override
-    public byte[] binarySerialize() {
-        ByteBuf byteBuf = new ByteBuf();
-        byte[] identityInfo = identity.getBytes(StandardCharsets.UTF_8);
-        byteBuf.writeInt(identityInfo.length);
-        byteBuf.writeBytes(identityInfo);
-        StringBuilder fileHeaderInfo = new StringBuilder();
-        List<byte[]> fileContentList = new ArrayList<>();
-        filePathByteCodeMap.forEach((filePath, fileContent) -> {
-            byte[] fileContentBytes = fileContent.getBytes(StandardCharsets.UTF_8);
-            fileHeaderInfo.append(filePath).append(CLASS_INFO_SEPARATOR).append(fileContentBytes.length).append(CLASS_SEPARATOR);
-            fileContentList.add(fileContentBytes);
-        });
-        byte[] headerInfo = fileHeaderInfo.toString().getBytes(StandardCharsets.UTF_8);
-        byteBuf.writeInt(headerInfo.length);
-        byteBuf.writeBytes(headerInfo);
-        fileContentList.forEach(byteBuf::writeBytes);
-        return byteBuf.toByteArray();
-    }
-
-    @Override
-    public void binaryDeserialization(byte[] bytes) {
-        ByteBuf byteBuf = ByteBuf.wrap(bytes);
-        int identityLength = byteBuf.readInt();
-        byte[] identityByte = new byte[identityLength];
-        byteBuf.readBytes(identityByte);
-        identity = new String(identityByte, StandardCharsets.UTF_8);
-        int headerLength = byteBuf.readInt();
-        byte[] headerByte = new byte[headerLength];
-        byteBuf.readBytes(headerByte);
-        String headerInfo = new String(headerByte, StandardCharsets.UTF_8);
-        String[] split = headerInfo.split(CLASS_SEPARATOR);
-        for (String item : split) {
-            String[] split1 = item.split(CLASS_INFO_SEPARATOR);
-            if (split1.length != 2) {
-                continue;
-            }
-            String filePath = split1[0];
-            int fileLength = Integer.parseInt(split1[1]);
-            byte[] fileByteCode = new byte[fileLength];
-            byteBuf.readBytes(fileByteCode);
-            filePathByteCodeMap.put(filePath, new String(fileByteCode, StandardCharsets.UTF_8));
+    public void binarySerialize(ByteBuf out) {
+        writeString(out, identity);
+        out.writeInt(filePathContentMap.size());
+        for (Map.Entry<String, String> entry : filePathContentMap.entrySet()) {
+            writeString(out, entry.getKey());
+            writeString(out, entry.getValue());
         }
     }
 
-    public void add(String fileName, String fileContent) {
-        filePathByteCodeMap.put(fileName, fileContent);
+    @Override
+    public void binaryDeserialization(ByteBuf in) {
+        this.identity = readString(in);
+        int count = in.readInt();
+        for (int i = 0; i < count; i++) {
+            String path = readString(in);
+            String content = readString(in);
+            filePathContentMap.put(path, content);
+        }
+    }
+
+    public void add(String filePath, String fileContent) {
+        filePathContentMap.put(filePath, fileContent);
     }
 }

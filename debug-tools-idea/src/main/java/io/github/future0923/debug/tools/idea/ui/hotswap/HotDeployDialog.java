@@ -42,7 +42,6 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
@@ -264,11 +263,6 @@ public class HotDeployDialog extends DialogWrapper {
                         DebugToolsToolWindowFactory.showWindow(project, null);
                         return;
                     }
-                    if (throwable instanceof SocketCloseException) {
-                        DebugToolsNotifierUtil.notifyError(project, DebugToolsBundle.message("dialog.error.socket.close"));
-                        DebugToolsToolWindowFactory.showWindow(project, null);
-                        return;
-                    }
                     Messages.showErrorDialog("Socket send error " + throwable.getMessage(), "Send Error");
                     DebugToolsToolWindowFactory.showWindow(project, null);
                 });
@@ -366,14 +360,6 @@ public class HotDeployDialog extends DialogWrapper {
                             DebugToolsNotifierUtil.notifyError(
                                     project,
                                     DebugToolsBundle.message("error.run.attach.first")
-                            );
-                            DebugToolsToolWindowFactory.showWindow(project, null);
-                            return;
-                        }
-                        if (throwable instanceof SocketCloseException) {
-                            DebugToolsNotifierUtil.notifyError(
-                                    project,
-                                    DebugToolsBundle.message("dialog.error.socket.close")
                             );
                             DebugToolsToolWindowFactory.showWindow(project, null);
                             return;

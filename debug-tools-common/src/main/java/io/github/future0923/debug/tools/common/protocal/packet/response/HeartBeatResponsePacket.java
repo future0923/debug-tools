@@ -18,11 +18,12 @@ package io.github.future0923.debug.tools.common.protocal.packet.response;
 
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.netty.buffer.ByteBuf;
 
 /**
- * @author future0923
+ * 心跳响应：无 payload（header-only packet）
  */
-public class HeartBeatResponsePacket extends Packet {
+public final class HeartBeatResponsePacket extends Packet {
 
     public HeartBeatResponsePacket() {
         this(SUCCESS);
@@ -33,17 +34,23 @@ public class HeartBeatResponsePacket extends Packet {
     }
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.HEARTBEAT_RESPONSE;
     }
 
+    /**
+     * 无 body，不写任何字节
+     */
     @Override
-    public byte[] binarySerialize() {
-        return new byte[0];
+    public void binarySerialize(ByteBuf out) {
+        // no-op
     }
 
+    /**
+     * 无 body，不读任何字节
+     */
     @Override
-    public void binaryDeserialization(byte[] bytes) {
-
+    public void binaryDeserialization(ByteBuf in) {
+        // no-op
     }
 }

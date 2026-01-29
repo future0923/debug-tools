@@ -23,21 +23,21 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.RunContentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindowManager;
-import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
+import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.response.HotDeployResponsePacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.ui.console.MyConsolePanel;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.io.OutputStream;
 
 /**
  * @author future0923
  */
-public class HotDeployResponsePacketHandler extends BasePacketHandler<HotDeployResponsePacket> {
+public class HotDeployResponsePacketHandler implements NettyPacketHandler<HotDeployResponsePacket> {
 
     public static final HotDeployResponsePacketHandler INSTANCE = new HotDeployResponsePacketHandler();
 
@@ -45,7 +45,7 @@ public class HotDeployResponsePacketHandler extends BasePacketHandler<HotDeployR
     }
 
     @Override
-    public void handle(OutputStream outputStream, HotDeployResponsePacket packet) throws Exception {
+    public void handle(ChannelHandlerContext ctx, HotDeployResponsePacket packet) throws Exception {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
         if (info == null) {
             DebugToolsNotifierUtil.notifyError(null, "未找到应用" + packet.getApplicationName() + "的链接信息");

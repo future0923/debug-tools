@@ -16,21 +16,32 @@
  */
 package io.github.future0923.debug.tools.client.config;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-/**
- * @author future0923
- */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ClientConfig {
+public final class ClientConfig {
 
     private String host = "127.0.0.1";
 
     private int port = 50888;
 
-    private int heartbeatInterval = 60;
+    /**
+     * 写空闲触发心跳（秒）
+     */
+    private int heartbeatSeconds = 10;
+
+    /**
+     * 自动重连
+     */
+    private boolean autoReconnect = true;
+
+    /**
+     * 初始重连延迟（毫秒）
+     */
+    private long reconnectInitialDelayMillis = 300;
+
+    /**
+     * 最大重连延迟（毫秒）
+     */
+    private long reconnectMaxDelayMillis = 5_000;
 }

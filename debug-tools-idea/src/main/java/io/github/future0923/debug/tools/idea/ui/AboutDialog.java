@@ -330,7 +330,7 @@ public class AboutDialog extends DialogWrapper {
 
         @Override
         protected void doAction(ActionEvent e) {
-            close(DialogWrapper.CANCEL_EXIT_CODE);
+            close(DialogWrapper.CLOSE_EXIT_CODE);
         }
     }
 }

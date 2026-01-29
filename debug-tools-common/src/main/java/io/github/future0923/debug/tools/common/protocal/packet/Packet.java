@@ -16,47 +16,52 @@
  */
 package io.github.future0923.debug.tools.common.protocal.packet;
 
-import io.github.future0923.debug.tools.common.protocal.buffer.ByteBuf;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
-/**
- * 需要加入到{@link PacketCodec}中
- *
- * @author future0923
- */
+@Setter
+@Getter
 public abstract class Packet {
 
-    private static final String EMPTY_BYTE = "\u0000";
-    private static final String EMPTY_STRING = "";
-    @Setter
-    @Getter
     private byte version;
-    @Setter
-    @Getter
+
     private byte resultFlag = SUCCESS;
+
     public static final byte SUCCESS = 1;
+
     public static final byte FAIL = 0;
 
-    public Packet() {
-    }
+    public abstract byte getCommand();
 
-    public abstract Byte getCommand();
+    /* ====== 关键改造点 ====== */
 
-    public abstract byte[] binarySerialize();
+    /**
+     * 直接写入 ByteBuf（不返回 byte[]）
+     */
+    public abstract void binarySerialize(ByteBuf byteBuf);
 
-    public abstract void binaryDeserialization(byte[] bytes);
+    /**
+     * 从 ByteBuf 反序列化（slice，不 copy）
+     */
+    public abstract void binaryDeserialization(ByteBuf byteBuf);
 
     public boolean isSuccess() {
         return resultFlag == SUCCESS;
     }
 
-    public void writeAndFlush(OutputStream outputStream) throws IOException {
-        ByteBuf byteBuf = PacketCodec.INSTANCE.encode(this);
-        outputStream.write(byteBuf.toByteArray());
-        outputStream.flush();
+    public void writeString(ByteBuf out, String s) {
+        byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
+        out.writeInt(bytes.length);
+        out.writeBytes(bytes);
+    }
+
+    public String readString(ByteBuf in) {
+        int len = in.readInt();
+        byte[] bytes = new byte[len];
+        in.readBytes(bytes);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }
