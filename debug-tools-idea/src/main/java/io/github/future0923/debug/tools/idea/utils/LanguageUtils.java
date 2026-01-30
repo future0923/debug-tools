@@ -21,8 +21,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.idea.action.TraceMethodGroup;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.setting.LanguageSetting;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindow;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 
@@ -44,7 +42,7 @@ public class LanguageUtils {
         if (toolWindow != null) {
             toolWindow.refresh();
             // Refresh GlobalParamPanel
-            toolWindow.getGlobalParamPanel().refresh();
+            //toolWindow.getGlobalParamPanel().refresh();
             if (toolWindow.getInvokeMethodRecordPanel() != null) {
                 toolWindow.getInvokeMethodRecordPanel().refresh();
             }

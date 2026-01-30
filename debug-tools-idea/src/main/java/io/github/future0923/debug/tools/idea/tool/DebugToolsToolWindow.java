@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.idea.tool;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -26,16 +27,13 @@ import com.intellij.ui.JBSplitter;
 import io.github.future0923.debug.tools.idea.action.GroovyConsoleAction;
 import io.github.future0923.debug.tools.idea.action.HotDeploymentAction;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
-import io.github.future0923.debug.tools.idea.tool.action.AttachAction;
-import io.github.future0923.debug.tools.idea.tool.action.ClearCacheAction;
-import io.github.future0923.debug.tools.idea.tool.action.ConnectAction;
-import io.github.future0923.debug.tools.idea.tool.action.HelpAction;
-import io.github.future0923.debug.tools.idea.tool.action.SettingAction;
-import io.github.future0923.debug.tools.idea.tool.action.SqlHistoryAction;
-import io.github.future0923.debug.tools.idea.tool.ui.GlobalParamPanel;
+import io.github.future0923.debug.tools.idea.tool.action.*;
 import io.github.future0923.debug.tools.idea.tool.ui.InvokeMethodRecordPanel;
+import io.github.future0923.debug.tools.idea.ui.main.MainPanelV2;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
 
 /**
  * @author future0923
@@ -43,18 +41,18 @@ import org.jetbrains.annotations.Nullable;
 public class DebugToolsToolWindow extends SimpleToolWindowPanel {
 
     @Getter
-    private final GlobalParamPanel globalParamPanel;
+    private final JPanel globalParamPanel;
     private final Project project;
     @Getter
     @Nullable
     private InvokeMethodRecordPanel invokeMethodRecordPanel;
 
-    public DebugToolsToolWindow(Project project) {
+    public DebugToolsToolWindow(Project project, Disposable parentDisposable) {
         super(false, false);
         this.project = project;
         initToolBar();
         JBSplitter content = new JBSplitter(true, DebugToolsToolWindow.class.getName(), 0.5F);
-        globalParamPanel = new GlobalParamPanel(project);
+        globalParamPanel = new MainPanelV2(project, parentDisposable).createPanel();
         content.setFirstComponent(globalParamPanel);
         if (DebugToolsSettingState.getInstance(project).getInvokeMethodRecord()) {
             invokeMethodRecordPanel = new InvokeMethodRecordPanel(project);
@@ -107,6 +105,6 @@ public class DebugToolsToolWindow extends SimpleToolWindowPanel {
     }
 
     public void clearHeader() {
-        globalParamPanel.clearHeader();
+        //globalParamPanel.clearHeader();
     }
 }

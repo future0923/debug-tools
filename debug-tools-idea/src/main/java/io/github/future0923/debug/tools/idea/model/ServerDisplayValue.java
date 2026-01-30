@@ -35,6 +35,14 @@ public class ServerDisplayValue {
 
     private String key;
 
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
     private String value;
 
     @Override

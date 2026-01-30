@@ -95,6 +95,14 @@ public class DebugToolsSettingState implements PersistentStateComponent<DebugToo
      */
     private PrintSqlType printSql;
 
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
+    }
+
     /**
      * 是否附着的本地应用
      */

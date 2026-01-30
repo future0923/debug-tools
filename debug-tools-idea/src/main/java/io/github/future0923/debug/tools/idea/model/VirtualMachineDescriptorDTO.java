@@ -26,5 +26,13 @@ public class VirtualMachineDescriptorDTO {
 
     private String id;
 
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
     private String displayName;
 }

@@ -96,7 +96,7 @@ public class DebugToolsToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         ContentFactory contentFactory = ApplicationManager.getApplication().getService(ContentFactory.class);
-        Content content = contentFactory.createContent(new DebugToolsToolWindow(project), null, false);
+        Content content = contentFactory.createContent(new DebugToolsToolWindow(project, toolWindow.getDisposable()), null, false);
         toolWindow.getContentManager().addContent(content);
     }
 
