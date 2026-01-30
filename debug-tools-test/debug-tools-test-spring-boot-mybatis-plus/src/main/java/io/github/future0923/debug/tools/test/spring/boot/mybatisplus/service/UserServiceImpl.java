@@ -36,6 +36,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public void saveBatchTest() {
-
+        userDao.selectList(null);
     }
 }
