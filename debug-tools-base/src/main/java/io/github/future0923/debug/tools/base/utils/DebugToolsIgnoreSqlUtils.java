@@ -133,7 +133,10 @@ public class DebugToolsIgnoreSqlUtils {
                 continue;
             }
             try {
-
+                if (SQL_PRINT_STATEMENT.equals(currentSection)
+                    || SQL_PRINT_IGNORE_STATEMENT.equals(currentSection)) {
+                    newCache.get(currentSection).add(Pattern.compile(Pattern.quote(line)));
+                }
                 newCache.get(currentSection).add(Pattern.compile(line));
             } catch (PatternSyntaxException e) {
                 newCache.get(currentSection).add(Pattern.compile(Pattern.quote(line)));
