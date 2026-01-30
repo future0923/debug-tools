@@ -17,7 +17,6 @@
 package io.github.future0923.debug.tools.base.utils;
 
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
-import io.github.future0923.debug.tools.base.hutool.core.io.LineHandler;
 import io.github.future0923.debug.tools.base.hutool.core.io.watch.SimpleWatcher;
 import io.github.future0923.debug.tools.base.hutool.core.io.watch.WatchMonitor;
 import io.github.future0923.debug.tools.base.hutool.core.io.watch.WatchUtil;
@@ -29,9 +28,14 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * sql打印时忽略内容
@@ -43,12 +47,48 @@ public class DebugToolsIgnoreSqlUtils {
     /**
      * 缓存
      */
-    public static List<String> CACHE = new ArrayList<>();
+    private static Map<String, Set<Pattern>> CACHE = new HashMap<>();
 
     /**
      * 配置文件
      */
     private static File configFile;
+
+    /**
+     * 打印哪些包下的 sql
+     */
+    private static final String SQL_PRINT_PACKAGES = "sql.print.packages";
+
+    /**
+     * 忽略哪些包下的 sql
+     */
+    private static final String SQL_PRINT_IGNORE_PACKAGES = "sql.print.ignore-packages";
+
+    /**
+     * 打印哪些 sql 语句
+     */
+    private static final String SQL_PRINT_STATEMENT = "sql.print.statement";
+
+    /**
+     * 忽略哪些 sql 语句
+     */
+    private static final String SQL_PRINT_IGNORE_STATEMENT = "sql.print.ignore-statement";
+
+    public static Set<Pattern> getSqlPrintPackages() {
+        return CACHE.get(SQL_PRINT_PACKAGES);
+    }
+
+    public static Set<Pattern> getSqlPrintIgnorePackages() {
+        return CACHE.get(SQL_PRINT_IGNORE_PACKAGES);
+    }
+
+    public static Set<Pattern> getSqlPrintStatement() {
+        return CACHE.get(SQL_PRINT_STATEMENT);
+    }
+
+    public static Set<Pattern> getSqlPrintIgnoreStatement() {
+        return CACHE.get(SQL_PRINT_IGNORE_STATEMENT);
+    }
 
     /**
      * 创建
@@ -66,34 +106,39 @@ public class DebugToolsIgnoreSqlUtils {
      * 重新加载配置文件到缓存
      */
     private static synchronized void reload() {
-        CACHE = getContentList(configFile);
+        CACHE = getContentRuleMap(configFile);
     }
 
     /**
      * 获取指定路径的配置文件规则内容
      */
-    public static List<String> getContentList(String pathname) {
-        if (StrUtil.isBlank(pathname)) {
-            return Collections.emptyList();
-        }
-        return getContentList(new File(pathname));
-    }
-
-    /**
-     * 获取指定路径的配置文件规则内容
-     */
-    public static List<String> getContentList(File file) {
+    public static Map<String, Set<Pattern>> getContentRuleMap(File file) {
         if (file == null || !file.exists() || !file.isFile()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
-        List<String> newCache = new ArrayList<>();
-        FileUtil.readLines(file, StandardCharsets.UTF_8, (LineHandler) line -> {
+        Map<String, Set<Pattern>> newCache = new HashMap<>();
+        String currentSection = null;
+        List<String> lines = FileUtil.readLines(file, StandardCharsets.UTF_8);
+        for (String line : lines) {
             String trim = StrUtil.trim(line);
             if (StrUtil.isBlank(trim)) {
-                return;
+                continue;
             }
-            newCache.add(trim);
-        });
+            if (line.startsWith("[[") && line.endsWith("]]")) {
+                currentSection = line.substring(2, line.length() - 2).trim();
+                newCache.putIfAbsent(currentSection, new HashSet<>());
+                continue;
+            }
+            if (currentSection == null) {
+                continue;
+            }
+            try {
+
+                newCache.get(currentSection).add(Pattern.compile(line));
+            } catch (PatternSyntaxException e) {
+                newCache.get(currentSection).add(Pattern.compile(Pattern.quote(line)));
+            }
+        }
         return newCache;
     }
 

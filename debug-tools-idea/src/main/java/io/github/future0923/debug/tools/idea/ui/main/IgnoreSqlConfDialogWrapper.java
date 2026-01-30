@@ -48,7 +48,19 @@ public class IgnoreSqlConfDialogWrapper extends DialogWrapper {
 
     private final Project project;
 
-    private final String initName="default";
+    private final String initName = "default";
+
+    private static final String initTemplate =
+            """
+                    [[sql.print.packages]]
+                    
+                    [[sql.print.ignore-packages]]
+                    
+                    [[sql.print.statement]]
+                    
+                    [[sql.print.ignore-statement]]
+                    
+                    """;
 
 
     private EditorTextField editorField;
@@ -64,11 +76,13 @@ public class IgnoreSqlConfDialogWrapper extends DialogWrapper {
     @Override
     protected @Nullable JComponent createCenterPanel() {
         String filePath = project.getBasePath() + IdeaPluginProjectConstants.IGNORE_SQL_CONFIG_DIR + initName + ".conf";
-        String content = "";
+        String content = initTemplate;
         if (StrUtil.isNotBlank(filePath) && FileUtil.exist(filePath)) {
-            content = FileUtil.readUtf8String(filePath);
+            String fileContent = FileUtil.readUtf8String(filePath);
+            if (StrUtil.isNotBlank(fileContent)) {
+                content = fileContent;
+            }
         }
-
         editorField = new EditorTextField(content, project, PlainTextFileType.INSTANCE) {
             @Override
             protected @NotNull EditorEx createEditor() {

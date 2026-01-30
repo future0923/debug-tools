@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.sql;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
@@ -37,11 +38,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * 打印SQL字节码拦截器
+ *
  * @author future0923
  */
 public class SqlPrintInterceptor {
@@ -143,7 +145,47 @@ public class SqlPrintInterceptor {
                 parameters.set(index - 1, args[1]);
             }
             if (PREPARED_STATEMENT_METHODS.stream().anyMatch(s -> s.equals(method.getName()))) {
-                printSql(endTime - startTime, statement, parameters.toArray(new Object[0]), method, args);
+                Set<Pattern> sqlPrintPackages = DebugToolsIgnoreSqlUtils.getSqlPrintPackages();
+                Set<Pattern> sqlPrintIgnorePackages = DebugToolsIgnoreSqlUtils.getSqlPrintIgnorePackages();
+                if (CollUtil.isNotEmpty(sqlPrintPackages)) {
+                    boolean isSqlPrint = false;
+                    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                    for (StackTraceElement stackTraceElement : stackTrace) {
+                        if (isSqlPrint) {
+                            break;
+                        }
+                        String packageName = ClassUtil.getPackageName(stackTraceElement.getClassName());
+                        for (Pattern pattern : sqlPrintPackages) {
+                            if (pattern.matcher(packageName).find()) {
+                                isSqlPrint = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (isSqlPrint) {
+                        printSql(endTime - startTime, statement, parameters.toArray(new Object[0]), method, args);
+                    }
+                } else if (CollUtil.isNotEmpty(sqlPrintIgnorePackages)) {
+                    boolean isSqlPrint = true;
+                    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                    for (StackTraceElement stackTraceElement : stackTrace) {
+                        if (!isSqlPrint) {
+                            break;
+                        }
+                        String packageName = ClassUtil.getPackageName(stackTraceElement.getClassName());
+                        for (Pattern pattern : sqlPrintIgnorePackages) {
+                            if (pattern.matcher(packageName).find()) {
+                                isSqlPrint = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (isSqlPrint) {
+                        printSql(endTime - startTime, statement, parameters.toArray(new Object[0]), method, args);
+                    }
+                } else {
+                    printSql(endTime - startTime, statement, parameters.toArray(new Object[0]), method, args);
+                }
                 parameters.clear();
             }
             return result;
@@ -166,21 +208,31 @@ public class SqlPrintInterceptor {
                 MethodTrace.exit(consume);
             }
 
-            if (StrUtil.isNotBlank(resultSql) && CollUtil.isNotEmpty(DebugToolsIgnoreSqlUtils.CACHE)) {
-                if (CollUtil.contains(DebugToolsIgnoreSqlUtils.CACHE, resultSql)) {
-                    return;
-                }
-
-                String finalResultSql = resultSql;
-                if (DebugToolsIgnoreSqlUtils.CACHE.stream().anyMatch(s -> {
-                    try {
-                        return Pattern.compile(s).matcher(finalResultSql).find();
-                    } catch (PatternSyntaxException e) {
-                        return Pattern.compile(Pattern.quote(s)).matcher(finalResultSql).find();
+            if (StrUtil.isNotBlank(resultSql)) {
+                Set<Pattern> sqlPrintStatement = DebugToolsIgnoreSqlUtils.getSqlPrintStatement();
+                Set<Pattern> sqlPrintIgnoreStatement = DebugToolsIgnoreSqlUtils.getSqlPrintIgnoreStatement();
+                if (CollUtil.isNotEmpty(sqlPrintStatement)) {
+                    boolean isSqlPrint = false;
+                    for (Pattern pattern : sqlPrintStatement) {
+                        if (pattern.matcher(resultSql).find()) {
+                            isSqlPrint = true;
+                            break;
+                        }
                     }
-                })
-                ) {
-                    return;
+                    if (!isSqlPrint) {
+                        return;
+                    }
+                } else if (CollUtil.isNotEmpty(sqlPrintIgnoreStatement)) {
+                    boolean isSqlPrint = true;
+                    for (Pattern pattern : sqlPrintIgnoreStatement) {
+                        if (pattern.matcher(resultSql).find()) {
+                            isSqlPrint = false;
+                            break;
+                        }
+                    }
+                    if (!isSqlPrint) {
+                        return;
+                    }
                 }
             }
 
@@ -201,7 +253,7 @@ public class SqlPrintInterceptor {
                 }
             }
         } catch (Exception e) {
-            logger.error("Failed to print SQL",e);
+            logger.error("Failed to print SQL", e);
         }
     }
 }

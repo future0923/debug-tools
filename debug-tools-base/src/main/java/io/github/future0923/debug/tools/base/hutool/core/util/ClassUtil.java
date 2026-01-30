@@ -988,6 +988,13 @@ public class ClassUtil {
 			return StrUtil.EMPTY;
 		}
 		final String className = clazz.getName();
+		return getPackageName(className);
+	}
+
+	public static String getPackageName(String className) {
+		if (StrUtil.isBlank(className)) {
+			return StrUtil.EMPTY;
+		}
 		int packageEndIndex = className.lastIndexOf(StrUtil.DOT);
 		if (packageEndIndex == -1) {
 			return StrUtil.EMPTY;
