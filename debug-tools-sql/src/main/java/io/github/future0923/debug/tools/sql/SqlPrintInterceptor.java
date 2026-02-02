@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.sql;
 
+import io.github.future0923.debug.tools.base.context.RunMethodContext;
 import io.github.future0923.debug.tools.base.enums.PrintSqlType;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
@@ -29,6 +30,7 @@ import io.github.future0923.debug.tools.base.hutool.sql.SqlCompressor;
 import io.github.future0923.debug.tools.base.hutool.sql.SqlFormatter;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
+import io.github.future0923.debug.tools.base.tuple.Tuple2;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIgnoreSqlUtils;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
@@ -63,6 +65,8 @@ public class SqlPrintInterceptor {
     private static final String MYBATIS_PROXY_CLASS_NAME = "org.apache.ibatis.binding.MapperProxy";
 
     private static final String MYBATIS_PLUS_PROXY_CLASS_NAME = "com.baomidou.mybatisplus.core.override.MybatisMapperProxy";
+
+    private static final String JPA_PROXY_CLASS_NAME = "org.springframework.aop.framework.JdkDynamicAopProxy";
 
     public static PrintSqlType printSqlType = PrintSqlType.NO;
     private static Boolean autoSaveSql = false;
@@ -159,7 +163,7 @@ public class SqlPrintInterceptor {
                 Set<Pattern> sqlPrintIgnorePackages = DebugToolsIgnoreSqlUtils.getSqlPrintIgnorePackages();
                 if (CollUtil.isNotEmpty(sqlPrintPackages)) {
                     boolean isSqlPrint = false;
-                    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                    StackTraceElement[] stackTrace = getThreadStackTrace();
                     for (StackTraceElement stackTraceElement : stackTrace) {
                         if (isSqlPrint) {
                             break;
@@ -180,7 +184,7 @@ public class SqlPrintInterceptor {
                     }
                 } else if (CollUtil.isNotEmpty(sqlPrintIgnorePackages)) {
                     boolean isSqlPrint = true;
-                    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                    StackTraceElement[] stackTrace = getThreadStackTrace();
                     for (StackTraceElement stackTraceElement : stackTrace) {
                         if (!isSqlPrint) {
                             break;
@@ -271,6 +275,15 @@ public class SqlPrintInterceptor {
     }
 
     private static String getPackageNameAndProxy(String className) {
+        if (className.startsWith("io.github.future0923.debug.tools.sql.SqlPrintInterceptor")) {
+            return StrUtil.EMPTY;
+        }
+        if (className.startsWith("io.github.future0923.debug.tools.server")) {
+            return StrUtil.EMPTY;
+        }
+        if (className.startsWith("io.github.future0923.debug.tools.common")) {
+            return StrUtil.EMPTY;
+        }
         if (PROXY_CLASS_PATTERN.matcher(className).find()) {
             Object[] instances = JvmToolsUtils.getInstances(ClassLoaderUtil.loadClass(className));
             if (ArrayUtil.isEmpty(instances)) {
@@ -280,11 +293,27 @@ public class SqlPrintInterceptor {
             if (MYBATIS_PROXY_CLASS_NAME.equals(invocationHandler.getClass().getName())
                     || MYBATIS_PLUS_PROXY_CLASS_NAME.equals(invocationHandler.getClass().getName())) {
                 return ClassUtil.getPackageName(((Class<?>) ReflectUtil.getFieldValue(invocationHandler, "mapperInterface")).getName());
+            } else if (JPA_PROXY_CLASS_NAME.equals(invocationHandler.getClass().getName())) {
+                Class<?>[] proxiedInterfaces = (Class<?>[]) ReflectUtil.getFieldValue(invocationHandler, "proxiedInterfaces");
+                if (ArrayUtil.isNotEmpty(proxiedInterfaces)) {
+                    return ClassUtil.getPackageName((proxiedInterfaces[0].getName()));
+                } else {
+                    return StrUtil.EMPTY;
+                }
             } else {
                 return StrUtil.EMPTY;
             }
         } else {
             return ClassUtil.getPackageName(className);
         }
+    }
+
+    private static StackTraceElement[] getThreadStackTrace() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        Tuple2<String, String> runMethod = RunMethodContext.getRunMethod();
+        if (runMethod != null) {
+            return ArrayUtil.append(stackTrace, new StackTraceElement(runMethod.f0, runMethod.f1, "", -1));
+        }
+        return ArrayUtil.reverse(stackTrace);
     }
 }
