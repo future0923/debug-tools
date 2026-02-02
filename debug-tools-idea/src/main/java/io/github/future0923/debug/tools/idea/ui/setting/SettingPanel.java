@@ -124,7 +124,7 @@ public class SettingPanel {
     private IgnoreStaticFieldComboBox ignoreStaticFieldComboBox;
 
     @Getter
-    private JButton ignoreSqlConfigButton = new JButton(DebugToolsBundle.message("action.ignore.sql.config"));
+    private final JButton filterSqlConfigButton = new JButton(DebugToolsBundle.message("action.filter.sql.config"));
 
     public SettingPanel(Project project) {
         this.project = project;
@@ -163,7 +163,7 @@ public class SettingPanel {
         printSqlPanel.add(printCompressSql);
         printSqlPanel.add(printNoSql);
         printSqlPanel.add(saveSqlCheckBox);
-        printSqlPanel.add(ignoreSqlConfigButton);
+        printSqlPanel.add(filterSqlConfigButton);
 
         ButtonGroup printSqlButtonGroup = new ButtonGroup();
         printSqlButtonGroup.add(printPrettySql);
@@ -183,7 +183,7 @@ public class SettingPanel {
         sqlRetentionPanel.add(new JLabel(DebugToolsBundle.message("setting.panel.minimum.settable.value")));
 
         saveSqlCheckBox.setVisible(!printNoSql.isSelected());
-        ignoreSqlConfigButton.setVisible(!printNoSql.isSelected());
+        filterSqlConfigButton.setVisible(!printNoSql.isSelected());
         saveSqlCheckBox.setSelected(BooleanUtil.isTrue(settingState.getAutoSaveSql()));
         if (settingState.getSqlRetentionDays() != null) {
             saveSqlDaysField.setNumber(settingState.getSqlRetentionDays());
@@ -191,18 +191,18 @@ public class SettingPanel {
         sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected());
         // 监听开关变化
         saveSqlCheckBox.addItemListener(e -> sqlRetentionPanel.setVisible(saveSqlCheckBox.isSelected()));
-        ignoreSqlConfigButton.addActionListener(e -> {
+        filterSqlConfigButton.addActionListener(e -> {
             IgnoreSqlConfDialogWrapper wrapper = new IgnoreSqlConfDialogWrapper(project);
             wrapper.show();
         });
         Runnable updateSaveSqlPanels = () -> {
             if (printNoSql.isSelected()) {
                 saveSqlCheckBox.setVisible(false);
-                ignoreSqlConfigButton.setVisible(false);
+                filterSqlConfigButton.setVisible(false);
                 saveSqlCheckBox.setSelected(false);
             } else {
                 saveSqlCheckBox.setVisible(true);
-                ignoreSqlConfigButton.setVisible(true);
+                filterSqlConfigButton.setVisible(true);
             }
         };
         // 监听printSql单选按钮变化
