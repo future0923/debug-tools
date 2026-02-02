@@ -21,6 +21,8 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity.User
 import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 
 /**
  * @author future0923
@@ -37,5 +39,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public void saveBatchTest() {
         userDao.selectList(null);
+    }
+
+    public void testDate(Date time){
+        System.out.println(time);
     }
 }
