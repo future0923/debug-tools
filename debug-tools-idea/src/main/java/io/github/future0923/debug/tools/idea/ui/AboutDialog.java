@@ -33,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.Caret;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -110,42 +112,57 @@ public class AboutDialog extends DialogWrapper {
         headerPanel.setBorder(JBUI.Borders.emptyBottom(5));
         headerPanel.setBackground(JBColor.WHITE);
 
-        // Plugin icon with shadow effect
+        // Plugin icon with shadow effect - adjusted size to match title height
         JLabel iconLabel = new JLabel(DebugToolsIcons.DebugToolsMax);
-        iconLabel.setPreferredSize(new Dimension(80, 80));
+        iconLabel.setPreferredSize(new Dimension(64, 64));
+        iconLabel.setBorder(JBUI.Borders.emptyTop(6));
         headerPanel.add(iconLabel, BorderLayout.WEST);
 
-        // Title panel
-        JPanel titlePanel = new JPanel(new BorderLayout(0, 8));
+        // Title panel with vertical box layout for better alignment
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(JBColor.WHITE);
+        titlePanel.setBorder(JBUI.Borders.emptyTop(8));
 
-        // Plugin name with modern font
-        JTextPane nameLabel = new JTextPane();
-        nameLabel.setText(DebugToolsBundle.message("plugin.name"));
+        // Plugin name with modern font - use JLabel to avoid cursor
+        JLabel nameLabel = new JLabel(DebugToolsBundle.message("plugin.name"));
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 24f));
-        nameLabel.setBackground(JBColor.WHITE);
-        nameLabel.setEditable(false);
-        nameLabel.setOpaque(false);
-        titlePanel.add(nameLabel, BorderLayout.NORTH);
+        nameLabel.setForeground(JBColor.BLACK);
+        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titlePanel.add(nameLabel);
 
-        // Plugin version with gradient effect
-        JTextPane versionLabel = new JTextPane();
-        versionLabel.setText("Version: " + getVersionInfo());
-        versionLabel.setFont(versionLabel.getFont().deriveFont(Font.PLAIN, 16f));
-        versionLabel.setBackground(JBColor.WHITE);
-        versionLabel.setEditable(false);
-        versionLabel.setOpaque(false);
-        titlePanel.add(versionLabel, BorderLayout.CENTER);
+        titlePanel.add(Box.createVerticalStrut(4));
+
+        // Plugin version with gradient effect - use JLabel to avoid cursor
+        JLabel versionLabel = new JLabel("Version: " + getVersionInfo());
+        versionLabel.setFont(versionLabel.getFont().deriveFont(Font.PLAIN, 14f));
+        versionLabel.setForeground(JBColor.GRAY);
+        versionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        titlePanel.add(versionLabel);
 
         headerPanel.add(titlePanel, BorderLayout.CENTER);
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // HTML content panel
+        // HTML content panel with invisible caret to hide cursor while allowing selection
         JEditorPane htmlPane = new JEditorPane();
         htmlPane.setContentType("text/html");
         htmlPane.setEditable(false);
         htmlPane.setOpaque(false);
         htmlPane.setBorder(JBUI.Borders.empty(10, 20));
+        
+        // Set invisible caret to hide cursor while preserving text selection
+        Caret invisibleCaret = new DefaultCaret() {
+            @Override
+            public boolean isVisible() {
+                return false;
+            }
+            
+            @Override
+            public int getBlinkRate() {
+                return 0;
+            }
+        };
+        htmlPane.setCaret(invisibleCaret);
 
         // Load and process HTML template
         try {
@@ -193,20 +210,50 @@ public class AboutDialog extends DialogWrapper {
     private String getInstallDate() {
         if (pluginDesc == null) return "Unknown";
         try {
-            // 获取插件在磁盘上的路径
             Path pluginPath = pluginDesc.getPluginPath();
-            // 读取文件属性
-            BasicFileAttributes attrs = Files.readAttributes(pluginPath, BasicFileAttributes.class);
-            // 获取创建时间 (Windows上通常是创建时间，Linux上可能是最后修改时间)
-            FileTime createTime = attrs.creationTime();
-
-            // 格式化
-            return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                    .withZone(ZoneId.systemDefault())
-                    .format(createTime.toInstant());
+            Path actualPath = determineActualPath(pluginPath);
+            
+            BasicFileAttributes attrs = Files.readAttributes(actualPath, BasicFileAttributes.class);
+            // 使用最后修改时间，因为创建时间在跨平台上不可靠
+            // 且更能反映插件的实际安装/更新时间
+            FileTime lastModifiedTime = attrs.lastModifiedTime();
+            
+            return formatDateTime(lastModifiedTime);
         } catch (IOException e) {
             return "Unknown";
         }
+    }
+    
+    /**
+     * 确定要读取时间的实际路径
+     * 对于 .jar 文件，直接使用文件路径
+     * 对于解压目录，尝试使用 plugin.xml 作为参考，否则使用目录本身
+     */
+    private Path determineActualPath(Path pluginPath) throws IOException {
+        String pathStr = pluginPath.toString();
+        
+        // 如果是 .jar 或 .zip 文件，直接返回
+        if (pathStr.endsWith(".jar") || pathStr.endsWith(".zip")) {
+            return pluginPath;
+        }
+        
+        // 如果是目录，尝试查找 plugin.xml
+        Path pluginXml = pluginPath.resolve("plugin.xml");
+        if (Files.exists(pluginXml)) {
+            return pluginXml;
+        }
+        
+        // 如果找不到 plugin.xml，返回目录本身
+        return pluginPath;
+    }
+    
+    /**
+     * 格式化文件时间为字符串
+     */
+    private String formatDateTime(FileTime fileTime) {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.systemDefault())
+                .format(fileTime.toInstant());
     }
 
     private String getRuntimeInfo() {
@@ -245,8 +292,25 @@ public class AboutDialog extends DialogWrapper {
 
     private String getIssueUrl() {
         if (issueUrl == null) {
-            String issueBody = URLEncoder.encode("## Environment " + getIdeInfo() + " " + getVersionInfo(), StandardCharsets.UTF_8);
-            issueUrl = "https://github.com/future0923/debug-tools/issues/new?body=" + issueBody;
+            // 构建详细的issue环境信息模板
+            StringBuilder issueBody = new StringBuilder();
+            issueBody.append("## Environment Information\n\n");
+            
+            // DebugTools 插件信息
+            issueBody.append("**DebugTools Plugin:** ").append(getVersionInfo()).append("\n");
+            
+            // IDE 信息
+            issueBody.append("**IDE:** ").append(getIdeName()).append("\n");
+            issueBody.append("**IDE Version:** ").append(getIdeVersion()).append("\n");
+
+            // 操作系统信息
+            issueBody.append("**OS:** ").append(getOsInfo()).append("\n");
+
+            issueBody.append("---\n\n");
+            issueBody.append("**Please describe the problem in detail below:**\n\n");
+            
+            String encodedBody = URLEncoder.encode(issueBody.toString(), StandardCharsets.UTF_8);
+            issueUrl = "https://github.com/future0923/debug-tools/issues/new?body=" + encodedBody;
         }
         return issueUrl;
     }
@@ -324,13 +388,13 @@ public class AboutDialog extends DialogWrapper {
      */
     private class CancelActionWrapper extends DialogWrapper.DialogWrapperAction {
         protected CancelActionWrapper() {
-            super(DebugToolsBundle.message("action.cancel"));
+            super(DebugToolsBundle.message("global.param.panel.close"));
             putValue(Action.MNEMONIC_KEY, (int) 'C');
         }
 
         @Override
         protected void doAction(ActionEvent e) {
-            close(DialogWrapper.CANCEL_EXIT_CODE);
+            close(DialogWrapper.CLOSE_EXIT_CODE);
         }
     }
 }
