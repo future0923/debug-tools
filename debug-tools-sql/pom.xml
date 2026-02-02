@@ -14,6 +14,11 @@
     <dependencies>
         <dependency>
             <groupId>io.github.future0923</groupId>
+            <artifactId>debug-tools-vm</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.future0923</groupId>
             <artifactId>debug-tools-hotswap-core</artifactId>
             <version>${revision}</version>
         </dependency>

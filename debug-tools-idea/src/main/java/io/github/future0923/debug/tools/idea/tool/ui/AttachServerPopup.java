@@ -58,7 +58,7 @@ public class AttachServerPopup {
         listPanel.add(new JBLabel(DebugToolsBundle.message("attach.server.scanning")), BorderLayout.CENTER);
         JScrollPane scrollPane = new JBScrollPane(listPanel);
         scrollPane.setBorder(JBUI.Borders.empty());
-        scrollPane.setPreferredSize(new Dimension(420, 160));
+        scrollPane.setPreferredSize(new Dimension(540, 400));
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancel = new JButton(DebugToolsBundle.message("action.cancel"));
         cancel.addActionListener(e -> popup.cancel());

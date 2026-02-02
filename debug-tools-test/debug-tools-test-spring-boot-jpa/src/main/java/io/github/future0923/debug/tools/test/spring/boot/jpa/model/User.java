@@ -14,28 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.service;
+package io.github.future0923.debug.tools.test.spring.boot.jpa.model;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity.User;
-import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.mapper.UserMapper;
-import org.springframework.stereotype.Service;
+import lombok.Data;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 /**
  * @author future0923
  */
-@Service("userService")
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-
-    private final UserMapper userDao;
-
-    public UserServiceImpl(UserMapper userDao) {
-        this.userDao = userDao;
-    }
-
-    @Override
-    public void saveBatchTest() {
-        userDao.selectList(null);
-    }
+@Data
+@Entity(name = "dp_user")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Column
+    private String name;
+    @Column
+    private Integer age;
+    @Column
+    private Integer version;
 }

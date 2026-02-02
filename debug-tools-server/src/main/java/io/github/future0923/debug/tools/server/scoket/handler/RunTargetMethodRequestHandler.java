@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.server.scoket.handler;
 
 import io.github.future0923.debug.tools.base.around.RunMethodAround;
+import io.github.future0923.debug.tools.base.context.RunMethodContext;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
@@ -153,6 +154,7 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
         Object result = null;
         Throwable throwable = null;
         try {
+            RunMethodContext.setRunMethod(targetClassName, runDTO.getTargetMethodName());
             result = run(bridgedMethod, instance, targetMethodArgs, runDTO, outputStream, traceMethod);
             ReflectUtil.invoke(
                     aroundInstance,
@@ -197,9 +199,10 @@ public class RunTargetMethodRequestHandler extends BasePacketHandler<RunTargetMe
                     targetMethodArgs,
                     result,
                     throwable
-                );
+            );
+            RunMethodContext.clear();
+            Thread.currentThread().setContextClassLoader(orgClassLoader);
         }
-        Thread.currentThread().setContextClassLoader(orgClassLoader);
     }
 
     private Object run(Method bridgedMethod, Object instance, Object[] targetMethodArgs, RunDTO runDTO, OutputStream outputStream, Boolean traceMethod) throws Exception {

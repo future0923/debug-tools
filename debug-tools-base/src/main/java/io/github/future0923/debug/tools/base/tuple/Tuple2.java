@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.common.tuple;
+package io.github.future0923.debug.tools.base.tuple;
 
 /**
  * @author future0923

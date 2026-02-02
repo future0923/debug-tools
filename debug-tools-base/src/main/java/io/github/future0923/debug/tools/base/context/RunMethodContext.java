@@ -14,28 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.test.spring.boot.mybatisplus.service;
+package io.github.future0923.debug.tools.base.context;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.entity.User;
-import io.github.future0923.debug.tools.test.spring.boot.mybatisplus.mapper.UserMapper;
-import org.springframework.stereotype.Service;
-
+import io.github.future0923.debug.tools.base.tuple.Tuple2;
 
 /**
  * @author future0923
  */
-@Service("userService")
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+public class RunMethodContext {
 
-    private final UserMapper userDao;
+    /**
+     * 运行方法上下文
+     * Tuple2<className, methodName>
+     */
+    private static final ThreadLocal<Tuple2<String, String>> RUN_METHOD_CONTEXT = new ThreadLocal<>();
 
-    public UserServiceImpl(UserMapper userDao) {
-        this.userDao = userDao;
+    public static void setRunMethod(String className, String methodName) {
+        RUN_METHOD_CONTEXT.set(Tuple2.of(className, methodName));
     }
 
-    @Override
-    public void saveBatchTest() {
-        userDao.selectList(null);
+    public static Tuple2<String, String> getRunMethod() {
+        return RUN_METHOD_CONTEXT.get();
+    }
+
+    public static void clear() {
+        RUN_METHOD_CONTEXT.remove();
     }
 }

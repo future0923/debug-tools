@@ -401,7 +401,7 @@ public class DebugToolsSettingConfigurable implements Configurable {
         traceMethodDTO.setTraceIgnorePackageRegexp(settingPanel.getTraceMethodPanel().getTraceIgnorePackage());
         settingState.setTraceMethodDTO(traceMethodDTO);
 
-        if (StrUtil.equals(settingState.getIgnoreStaticFieldConfName(), (String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem())) {
+        if (!StrUtil.equals(settingState.getIgnoreStaticFieldConfName(), (String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem())) {
             settingState.setIgnoreStaticFieldConfName((String) settingPanel.getIgnoreStaticFieldComboBox().getSelectedItem());
             settingState.reloadIgnoreStaticFieldByPath(project);
             DebugToolsNotifierUtil.notifyInfo(project, DebugToolsBundle.message("setting.change.notify.ignore.static.field"));
