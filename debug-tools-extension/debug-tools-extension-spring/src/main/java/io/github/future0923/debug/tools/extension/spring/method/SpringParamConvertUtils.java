@@ -16,13 +16,13 @@
  */
 package io.github.future0923.debug.tools.extension.spring.method;
 
-import io.github.future0923.debug.tools.base.hutool.core.date.DateUtil;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
+import io.github.future0923.debug.tools.common.utils.DebugToolsDateUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
 import io.github.future0923.debug.tools.extension.spring.request.MockMultipartFile;
@@ -40,7 +40,6 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -96,16 +95,16 @@ public class SpringParamConvertUtils {
             if (DebugToolsClassUtils.isSimpleValueType(parameter.getParameterType())) {
                 try {
                     if (parameter.getParameterType().isAssignableFrom(LocalDateTime.class)) {
-                        return LocalDateTime.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        return DebugToolsDateUtils.parseLocalDateTime(runContentDTO.getContent().toString());
                     }
                     if (parameter.getParameterType().isAssignableFrom(LocalDate.class)) {
-                        return LocalDate.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        return DebugToolsDateUtils.parseLocalDate(runContentDTO.getContent().toString());
                     }
                     if (parameter.getParameterType().isAssignableFrom(LocalTime.class)) {
-                        return LocalTime.parse(runContentDTO.getContent().toString(), DateTimeFormatter.ofPattern("HH:mm:ss"));
+                        return DebugToolsDateUtils.parseLocalTime(runContentDTO.getContent().toString());
                     }
                     if (parameter.getParameterType().isAssignableFrom(Date.class)) {
-                        return DateUtil.parse(runContentDTO.getContent().toString(), "yyyy-MM-dd HH:mm:ss");
+                        return DebugToolsDateUtils.parseDate(runContentDTO.getContent().toString());
                     }
                     // spring简单类型转换
                     return simpleTypeConverter.convertIfNecessary(runContentDTO.getContent(), parameter.getParameterType(), parameter);
