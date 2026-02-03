@@ -13,9 +13,12 @@ import com.intellij.ui.tabs.TabInfo
 import com.intellij.ui.tabs.impl.JBEditorTabs
 import javax.swing.JPanel
 
+/*
+ * 工具栏主容器 包含tab切换
+ */
 @Suppress("UnstableApiUsage")
 class MainPanelV2(project: Project, parentDisposable: Disposable) {
-
+    private val project = project
     private val tabs: JBEditorTabs = JBEditorTabs(project, parentDisposable)
     private var tabCount = 0
 
@@ -51,9 +54,9 @@ class MainPanelV2(project: Project, parentDisposable: Disposable) {
         val labelText = if (tabCount == 0) title else "$title $tabCount"
 
         // 每个 Tab 的内容容器
-        val content = JPanel()
+        val content = MethodSettingPanel().createPanel(project)
 
-        val info = TabInfo(JPanel()).apply {
+        val info = TabInfo(content).apply {
             setText(labelText)
             setIcon(AllIcons.Nodes.MethodReference)
         }

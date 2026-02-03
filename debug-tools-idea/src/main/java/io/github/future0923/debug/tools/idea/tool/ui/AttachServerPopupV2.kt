@@ -41,13 +41,6 @@ class AttachServerPopupV2(private val project: Project) {
                     border = JBUI.Borders.empty()
                 }
         }.resizableRow()
-
-        /*row {
-            // 底部按钮栏
-            button(DebugToolsBundle.message("action.cancel")) { popup?.cancel() }
-            button(DebugToolsBundle.message("action.refresh")) { loadVmAsync() }
-            button(DebugToolsBundle.message("action.attach")) { doAttach() }
-        }*/
     }
     private val cardListPanelV2 = CardListPanelV2()
     private val radioButtons: MutableList<JBRadioButton> = ArrayList()
@@ -68,7 +61,8 @@ class AttachServerPopupV2(private val project: Project) {
             add(object : AnAction("Refresh", null, AllIcons.Actions.BuildLoadChanges) {
                 override fun actionPerformed(e: AnActionEvent): Unit = loadVmAsync()
             })
-            add(object : AnAction(if (isCollapsed) "Expand" else "Collapse", null, AllIcons.Actions.Expandall) {
+            var finalCollapsed = isCollapsed
+            add(object : AnAction(if (finalCollapsed) "Expand" else "Collapse", null, AllIcons.Actions.Expandall) {
                 override fun update(e: AnActionEvent) {
                     // 动态切换图标
                     e.presentation.icon = if (isCollapsed) AllIcons.Actions.Expandall else AllIcons.Actions.Collapseall
