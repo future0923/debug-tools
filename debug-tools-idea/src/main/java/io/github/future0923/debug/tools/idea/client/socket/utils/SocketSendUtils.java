@@ -21,14 +21,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.tool.DebugToolsToolWindowFactory;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.IOException;
 
 /**
  * @author future0923
@@ -40,7 +37,7 @@ public class SocketSendUtils {
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {
                 try {
-                    info.getClient().getHolder().send(new ClearRunResultRequestPacket(filedOffset, traceOffset));
+                    info.getClient().send(new ClearRunResultRequestPacket(filedOffset, traceOffset));
                 } catch (Exception ignored) {
                 }
             }
@@ -51,16 +48,16 @@ public class SocketSendUtils {
         sendAsync(project, packet, null);
     }
 
-    public static void sendThrowException(Project project, Packet packet) throws NullPointerException, SocketCloseException, IOException {
+    public static void sendThrowException(Project project, Packet packet) throws NullPointerException {
         sendThrowException(project, packet, null);
     }
 
-    public static void sendThrowException(Project project, Packet packet, Runnable runnable) throws NullPointerException, SocketCloseException, IOException {
+    public static void sendThrowException(Project project, Packet packet, Runnable runnable) throws NullPointerException {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
         if (info == null) {
             throw new NullPointerException("Project not attach");
         }
-        info.getClient().getHolder().send(packet);
+        info.getClient().send(packet);
         if (runnable != null) {
             runnable.run();
         }
@@ -79,15 +76,10 @@ public class SocketSendUtils {
                 return;
             }
             try {
-                info.getClient().getHolder().send(packet);
+                info.getClient().send(packet);
                 if (successUiCallback != null) {
                     app.invokeLater(successUiCallback);
                 }
-            } catch (SocketCloseException e) {
-                app.invokeLater(() -> {
-                    Messages.showErrorDialog(project, "Socket closed", "Send Error");
-                    DebugToolsToolWindowFactory.showWindow(project, null);
-                });
             } catch (Exception e) {
                 app.invokeLater(() -> {
                     Messages.showErrorDialog(

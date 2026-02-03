@@ -19,14 +19,12 @@ package io.github.future0923.debug.tools.idea.client;
 import com.intellij.openapi.project.Project;
 import io.github.future0923.debug.tools.base.hutool.core.util.ObjectUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIOUtils;
-import io.github.future0923.debug.tools.client.DebugToolsSocketClient;
 import io.github.future0923.debug.tools.client.config.ClientConfig;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
+import io.github.future0923.debug.tools.idea.client.socket.DebugToolsNettyTcpClient;
+import io.github.future0923.debug.tools.idea.client.socket.ClientDispatcherFactory;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
-import io.github.future0923.debug.tools.idea.client.socket.IdeaPacketHandleService;
 import lombok.Data;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +77,7 @@ public class ApplicationProjectHolder {
             return info;
         }
         if (info != null && info.getClient() != null) {
-            info.getClient().disconnect();
+            info.getClient().stop();
         }
         if (info != null && info.getApplicationName() != null) {
             APPLICATION_MAPPING.remove(info.getApplicationName());
@@ -93,8 +91,8 @@ public class ApplicationProjectHolder {
         ClientConfig config = new ClientConfig();
         config.setHost(host);
         config.setPort(port);
-        config.setHeartbeatInterval(2);
-        clientInfo.setClient(new DebugToolsSocketClient(config, IdeaPacketHandleService.INSTANCE));
+        config.setHeartbeatSeconds(2);
+        clientInfo.setClient(new DebugToolsNettyTcpClient(config, ClientDispatcherFactory.createDefault()));
         PROJECT_MAPPING.put(project, clientInfo);
         APPLICATION_MAPPING.put(applicationName, clientInfo);
         return clientInfo;
@@ -109,19 +107,19 @@ public class ApplicationProjectHolder {
     }
 
     public static void close(Project project) {
-        Optional.ofNullable(getInfo(project)).map(Info::getClient).ifPresent(DebugToolsSocketClient::disconnect);
+        Optional.ofNullable(getInfo(project)).map(Info::getClient).ifPresent(DebugToolsNettyTcpClient::stop);
         Info remove = PROJECT_MAPPING.remove(project);
         Optional.ofNullable(remove).map(Info::getApplicationName).ifPresent(APPLICATION_MAPPING::remove);
     }
 
     public static void close(String applicationName) {
-        Optional.ofNullable(getInfo(applicationName)).map(Info::getClient).ifPresent(DebugToolsSocketClient::disconnect);
+        Optional.ofNullable(getInfo(applicationName)).map(Info::getClient).ifPresent(DebugToolsNettyTcpClient::stop);
         Info remove = APPLICATION_MAPPING.remove(applicationName);
         Optional.ofNullable(remove).map(Info::getProject).ifPresent(PROJECT_MAPPING::remove);
     }
 
-    public static void send(Project project, Packet packet) throws SocketCloseException, IOException {
-        getInfo(project).getClient().getHolder().send(packet);
+    public static void send(Project project, Packet packet) {
+        getInfo(project).getClient().send(packet);
     }
 
     @Data
@@ -137,7 +135,7 @@ public class ApplicationProjectHolder {
 
         private int port;
 
-        private DebugToolsSocketClient client;
+        private DebugToolsNettyTcpClient client;
 
     }
 }

@@ -18,19 +18,16 @@ package io.github.future0923.debug.tools.common.protocal.packet.request;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.Command;
-import io.github.future0923.debug.tools.common.protocal.packet.Packet;
-import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.github.future0923.debug.tools.common.protocal.packet.EntityPacket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * @author future0923
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ClearRunResultRequestPacket extends Packet {
+public class ClearRunResultRequestPacket extends EntityPacket<ClearRunResultRequestPacket> {
 
     private static final Logger logger = Logger.getLogger(ClearRunResultRequestPacket.class);
 
@@ -47,26 +44,12 @@ public class ClearRunResultRequestPacket extends Packet {
     }
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.CLEAR_RUN_RESULT;
     }
 
     @Override
-    public byte[] binarySerialize() {
-        return DebugToolsJsonUtils.toJsonStr(this).getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void binaryDeserialization(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
-            return;
-        }
-        String jsonString = new String(bytes, StandardCharsets.UTF_8);
-        if (!DebugToolsJsonUtils.isTypeJSON(jsonString)) {
-            logger.warning("The data ClearRunResultRequestPacket received is not JSON, {}", jsonString);
-            return;
-        }
-        ClearRunResultRequestPacket packet = DebugToolsJsonUtils.toBean(jsonString, ClearRunResultRequestPacket.class);
+    public void doDeserialize(ClearRunResultRequestPacket packet) {
         this.setFieldOffset(packet.getFieldOffset());
         this.setTraceOffset(packet.getTraceOffset());
     }

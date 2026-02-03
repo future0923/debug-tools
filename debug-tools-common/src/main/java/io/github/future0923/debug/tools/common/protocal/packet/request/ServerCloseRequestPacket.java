@@ -18,23 +18,24 @@ package io.github.future0923.debug.tools.common.protocal.packet.request;
 
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.netty.buffer.ByteBuf;
 
 /**
  * @author future0923
  */
 public class ServerCloseRequestPacket extends Packet {
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.SERVER_CLOSE_REQUEST;
     }
 
     @Override
-    public byte[] binarySerialize() {
-        return new byte[0];
+    public void binarySerialize(ByteBuf byteBuf) {
+
     }
 
     @Override
-    public void binaryDeserialization(byte[] bytes) {
+    public void binaryDeserialization(ByteBuf byteBuf) {
 
     }
 }

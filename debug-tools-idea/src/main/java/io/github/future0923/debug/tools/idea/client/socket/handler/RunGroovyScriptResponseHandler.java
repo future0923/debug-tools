@@ -22,7 +22,7 @@ import com.intellij.execution.ui.RunContentDescriptor;
 import com.intellij.execution.ui.RunContentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindowManager;
-import io.github.future0923.debug.tools.common.handler.BasePacketHandler;
+import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunGroovyScriptResponsePacket;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
@@ -30,15 +30,15 @@ import io.github.future0923.debug.tools.idea.ui.tab.ExceptionTabbedPane;
 import io.github.future0923.debug.tools.idea.ui.tab.GroovyResult;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsIcons;
 import io.github.future0923.debug.tools.idea.utils.DebugToolsNotifierUtil;
+import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.io.OutputStream;
 
 /**
  * @author future0923
  */
-public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyScriptResponsePacket> {
+public class RunGroovyScriptResponseHandler implements NettyPacketHandler<RunGroovyScriptResponsePacket> {
 
     public static final RunGroovyScriptResponseHandler INSTANCE = new RunGroovyScriptResponseHandler();
 
@@ -47,7 +47,7 @@ public class RunGroovyScriptResponseHandler extends BasePacketHandler<RunGroovyS
     }
 
     @Override
-    public void handle(OutputStream outputStream, RunGroovyScriptResponsePacket packet) throws Exception {
+    public void handle(ChannelHandlerContext ctx, RunGroovyScriptResponsePacket packet) throws Exception {
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(packet.getApplicationName());
         if (info == null) {
             DebugToolsNotifierUtil.notifyError(null, "未找到应用" + packet.getApplicationName() + "的链接信息");

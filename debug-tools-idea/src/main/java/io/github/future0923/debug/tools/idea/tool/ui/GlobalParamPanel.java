@@ -25,7 +25,6 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
 import io.github.future0923.debug.tools.base.hutool.core.util.ClassUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
-import io.github.future0923.debug.tools.client.holder.ClientSocketHolder;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
@@ -77,7 +76,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
     private final PrintSqlPanel printSqlPanel;
 
     private final MethodAroundComboBox methodAroundComboBox;
-    
+
     // Keep references to components that need to be refreshed
     private JBLabel attachStatusLabel;
     private JBLabel defaultClassLoaderLabel;
@@ -115,7 +114,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         defaultClassLoaderLabel = new JBLabel(DebugToolsBundle.message("global.param.panel.default.classloader"));
         classLoaderPanel.add(defaultClassLoaderLabel, BorderLayout.WEST);
         classLoaderPanel.add(classLoaderComboBox);
-        closeButton = new JButton(DebugToolsBundle.message("global.param.panel.close"));
+        closeButton = new JButton(DebugToolsBundle.message("action.close"));
         attachButtonPanel.add(closeButton);
         closeButton.addActionListener(e -> ApplicationProjectHolder.close(project));
         stopButton = new JButton(DebugToolsBundle.message("global.param.panel.stop"));
@@ -208,7 +207,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                         } else {
                             local.setText(settingState.isLocal() ? "L" : "R");
                             local.setVisible(true);
-                            if (!info.getClient().isClosed()) {
+                            if (info.getClient().isActive()) {
                                 textField.setText(ClassUtil.getShortClassName(info.getApplicationName()));
                                 textField.setVisible(true);
                                 attached.setText(DebugToolsBundle.message("global.param.panel.status.connected"));
@@ -216,19 +215,14 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
                                 attachButtonPanel.setVisible(true);
                                 classLoaderPanel.setVisible(true);
                             } else {
-                                if (info.getClient().getHolder().getRetry() == ClientSocketHolder.FAIL) {
-                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.fail"));
-                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.RETRYING) {
-                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.reconnect"));
-                                } else if (info.getClient().getHolder().getRetry() == ClientSocketHolder.INIT) {
-                                    attached.setText(DebugToolsBundle.message("global.param.panel.status.connecting"));
-                                }
+                                attached.setText(info.getClient().getState().getDesc());
                                 attached.setBackground(JBColor.RED);
                                 textField.setVisible(true);
                                 attachButtonPanel.setVisible(true);
                             }
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 },
                 0,
                 2,
@@ -254,7 +248,7 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         jPanel.repaint();
         headerItemMap.clear();
     }
-    
+
     /**
      * Refresh the UI components with new language settings
      */
@@ -263,39 +257,39 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         if (attachStatusLabel != null) {
             attachStatusLabel.setText(DebugToolsBundle.message("global.param.panel.attach.status"));
         }
-        
+
         if (defaultClassLoaderLabel != null) {
             defaultClassLoaderLabel.setText(DebugToolsBundle.message("global.param.panel.default.classloader"));
         }
-        
+
         if (closeButton != null) {
-            closeButton.setText(DebugToolsBundle.message("global.param.panel.close"));
+            closeButton.setText(DebugToolsBundle.message("action.close"));
         }
-        
+
         if (stopButton != null) {
             stopButton.setText(DebugToolsBundle.message("global.param.panel.stop"));
             stopButton.setToolTipText(DebugToolsBundle.message("global.param.panel.stop"));
         }
-        
+
         if (globalHeaderLabel != null) {
             globalHeaderLabel.setText(DebugToolsBundle.message("global.param.panel.global.header"));
         }
-        
+
         if (addHeaderButton != null) {
             addHeaderButton.setText(DebugToolsBundle.message("action.add"));
             addHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.header.tooltip"));
         }
-        
+
         if (addAuthHeaderButton != null) {
             addAuthHeaderButton.setText(DebugToolsBundle.message("global.param.panel.add.auth"));
             addAuthHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.add.auth.tooltip"));
         }
-        
+
         if (removeAllHeaderButton != null) {
             removeAllHeaderButton.setText(DebugToolsBundle.message("global.param.panel.remove.all"));
             removeAllHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.remove.all.tooltip"));
         }
-        
+
         if (saveHeaderButton != null) {
             saveHeaderButton.setText(DebugToolsBundle.message("action.save"));
             saveHeaderButton.setToolTipText(DebugToolsBundle.message("global.param.panel.save.tooltip"));
@@ -308,15 +302,15 @@ public class GlobalParamPanel extends JBPanel<GlobalParamPanel> {
         methodAroundComboBox.refreshBundle();
 
         printSqlPanel.refreshBundle();
-        
+
         // Update status messages
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null || info.getClient() == null || info.getClient().isClosed()) {
+        if (info == null || info.getClient() == null || !info.getClient().isActive()) {
             attached.setText(DebugToolsBundle.message("global.param.panel.status.unattached"));
         } else {
             attached.setText(DebugToolsBundle.message("global.param.panel.status.connected"));
         }
-        
+
         // Revalidate and repaint the panel to ensure UI updates
         this.revalidate();
         this.repaint();

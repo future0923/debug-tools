@@ -19,22 +19,18 @@ package io.github.future0923.debug.tools.idea.utils;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import io.github.future0923.debug.tools.base.config.AgentArgs;
-import io.github.future0923.debug.tools.base.utils.DebugToolsExecUtils;
-import io.github.future0923.debug.tools.client.DebugToolsSocketClient;
 import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
 import io.github.future0923.debug.tools.idea.client.http.HttpClientUtils;
+import io.github.future0923.debug.tools.idea.client.socket.DebugToolsNettyTcpClient;
 import io.github.future0923.debug.tools.idea.model.VirtualMachineDescriptorDTO;
 import io.github.future0923.debug.tools.idea.setting.DebugToolsSettingState;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -86,10 +82,10 @@ public class DebugToolsAttachUtils {
             DebugToolsSettingState settingState = DebugToolsSettingState.getInstance(project);
             ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
             if (info != null) {
-                if (!settingState.isLocal() && !info.getClient().isClosed()) {
+                if (!settingState.isLocal() && info.getClient().isActive()) {
                     return;
                 }
-                if (settingState.isLocal() && !info.getClient().isClosed()) {
+                if (settingState.isLocal() && info.getClient().isActive()) {
                     ApplicationProjectHolder.close(applicationName);
                 }
             }
@@ -103,9 +99,9 @@ public class DebugToolsAttachUtils {
             DebugToolsNotifierUtil.notifyError(project, e.getMessage());
             return;
         }
-        DebugToolsSocketClient client = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort).getClient();
+        DebugToolsNettyTcpClient client = ApplicationProjectHolder.setProject(applicationName, project, null, host, tcpPort).getClient();
         try {
-            client.disconnect();
+            client.stop();
         } catch (Exception ignored) {
         }
         try {
@@ -130,7 +126,7 @@ public class DebugToolsAttachUtils {
         settingState.setLocalHttpPort(httpPort);
         ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(applicationName);
         if (info != null) {
-            boolean connected = !info.getClient().isClosedNow();
+            boolean connected = info.getClient().isActive();
             if (settingState.isLocal() && connected) {
                 return;
             }
@@ -138,29 +134,26 @@ public class DebugToolsAttachUtils {
                 ApplicationProjectHolder.close(applicationName);
             }
         }
-        DebugToolsSocketClient client = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", tcpPort).getClient();
+        DebugToolsNettyTcpClient client = ApplicationProjectHolder.setProject(applicationName, project, pid, "127.0.0.1", tcpPort).getClient();
         try {
-            client.reconnect();
-            StateUtils.getClassLoaderComboBox(project).refreshClassLoaderLater(true);
-            StateUtils.getPrintSqlPanel(project).refresh();
-        } catch (ConnectException e) {
-            // attach;
-            AgentArgs agentArgs = new AgentArgs();
-            agentArgs.setApplicationName(applicationName);
-            agentArgs.setTcpPort(String.valueOf(tcpPort));
-            agentArgs.setHttpPort(String.valueOf(httpPort));
-            attach(() -> {
-                try {
-                    client.start();
-                    if (onConnected != null) {
-                        onConnected.run();
+            client.connect(() -> {
+                // attach;
+                AgentArgs agentArgs = new AgentArgs();
+                agentArgs.setApplicationName(applicationName);
+                agentArgs.setTcpPort(String.valueOf(tcpPort));
+                agentArgs.setHttpPort(String.valueOf(httpPort));
+                attach(() -> {
+                    try {
+                        client.connect(null);
+                        if (onConnected != null) {
+                            onConnected.run();
+                        }
+                    } catch (Exception ex) {
+                        log.error("start client exception", ex);
+                        DebugToolsNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");
                     }
-                } catch (Exception ex) {
-                    log.error("start client exception", ex);
-                    DebugToolsNotifierUtil.notifyError(project, "服务拒绝连接，请确认服务端已经启动");
-                }
-            }, project, pid, agentPath, agentArgs.format());
-
+                }, project, pid, agentPath, agentArgs.format());
+            });
         } catch (Exception e) {
             log.error("attach失败 [errMsg:{}]", e.getMessage());
         }
@@ -211,14 +204,4 @@ public class DebugToolsAttachUtils {
         });
     }
 
-    public static boolean status(Project project, String pid) {
-        // jps
-        Sdk projectSdk = ProjectRootManager.getInstance(project).getProjectSdk();
-        if (null != projectSdk) {
-            String jps = projectSdk.getHomePath() + "/bin/jps";
-            String result = DebugToolsExecUtils.exec(jps);
-            return result != null && result.contains(pid);
-        }
-        return true;
-    }
 }

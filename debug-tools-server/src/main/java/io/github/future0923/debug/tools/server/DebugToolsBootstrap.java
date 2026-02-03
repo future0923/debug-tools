@@ -24,7 +24,7 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.server.config.ServerConfig;
 import io.github.future0923.debug.tools.server.http.DebugToolsHttpServer;
-import io.github.future0923.debug.tools.server.scoket.DebugToolsSocketServer;
+import io.github.future0923.debug.tools.server.netty.DebugToolsNettyTcpServer;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public class DebugToolsBootstrap {
 
     public static volatile boolean started = false;
 
-    private DebugToolsSocketServer socketServer;
+    private DebugToolsNettyTcpServer tcpServer;
 
     private DebugToolsHttpServer httpServer;
 
@@ -93,14 +93,22 @@ public class DebugToolsBootstrap {
     }
 
     private void startTcpServer(int tcpPort) {
-        if (!started || socketServer == null) {
-            socketServer = new DebugToolsSocketServer();
-            socketServer.start();
+        if (!started || tcpServer == null) {
+            tcpServer = new DebugToolsNettyTcpServer();
+            try {
+                tcpServer.start();
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Failed to start Netty TCP server", e);
+            }
         } else if (this.tcpPort != null && tcpPort != this.tcpPort) {
-            logger.error("The tcp two ports are inconsistent. Stopping port {}, preparing to start port {}", this.tcpPort, tcpPort);
-            socketServer.close();
-            socketServer = new DebugToolsSocketServer();
-            socketServer.start();
+            logger.error("TCP port changed, restarting server: {} -> {}", this.tcpPort, tcpPort);
+            tcpServer.stop();
+            tcpServer = new DebugToolsNettyTcpServer();
+            try {
+                tcpServer.start();
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Failed to restart Netty TCP server", e);
+            }
         }
         this.tcpPort = tcpPort;
     }
@@ -119,11 +127,11 @@ public class DebugToolsBootstrap {
     }
 
     public void stop() {
-        if (socketServer != null) {
-            socketServer.close();
-            socketServer = null;
+        if (tcpServer != null) {
+            tcpServer.stop();
+            tcpServer = null;
         }
-        if(httpServer != null) {
+        if (httpServer != null) {
             httpServer.close();
             httpServer = null;
         }

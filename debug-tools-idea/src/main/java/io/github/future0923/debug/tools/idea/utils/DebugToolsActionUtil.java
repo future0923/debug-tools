@@ -63,7 +63,7 @@ public class DebugToolsActionUtil {
             DebugToolsToolWindowFactory.showWindow(project, null);
             return true;
         }
-        if (info.getClient().isClosed()) {
+        if (!info.getClient().isActive()) {
             Messages.showErrorDialog(DebugToolsBundle.message("error.attach.socket.status"), DebugToolsBundle.message("dialog.title.execution.failed"));
             DebugToolsToolWindowFactory.showWindow(project, null);
             return true;

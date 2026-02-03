@@ -27,7 +27,6 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
@@ -144,10 +143,7 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
             return;
         }
         try {
-            info.getClient().getHolder().send(packet);
-        } catch (SocketCloseException e) {
-            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.close"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            return;
+            info.getClient().send(packet);
         } catch (Exception e) {
             Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.send") + e.getMessage(), DebugToolsBundle.message("dialog.title.execution.failed"));
             return;

@@ -21,6 +21,7 @@ import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
+import io.netty.buffer.ByteBuf;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -45,25 +46,28 @@ public class RunTargetMethodRequestPacket extends Packet {
     }
 
     @Override
-    public Byte getCommand() {
+    public byte getCommand() {
         return Command.RUN_TARGET_METHOD_REQUEST;
     }
 
     @Override
-    public byte[] binarySerialize() {
+    public void binarySerialize(ByteBuf byteBuf) {
         if (runDTO == null) {
-            return new byte[0];
-        } else {
-            return DebugToolsJsonUtils.toJsonStr(runDTO).getBytes(StandardCharsets.UTF_8);
-        }
-    }
-
-    @Override
-    public void binaryDeserialization(byte[] bytes) {
-        if (bytes == null || bytes.length == 0) {
             return;
         }
-        String jsonString = new String(bytes, StandardCharsets.UTF_8);
+        byte[] jsonBytes = DebugToolsJsonUtils
+                .toJsonStr(runDTO)
+                .getBytes(StandardCharsets.UTF_8);
+        byteBuf.writeBytes(jsonBytes);
+    }
+
+
+    @Override
+    public void binaryDeserialization(ByteBuf in) {
+        if (!in.isReadable()) {
+            return;
+        }
+        String jsonString = in.toString(StandardCharsets.UTF_8);
         if (!DebugToolsJsonUtils.isTypeJSON(jsonString)) {
             logger.warning("The data RunTargetMethodRequestPacket received is not JSON, {}", jsonString);
             return;
