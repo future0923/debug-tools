@@ -35,6 +35,18 @@
 
     <change-notes>
         <![CDATA[
+        <strong>4.5.3</strong>
+        <ul>
+            <li>修复PostgreSQL占位符变量未替换的bug</li>
+            <li>支持数组和泛型集合类型的枚举参数转换</li>
+            <li>支持修改@RequestParam注解热重载</li>
+            <li>打印sql支持正则过滤包和语句</li>
+            <li>优化搜索url搜索速度和double shift卡死的bug</li>
+            <li>优化发送消息避免阻塞idea的ui进程</li>
+            <li>修复切换新项目时偶尔NPE的bug</li>
+            <li>优化获取JVM列表和Attach功能避免阻塞UI线程</li>
+            <li>优化quick debug时间类型支持更多格式自动转化</li>
+        <ul>
         <strong>4.5.2</strong>
         <ul>
             <li>增加热重载保留类静态变量用运行时数据的配置</li>
@@ -264,7 +276,7 @@
                                         implementationClass="io.github.future0923.debug.tools.idea.line.QuickDebugLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="io.github.future0923.debug.tools.idea.line.IgnoreStaticFieldLineMarkerProvider"/>
-        <searchEverywhereContributor implementation="io.github.future0923.debug.tools.idea.search.HttpUrlSearchContributorFactory"/>
+<!--        <searchEverywhereContributor implementation="io.github.future0923.debug.tools.idea.search.HttpUrlSearchContributorFactory"/>-->
 
         <!--json编辑器代码导航-->
         <lang.directNavigationProvider

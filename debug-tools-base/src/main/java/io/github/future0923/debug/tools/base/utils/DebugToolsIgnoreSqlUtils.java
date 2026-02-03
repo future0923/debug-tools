@@ -121,7 +121,7 @@ public class DebugToolsIgnoreSqlUtils {
         List<String> lines = FileUtil.readLines(file, StandardCharsets.UTF_8);
         for (String line : lines) {
             String trim = StrUtil.trim(line);
-            if (StrUtil.isBlank(trim)) {
+            if (StrUtil.isBlank(trim) || trim.startsWith("#") || trim.startsWith(";")) {
                 continue;
             }
             if (line.startsWith("[[") && line.endsWith("]]")) {

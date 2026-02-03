@@ -4,10 +4,23 @@ spring:
       primary: debut-tools
       datasource:
         debut-tools:
+          type: com.alibaba.druid.pool.DruidDataSource
           driver-class-name: com.mysql.cj.jdbc.Driver
           url: jdbc:mysql://120.48.104.68:3306/debug-tools?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&
           username: debug-tools
           password: 123456Aa
+          druid:
+            initial-size: 5
+            min-idle: 5
+            max-active: 20
+            max-wait: 60000
+            validation-query: SELECT 1
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 300000
+            filters: stat,wall,slf4j
 #        debut-tools:
 #          driver-class-name: org.postgresql.Driver
 #          url: jdbc:postgresql://127.0.0.1:5432/debug-tools?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&
