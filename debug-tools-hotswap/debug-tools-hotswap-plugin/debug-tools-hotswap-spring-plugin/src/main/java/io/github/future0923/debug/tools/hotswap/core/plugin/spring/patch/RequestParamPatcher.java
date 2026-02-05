@@ -40,14 +40,17 @@ public class RequestParamPatcher {
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.core.LocalVariableTableParameterNameDiscoverer")
     public static void patchLocalVariableTableParameterNameDiscoverer(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
-        CtMethod getParameterNames = ctClass.getDeclaredMethod("doGetParameterNames", new CtClass[]{classPool.get("java.lang.reflect.Executable")});
-        getParameterNames.setBody("{" +
-                "   Class declaringClass = $1.getDeclaringClass();" +
-                "   java.util.Map map = this.inspectClass(declaringClass);" +
-                "   if (map != NO_DEBUG_INFO_MAP) {" +
-                "       return (String[])map.get($1);" +
-                "   }" +
-                "   return null;" +
-                "}");
+        try {
+            CtMethod getParameterNames = ctClass.getDeclaredMethod("doGetParameterNames", new CtClass[]{classPool.get("java.lang.reflect.Executable")});
+            getParameterNames.setBody("{" +
+                    "   Class declaringClass = $1.getDeclaringClass();" +
+                    "   java.util.Map map = this.inspectClass(declaringClass);" +
+                    "   if (map != NO_DEBUG_INFO_MAP) {" +
+                    "       return (String[])map.get($1);" +
+                    "   }" +
+                    "   return null;" +
+                    "}");
+        } catch (Exception e) {
+        }
     }
 }
