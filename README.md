@@ -80,8 +80,8 @@
 > 喝杯咖啡 ☕️ 或者来杯奶茶 🧋，让作者更有精神，写出更棒的代码！
 
 <div style="display:flex; gap:12px;">
-  <img src="/images/39fb4dee427ef71afcd03793b0d61747.jpg" width="45%" />
-  <img src="/images/531ac581e7d2a861ed683bbcbf548dc2.jpg" width="45%" />
+  <img src="/images/39fb4dee427ef71afcd03793b0d61747.jpg" width="220" />
+  <img src="/images/531ac581e7d2a861ed683bbcbf548dc2.jpg" width="220" />
 </div>
 
 ## 联系我
@@ -89,4 +89,4 @@
 - QQ群：[518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - 微信
 
-<img src="images/wechat.png" width="400" height="400" v-zoom  alt=""/>
+<img src="images/wechat.png" width="220" height="220" v-zoom  alt=""/>
