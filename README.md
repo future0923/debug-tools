@@ -73,34 +73,19 @@
 
 ![search_url.gif](/images/gif/search_url.gif)
 
-## 快速开始
-
-### 安装
-
-安装 DebugTools 非常简单，通过安装 [文档](https://debug-tools.cc/guide/install.html#install-plugin) 即可快速安装。
-
-### 使用
-
-- [热部署](https://debug-tools.cc/guide/hot-deploy.html)
-- [热重载](https://debug-tools.cc/guide/hot-reload.html)
-- [调用任意Java方法](https://debug-tools.cc/guide/attach-local.html)
-- [调用远程方法](https://debug-tools.cc/guide/attach-remote.html)
-- [SQL语句与耗时](https://debug-tools.cc/guide/sql.html)
-- [xxl-job](https://debug-tools.cc/guide/xxl-job.html)
-- [groovy](https://debug-tools.cc/guide/groovy-execute.html)
-
 ## 支持这个项目
 
-本项目完全开源，实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个 <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a> <a target="_blank" href="https://gitee.com/future94/debug-tools"><img src="https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark" style="display: inline-block; vertical-align: middle;" /></a>，你的认可会让更多人发现它，你的支持是我更新的动力。
+本项目完全开源，实现复杂且需要兼容情况较多，如果这个项目帮你节省了开发时间，不妨点个⭐Star，你的支持是我更新的动力。
 
-如果项目没有达到预期效果，麻烦提交 <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> 反馈一下，我将尽快处理。
+> 喝杯咖啡 ☕️ 或者来杯奶茶 🧋，让作者更有精神，写出更棒的代码！
 
-如果你对 DebugTools 有兴趣，诚邀您加入 DebugTools 开源项目！在这里，我们共同打造，用代码解决实际问题。无论您擅长 Java 、Idea 插件开发还是热衷于前端开发，亦或是对架构设计、文档撰写有独到见解，都能在这里找到发挥的舞台。我们鼓励不同的想法碰撞，期待您带来新的思路与解决方案。本项目代码完全开源，让我们携手将项目打磨得更加完善，在开源社区留下属于我们的精彩印记！
+<div style="display:flex; gap:12px;">
+  <img src="/images/39fb4dee427ef71afcd03793b0d61747.jpg" width="45%" />
+  <img src="/images/531ac581e7d2a861ed683bbcbf548dc2.jpg" width="45%" />
+</div>
 
 ## 联系我
 
-- Issue：[issues](https://github.com/future0923/debug-tools/issues)
-- 邮箱：[future94@qq.com](mailto:future94@qq.com)
 - QQ群：[518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - 微信
 
