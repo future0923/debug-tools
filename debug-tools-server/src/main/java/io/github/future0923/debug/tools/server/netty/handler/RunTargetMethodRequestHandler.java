@@ -33,7 +33,7 @@ import io.github.future0923.debug.tools.common.dto.RunResultDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
 import io.github.future0923.debug.tools.common.enums.ResultClassType;
 import io.github.future0923.debug.tools.common.exception.ArgsParseException;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
@@ -54,9 +54,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 运行方法请求
+ *
  * @author future0923
  */
-public final class RunTargetMethodRequestHandler implements NettyPacketHandler<RunTargetMethodRequestPacket> {
+public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMethodRequestPacket> {
 
     private static final Logger logger = Logger.getLogger(RunTargetMethodRequestHandler.class);
 

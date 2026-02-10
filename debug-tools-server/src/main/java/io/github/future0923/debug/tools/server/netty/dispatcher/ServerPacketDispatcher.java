@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.server.netty.dispatcher;
 
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -23,34 +24,41 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 【最终版】Netty Packet 分发器
- * - 只支持 Netty
- * - 只认 ChannelHandlerContext
- * - 只分发 Packet -> Handler
+ * 服务端消息分发器
+ *
+ * @author future0923
  */
-public final class ServerNettyPacketDispatcher {
+public final class ServerPacketDispatcher {
 
-    private final Map<Class<? extends Packet>, io.github.future0923.debug.tools.common.handler.NettyPacketHandler<?>> handlers =
-            new ConcurrentHashMap<>();
+    /**
+     * 消息处理器映射
+     */
+    private final Map<Class<? extends Packet>, PacketHandler<?>> handlers = new ConcurrentHashMap<>();
 
-    public <P extends Packet> void register(
-            Class<P> packetType,
-            io.github.future0923.debug.tools.common.handler.NettyPacketHandler<P> handler
-    ) {
+    /**
+     * 注册消息处理器
+     *
+     * @param packetType 消息类型
+     * @param handler    消息处理器
+     */
+    public <P extends Packet> void register(Class<P> packetType, PacketHandler<P> handler) {
         handlers.put(packetType, handler);
     }
 
+    /**
+     * 分发消息
+     *
+     * @param ctx   通道处理器上下文
+     * @param packet 消息
+     */
     @SuppressWarnings("unchecked")
     public void dispatch(ChannelHandlerContext ctx, Packet packet) throws Exception {
-        io.github.future0923.debug.tools.common.handler.NettyPacketHandler<Packet> handler =
-                (io.github.future0923.debug.tools.common.handler.NettyPacketHandler<Packet>) handlers.get(packet.getClass());
-
+        PacketHandler<Packet> handler = (PacketHandler<Packet>) handlers.get(packet.getClass());
         if (handler == null) {
             throw new IllegalStateException(
                     "No handler for packet type: " + packet.getClass().getName()
             );
         }
-
         handler.handle(ctx, packet);
     }
 }

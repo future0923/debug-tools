@@ -23,9 +23,11 @@ import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHa
 import java.util.Map;
 
 /**
+ * 热部署本地编译之后的 class 类
+ *
  * @author future0923
  */
-public final class LocalCompilerHotDeployRequestHandler extends AbstractHotDeployRequestHandler<LocalCompilerHotDeployRequestPacket> {
+public class LocalCompilerHotDeployRequestHandler extends AbstractHotDeployRequestHandler<LocalCompilerHotDeployRequestPacket> {
 
     public static final LocalCompilerHotDeployRequestHandler INSTANCE = new LocalCompilerHotDeployRequestHandler();
 

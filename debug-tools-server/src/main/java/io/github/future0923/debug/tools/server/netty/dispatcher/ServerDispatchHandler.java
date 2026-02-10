@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.server.netty.handler;
+package io.github.future0923.debug.tools.server.netty.dispatcher;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.github.future0923.debug.tools.common.protocal.packet.response.HeartBeatResponsePacket;
-import io.github.future0923.debug.tools.server.netty.dispatcher.ServerNettyPacketDispatcher;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -29,20 +28,25 @@ import io.netty.handler.timeout.IdleStateEvent;
 import java.util.concurrent.ExecutorService;
 
 /**
- * 【最终版】Netty Server 分发 Handler
- * - 只负责 IO -> 业务投递
- * - 不兼容 BIO
- * - 不出现 OutputStream
+ * 接受到消息并分发处理器
+ *
+ * @author future0923
  */
 public final class ServerDispatchHandler extends SimpleChannelInboundHandler<Packet> {
 
     private static final Logger logger = Logger.getLogger(ServerDispatchHandler.class);
 
+    /**
+     * 业务线程池
+     */
     private final ExecutorService bizPool;
 
-    private final ServerNettyPacketDispatcher dispatcher;
+    /**
+     * 分发器
+     */
+    private final ServerPacketDispatcher dispatcher;
 
-    public ServerDispatchHandler(ExecutorService bizPool, ServerNettyPacketDispatcher dispatcher) {
+    public ServerDispatchHandler(ExecutorService bizPool, ServerPacketDispatcher dispatcher) {
         this.bizPool = bizPool;
         this.dispatcher = dispatcher;
     }
@@ -54,29 +58,24 @@ public final class ServerDispatchHandler extends SimpleChannelInboundHandler<Pac
             try {
                 dispatcher.dispatch(ctx, packet);
             } catch (Throwable t) {
-                logger.warning("biz handle error, close channel: {}", t);
-                ctx.close();
+                logger.warning("biz handle error", t);
             }
         });
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
+        // 空闲事件
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             if (e.state() == IdleState.READER_IDLE) {
                 // Idle 探活：不维护假连接
-                ctx.writeAndFlush(new HeartBeatResponsePacket())
-                        .addListener((ChannelFutureListener) f -> {
-                            if (!f.isSuccess()) ctx.close();
-                        });
+                ctx.writeAndFlush(new HeartBeatResponsePacket()).addListener((ChannelFutureListener) f -> {
+                    if (!f.isSuccess()) {
+                        ctx.close();
+                    }
+                });
             }
         }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        logger.warning("channel exception, close: {}", cause);
-        ctx.close();
     }
 }

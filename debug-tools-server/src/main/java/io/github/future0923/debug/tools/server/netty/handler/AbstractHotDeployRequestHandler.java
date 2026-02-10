@@ -27,7 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.util.classloader.ClassLoaderHelper;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.File;
@@ -39,9 +39,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 热部署请求处理器抽象类
+ *
  * @author future0923
  */
-public abstract class AbstractHotDeployRequestHandler<T extends Packet> implements NettyPacketHandler<T> {
+public abstract class AbstractHotDeployRequestHandler<T extends Packet> implements PacketHandler<T> {
 
     private static final Logger logger = Logger.getLogger(AbstractHotDeployRequestHandler.class);
 

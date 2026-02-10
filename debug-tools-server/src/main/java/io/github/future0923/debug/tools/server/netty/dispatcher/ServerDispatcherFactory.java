@@ -35,11 +35,20 @@ import io.github.future0923.debug.tools.server.netty.handler.RunGroovyScriptRequ
 import io.github.future0923.debug.tools.server.netty.handler.ServerCloseRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.RunTargetMethodRequestHandler;
 
-public final class ServerNettyDispatcherFactory {
+/**
+ * 分发工厂
+ *
+ * @author future0923
+ */
+public final class ServerDispatcherFactory {
 
-    public static ServerNettyPacketDispatcher create() {
-        ServerNettyPacketDispatcher dispatcher = new ServerNettyPacketDispatcher();
-
+    /**
+     * 创建分发器
+     *
+     * @return 分发器
+     */
+    public static ServerPacketDispatcher create() {
+        ServerPacketDispatcher dispatcher = new ServerPacketDispatcher();
         dispatcher.register(HeartBeatRequestPacket.class, HeartBeatRequestHandler.INSTANCE);
         dispatcher.register(ServerCloseRequestPacket.class, ServerCloseRequestHandler.INSTANCE);
         dispatcher.register(RunTargetMethodRequestPacket.class, RunTargetMethodRequestHandler.INSTANCE);
@@ -49,7 +58,6 @@ public final class ServerNettyDispatcherFactory {
         dispatcher.register(RemoteCompilerHotDeployRequestPacket.class, RemoteCompilerHotDeployRequestHandler.INSTANCE);
         dispatcher.register(ResourceHotDeployRequestPacket.class, ResourceHotDeployRequestHandler.INSTANCE);
         dispatcher.register(ChangeTraceMethodRequestPacket.class, ChangeTraceMethodRequestHandler.INSTANCE);
-
         return dispatcher;
     }
 }

@@ -28,15 +28,17 @@ import io.github.future0923.debug.tools.common.protocal.packet.response.RunGroov
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.groovy.DebugToolsGroovyScript;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 import io.netty.channel.ChannelHandlerContext;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
 /**
+ * 执行 Groovy 脚本
+ *
  * @author future0923
  */
-public final class RunGroovyScriptRequestHandler implements NettyPacketHandler<RunGroovyScriptRequestPacket> {
+public class RunGroovyScriptRequestHandler implements PacketHandler<RunGroovyScriptRequestPacket> {
 
     public static final RunGroovyScriptRequestHandler INSTANCE = new RunGroovyScriptRequestHandler();
 
@@ -45,8 +47,7 @@ public final class RunGroovyScriptRequestHandler implements NettyPacketHandler<R
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx,
-                       RunGroovyScriptRequestPacket packet) {
+    public void handle(ChannelHandlerContext ctx, RunGroovyScriptRequestPacket packet) {
         CompilerConfiguration configuration = new CompilerConfiguration();
         configuration.setScriptBaseClass(DebugToolsGroovyScript.class.getName());
         String applicationName = DebugToolsBootstrap.serverConfig.getApplicationName();

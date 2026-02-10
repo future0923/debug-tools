@@ -17,35 +17,27 @@
 package io.github.future0923.debug.tools.server.netty.handler;
 
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * 【最终版】清理运行结果缓存请求处理器（Netty Only）
+ * 清理运行结果缓存请求
  */
-public final class ClearRunResultRequestHandler
-        implements NettyPacketHandler<ClearRunResultRequestPacket> {
+public class ClearRunResultRequestHandler implements PacketHandler<ClearRunResultRequestPacket> {
 
-    public static final ClearRunResultRequestHandler INSTANCE =
-            new ClearRunResultRequestHandler();
+    public static final ClearRunResultRequestHandler INSTANCE = new ClearRunResultRequestHandler();
 
     private ClearRunResultRequestHandler() {}
 
     @Override
-    public void handle(ChannelHandlerContext ctx,
-                       ClearRunResultRequestPacket packet) {
-
+    public void handle(ChannelHandlerContext ctx, ClearRunResultRequestPacket packet) {
         if (StrUtil.isNotBlank(packet.getFieldOffset())) {
             DebugToolsResultUtils.removeCache(packet.getFieldOffset());
         }
-
         if (StrUtil.isNotBlank(packet.getTraceOffset())) {
             DebugToolsResultUtils.removeCache(packet.getTraceOffset());
         }
-
-        // ❗无返回包：这是一个“fire-and-forget”型请求
-        // 不 write，不 flush，不 close
     }
 }
