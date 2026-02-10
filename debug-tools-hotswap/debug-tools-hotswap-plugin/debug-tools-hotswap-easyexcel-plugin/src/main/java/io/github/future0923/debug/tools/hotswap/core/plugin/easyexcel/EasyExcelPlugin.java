@@ -87,7 +87,7 @@ public class EasyExcelPlugin {
     }
 
     @OnClassLoadEvent(classNameRegexp = "com.alibaba.excel.metadata.property.ExcelHeadProperty")
-    public static void patchExcelHeadProperty(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
+    public static void patchExcelHeadProperty(CtClass ctClass, ClassPool classPool, ClassLoader classLoader) throws CannotCompileException, NotFoundException, IOException {
         try {
             // 4+
             CtClass holder = classPool.get("com.alibaba.excel.metadata.ConfigurationHolder");
@@ -106,6 +106,33 @@ public class EasyExcelPlugin {
                     "   this.holder = $1;" +
                     "}");
         }
+        CtClass mapClass = classPool.get("java.util.Map");
+        CtField noHeadMap = new CtField(mapClass, "noHeadMap", ctClass);
+        noHeadMap.setModifiers(Modifier.PRIVATE);
+        noHeadMap.setGenericSignature("Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;");
+        ctClass.addField(noHeadMap, CtField.Initializer.byExpr("new java.util.HashMap()"));
+
+        CtMethod getTmpHeadMapMethod = CtNewMethod.getter("getNoHeadMap", noHeadMap);
+        getTmpHeadMapMethod.setGenericSignature("()Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;");
+        ctClass.addMethod(getTmpHeadMapMethod);
+        CtMethod setTmpHeadMapMethod = CtNewMethod.setter("setNoHeadMap", noHeadMap);
+        setTmpHeadMapMethod.setGenericSignature("(Ljava/util/Map<Ljava/lang/Integer;Lcom/alibaba/excel/metadata/Head;>;)V");
+        ctClass.addMethod(setTmpHeadMapMethod);
+        CtMethod initOneColumnProperty = ctClass.getDeclaredMethod("initOneColumnProperty");
+
+        initOneColumnProperty.instrument(new ExprEditor() {
+            @Override
+            public void edit(MethodCall m) throws CannotCompileException {
+                if ("java.util.Map".equals(m.getClassName())
+                        && "put".equals(m.getMethodName())) {
+                    m.replace("{ " +
+                            "$_ = $proceed($$);" +
+                            "this.noHeadMap.put($1, $2);" +
+                            " }");
+                }
+            }
+        });
+
         CtMethod getHeadMap = ctClass.getDeclaredMethod("getHeadMap");
         String beforeHandler =
                 "if (this.headClazz != null) {" +
@@ -157,6 +184,7 @@ public class EasyExcelPlugin {
                 "    }" +
                 "}";
         getHeadMap.insertBefore("{" + beforeHandler + "}");
+        JavassistUtil.insertClassPath(classLoader, "com.alibaba.excel.metadata.property.ExcelHeadProperty", ctClass);
         logger.info("patch easy excel ExcelHeadProperty success");
     }
 
@@ -184,7 +212,13 @@ public class EasyExcelPlugin {
             public void edit(MethodCall m) throws CannotCompileException {
                 if (m.getClassName().equals("com.alibaba.excel.read.metadata.property.ExcelReadHeadProperty")
                         && m.getMethodName().equals("getHeadMap")) {
-                    m.replace("{ $_ = $0.getTmpHeadMap(); }");
+                    m.replace("{ " +
+                            "java.util.Map map = $0.getTmpHeadMap();" +
+                            "if(map == null){" +
+                            "   map = ((com.alibaba.excel.metadata.property.ExcelHeadProperty)$0).getNoHeadMap();" +
+                            "}" +
+                            "$_ = map;" +
+                            "}");
                 }
             }
         });
