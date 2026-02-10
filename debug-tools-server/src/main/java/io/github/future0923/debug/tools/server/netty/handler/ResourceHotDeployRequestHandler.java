@@ -27,7 +27,7 @@ import io.github.future0923.debug.tools.hotswap.core.config.PluginConfiguration;
 import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.File;
@@ -35,9 +35,11 @@ import java.net.URL;
 import java.util.Map;
 
 /**
+ * 热部署资源文件
+ *
  * @author future0923
  */
-public final class ResourceHotDeployRequestHandler implements NettyPacketHandler<ResourceHotDeployRequestPacket> {
+public class ResourceHotDeployRequestHandler implements PacketHandler<ResourceHotDeployRequestPacket> {
 
     private static final Logger logger = Logger.getLogger(ResourceHotDeployRequestHandler.class);
 

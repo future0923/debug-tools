@@ -24,9 +24,11 @@ import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHa
 import java.util.Map;
 
 /**
+ * 热部署远程编译源类文件
+ *
  * @author future0923
  */
-public final class RemoteCompilerHotDeployRequestHandler extends AbstractHotDeployRequestHandler<RemoteCompilerHotDeployRequestPacket> {
+public class RemoteCompilerHotDeployRequestHandler extends AbstractHotDeployRequestHandler<RemoteCompilerHotDeployRequestPacket> {
 
     public static final RemoteCompilerHotDeployRequestHandler INSTANCE = new RemoteCompilerHotDeployRequestHandler();
 

@@ -18,14 +18,16 @@ package io.github.future0923.debug.tools.server.netty.handler;
 
 import io.github.future0923.debug.tools.base.hutool.core.util.BooleanUtil;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTraceMethodRequestPacket;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * 改变方法追踪请求
+ *
  * @author future0923
  */
-public final class ChangeTraceMethodRequestHandler implements NettyPacketHandler<ChangeTraceMethodRequestPacket> {
+public class ChangeTraceMethodRequestHandler implements PacketHandler<ChangeTraceMethodRequestPacket> {
 
     public static final ChangeTraceMethodRequestHandler INSTANCE = new ChangeTraceMethodRequestHandler();
 
@@ -34,8 +36,7 @@ public final class ChangeTraceMethodRequestHandler implements NettyPacketHandler
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx,
-                       ChangeTraceMethodRequestPacket packet) throws Exception {
+    public void handle(ChannelHandlerContext ctx, ChangeTraceMethodRequestPacket packet) throws Exception {
         if (BooleanUtil.isTrue(packet.getTrace())) {
             TraceMethodClassFileTransformer.traceMethod(packet.getClassName(), packet.getMethodName(), packet.getMethodDescription());
         } else {

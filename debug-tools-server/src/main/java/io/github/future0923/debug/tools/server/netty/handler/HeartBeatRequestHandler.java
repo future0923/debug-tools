@@ -17,21 +17,22 @@
 package io.github.future0923.debug.tools.server.netty.handler;
 
 import io.github.future0923.debug.tools.base.logging.Logger;
+import io.github.future0923.debug.tools.common.handler.PacketHandler;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.HeartBeatResponsePacket;
-import io.github.future0923.debug.tools.common.handler.NettyPacketHandler;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * 【最终版】心跳请求处理器
+ * 心跳请求处理器
  */
-public final class HeartBeatRequestHandler implements NettyPacketHandler<HeartBeatRequestPacket> {
+public class HeartBeatRequestHandler implements PacketHandler<HeartBeatRequestPacket> {
 
     private static final Logger logger = Logger.getLogger(HeartBeatRequestHandler.class);
 
     public static final HeartBeatRequestHandler INSTANCE = new HeartBeatRequestHandler();
 
-    private HeartBeatRequestHandler() {}
+    private HeartBeatRequestHandler() {
+    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, HeartBeatRequestPacket packet) {

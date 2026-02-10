@@ -21,10 +21,15 @@
         <shade.javassist.target>${shade.package}.${shade.javassist.source}</shade.javassist.target>
         <shade.net.bytebuddy.source>net.bytebuddy</shade.net.bytebuddy.source>
         <shade.net.bytebuddy.target>${shade.package}.${shade.net.bytebuddy.source}</shade.net.bytebuddy.target>
+        <shade.netty.source>io.netty</shade.netty.source>
+        <shade.netty.target>${shade.package}.${shade.netty.source}</shade.netty.target>
         <shade.org.apache.commons.source>org.apache.commons</shade.org.apache.commons.source>
-        <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.commons.source}</shade.org.apache.commons.target>
-        <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString</shade.pl.joegreen.lambdaFromString.source>
-        <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.pl.joegreen.lambdaFromString.source}</shade.pl.joegreen.lambdaFromString.target>
+        <shade.org.apache.commons.target>${shade.package}.${shade.org.apache.commons.source}
+        </shade.org.apache.commons.target>
+        <shade.pl.joegreen.lambdaFromString.source>pl.joegreen.lambdaFromString
+        </shade.pl.joegreen.lambdaFromString.source>
+        <shade.pl.joegreen.lambdaFromString.target>${shade.package}.${shade.pl.joegreen.lambdaFromString.source}
+        </shade.pl.joegreen.lambdaFromString.target>
     </properties>
 
     <dependencies>
@@ -180,6 +185,10 @@
                                     <shadedPattern>${shade.net.bytebuddy.target}</shadedPattern>
                                 </relocation>
                                 <relocation>
+                                    <pattern>${shade.netty.source}</pattern>
+                                    <shadedPattern>${shade.netty.target}</shadedPattern>
+                                </relocation>
+                                <relocation>
                                     <pattern>${shade.org.apache.commons.source}</pattern>
                                     <shadedPattern>${shade.org.apache.commons.target}</shadedPattern>
                                 </relocation>
@@ -204,7 +213,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/../debug-tools-idea/src/main/resources/lib"/>
+                                <delete dir="/Users/weilai/Documents/debug-tools-idea/src/main/resources/lib"/>
                                 <delete dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
                                 <delete file="${project.basedir}/../dist/debug-tools-agent.jar"/>
                             </target>
@@ -218,9 +227,9 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/../debug-tools-idea/src/main/resources/lib"/>
+                                <mkdir dir="/Users/weilai/Documents/debug-tools-idea/src/main/resources/lib"/>
                                 <copy file="${project.build.directory}/${build.finalName}.jar"
-                                      tofile="${project.basedir}/../debug-tools-idea/src/main/resources/lib/${build.finalName}-${project.version}.jar"
+                                      tofile="/Users/weilai/Documents/debug-tools-idea/src/main/resources/lib/${build.finalName}-${project.version}.jar"
                                       overwrite="true"/>
 
                                 <mkdir dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>

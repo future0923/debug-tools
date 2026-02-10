@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>4.5.3</revision>
+        <revision>4.6.0-SNAPSHOT</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -68,6 +68,7 @@
         <solon.version>3.3.1</solon.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <openfeign.version>3.0.1</openfeign.version>
+        <netty.version>4.2.9.Final</netty.version>
     </properties>
 
     <modules>
@@ -76,7 +77,6 @@
         <module>debug-tools-test</module>
         <module>debug-tools-base</module>
         <module>debug-tools-server</module>
-        <module>debug-tools-client</module>
         <module>debug-tools-boot</module>
         <module>debug-tools-core</module>
         <module>debug-tools-hotswap</module>

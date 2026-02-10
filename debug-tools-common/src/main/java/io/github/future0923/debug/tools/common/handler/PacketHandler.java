@@ -21,7 +21,7 @@ import io.netty.channel.ChannelHandlerContext;
 /**
  * 【最终版】Netty Handler 基类
  */
-public interface NettyPacketHandler<P> {
+public interface PacketHandler<P> {
 
     void handle(ChannelHandlerContext ctx, P packet) throws Exception;
 }
