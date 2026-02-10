@@ -213,7 +213,7 @@
                         </goals>
                         <configuration>
                             <target>
-                                <delete dir="${project.basedir}/../debug-tools-idea/src/main/resources/lib"/>
+                                <delete dir="${idea.plugin.lib.dir}/debug-tools-idea/src/main/resources/lib"/>
                                 <delete dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
                                 <delete file="${project.basedir}/../dist/debug-tools-agent.jar"/>
                             </target>
@@ -227,9 +227,10 @@
                         </goals>
                         <configuration>
                             <target>
-                                <mkdir dir="${project.basedir}/../debug-tools-idea/src/main/resources/lib"/>
+                                <!-- 去debug-tools-attach/local.properties 自己改配置 -->
+                                <mkdir dir="${idea.plugin.lib.dir}/debug-tools-idea/src/main/resources/lib"/>
                                 <copy file="${project.build.directory}/${build.finalName}.jar"
-                                      tofile="${project.basedir}/../debug-tools-idea/src/main/resources/lib/${build.finalName}-${project.version}.jar"
+                                      tofile="${idea.plugin.lib.dir}/debug-tools-idea/src/main/resources/lib/${build.finalName}-${project.version}.jar"
                                       overwrite="true"/>
 
                                 <mkdir dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib"/>
@@ -242,6 +243,25 @@
                                       tofile="${project.basedir}/../dist/debug-tools-agent.jar"
                                       overwrite="true"/>
                             </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${project.basedir}/local.properties</file>
+                            </files>
+                            <quiet>true</quiet>
                         </configuration>
                     </execution>
                 </executions>
