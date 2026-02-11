@@ -36,6 +36,10 @@ import java.util.Properties;
 public class AgentArgs {
 
     private static final Logger logger = Logger.getLogger(AgentArgs.class);
+    /*
+     * 热重载/热部署时禁用的插件名集合分割符号
+     */
+    public static final String DISABLED_PLUGINS_SPLIT_CHAR = "#";
 
     /**
      * 日志等级
