@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.hotswap.core.plugin.spring.patch;
 
+import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -30,6 +31,8 @@ import javassist.NotFoundException;
  */
 public class RequestParamPatcher {
 
+    private static final Logger logger = Logger.getLogger(RequestParamPatcher.class);
+
     @OnClassLoadEvent(classNameRegexp = "org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver")
     public static void patchAbstractNamedValueMethodArgumentResolver(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
         CtMethod getNamedValueInfo = ctClass.getDeclaredMethod("getNamedValueInfo", new CtClass[]{classPool.get("org.springframework.core.MethodParameter")});
@@ -40,14 +43,31 @@ public class RequestParamPatcher {
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.core.LocalVariableTableParameterNameDiscoverer")
     public static void patchLocalVariableTableParameterNameDiscoverer(CtClass ctClass, ClassPool classPool) throws CannotCompileException, NotFoundException {
-        CtMethod getParameterNames = ctClass.getDeclaredMethod("doGetParameterNames", new CtClass[]{classPool.get("java.lang.reflect.Executable")});
-        getParameterNames.setBody("{" +
-                "   Class declaringClass = $1.getDeclaringClass();" +
-                "   java.util.Map map = this.inspectClass(declaringClass);" +
-                "   if (map != NO_DEBUG_INFO_MAP) {" +
-                "       return (String[])map.get($1);" +
-                "   }" +
-                "   return null;" +
-                "}");
+        try {
+            // 5.3.23+
+            CtMethod getParameterNames = ctClass.getDeclaredMethod("doGetParameterNames", new CtClass[]{classPool.get("java.lang.reflect.Executable")});
+            getParameterNames.setBody("{" +
+                    "   Class declaringClass = $1.getDeclaringClass();" +
+                    "   java.util.Map map = this.inspectClass(declaringClass);" +
+                    "   if (map != NO_DEBUG_INFO_MAP) {" +
+                    "       return (String[])map.get($1);" +
+                    "   }" +
+                    "   return null;" +
+                    "}");
+        } catch (Exception e) {
+            // 5.1.8
+            CtMethod getParameterNames = ctClass.getDeclaredMethod("getParameterNames", new CtClass[]{classPool.get("java.lang.reflect.Constructor")});
+            getParameterNames.setBody("{" +
+                    "   Class declaringClass = $1.getDeclaringClass();" +
+                    "   java.util.Map map = this.inspectClass(declaringClass);" +
+                    "   if (map != NO_DEBUG_INFO_MAP) {" +
+                    "       return (String[])map.get($1);" +
+                    "   }" +
+                    "   return null;" +
+                    "}");
+        }
+
+        logger.info("patch springframework LocalVariableTableParameterNameDiscoverer success");
+
     }
 }
