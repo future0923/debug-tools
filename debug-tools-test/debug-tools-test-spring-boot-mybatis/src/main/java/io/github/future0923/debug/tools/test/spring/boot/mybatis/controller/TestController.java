@@ -16,9 +16,14 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelReader;
+import com.alibaba.excel.read.listener.PageReadListener;
+import com.alibaba.excel.read.metadata.ReadSheet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.EasyExcelTestDemo;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.UserVO;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
@@ -28,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -61,5 +67,20 @@ public class TestController {
     @GetMapping("/ddd")
     public List<UserVO> ddd() throws JsonProcessingException {
         return userMapper.caoayu();
+    }
+
+    @GetMapping("/testEasyExcel")
+    public void testEasyExcel() throws JsonProcessingException {
+        ExcelReader excelReader = EasyExcel.read(new File("/Users/wangzhongqi/Downloads/test.xlsx")).build();
+        List<ReadSheet> readSheets = excelReader.excelExecutor().sheetList();
+        ReadSheet readSheet = readSheets.get(0);
+        readSheet.setHeadRowNumber(1);
+        readSheet.setClazz(EasyExcelTestDemo.class);
+        readSheet.setCustomReadListenerList(List.of(new PageReadListener<EasyExcelTestDemo>(dataList -> {
+            for (EasyExcelTestDemo data : dataList) {
+                System.out.println(data);
+            }
+        })));
+        excelReader.read(readSheets);
     }
 }
