@@ -160,7 +160,7 @@ public class AgentArgs {
         StringBuilder argsBuilder = new StringBuilder();
         Field[] fields = config.getClass().getDeclaredFields();
         for (Field field : fields) {
-            if (field.getName().equals("logger")) {
+            if ("logger".equals(field.getName()) || "DISABLED_PLUGINS_SPLIT_CHAR".equals(field.getName())) {
                 continue;
             }
             try {
