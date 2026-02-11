@@ -25,6 +25,7 @@ import io.github.future0923.debug.tools.hotswap.core.util.spring.util.StringUtil
 import lombok.Getter;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -81,7 +82,7 @@ public class HotswapAgent {
             return;
         }
         if (DebugToolsStringUtils.isNotBlank(args.getDisabledPlugins())) {
-            disabledPlugins.addAll(StringUtils.commaDelimitedListToSet(args.getDisabledPlugins()));
+            Collections.addAll(disabledPlugins, StringUtils.delimitedListToStringArray(args.getDisabledPlugins(), AgentArgs.DISABLED_PLUGINS_SPLIT_CHAR));
         }
         propertiesFilePath = args.getPropertiesFilePath();
     }
