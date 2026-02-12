@@ -106,6 +106,11 @@
             <version>3.30.2-GA</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel-core</artifactId>
+            <version>3.1.1</version>
+        </dependency>
     </dependencies>
 
     <build>
