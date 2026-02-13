@@ -80,3 +80,4 @@ build/
 ### Maven ###
 .flattened-pom.xml
 dependency-reduced-pom.xml
+/debug-tools-attach/local.properties
