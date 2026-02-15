@@ -21,6 +21,7 @@
         <module>debug-tools-test-spring-boot-three</module>
         <module>debug-tools-test-solon</module>
         <module>debug-tools-test-tomcat</module>
+        <module>debug-tools-test-mapstruct</module>
     </modules>
 
 </project>
