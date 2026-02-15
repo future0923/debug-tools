@@ -1,0 +1,2 @@
+debugtools 启动项目, 修改UserVO添加password字段, 无法实现热重载
+表现为, 调用/user/convert接口, password 值为null

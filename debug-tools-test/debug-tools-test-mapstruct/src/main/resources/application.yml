@@ -1,0 +1,5 @@
+# \u65E5\u5FD7\u914D\u7F6E
+logging:
+  level:
+    io.github.future0923.debug.tools.test.mapstruct: DEBUG
+
