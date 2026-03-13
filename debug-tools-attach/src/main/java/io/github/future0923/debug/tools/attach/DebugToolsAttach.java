@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.attach;
 
 import io.github.future0923.debug.tools.base.config.AgentArgs;
+import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.logging.Logger;
@@ -68,6 +69,7 @@ public class DebugToolsAttach {
             System.setProperty("cglib.debugLocation", "debug/cglib");
         }
         JvmToolsUtils.init();
+        AgentConfig.INSTANCE.createExtensionJar();
         SqlPrintByteCodeEnhance.enhance(inst, parse);
         if (Objects.equals(parse.getHotswap(), "true")) {
             HotswapIgnoreStaticFieldUtils.create(parse.getIgnoreStaticFieldPath());

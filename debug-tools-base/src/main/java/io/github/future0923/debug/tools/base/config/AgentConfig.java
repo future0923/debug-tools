@@ -70,7 +70,7 @@ public class AgentConfig {
         try {
             properties.load(propertiesFile.toURI().toURL().openStream());
             processUpgrade();
-            createExtensionJar();
+            //createExtensionJar();
         } catch (IOException e) {
             logger.error("load properties error", e);
         }
@@ -85,7 +85,7 @@ public class AgentConfig {
         }
     }
 
-    private void createExtensionJar() {
+    public void createExtensionJar() {
         createSpringJar();
         createSolonJar();
         createXxlJobJar();
