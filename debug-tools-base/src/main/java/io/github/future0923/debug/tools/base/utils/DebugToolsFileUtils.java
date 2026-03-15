@@ -134,7 +134,7 @@ public class DebugToolsFileUtils {
     private static File createTempDir() {
         File tempDir = DebugToolsLibUtils.getDebugToolsLibDir();
         if (!tempDir.exists()) {
-            if (!tempDir.mkdir()) {
+            if (!mkdirsSafely(tempDir, 5, 1)) {
                 throw new IllegalStateException("Failed to create directory within " + tempDir);
             }
         }
@@ -528,7 +528,10 @@ public class DebugToolsFileUtils {
      * 获取自动附加文件
      */
     public static File getAutoAttachFile() {
-        return FileUtil.touch(FileUtil.getUserHomePath() + "/" + ProjectConstants.AUTO_ATTACH_FLAG_FILE);
+        File configDir = DebugToolsPathUtils.getConfigDir();
+        return FileUtil.touch(new File(configDir, ProjectConstants.AUTO_ATTACH_FLAG_FILE).getPath());
     }
 
 }
+
+
