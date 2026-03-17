@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.idea.ui.tab;
 
 import com.intellij.execution.ui.ConsoleViewContentType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
@@ -51,6 +52,8 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
 
     private boolean loadDebug = false;
 
+    private boolean loadingDebug = false;
+
     public ExceptionTabbedPane(Project project, String throwable, String offsetPath) {
         this.project = project;
         this.throwable = throwable;
@@ -81,19 +84,31 @@ public class ExceptionTabbedPane extends JBPanel<ExceptionTabbedPane> {
             int selectedIndex = tabPane.getSelectedIndex();
             // 获取当前选中的选项卡标题
             //String selectedTabTitle = tabPane.getTitleAt(selectedIndex);
-            if (selectedIndex == 1 && !loadDebug) {
+            if (selectedIndex == 1 && !loadDebug && !loadingDebug) {
                 changeDebug();
             }
         });
     }
 
     private void changeDebug() {
-        String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
-        if (DebugToolsStringUtils.isNotBlank(body)) {
-            debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
-            loadDebug = true;
-        } else {
-            Messages.showErrorDialog(project, "The request failed, please try again later", "Exception Result");
-        }
+        loadingDebug = true;
+        debugTab.setRoot(createStatusNode("Loading..."));
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
+            ApplicationManager.getApplication().invokeLater(() -> {
+                loadingDebug = false;
+                if (DebugToolsStringUtils.isNotBlank(body)) {
+                    debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
+                    loadDebug = true;
+                } else {
+                    debugTab.setRoot(createStatusNode("Load failed"));
+                    Messages.showErrorDialog(project, "The request failed, please try again later", "Exception Result");
+                }
+            }, project.getDisposed());
+        });
+    }
+
+    private ResultDebugTreeNode createStatusNode(String message) {
+        return new ResultDebugTreeNode(new RunResultDTO("result", message), true);
     }
 }

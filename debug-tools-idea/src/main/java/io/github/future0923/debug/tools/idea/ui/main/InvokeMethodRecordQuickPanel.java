@@ -113,9 +113,7 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
         JPanel classLoaderJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         getAllClassLoader();
         refreshButton.addActionListener(e -> {
-            classLoaderComboBox.removeAllItems();
             getAllClassLoader();
-            classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
         });
         classLoaderJPanel.add(classLoaderComboBox);
         classLoaderJPanel.add(refreshButton);
@@ -195,8 +193,7 @@ public class InvokeMethodRecordQuickPanel extends JBPanel<InvokeMethodRecordQuic
     }
 
     private void getAllClassLoader() {
-        classLoaderComboBox.refreshClassLoader(false);
-        classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project));
+        classLoaderComboBox.refreshClassLoader(false, () -> classLoaderComboBox.setSelectedClassLoader(StateUtils.getProjectDefaultClassLoader(project)));
     }
 
     public Map<String, String> getItemHeaderMap() {

@@ -91,6 +91,10 @@ public class MainDialog extends DialogWrapper {
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         AllClassLoaderRes.Item classLoaderRes = (AllClassLoaderRes.Item) mainPanel.getClassLoaderComboBox().getSelectedItem();
         MainJsonEditor editor = mainPanel.getEditor();
+        if (editor.isGenerating()) {
+            DebugToolsNotifierUtil.notifyError(project, "参数正在生成，请稍后再试");
+            return;
+        }
         String text = DebugToolsJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
         TraceMethodPanel traceMethodPanel = mainPanel.getTraceMethodPanel();

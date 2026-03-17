@@ -20,19 +20,17 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.utils.DebugToolsDigestUtil;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.dto.TraceMethodDTO;
-import io.github.future0923.debug.tools.common.exception.SocketCloseException;
 import io.github.future0923.debug.tools.common.protocal.http.AllClassLoaderRes;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.idea.bundle.DebugToolsBundle;
-import io.github.future0923.debug.tools.idea.client.ApplicationProjectHolder;
+import io.github.future0923.debug.tools.idea.client.socket.utils.SocketSendUtils;
 import io.github.future0923.debug.tools.idea.constant.IdeaPluginProjectConstants;
 import io.github.future0923.debug.tools.idea.model.InvokeMethodRecordDTO;
 import io.github.future0923.debug.tools.idea.model.ParamCache;
@@ -91,6 +89,10 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
         Map<String, String> itemHeaderMap = mainPanel.getItemHeaderMap();
         AllClassLoaderRes.Item classLoaderRes = (AllClassLoaderRes.Item) mainPanel.getClassLoaderComboBox().getSelectedItem();
         MainJsonEditor editor = mainPanel.getEditor();
+        if (editor.isGenerating()) {
+            DebugToolsNotifierUtil.notifyError(project, "参数正在生成，请稍后再试");
+            return;
+        }
         String text = DebugToolsJsonUtils.compress(editor.getText());
         String xxlJobParam = mainPanel.getXxlJobParamField().getText();
         TraceMethodPanel traceMethodPanel = mainPanel.getTraceMethodPanel();
@@ -137,48 +139,35 @@ public class InvokeMethodRecordDialog extends DialogWrapper {
             }
         }
         RunTargetMethodRequestPacket packet = new RunTargetMethodRequestPacket(runDTO);
-        ApplicationProjectHolder.Info info = ApplicationProjectHolder.getInfo(project);
-        if (info == null) {
-            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.run.attach.first"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            DebugToolsToolWindowFactory.showWindow(project, null);
-            return;
-        }
-        try {
-            info.getClient().getHolder().send(packet);
-        } catch (SocketCloseException e) {
-            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.close"), DebugToolsBundle.message("dialog.title.execution.failed"));
-            return;
-        } catch (Exception e) {
-            Messages.showErrorDialog(DebugToolsBundle.message("dialog.error.socket.send") + e.getMessage(), DebugToolsBundle.message("dialog.title.execution.failed"));
-            return;
-        }
         String runJsonStr = DebugToolsJsonUtils.toJsonStr(runDTO);
-        try {
-            String pathname = project.getBasePath() + IdeaPluginProjectConstants.PARAM_FILE;
-            File file = new File(pathname);
-            if (!file.exists()) {
-                FileUtils.touch(file);
+        SocketSendUtils.sendAsync(project, packet, () -> {
+            try {
+                String pathname = project.getBasePath() + IdeaPluginProjectConstants.PARAM_FILE;
+                File file = new File(pathname);
+                if (!file.exists()) {
+                    FileUtils.touch(file);
+                }
+                FileUtil.writeUtf8String(runJsonStr, file);
+            } catch (IOException ex) {
+                log.error("参数写入json文件失败", ex);
+                DebugToolsNotifierUtil.notifyError(project, "参数写入json文件失败");
+                return;
             }
-            FileUtil.writeUtf8String(runJsonStr, file);
-        } catch (IOException ex) {
-            log.error("参数写入json文件失败", ex);
-            DebugToolsNotifierUtil.notifyError(project, "参数写入json文件失败");
-            return;
-        }
-        if (settingState.getInvokeMethodRecord()) {
-            InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
-            invokeMethodRecordDTO.setIdentity(recordRunDTO.getIdentity());
-            invokeMethodRecordDTO.formatRunTime();
-            invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
-            invokeMethodRecordDTO.setClassSimpleName(recordRunDTO.getClassSimpleName());
-            invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
-            invokeMethodRecordDTO.setMethodSignature(recordRunDTO.getMethodSignature());
-            invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
-            invokeMethodRecordDTO.setMethodParamJson(text);
-            invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
-            invokeMethodRecordDTO.formatRunDTO(runDTO);
-            DebugToolsToolWindowFactory.consumerInvokeMethodRecordPanel(project, panel -> panel.addItem(invokeMethodRecordDTO));
-        }
+            if (settingState.getInvokeMethodRecord()) {
+                InvokeMethodRecordDTO invokeMethodRecordDTO = new InvokeMethodRecordDTO();
+                invokeMethodRecordDTO.setIdentity(recordRunDTO.getIdentity());
+                invokeMethodRecordDTO.formatRunTime();
+                invokeMethodRecordDTO.setClassName(runDTO.getTargetClassName());
+                invokeMethodRecordDTO.setClassSimpleName(recordRunDTO.getClassSimpleName());
+                invokeMethodRecordDTO.setMethodName(runDTO.getTargetMethodName());
+                invokeMethodRecordDTO.setMethodSignature(recordRunDTO.getMethodSignature());
+                invokeMethodRecordDTO.setMethodAroundName(methodAroundName);
+                invokeMethodRecordDTO.setMethodParamJson(text);
+                invokeMethodRecordDTO.setCacheKey(recordRunDTO.getCacheKey());
+                invokeMethodRecordDTO.formatRunDTO(runDTO);
+                DebugToolsToolWindowFactory.consumerInvokeMethodRecordPanel(project, panel -> panel.addItem(invokeMethodRecordDTO));
+            }
+        });
         super.doOKAction();
     }
 

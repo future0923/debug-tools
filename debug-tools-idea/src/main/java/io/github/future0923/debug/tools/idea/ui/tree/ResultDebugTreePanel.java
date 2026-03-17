@@ -16,7 +16,9 @@
  */
 package io.github.future0923.debug.tools.idea.ui.tree;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.border.CustomLineBorder;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -48,6 +50,8 @@ import java.util.List;
 @SuppressWarnings(value = {"unchecked", "rawtypes"})
 public class ResultDebugTreePanel extends JBScrollPane {
 
+    private final Project project;
+
     private final Tree tree;
 
     public ResultDebugTreePanel(Project project) {
@@ -55,6 +59,7 @@ public class ResultDebugTreePanel extends JBScrollPane {
     }
 
     public ResultDebugTreePanel(Project project, ResultDebugTreeNode root) {
+        this.project = project;
         this.tree = new SimpleTree();
         // 可以拖动的Tree SimpleDnDAwareTree
         this.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -67,12 +72,7 @@ public class ResultDebugTreePanel extends JBScrollPane {
             public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
                 if (event.getPath().getLastPathComponent() instanceof TreeNode node) {
                     if (node.getChildCount() == 1 && node.getFirstChild() instanceof EmptyTreeNode) {
-                        node.removeAllChildren();
-                        List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, ((RunResultDTO)node.getUserObject()).getFiledOffset());
-                        for (RunResultDTO runResultDTO : runResultDTOList) {
-                            node.add(new ResultDebugTreeNode(runResultDTO, runResultDTO.getLeaf()));
-                        }
-                        ((DefaultTreeModel) tree.getModel()).reload(node);
+                        loadChildren(node);
                     }
                 }
             }
@@ -133,6 +133,40 @@ public class ResultDebugTreePanel extends JBScrollPane {
             StringSelection stringSelection = new StringSelection(value ? runResultDTO.getValue() == null ? "null" : runResultDTO.getValue() : runResultDTO.getName() == null ? "null" : runResultDTO.getName());
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
         }
+    }
+
+    private void loadChildren(TreeNode<RunResultDTO> node) {
+        DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
+        node.removeAllChildren();
+        node.add(createStatusNode("Loading..."));
+        model.reload(node);
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            try {
+                List<RunResultDTO> runResultDTOList = HttpClientUtils.resultDetail(project, node.getUserObject().getFiledOffset());
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    node.removeAllChildren();
+                    if (runResultDTOList == null || runResultDTOList.isEmpty()) {
+                        node.add(createStatusNode("No data"));
+                    } else {
+                        for (RunResultDTO runResultDTO : runResultDTOList) {
+                            node.add(new ResultDebugTreeNode(runResultDTO, runResultDTO.getLeaf()));
+                        }
+                    }
+                    model.reload(node);
+                }, project.getDisposed());
+            } catch (Exception ex) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    node.removeAllChildren();
+                    node.add(new EmptyTreeNode());
+                    model.reload(node);
+                    Messages.showErrorDialog(project, "The request failed, please try again later", "Debug Result");
+                }, project.getDisposed());
+            }
+        });
+    }
+
+    private ResultDebugTreeNode createStatusNode(String message) {
+        return new ResultDebugTreeNode(new RunResultDTO("status", message, RunResultDTO.Type.PROPERTY, null), true);
     }
 
     public void setRoot(ResultDebugTreeNode root) {

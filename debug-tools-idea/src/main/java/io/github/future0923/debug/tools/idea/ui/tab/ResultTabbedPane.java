@@ -16,12 +16,14 @@
  */
 package io.github.future0923.debug.tools.idea.ui.tab;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTabbedPane;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
+import io.github.future0923.debug.tools.base.trace.MethodTraceType;
 import io.github.future0923.debug.tools.base.trace.MethodTreeNode;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunResultDTO;
@@ -70,6 +72,12 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
     private boolean loadDebug = false;
 
     private boolean loadTrace = false;
+
+    private boolean loadingJson = false;
+
+    private boolean loadingDebug = false;
+
+    private boolean loadingTrace = false;
 
     public ResultTabbedPane(Project project, String printResult, String offsetPath, String traceOffsetPath, ResultClassType resultClassType) {
         this.project = project;
@@ -131,11 +139,11 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             int selectedIndex = tabPane.getSelectedIndex();
             // 获取当前选中的选项卡标题
             String selectedTabTitle = tabPane.getTitleAt(selectedIndex);
-            if (Objects.equals(selectedTabTitle, "json") && !loadJson) {
+            if (Objects.equals(selectedTabTitle, "json") && !loadJson && !loadingJson) {
                 changeJson();
-            } else if (Objects.equals(selectedTabTitle, "debug") && !loadDebug) {
+            } else if (Objects.equals(selectedTabTitle, "debug") && !loadDebug && !loadingDebug) {
                 changeDebug();
-            } else if (Objects.equals(selectedTabTitle, "trace") && !loadTrace) {
+            } else if (Objects.equals(selectedTabTitle, "trace") && !loadTrace && !loadingTrace) {
                 changeTrace();
             }
         });
@@ -150,7 +158,17 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
         } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
             text = "{\n    \"result\": \"" + printResult + "\"\n}";
         } else if (ResultClassType.OBJECT.equals(resultClassType)) {
-            text = HttpClientUtils.resultType(project, offsetPath, PrintResultType.JSON.getType());
+            loadingJson = true;
+            jsonTab.setText(statusJson("Loading..."));
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.JSON.getType());
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    loadingJson = false;
+                    loadJson = true;
+                    jsonTab.setText(body);
+                }, project.getDisposed());
+            });
+            return;
         }
         jsonTab.setText(text);
         loadJson = true;
@@ -161,22 +179,30 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             return;
         }
         if (ResultClassType.VOID.equals(resultClassType)) {
-            Messages.showErrorDialog(project, "Void does not support viewing", "Debug Result");
+            debugTab.setRoot(createDebugStatusNode("Void does not support viewing"));
+            loadDebug = true;
         } else if (ResultClassType.NULL.equals(resultClassType)) {
-            Messages.showErrorDialog(project, "Null does not support viewing", "Debug Result");
+            debugTab.setRoot(createDebugStatusNode("Null does not support viewing"));
+            loadDebug = true;
         } else if (ResultClassType.SIMPLE.equals(resultClassType)) {
-            debugTab.setRoot(new ResultDebugTreeNode(new RunResultDTO("result", printResult) {{
-                setLeaf(true);
-            }}));
+            debugTab.setRoot(createDebugStatusNode(printResult));
             loadDebug = true;
         } else if (ResultClassType.OBJECT.equals(resultClassType)) {
-            String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
-            if (DebugToolsStringUtils.isNotBlank(body)) {
-                debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
-                loadDebug = true;
-            } else {
-                Messages.showErrorDialog(project, "The request failed, please try again later", "Request Result");
-            }
+            loadingDebug = true;
+            debugTab.setRoot(createDebugStatusNode("Loading..."));
+            ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                String body = HttpClientUtils.resultType(project, offsetPath, PrintResultType.DEBUG.getType());
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    loadingDebug = false;
+                    if (DebugToolsStringUtils.isNotBlank(body)) {
+                        debugTab.setRoot(new ResultDebugTreeNode(DebugToolsJsonUtils.toBean(body, RunResultDTO.class)));
+                        loadDebug = true;
+                    } else {
+                        debugTab.setRoot(createDebugStatusNode("Load failed"));
+                        Messages.showErrorDialog(project, "The request failed, please try again later", "Request Result");
+                    }
+                }, project.getDisposed());
+            });
         }
     }
 
@@ -185,12 +211,48 @@ public class ResultTabbedPane extends JBPanel<ResultTabbedPane> {
             return;
         }
         if (StrUtil.isBlank(traceOffsetPath)) {
-            Messages.showErrorDialog(project, "Trace does not support viewing", "Debug Result");
+            traceTab.setRoot(createTraceStatusNode("Trace does not support viewing"));
+            loadTrace = true;
+            return;
         }
-        List<MethodTreeNode> methodTreeNodes = HttpClientUtils.resultTrace(project, traceOffsetPath);
-        if (CollUtil.isNotEmpty(methodTreeNodes)) {
-            traceTab.setRoot(new ResultTraceTreeNode(CollUtil.getFirst(methodTreeNodes)));
-        }
-        loadTrace = true;
+        loadingTrace = true;
+        traceTab.setRoot(createTraceStatusNode("Loading..."));
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            try {
+                List<MethodTreeNode> methodTreeNodes = HttpClientUtils.resultTrace(project, traceOffsetPath);
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    loadingTrace = false;
+                    if (CollUtil.isNotEmpty(methodTreeNodes)) {
+                        traceTab.setRoot(new ResultTraceTreeNode(CollUtil.getFirst(methodTreeNodes)));
+                    } else {
+                        traceTab.setRoot(createTraceStatusNode("No trace data"));
+                    }
+                    loadTrace = true;
+                }, project.getDisposed());
+            } catch (Exception ex) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    loadingTrace = false;
+                    traceTab.setRoot(createTraceStatusNode("Load failed"));
+                    Messages.showErrorDialog(project, "The request failed, please try again later", "Trace Result");
+                }, project.getDisposed());
+            }
+        });
+    }
+
+    private String statusJson(String result) {
+        return "{\n    \"result\": \"" + result + "\"\n}";
+    }
+
+    private ResultDebugTreeNode createDebugStatusNode(String message) {
+        return new ResultDebugTreeNode(new RunResultDTO("result", message), true);
+    }
+
+    private ResultTraceTreeNode createTraceStatusNode(String message) {
+        MethodTreeNode methodTreeNode = new MethodTreeNode();
+        methodTreeNode.setTraceType(MethodTraceType.METHOD);
+        methodTreeNode.setClassSimpleName("status");
+        methodTreeNode.setMethodSignature(message);
+        methodTreeNode.setDuration(0L);
+        return new ResultTraceTreeNode(methodTreeNode);
     }
 }
