@@ -73,6 +73,7 @@ build/
 
 ### VS Code ###
 .vscode/
+.codex/
 
 ### Mac OS ###
 .DS_Store
