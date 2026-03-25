@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.test.spring.boot.three.controller;
 
 import io.github.future0923.debug.tools.test.spring.boot.three.event.ActionEvent;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping("/event")
-    public String sendEvent() {
+    public String sendEvent(HttpServletRequest request) {
         ActionEvent event = new ActionEvent();
         eventPublisher.publishEvent(event);
         return "事件已发送";

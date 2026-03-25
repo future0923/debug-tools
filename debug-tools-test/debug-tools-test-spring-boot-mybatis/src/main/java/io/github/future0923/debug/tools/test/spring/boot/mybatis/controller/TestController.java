@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -76,7 +77,7 @@ public class TestController {
         ReadSheet readSheet = readSheets.get(0);
         readSheet.setHeadRowNumber(1);
         readSheet.setClazz(EasyExcelTestDemo.class);
-        readSheet.setCustomReadListenerList(List.of(new PageReadListener<EasyExcelTestDemo>(dataList -> {
+        readSheet.setCustomReadListenerList(Arrays.asList(new PageReadListener<EasyExcelTestDemo>(dataList -> {
             for (EasyExcelTestDemo data : dataList) {
                 System.out.println(data);
             }
