@@ -21,9 +21,10 @@ import io.github.future0923.debug.tools.base.config.AgentConfig;
 import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
-import io.github.future0923.debug.tools.common.dto.RunContentDTO;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.InvocationHandler;
@@ -44,6 +45,7 @@ public class DebugToolsEnvUtils {
     private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
     private static final Map<ClassLoader, DebugToolsExtensionClassLoader> EXTENSION_CLASS_LOADER_MAP = new HashMap<>();
+    private static final Log log = LogFactory.getLog(DebugToolsEnvUtils.class);
 
     private static ClassLoader appClassLoader;
 
@@ -63,6 +65,15 @@ public class DebugToolsEnvUtils {
             }
             List<URL> urls = new LinkedList<>();
             Optional.ofNullable(AgentConfig.INSTANCE.getSpringExtensionURL()).ifPresent(urls::add);
+            if (DebugToolsClassUtils.loadedDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest")) {
+                Optional.ofNullable(AgentConfig.INSTANCE.getSpringServletExtensionURL()).ifPresent(urls::add);
+            }
+            if (DebugToolsClassUtils.loadedDebugToolsClass(appClassLoader, "jakarta.servlet.http.HttpServletRequest")) {
+                Optional.ofNullable(AgentConfig.INSTANCE.getSpringJakartaExtensionURL()).ifPresent(urls::add);
+            }
+            if (DebugToolsClassUtils.loadedDebugToolsClass(appClassLoader, "org.springframework.http.server.reactive.ServerHttpRequest")) {
+                Optional.ofNullable(AgentConfig.INSTANCE.getSpringReactiveExtensionURL()).ifPresent(urls::add);
+            }
             Optional.ofNullable(AgentConfig.INSTANCE.getSolonExtensionURL()).ifPresent(urls::add);
             Optional.ofNullable(AgentConfig.INSTANCE.getXxlJobExtensionURL()).ifPresent(urls::add);
             extensionClassLoader = new DebugToolsExtensionClassLoader(urls.toArray(new URL[0]), classLoader);
@@ -104,6 +115,17 @@ public class DebugToolsEnvUtils {
         }
     }
 
+    public static Class<?> getSpringJakartaUtil() {
+        try {
+            return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.spring.SpringJakartaUtil");
+        } catch (ClassNotFoundException | NoClassDefFoundError e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("SpringJakartaUtil get error", e);
+            }
+            return null;
+        }
+    }
+
     public static Class<?> getSolonEnvUtilClass() {
         try {
             return getExtensionClassLoader(Thread.currentThread().getContextClassLoader()).loadClass("io.github.future0923.debug.tools.extension.solon.SolonEnvUtil");
@@ -130,7 +152,7 @@ public class DebugToolsEnvUtils {
      * 根据Bean名称获取最后一个Bean实例
      *
      * @param beanName Bean名称
-     * @param <T> Bean类型
+     * @param <T>      Bean类型
      * @return Bean实例，如果Spring环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
@@ -150,7 +172,7 @@ public class DebugToolsEnvUtils {
      * 根据Bean名称获取Bean实例列表
      *
      * @param beanName Bean名称
-     * @param <T> Bean类型
+     * @param <T>      Bean类型
      * @return Bean实例列表，如果Spring环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
@@ -221,7 +243,7 @@ public class DebugToolsEnvUtils {
      * 根据类型获取Spring容器中的最后一个Bean实例
      *
      * @param requiredType Bean类型
-     * @param <T> Bean类型
+     * @param <T>          Bean类型
      * @return Bean实例，如果Spring环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
@@ -240,7 +262,7 @@ public class DebugToolsEnvUtils {
      * 根据类型获取Solon容器中的最后一个Bean实例
      *
      * @param requiredType Bean类型
-     * @param <T> Bean类型
+     * @param <T>          Bean类型
      * @return Bean实例，如果Solon环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
@@ -259,7 +281,7 @@ public class DebugToolsEnvUtils {
      * 根据类型获取Bean实例列表
      *
      * @param requiredType Bean类型
-     * @param <T> Bean类型
+     * @param <T>          Bean类型
      * @return Bean实例列表，如果Spring环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
@@ -294,7 +316,7 @@ public class DebugToolsEnvUtils {
      * 注册Bean到Spring容器
      *
      * @param beanName Bean名称
-     * @param bean Bean实例
+     * @param bean     Bean实例
      * @throws Exception 反射调用异常
      */
     public static <T> void registerBean(String beanName, T bean) throws Exception {
@@ -310,11 +332,11 @@ public class DebugToolsEnvUtils {
     /**
      * 注册Bean到Spring容器
      *
-     * @param beanName Bean名称
+     * @param beanName  Bean名称
      * @param beanClass Bean类
      * @throws Exception 反射调用异常
      */
-    public static <T> void registerBean(String beanName,Class<T> beanClass) throws Exception {
+    public static <T> void registerBean(String beanName, Class<T> beanClass) throws Exception {
         Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return;
@@ -377,7 +399,7 @@ public class DebugToolsEnvUtils {
      * 获取AOP代理对象的原始目标对象
      *
      * @param candidate 可能是代理对象
-     * @param <T> 目标对象类型
+     * @param <T>       目标对象类型
      * @return 原始目标对象，如果不是代理对象则返回自身
      */
     @SuppressWarnings("unchecked")
@@ -443,18 +465,27 @@ public class DebugToolsEnvUtils {
      * @param runDTO 包含请求信息的DTO对象
      */
     public static void setRequest(RunDTO runDTO) {
-        Class<?> springServletUtil = getSpringServletUtil();
-        if (springServletUtil == null) {
-            return;
-        }
+        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.context.request.RequestContextHolder");
         try {
-            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.context.request.RequestContextHolder");
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest");
+            Class<?> springServletUtil = getSpringServletUtil();
+            if (springServletUtil == null) {
+                return;
+            }
             Method setRequest = springServletUtil.getMethod("setRequest", RunDTO.class);
             setRequest.invoke(null, runDTO);
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new RuntimeException(e);
         } catch (Exception ignored) {
+            try {
+                DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "jakarta.servlet.http.HttpServletRequest");
+                Class<?> springJakartaUtil = getSpringJakartaUtil();
+                if (springJakartaUtil == null) {
+                    return;
+                }
+                Method setRequest = springJakartaUtil.getMethod("setRequest", RunDTO.class);
+                setRequest.invoke(null, runDTO);
+            } catch (Exception e) {
+
+            }
         }
     }
 
@@ -484,22 +515,22 @@ public class DebugToolsEnvUtils {
      * 根据方法参数信息和运行内容生成参数数组
      *
      * @param bridgedMethod 桥接方法或原始方法
-     * @param targetMethodContent 方法参数运行内容映射
+     * @param runDTO        方法参数运行内容映射
      * @return 参数数组
      */
-    public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
+    public static Object[] getArgs(Method bridgedMethod, RunDTO runDTO) {
         Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
-            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
+            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, runDTO);
         }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.core.ResolvableType");
-            Method getArgs = springEnvUtil.getMethod("getArgs", Method.class, Map.class);
-            return (Object[]) getArgs.invoke(null, bridgedMethod, targetMethodContent);
+            Method getArgs = springEnvUtil.getMethod("getArgs", Method.class, RunDTO.class);
+            return (Object[]) getArgs.invoke(null, bridgedMethod, runDTO);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (Exception ignored) {
-            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
+            return DebugToolsParamConvertUtils.getArgs(bridgedMethod, runDTO);
         }
     }
 
@@ -520,7 +551,30 @@ public class DebugToolsEnvUtils {
             return getRequest.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            if (ProjectConstants.DEBUG) {
+                log.error("get servlet request", ex);
+            }
+            return null;
+        }
+    }
+
+    public static Object getJakartaRequest() {
+        Class<?> springJakartaUtil = getSpringJakartaUtil();
+        if (springJakartaUtil == null) {
+            return null;
+        }
+        try {
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "jakarta.servlet.http.HttpServletRequest");
+            Method getRequest = springJakartaUtil.getMethod("getRequest");
+            return getRequest.invoke(null);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            if (ProjectConstants.DEBUG) {
+                log.error("get jakarta request", ex);
+            }
             return null;
         }
     }
@@ -530,18 +584,21 @@ public class DebugToolsEnvUtils {
      *
      * @return ServerHttpRequest对象，如果Spring Reactive工具类不存在则返回null
      */
-    public static Object getServerHttpRequest() {
+    public static Object getServerHttpRequest(Map<String, String> headers) {
         Class<?> springReactiveUtil = getSpringReactiveUtil();
         if (springReactiveUtil == null) {
             return null;
         }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.server.reactive.ServerHttpRequest");
-            Method getRequest = springReactiveUtil.getMethod("getServerHttpRequest");
-            return getRequest.invoke(null);
+            Method getRequest = springReactiveUtil.getMethod("getServerHttpRequest", Map.class);
+            return getRequest.invoke(null, headers);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            if (ProjectConstants.DEBUG) {
+                log.error("get reactive request", ex);
+            }
             return null;
         }
     }
@@ -551,18 +608,21 @@ public class DebugToolsEnvUtils {
      *
      * @return ServerWebExchange对象，如果Spring Reactive工具类不存在则返回null
      */
-    public static Object getServerWebExchange() {
+    public static Object getServerWebExchange(Map<String, String> headers) {
         Class<?> springReactiveUtil = getSpringReactiveUtil();
         if (springReactiveUtil == null) {
             return null;
         }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.server.ServerWebExchange");
-            Method getRequest = springReactiveUtil.getMethod("getServerWebExchange");
-            return getRequest.invoke(null);
+            Method getRequest = springReactiveUtil.getMethod("getServerWebExchange", Map.class);
+            return getRequest.invoke(null, headers);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            if (ProjectConstants.DEBUG) {
+                log.error("get ServerWebExchange", ex);
+            }
             return null;
         }
     }
@@ -579,7 +639,25 @@ public class DebugToolsEnvUtils {
         }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletResponse");
             Method getResponse = springServletUtil.getMethod("getResponse");
+            return getResponse.invoke(null);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    public static Object getJakartaResponse() {
+        Class<?> springJakartaUtil = getSpringJakartaUtil();
+        if (springJakartaUtil == null) {
+            return null;
+        }
+        try {
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.http.MediaType");
+            DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "jakarta.servlet.http.HttpServletResponse");
+            Method getResponse = springJakartaUtil.getMethod("getResponse");
             return getResponse.invoke(null);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e);

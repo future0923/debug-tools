@@ -22,6 +22,8 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsFileUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsLibUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +47,12 @@ public class AgentConfig {
 
     private static final String SPRING_EXTENSION_PATH = "debug.tools.extension.spring.path";
 
+    private static final String SPRING_SERVLET_EXTENSION_PATH = "debug.tools.extension.spring.servlet.path";
+
+    private static final String SPRING_REACTIVE_EXTENSION_PATH = "debug.tools.extension.spring.reactive.path";
+
+    private static final String SPRING_JAKARTA_EXTENSION_PATH = "debug.tools.extension.spring.jakarta.path";
+
     private static final String SOLON_EXTENSION_PATH = "debug.tools.extension.solon.path";
 
     private static final String XXLJOB_EXTENSION_PATH = "debug.tools.extension.xxljob.path";
@@ -59,6 +67,8 @@ public class AgentConfig {
 
     private final File propertiesFile;
 
+    @Getter
+    @Setter
     private boolean isUpgrade;
 
     private AgentConfig() {
@@ -87,6 +97,9 @@ public class AgentConfig {
 
     public void createExtensionJar() {
         createSpringJar();
+        createSpringServletJar();
+        createSpringReactiveJar();
+        createSpringJakartaJar();
         createSolonJar();
         createXxlJobJar();
         store();
@@ -96,6 +109,21 @@ public class AgentConfig {
     private void createSpringJar() {
         File jarFile = loadJarFile(getSpringExtensionPath(), ProjectConstants.SPRING_EXTENSION_JAR_NAME);
         setSpringExtensionPath(jarFile.getAbsolutePath());
+    }
+
+    private void createSpringServletJar() {
+        File jarFile = loadJarFile(getSpringServletExtensionPath(), ProjectConstants.SPRING_SERVLET_EXTENSION_JAR_NAME);
+        setSpringServletExtensionPath(jarFile.getAbsolutePath());
+    }
+
+    private void createSpringReactiveJar() {
+        File jarFile = loadJarFile(getSpringReactiveExtensionPath(), ProjectConstants.SPRING_REACTIVE_EXTENSION_JAR_NAME);
+        setSpringReactiveExtensionPath(jarFile.getAbsolutePath());
+    }
+
+    private void createSpringJakartaJar() {
+        File jarFile = loadJarFile(getSpringJakartaExtensionPath(), ProjectConstants.SPRING_JAKARTA_EXTENSION_JAR_NAME);
+        setSpringJakartaExtensionPath(jarFile.getAbsolutePath());
     }
 
     private void createSolonJar() {
@@ -110,7 +138,7 @@ public class AgentConfig {
 
     private File loadJarFile(String jarPath, String jarName) {
         File jarFile;
-        if (ProjectConstants.DEBUG || jarPath == null || jarPath.isEmpty() || isUpgrade) {
+        if (ProjectConstants.DEBUG || jarPath == null || jarPath.isEmpty() || ProjectConstants.VERSION.contains("SNAPSHOT") || isUpgrade) {
             jarFile = DebugToolsFileUtils.getLibResourceJar(SpyAPI.class.getClassLoader(), jarName);
         } else {
             File file = new File(jarPath);
@@ -149,16 +177,20 @@ public class AgentConfig {
         store();
     }
 
-    public boolean isUpgrade() {
-        return isUpgrade;
-    }
-
-    public void setUpgrade(boolean upgrade) {
-        isUpgrade = upgrade;
-    }
-
     public String getSpringExtensionPath() {
         return properties.getProperty(SPRING_EXTENSION_PATH);
+    }
+
+    public String getSpringServletExtensionPath() {
+        return properties.getProperty(SPRING_SERVLET_EXTENSION_PATH);
+    }
+
+    public String getSpringReactiveExtensionPath() {
+        return properties.getProperty(SPRING_REACTIVE_EXTENSION_PATH);
+    }
+
+    public String getSpringJakartaExtensionPath() {
+        return properties.getProperty(SPRING_JAKARTA_EXTENSION_PATH);
     }
 
     public URL getSpringExtensionURL() {
@@ -172,14 +204,53 @@ public class AgentConfig {
         }
     }
 
+    public URL getSpringServletExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getSpringServletExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load spring servlet extension error", e);
+            }
+            return null;
+        }
+    }
+
+    public URL getSpringReactiveExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getSpringReactiveExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load spring reactive extension error", e);
+            }
+            return null;
+        }
+    }
+
+    public URL getSpringJakartaExtensionURL() {
+        try {
+            return DebugToolsStringUtils.resourceNameToURL(getSpringJakartaExtensionPath());
+        } catch (Exception e) {
+            if (ProjectConstants.DEBUG) {
+                logger.warning("load spring reactive extension error", e);
+            }
+            return null;
+        }
+    }
 
     public void setSpringExtensionPath(String path) {
         properties.setProperty(SPRING_EXTENSION_PATH, path);
     }
 
-    public void setSpringExtensionPathAndStore(String corePath) {
-        setSpringExtensionPath(corePath);
-        store();
+    public void setSpringServletExtensionPath(String path) {
+        properties.setProperty(SPRING_SERVLET_EXTENSION_PATH, path);
+    }
+
+    public void setSpringReactiveExtensionPath(String path) {
+        properties.setProperty(SPRING_REACTIVE_EXTENSION_PATH, path);
+    }
+
+    public void setSpringJakartaExtensionPath(String path) {
+        properties.setProperty(SPRING_JAKARTA_EXTENSION_PATH, path);
     }
 
     public String getSolonExtensionPath() {

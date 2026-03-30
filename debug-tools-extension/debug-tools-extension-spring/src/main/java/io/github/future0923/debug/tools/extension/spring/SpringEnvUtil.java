@@ -16,11 +16,11 @@
  */
 package io.github.future0923.debug.tools.extension.spring;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollUtil;
 import io.github.future0923.debug.tools.base.hutool.core.collection.CollectionUtil;
-import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
-import io.github.future0923.debug.tools.common.dto.RunContentDTO;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.extension.spring.method.SpringParamConvertUtils;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import org.springframework.aop.SpringProxy;
@@ -31,7 +31,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.*;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.BridgeMethodResolver;
@@ -44,7 +47,12 @@ import java.beans.Introspector;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author future0923
@@ -260,7 +268,7 @@ public class SpringEnvUtil {
                         ((DefaultSingletonBeanRegistry) factory).destroySingleton(beanName);
                         break;
                     }
-                    if(factory instanceof BeanDefinitionRegistry){
+                    if (factory instanceof BeanDefinitionRegistry) {
                         ((BeanDefinitionRegistry) factory).removeBeanDefinition(beanName);
                     }
                 }
@@ -403,30 +411,30 @@ public class SpringEnvUtil {
         return invocationHandler instanceof AopProxy;
     }
 
-    public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
-        return SpringParamConvertUtils.getArgs(bridgedMethod, targetMethodContent);
+    public static Object[] getArgs(Method bridgedMethod, RunDTO runDTO) {
+        return SpringParamConvertUtils.getArgs(bridgedMethod, runDTO);
     }
 
     public static String[] getBeanNamesForType(Class<?> type) {
         initSpringContext();
         for (BeanFactory beanFactory : beanFactories) {
-            if(beanFactory instanceof DefaultListableBeanFactory){
-                DefaultListableBeanFactory factory =  (DefaultListableBeanFactory) beanFactory;
+            if (beanFactory instanceof DefaultListableBeanFactory) {
+                DefaultListableBeanFactory factory = (DefaultListableBeanFactory) beanFactory;
                 return factory.getBeanNamesForType(type);
             }
         }
         return new String[0];
     }
 
-     public static BeanDefinition getBeanDefinition(String beanName) {
-         initSpringContext();
-         for (BeanFactory beanFactory : beanFactories) {
-             if(beanFactory instanceof DefaultListableBeanFactory){
-                 DefaultListableBeanFactory factory =  (DefaultListableBeanFactory) beanFactory;
-                 return factory.getBeanDefinition(beanName);
-             }
-         }
-         return null;
+    public static BeanDefinition getBeanDefinition(String beanName) {
+        initSpringContext();
+        for (BeanFactory beanFactory : beanFactories) {
+            if (beanFactory instanceof DefaultListableBeanFactory) {
+                DefaultListableBeanFactory factory = (DefaultListableBeanFactory) beanFactory;
+                return factory.getBeanDefinition(beanName);
+            }
+        }
+        return null;
     }
 
 }

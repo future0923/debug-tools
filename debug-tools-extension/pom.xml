@@ -15,6 +15,9 @@
 
     <modules>
         <module>debug-tools-extension-spring</module>
+        <module>debug-tools-extension-spring-servlet</module>
+        <module>debug-tools-extension-spring-reactive</module>
+        <module>debug-tools-extension-spring-jakarta</module>
         <module>debug-tools-extension-xxljob</module>
         <module>debug-tools-extension-solon</module>
     </modules>

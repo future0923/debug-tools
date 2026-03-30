@@ -21,11 +21,11 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
 import io.github.future0923.debug.tools.common.utils.DebugToolsDateUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsLambdaUtils;
-import io.github.future0923.debug.tools.extension.spring.request.MockMultipartFile;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import org.springframework.beans.SimpleTypeConverter;
@@ -54,7 +54,7 @@ public class SpringParamConvertUtils {
 
     private static final SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter();
 
-    public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
+    public static Object[] getArgs(Method bridgedMethod, RunDTO runDTO) {
         SynthesizingMethodParameter[] parameters = new SynthesizingMethodParameter[bridgedMethod.getParameterCount()];
         for (int i = 0; i < bridgedMethod.getParameterCount(); i++) {
             parameters[i] = new SynthesizingMethodParameter(bridgedMethod, i);
@@ -64,7 +64,7 @@ public class SpringParamConvertUtils {
             SynthesizingMethodParameter parameter = parameters[i];
             parameter.initParameterNameDiscovery(new DefaultParameterNameDiscoverer());
             try {
-                targetMethodArgs[i] = SpringParamConvertUtils.getArg(targetMethodContent, parameter);
+                targetMethodArgs[i] = SpringParamConvertUtils.getArg(runDTO, parameter);
             } catch (Exception e) {
                 log.error("转换参数[{}]失败", e, parameter.getParameterName());
                 targetMethodArgs[i] = null;
@@ -75,11 +75,8 @@ public class SpringParamConvertUtils {
 
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static Object getArg(Map<String, RunContentDTO> contentMap, SynthesizingMethodParameter parameter) {
-        if (contentMap == null || contentMap.isEmpty()) {
-            return null;
-        }
-        RunContentDTO runContentDTO = getRunContentDTO(contentMap, parameter);
+    public static Object getArg(RunDTO runDTO, SynthesizingMethodParameter parameter) {
+        RunContentDTO runContentDTO = getRunContentDTO(runDTO.getTargetMethodContent(), parameter);
         if (runContentDTO == null) {
             return null;
         }
@@ -140,16 +137,22 @@ public class SpringParamConvertUtils {
             if (parameter.getParameterType().getName().equals("javax.servlet.http.HttpServletRequest")) {
                 return DebugToolsEnvUtils.getRequest();
             }
+            if (parameter.getParameterType().getName().equals("jakarta.servlet.http.HttpServletRequest")) {
+                return DebugToolsEnvUtils.getJakartaRequest();
+            }
             if (parameter.getParameterType().getName().equals("org.springframework.http.server.reactive.ServerHttpRequest")) {
-                return DebugToolsEnvUtils.getServerHttpRequest();
+                return DebugToolsEnvUtils.getServerHttpRequest(runDTO.getHeaders());
             }
             if (parameter.getParameterType().getName().equals("org.springframework.web.server.ServerWebExchange")) {
-                return DebugToolsEnvUtils.getServerWebExchange();
+                return DebugToolsEnvUtils.getServerWebExchange(runDTO.getHeaders());
             }
             return null;
         } else if (RunContentType.RESPONSE.getType().equals(runContentDTO.getType())) {
             if (parameter.getParameterType().getName().equals("javax.servlet.http.HttpServletResponse")) {
                 return DebugToolsEnvUtils.getResponse();
+            }
+            if (parameter.getParameterType().getName().equals("jakarta.servlet.http.HttpServletResponse")) {
+                return DebugToolsEnvUtils.getJakartaResponse();
             }
             if (parameter.getParameterType().getName().equals("org.springframework.http.server.reactive.ServerHttpResponse")) {
                 return DebugToolsEnvUtils.getServerHttpResponse();
@@ -201,6 +204,9 @@ public class SpringParamConvertUtils {
     }
 
     private static RunContentDTO getRunContentDTO(Map<String, RunContentDTO> contentMap, SynthesizingMethodParameter parameter) {
+        if (contentMap == null || contentMap.isEmpty()) {
+            return new RunContentDTO();
+        }
         String parameterName = parameter.getParameterName();
         if (DebugToolsStringUtils.isNotBlank(parameterName)) {
             return contentMap.get(parameterName);
@@ -212,6 +218,6 @@ public class SpringParamConvertUtils {
                 }
             }
         }
-        return null;
+        return new RunContentDTO();
     }
 }

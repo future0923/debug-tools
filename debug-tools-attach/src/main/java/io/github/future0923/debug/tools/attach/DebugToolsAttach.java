@@ -91,6 +91,7 @@ public class DebugToolsAttach {
      * @throws Exception 启动失败
      */
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
+        AgentConfig.INSTANCE.createExtensionJar();
         startServer(AgentArgs.parse(agentArgs), inst);
     }
 

@@ -14,12 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.future0923.debug.tools.extension.spring.request;
+package io.github.future0923.debug.tools.extension.spring.jakarta;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -31,7 +30,6 @@ import java.util.List;
 class HeaderValueHolder {
 
     private final List<Object> values = new LinkedList<>();
-
 
     void setValue(@Nullable Object value) {
         this.values.clear();
@@ -57,11 +55,7 @@ class HeaderValueHolder {
     }
 
     List<String> getStringValues() {
-        List<String> stringList = new ArrayList<>(this.values.size());
-        for (Object value : this.values) {
-            stringList.add(value.toString());
-        }
-        return Collections.unmodifiableList(stringList);
+        return this.values.stream().map(Object::toString).toList();
     }
 
     @Nullable

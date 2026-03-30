@@ -20,6 +20,7 @@ import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.RunContentDTO;
+import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.common.enums.RunContentType;
 import io.github.future0923.debug.tools.common.utils.DebugToolsDateUtils;
 import io.github.future0923.debug.tools.common.utils.DebugToolsJsonUtils;
@@ -44,12 +45,12 @@ public class DebugToolsParamConvertUtils {
 
     private static final Logger log = Logger.getLogger(DebugToolsParamConvertUtils.class);
 
-    public static Object[] getArgs(Method bridgedMethod, Map<String, RunContentDTO> targetMethodContent) {
+    public static Object[] getArgs(Method bridgedMethod, RunDTO runDTO) {
         Object[] targetMethodArgs = new Object[bridgedMethod.getParameterCount()];
         for (int i = 0; i < bridgedMethod.getParameterCount(); i++) {
             Parameter parameter = bridgedMethod.getParameters()[i];
             try {
-                targetMethodArgs[i] = getArg(targetMethodContent, parameter, i);
+                targetMethodArgs[i] = getArg(runDTO.getTargetMethodContent(), parameter, i);
             } catch (Exception e) {
                 log.error("转换第{}个参数失败", e, i);
                 targetMethodArgs[i] = null;

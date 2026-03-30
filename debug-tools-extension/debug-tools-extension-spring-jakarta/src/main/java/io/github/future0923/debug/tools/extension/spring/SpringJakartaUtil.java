@@ -17,18 +17,17 @@
 package io.github.future0923.debug.tools.extension.spring;
 
 import io.github.future0923.debug.tools.common.dto.RunDTO;
-import io.github.future0923.debug.tools.extension.spring.request.MockHttpServletRequest;
-import io.github.future0923.debug.tools.extension.spring.request.MockHttpServletResponse;
+import io.github.future0923.debug.tools.extension.spring.jakarta.MockHttpServletRequest;
+import io.github.future0923.debug.tools.extension.spring.jakarta.MockHttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author future0923
  */
-public class SpringServletUtil {
+public class SpringJakartaUtil {
 
     public static void setRequest(RunDTO runDTO) {
         if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {

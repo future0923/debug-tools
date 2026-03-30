@@ -19,18 +19,26 @@ package io.github.future0923.debug.tools.extension.spring;
 import io.github.future0923.debug.tools.extension.spring.reactive.MockServerHttpRequest;
 import io.github.future0923.debug.tools.extension.spring.reactive.MockServerHttpResponse;
 import io.github.future0923.debug.tools.extension.spring.reactive.MockServerWebExchange;
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.MultiValueMap;
+
+import java.util.Map;
 
 /**
  * @author future0923
  */
 public class SpringReactiveUtil {
 
-    public static MockServerHttpRequest getServerHttpRequest() {
-        return MockServerHttpRequest.get("/debug-tools-mock").build();
+    private static final String URL_TEMPLATE = "/debug-tools-mock";
+
+    public static MockServerHttpRequest getServerHttpRequest(Map<String, String> headerMap) {
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        headerMap.forEach(headers::add);
+        return MockServerHttpRequest.get(URL_TEMPLATE).headers(headers).build();
     }
 
-    public static MockServerWebExchange getServerWebExchange() {
-        return MockServerWebExchange.from(getServerHttpRequest());
+    public static MockServerWebExchange getServerWebExchange(Map<String, String> headerMap) {
+        return MockServerWebExchange.from(getServerHttpRequest(headerMap));
     }
 
     public static MockServerHttpResponse getServerHttpResponse() {

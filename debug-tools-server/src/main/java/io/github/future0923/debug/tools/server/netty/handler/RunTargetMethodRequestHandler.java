@@ -133,7 +133,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             TraceMethodClassFileTransformer.traceMethod(classLoader, targetClass, bridgedMethod, traceMethodDTO);
         }
         ReflectUtil.setAccessible(bridgedMethod);
-        Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO.getTargetMethodContent());
+        Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO);
         Class<?> aroundClass = DebugToolsClassUtils.loadClass(RunMethodAround.class.getName(), classLoader);
         if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && !StrUtil.equals(methodAroundContentIdentity, runDTO.getMethodAroundContentIdentity())) {
             methodAroundContentIdentity = runDTO.getMethodAroundContentIdentity();

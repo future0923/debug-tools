@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public class DebugToolsClassUtils extends ClassUtil {
 
-    public static Class<?> loadDebugToolsClass(ClassLoader classLoader, String name) throws ClassNotFoundException {
+    public static Class<?> loadDebugToolsClass(ClassLoader classLoader, String name) {
         if (null == classLoader) {
             return ClassUtil.loadClass(name);
         }
@@ -41,6 +41,28 @@ public class DebugToolsClassUtils extends ClassUtil {
             return classLoader.loadClass(name);
         } catch (ClassNotFoundException e) {
             return ClassUtil.loadClass(name);
+        }
+    }
+
+    public static boolean loadedDebugToolsClass(ClassLoader classLoader, String name) {
+        if (null == classLoader) {
+            try {
+                ClassUtil.loadClass(name);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        try {
+            classLoader.loadClass(name);
+            return true;
+        } catch (ClassNotFoundException e) {
+            try {
+                ClassUtil.loadClass(name);
+                return true;
+            } catch (Exception ig) {
+                return false;
+            }
         }
     }
 

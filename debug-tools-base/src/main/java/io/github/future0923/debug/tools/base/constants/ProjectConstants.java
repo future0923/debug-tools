@@ -25,9 +25,15 @@ public interface ProjectConstants {
 
     String NAME = "DebugTools";
 
-    String VERSION = "4.6.1";
+    String VERSION = "4.6.1-SNAPSHOT";
 
     String SPRING_EXTENSION_JAR_NAME = "debug-tools-extension-spring";
+
+    String SPRING_SERVLET_EXTENSION_JAR_NAME = "debug-tools-extension-spring-servlet";
+
+    String SPRING_REACTIVE_EXTENSION_JAR_NAME = "debug-tools-extension-spring-reactive";
+
+    String SPRING_JAKARTA_EXTENSION_JAR_NAME = "debug-tools-extension-spring-jakarta";
 
     String SOLON_EXTENSION_JAR_NAME = "debug-tools-extension-solon";
 
