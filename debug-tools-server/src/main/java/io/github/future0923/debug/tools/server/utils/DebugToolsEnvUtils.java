@@ -23,8 +23,6 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.InvocationHandler;
@@ -45,7 +43,6 @@ public class DebugToolsEnvUtils {
     private static final Logger logger = Logger.getLogger(DebugToolsEnvUtils.class);
 
     private static final Map<ClassLoader, DebugToolsExtensionClassLoader> EXTENSION_CLASS_LOADER_MAP = new HashMap<>();
-    private static final Log log = LogFactory.getLog(DebugToolsEnvUtils.class);
 
     private static ClassLoader appClassLoader;
 
@@ -553,7 +550,7 @@ public class DebugToolsEnvUtils {
             throw new RuntimeException(e);
         } catch (Exception ex) {
             if (ProjectConstants.DEBUG) {
-                log.error("get servlet request", ex);
+                logger.error("get servlet request", ex);
             }
             return null;
         }
@@ -573,7 +570,7 @@ public class DebugToolsEnvUtils {
             throw new RuntimeException(e);
         } catch (Exception ex) {
             if (ProjectConstants.DEBUG) {
-                log.error("get jakarta request", ex);
+                logger.error("get jakarta request", ex);
             }
             return null;
         }
@@ -597,7 +594,7 @@ public class DebugToolsEnvUtils {
             throw new RuntimeException(e);
         } catch (Exception ex) {
             if (ProjectConstants.DEBUG) {
-                log.error("get reactive request", ex);
+                logger.error("get reactive request", ex);
             }
             return null;
         }
@@ -621,7 +618,7 @@ public class DebugToolsEnvUtils {
             throw new RuntimeException(e);
         } catch (Exception ex) {
             if (ProjectConstants.DEBUG) {
-                log.error("get ServerWebExchange", ex);
+                logger.error("get ServerWebExchange", ex);
             }
             return null;
         }

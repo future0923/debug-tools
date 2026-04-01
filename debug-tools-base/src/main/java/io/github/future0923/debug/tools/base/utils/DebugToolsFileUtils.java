@@ -119,7 +119,6 @@ public class DebugToolsFileUtils {
         // 1. 构造默认文件名
         String fileName = prefix + (suffix != null ? suffix : "");
         File tmpLibFile = new File(tempDir, fileName);
-        FileUtil.del(tmpLibFile);
 
         // 不存在当前版本的依赖或mac更换了jdk版本,创建
         if ((!tmpLibFile.exists()) || (DebugToolsOSUtils.isMac() && DebugToolsJvmUtils.changeJdk(Boolean.TRUE))) {

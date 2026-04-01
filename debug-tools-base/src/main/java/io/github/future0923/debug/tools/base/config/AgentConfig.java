@@ -138,7 +138,7 @@ public class AgentConfig {
 
     private File loadJarFile(String jarPath, String jarName) {
         File jarFile;
-        if (ProjectConstants.DEBUG || jarPath == null || jarPath.isEmpty() || ProjectConstants.VERSION.contains("SNAPSHOT") || isUpgrade) {
+        if (ProjectConstants.DEBUG || jarPath == null || jarPath.isEmpty() || isUpgrade) {
             jarFile = DebugToolsFileUtils.getLibResourceJar(SpyAPI.class.getClassLoader(), jarName);
         } else {
             File file = new File(jarPath);
