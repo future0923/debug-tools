@@ -134,41 +134,48 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
         }
         ReflectUtil.setAccessible(bridgedMethod);
         Object[] targetMethodArgs = DebugToolsEnvUtils.getArgs(bridgedMethod, runDTO);
-        Class<?> aroundClass = DebugToolsClassUtils.loadClass(RunMethodAround.class.getName(), classLoader);
-        if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && !StrUtil.equals(methodAroundContentIdentity, runDTO.getMethodAroundContentIdentity())) {
-            methodAroundContentIdentity = runDTO.getMethodAroundContentIdentity();
-            Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
-            DynamicCompiler dynamicCompiler = new DynamicCompiler(classLoader);
-            dynamicCompiler.addSource(RunMethodAround.class.getName(), runDTO.getMethodAroundContent());
-            instrumentation.redefineClasses(new ClassDefinition(aroundClass, dynamicCompiler.buildByteCodes().get(RunMethodAround.class.getName())));
-        }
-        Object aroundInstance = aroundClass.getConstructor().newInstance();
-        ReflectUtil.invoke(
-                aroundInstance,
-                ReflectUtil.getMethod(aroundClass, "onBefore", Map.class, String.class, String.class, String.class, List.class, Object[].class),
-                runDTO.getHeaders(),
-                runDTO.getXxlJobParam(),
-                runDTO.getTargetClassName(),
-                runDTO.getTargetMethodName(),
-                runDTO.getTargetMethodParameterTypes(),
-                targetMethodArgs
-        );
-        Object result = null;
-        Throwable throwable = null;
-        try {
-            RunMethodContext.setRunMethod(targetClassName, runDTO.getTargetMethodName());
-            result = run(bridgedMethod, instance, targetMethodArgs, runDTO, ctx, traceMethod);
+
+        Object aroundInstance = null;
+        Class<?> aroundClass = null;
+        if (StrUtil.isNotBlank(runDTO.getMethodAroundContent())) {
+            aroundClass = DebugToolsClassUtils.loadClass(RunMethodAround.class.getName(), classLoader);
+            if (!StrUtil.equals(methodAroundContentIdentity, runDTO.getMethodAroundContentIdentity())) {
+                methodAroundContentIdentity = runDTO.getMethodAroundContentIdentity();
+                Instrumentation instrumentation = DebugToolsBootstrap.INSTANCE.getInstrumentation();
+                DynamicCompiler dynamicCompiler = new DynamicCompiler(classLoader);
+                dynamicCompiler.addSource(RunMethodAround.class.getName(), runDTO.getMethodAroundContent());
+                instrumentation.redefineClasses(new ClassDefinition(aroundClass, dynamicCompiler.buildByteCodes().get(RunMethodAround.class.getName())));
+            }
+            aroundInstance = aroundClass.getConstructor().newInstance();
             ReflectUtil.invoke(
                     aroundInstance,
-                    ReflectUtil.getMethod(aroundClass, "onAfter", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class),
+                    ReflectUtil.getMethod(aroundClass, "onBefore", Map.class, String.class, String.class, String.class, List.class, Object[].class),
                     runDTO.getHeaders(),
                     runDTO.getXxlJobParam(),
                     runDTO.getTargetClassName(),
                     runDTO.getTargetMethodName(),
                     runDTO.getTargetMethodParameterTypes(),
-                    targetMethodArgs,
-                    result
+                    targetMethodArgs
             );
+        }
+        Object result = null;
+        Throwable throwable = null;
+        try {
+            RunMethodContext.setRunMethod(targetClassName, runDTO.getTargetMethodName());
+            result = run(bridgedMethod, instance, targetMethodArgs, runDTO, ctx, traceMethod);
+            if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && aroundClass != null) {
+                ReflectUtil.invoke(
+                        aroundInstance,
+                        ReflectUtil.getMethod(aroundClass, "onAfter", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class),
+                        runDTO.getHeaders(),
+                        runDTO.getXxlJobParam(),
+                        runDTO.getTargetClassName(),
+                        runDTO.getTargetMethodName(),
+                        runDTO.getTargetMethodParameterTypes(),
+                        targetMethodArgs,
+                        result
+                );
+            }
         } catch (Exception e) {
             logger.error("invoke target method error", e);
             throwable = e.getCause();
@@ -178,30 +185,34 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             String offsetPath = RunResultDTO.genOffsetPathRandom(throwable);
             DebugToolsResultUtils.putCache(offsetPath, throwable);
             ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, throwable, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
-            ReflectUtil.invoke(
-                    aroundInstance,
-                    ReflectUtil.getMethod(aroundClass, "onException", Map.class, String.class, String.class, String.class, List.class, Object[].class, Exception.class),
-                    runDTO.getHeaders(),
-                    runDTO.getXxlJobParam(),
-                    runDTO.getTargetClassName(),
-                    runDTO.getTargetMethodName(),
-                    runDTO.getTargetMethodParameterTypes(),
-                    targetMethodArgs,
-                    throwable
-            );
+            if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && aroundClass != null) {
+                ReflectUtil.invoke(
+                        aroundInstance,
+                        ReflectUtil.getMethod(aroundClass, "onException", Map.class, String.class, String.class, String.class, List.class, Object[].class, Exception.class),
+                        runDTO.getHeaders(),
+                        runDTO.getXxlJobParam(),
+                        runDTO.getTargetClassName(),
+                        runDTO.getTargetMethodName(),
+                        runDTO.getTargetMethodParameterTypes(),
+                        targetMethodArgs,
+                        throwable
+                );
+            }
         } finally {
-            ReflectUtil.invoke(
-                    aroundInstance,
-                    ReflectUtil.getMethod(aroundClass, "onFinally", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class, Exception.class),
-                    runDTO.getHeaders(),
-                    runDTO.getXxlJobParam(),
-                    runDTO.getTargetClassName(),
-                    runDTO.getTargetMethodName(),
-                    runDTO.getTargetMethodParameterTypes(),
-                    targetMethodArgs,
-                    result,
-                    throwable
-            );
+            if (StrUtil.isNotBlank(runDTO.getMethodAroundContent()) && aroundClass != null && aroundInstance != null) {
+                ReflectUtil.invoke(
+                        aroundInstance,
+                        ReflectUtil.getMethod(aroundClass, "onFinally", Map.class, String.class, String.class, String.class, List.class, Object[].class, Object.class, Exception.class),
+                        runDTO.getHeaders(),
+                        runDTO.getXxlJobParam(),
+                        runDTO.getTargetClassName(),
+                        runDTO.getTargetMethodName(),
+                        runDTO.getTargetMethodParameterTypes(),
+                        targetMethodArgs,
+                        result,
+                        throwable
+                );
+            }
             RunMethodContext.clear();
             Thread.currentThread().setContextClassLoader(orgClassLoader);
         }
