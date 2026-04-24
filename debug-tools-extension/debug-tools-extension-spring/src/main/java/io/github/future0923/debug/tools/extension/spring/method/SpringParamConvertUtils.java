@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.extension.spring.method;
 
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
+import io.github.future0923.debug.tools.base.hutool.json.JSON;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -36,7 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -87,7 +90,17 @@ public class SpringParamConvertUtils {
                 return DebugToolsLambdaUtils.createLambda(runContentDTO.getContent().toString(), parameter.getNestedGenericParameterType());
             }
         } else if (RunContentType.JSON_ENTITY.getType().equals(runContentDTO.getType())) {
-            return DebugToolsJsonUtils.toBean(DebugToolsJsonUtils.toJsonStr(runContentDTO.getContent()), ResolvableType.forMethodParameter(parameter).getType(), true);
+            Type targetType = ResolvableType.forMethodParameter(parameter).getType();
+            if (useExternalHutoolJson(parameter.getParameterType())) {
+                Object externalHutoolBean = toBeanByExternalHutool(runContentDTO.getContent(), targetType);
+                if (externalHutoolBean != null) {
+                    return externalHutoolBean;
+                }
+            }
+            if (runContentDTO.getContent() instanceof JSON) {
+                return DebugToolsJsonUtils.toBean((JSON) runContentDTO.getContent(), targetType, true);
+            }
+            return DebugToolsJsonUtils.toBean(DebugToolsJsonUtils.toJsonStr(runContentDTO.getContent()), targetType, true);
         } else if (RunContentType.SIMPLE.getType().equals(runContentDTO.getType())) {
             if (DebugToolsClassUtils.isSimpleValueType(parameter.getParameterType())) {
                 try {
@@ -201,6 +214,46 @@ public class SpringParamConvertUtils {
             }
         }
         return null;
+    }
+
+    private static boolean useExternalHutoolJson(Class<?> parameterType) {
+        if (parameterType == null) {
+            return false;
+        }
+        if (isExternalHutoolJsonType(parameterType)) {
+            return true;
+        }
+        Class<?> current = parameterType;
+        while (current != null && current != Object.class) {
+            for (Field field : current.getDeclaredFields()) {
+                if (isExternalHutoolJsonType(field.getType())) {
+                    return true;
+                }
+            }
+            current = current.getSuperclass();
+        }
+        return false;
+    }
+
+    private static boolean isExternalHutoolJsonType(Class<?> type) {
+        if (type == null) {
+            return false;
+        }
+        String typeName = type.getName();
+        return "cn.hutool.json.JSON".equals(typeName)
+                || "cn.hutool.json.JSONObject".equals(typeName)
+                || "cn.hutool.json.JSONArray".equals(typeName);
+    }
+
+    private static Object toBeanByExternalHutool(Object content, Type targetType) {
+        try {
+            Class<?> jsonUtilClass = Class.forName("cn.hutool.json.JSONUtil");
+            Method toBeanMethod = jsonUtilClass.getMethod("toBean", String.class, Type.class, boolean.class);
+            return toBeanMethod.invoke(null, DebugToolsJsonUtils.toJsonStr(content), targetType, true);
+        } catch (Exception e) {
+            log.debug("外部Hutool JSON转换失败，回退内部实现", e);
+            return null;
+        }
     }
 
     private static RunContentDTO getRunContentDTO(Map<String, RunContentDTO> contentMap, SynthesizingMethodParameter parameter) {

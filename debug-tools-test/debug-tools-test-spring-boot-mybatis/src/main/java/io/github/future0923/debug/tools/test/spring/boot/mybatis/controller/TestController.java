@@ -23,6 +23,7 @@ import com.alibaba.excel.read.metadata.ReadSheet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapper;
+import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.BaseNoticeReq;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.EasyExcelTestDemo;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.UserVO;
@@ -31,6 +32,8 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserSer
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
@@ -48,11 +51,16 @@ public class TestController {
     private final UserService userService;
     private final TestService testService;
     private final UserMapper userMapper;
+
+
     @Autowired
     private ObjectMapper objectMapper;
+
+
+
+
     @GetMapping("/a")
     public User a() {
-        testService.c("a");
         userService.a(null);
         User user = new User();
         user.setAge(1);
@@ -65,10 +73,10 @@ public class TestController {
         throw new RuntimeException();
     }
 
-    @GetMapping("/ddd")
-    public List<UserVO> ddd() throws JsonProcessingException {
-        return userMapper.caoayu();
-    }
+    //@GetMapping("/ddd")
+    //public List<UserVO> ddd() throws JsonProcessingException {
+    //    return userMapper.caoayu();
+    //}
 
     @GetMapping("/testEasyExcel")
     public void testEasyExcel() throws JsonProcessingException {
@@ -83,5 +91,10 @@ public class TestController {
             }
         })));
         excelReader.read(readSheets);
+    }
+
+    @PostMapping("ttt")
+    public void ttt(@RequestBody BaseNoticeReq req) {
+        System.out.println(req);
     }
 }
