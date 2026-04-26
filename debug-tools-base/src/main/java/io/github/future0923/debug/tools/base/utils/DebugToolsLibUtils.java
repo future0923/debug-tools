@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.base.utils;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.AnsiLog;
 
 import java.io.File;
@@ -31,11 +32,9 @@ public class DebugToolsLibUtils {
 
     static {
         String debugToolsLibDirEnv = System.getenv("DEBUG_TOOLS_HOME_DIR");
+        DEBUG_TOOLS_HOME_DIR = DebugToolsPathUtils.getLibHomeDir();
         if (debugToolsLibDirEnv != null) {
-            DEBUG_TOOLS_HOME_DIR = new File(debugToolsLibDirEnv);
-            AnsiLog.info("DEBUG_TOOLS_LIB_DIR: " + debugToolsLibDirEnv);
-        } else {
-            DEBUG_TOOLS_HOME_DIR = new File(System.getProperty("user.home") + File.separator + ".debugTools");
+            AnsiLog.info("DEBUG_TOOLS_HOME_DIR: " + debugToolsLibDirEnv);
         }
         try {
             DEBUG_TOOLS_HOME_DIR.mkdirs();
@@ -44,7 +43,7 @@ public class DebugToolsLibUtils {
         }
         if (!DEBUG_TOOLS_HOME_DIR.exists()) {
             // try to set a temp directory
-            DEBUG_TOOLS_HOME_DIR = new File(System.getProperty("java.io.tmpdir") + File.separator + ".debugTools");
+            DEBUG_TOOLS_HOME_DIR = new File(System.getProperty("java.io.tmpdir") + File.separator + ProjectConstants.NAME);
             try {
                 DEBUG_TOOLS_HOME_DIR.mkdirs();
             } catch (Throwable e) {
