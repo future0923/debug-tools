@@ -101,7 +101,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/../dist"/>
-                                <copy file="${project.build.directory}/${build.finalName}-jar-with-dependencies.jar"
+                                <copy file="${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar"
                                       tofile="${project.basedir}/../dist/debug-tools-boot.jar"
                                       overwrite="true"/>
                             </target>

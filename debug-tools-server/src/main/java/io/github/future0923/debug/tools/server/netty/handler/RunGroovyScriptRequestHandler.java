@@ -61,7 +61,7 @@ public class RunGroovyScriptRequestHandler implements PacketHandler<RunGroovyScr
             Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
-            ctx.writeAndFlush(RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName));
+            ctx.writeAndFlush(RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName, packet.getConnectionId()));
             return;
         }
         GroovyShell groovyShell = new GroovyShell(groovyScriptClassLoader, configuration);
@@ -72,12 +72,13 @@ public class RunGroovyScriptRequestHandler implements PacketHandler<RunGroovyScr
             Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
-            ctx.writeAndFlush(RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName));
+            ctx.writeAndFlush(RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName, packet.getConnectionId()));
             return;
         }
         Thread.currentThread().setContextClassLoader(oldContextClassLoader);
         RunGroovyScriptResponsePacket responsePacket = new RunGroovyScriptResponsePacket();
         responsePacket.setApplicationName(applicationName);
+        responsePacket.setConnectionId(packet.getConnectionId());
         if (evaluateResult == null) {
             responsePacket.setResultClassType(ResultClassType.NULL);
             responsePacket.setPrintResult("NULL");

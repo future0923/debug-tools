@@ -85,7 +85,7 @@
                         <configuration>
                             <target>
                                 <mkdir dir="${project.basedir}/../debug-tools-boot/src/main/resources/lib" />
-                                <copy file="${project.build.directory}/${build.finalName}.jar" tofile="${project.basedir}/../debug-tools-boot/src/main/resources/lib/${build.finalName}.jar" overwrite="true" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.basedir}/../debug-tools-boot/src/main/resources/lib/${project.build.finalName}.jar" overwrite="true" />
                             </target>
                         </configuration>
                     </execution>

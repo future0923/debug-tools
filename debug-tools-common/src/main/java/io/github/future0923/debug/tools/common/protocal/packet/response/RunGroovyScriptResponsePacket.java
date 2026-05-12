@@ -37,6 +37,11 @@ public class RunGroovyScriptResponsePacket extends EntityPacket<RunGroovyScriptR
 
     private String applicationName;
 
+    /**
+     * 连接id
+     */
+    private String connectionId;
+
     private ResultClassType resultClassType;
 
     private String printResult;
@@ -53,15 +58,17 @@ public class RunGroovyScriptResponsePacket extends EntityPacket<RunGroovyScriptR
     @Override
     public void doDeserialize(RunGroovyScriptResponsePacket packet) {
         this.setApplicationName(packet.getApplicationName());
+        this.setConnectionId(packet.getConnectionId());
         this.setResultClassType(packet.getResultClassType());
         this.setPrintResult(packet.getPrintResult());
         this.setThrowable(packet.getThrowable());
         this.setOffsetPath(packet.getOffsetPath());
     }
 
-    public static RunGroovyScriptResponsePacket of(Throwable throwable, String offsetPath, String applicationName) {
+    public static RunGroovyScriptResponsePacket of(Throwable throwable, String offsetPath, String applicationName, String connectionId) {
         RunGroovyScriptResponsePacket packet = new RunGroovyScriptResponsePacket();
         packet.setApplicationName(applicationName);
+        packet.setConnectionId(connectionId);
         packet.setResultFlag(FAIL);
         packet.setThrowableMessage(throwable);
         packet.setOffsetPath(offsetPath);

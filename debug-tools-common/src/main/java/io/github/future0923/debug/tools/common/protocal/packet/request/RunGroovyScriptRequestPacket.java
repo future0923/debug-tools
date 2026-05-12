@@ -41,6 +41,11 @@ public class RunGroovyScriptRequestPacket extends EntityPacket<RunGroovyScriptRe
      */
     private String identity;
 
+    /**
+     * 连接id
+     */
+    private String connectionId;
+
     @Override
     public byte getCommand() {
         return Command.RUN_GROOVY_SCRIPT_REQUEST;
@@ -50,5 +55,6 @@ public class RunGroovyScriptRequestPacket extends EntityPacket<RunGroovyScriptRe
     public void doDeserialize(RunGroovyScriptRequestPacket packet) {
         this.setScript(packet.getScript());
         this.setIdentity(packet.getIdentity());
+        this.setConnectionId(packet.getConnectionId());
     }
 }
