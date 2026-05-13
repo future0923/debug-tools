@@ -56,14 +56,17 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> implemen
 
     protected abstract ClassLoader getClassLoader(T packet) throws DefaultClassLoaderException;
 
+    protected abstract String getConnectionId(T packet);
+
     @Override
     public void handle(ChannelHandlerContext ctx, T packet) throws Exception {
         long start = System.currentTimeMillis();
+        String connectionId = getConnectionId(packet);
         Map<String, byte[]> byteCodesMap;
         try {
             byteCodesMap = getByteCodes(packet);
         } catch (Exception e) {
-            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName(), connectionId));
             return;
         }
         String reloadClass = String.join(", ", byteCodesMap.keySet());
@@ -72,7 +75,7 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> implemen
             defaultClassLoader = getClassLoader(packet);
         } catch (DefaultClassLoaderException e) {
             logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
-            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName(), connectionId));
             return;
         }
         writeFile(defaultClassLoader, byteCodesMap);
@@ -84,7 +87,7 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> implemen
         }
         if (definitions.isEmpty()) {
             logger.warning("There are no classes that need to be redefined. {}", reloadClass);
-            ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success, file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName(), connectionId));
             return;
         }
         try {
@@ -94,10 +97,10 @@ public abstract class AbstractHotDeployRequestHandler<T extends Packet> implemen
                 instrumentation.redefineClasses(definitions.toArray(new ClassDefinition[0]));
             }
             long end = System.currentTimeMillis();
-            ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) +" ms. file [" + reloadClass + "]", DebugToolsBootstrap.serverConfig.getApplicationName(), connectionId));
         } catch (Exception e) {
             logger.error("Fail to reload classes {}, msg is {}", reloadClass, e);
-            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadClass + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName(), connectionId));
         }
     }
 

@@ -20,6 +20,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.ChangePrintSqlTypeHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.ClassLoaderHasClassHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.GetApplicationNameHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.GetPrintSqlTypeHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.IndexHttpHandler;
@@ -59,6 +60,7 @@ public class DebugToolsHttpServer {
         httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
+        httpServer.createContext(ClassLoaderHasClassHttpHandler.PATH, ClassLoaderHasClassHttpHandler.INSTANCE);
         httpServer.createContext(GetApplicationNameHttpHandler.PATH, GetApplicationNameHttpHandler.INSTANCE);
         httpServer.createContext(RunResultTraceHttpHandler.PATH, RunResultTraceHttpHandler.INSTANCE);
         httpServer.createContext(GetPrintSqlTypeHttpHandler.PATH, GetPrintSqlTypeHttpHandler.INSTANCE);

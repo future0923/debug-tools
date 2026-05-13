@@ -203,7 +203,7 @@ public class TraceMethodClassFileTransformer {
      * @throws Exception 异常
      */
     private static void redefineMethod(ClassLoader classLoader, ClassPool classPool, CtClass ctClass, String methodName, String methodDescription, Boolean traceSkipStartGetSetCheckBox, String traceBusinessPackageRegexp, String traceIgnorePackageRegexp, int maxDepth) throws Exception {
-        if (maxDepth - 1 < 0) {
+        if (maxDepth < 0) {
             return;
         }
         if ("<init>".equals(methodName)) {

@@ -59,12 +59,12 @@ public class ResourceHotDeployRequestHandler implements PacketHandler<ResourceHo
             defaultClassLoader = AllClassLoaderHttpHandler.getClassLoader(packet.getIdentity());
         } catch (DefaultClassLoaderException e) {
             logger.error("Fail to reload classes {}, msg is {}", reloadFile, e);
-            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadFile + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName()));
+            ctx.writeAndFlush(HotDeployResponsePacket.of(false, "Hot deploy error, file [" + reloadFile + "]\n" + ExceptionUtil.stacktraceToString(e, -1), DebugToolsBootstrap.serverConfig.getApplicationName(), packet.getConnectionId()));
             return;
         }
         writeFile(defaultClassLoader, filePathByteCodeMap);
         long end = System.currentTimeMillis();
-        ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) + " ms. file [" + reloadFile + "]", DebugToolsBootstrap.serverConfig.getApplicationName()));
+        ctx.writeAndFlush(HotDeployResponsePacket.of(true, "Hot deploy success. cost " + (end - start) + " ms. file [" + reloadFile + "]", DebugToolsBootstrap.serverConfig.getApplicationName(), packet.getConnectionId()));
     }
 
     protected void writeFile(ClassLoader defaultClassLoader, Map<String, byte[]> byteCodesMap) {

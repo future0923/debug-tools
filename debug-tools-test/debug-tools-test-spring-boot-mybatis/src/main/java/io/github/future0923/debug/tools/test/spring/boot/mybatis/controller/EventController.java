@@ -50,6 +50,6 @@ public class EventController {
     public String sendEvent() {
         ActionEvent event = new ActionEvent();
         eventPublisher.publishEvent(event);
-        return "事件已发送";
+        return "事件已发送1111";
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 /**
  * 【最终版】Resource Hot Deploy Request Packet
  * 协议结构：
+ * [connectionIdLen:int][connectionId:bytes]
  * [identityLen:int][identity:bytes]
  * [fileCount:int]
  * ├─ [pathLen:int][path:bytes]
@@ -36,6 +37,11 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public final class ResourceHotDeployRequestPacket extends Packet {
+
+    /**
+     * IDEA 侧连接 id，用于热部署响应回填并区分多应用结果。
+     */
+    private String connectionId;
 
     /**
      * 目标 ClassLoader identity
@@ -54,6 +60,7 @@ public final class ResourceHotDeployRequestPacket extends Packet {
 
     @Override
     public void binarySerialize(ByteBuf out) {
+        writeString(out, connectionId);
         writeString(out, identity);
         out.writeInt(filePathByteCodeMap.size());
         for (Map.Entry<String, byte[]> entry : filePathByteCodeMap.entrySet()) {
@@ -66,6 +73,7 @@ public final class ResourceHotDeployRequestPacket extends Packet {
 
     @Override
     public void binaryDeserialization(ByteBuf in) {
+        this.connectionId = readString(in);
         this.identity = readString(in);
         int fileCount = in.readInt();
         for (int i = 0; i < fileCount; i++) {

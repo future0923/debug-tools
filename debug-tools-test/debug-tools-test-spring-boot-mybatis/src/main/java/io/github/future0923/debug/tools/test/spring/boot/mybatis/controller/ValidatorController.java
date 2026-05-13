@@ -36,17 +36,64 @@ public class ValidatorController {
     @Data
     public static class DTO {
 
+        /**
+         * 名字
+         */
         @Length(min = 6, max = 20, message = "用户名长度在6-20个字符之间")
         @NotBlank
         private String name;
 
+        /**
+         * 年龄
+         */
         @Min(value = 19, message = "年龄不能小于19")
         @NotNull
         private Integer age;
+
+        private Test test;
     }
 
+    public enum Test {
+
+        /**
+         * 男
+         */
+        NAN,
+
+        /**
+         * 女
+         */
+        NV
+    }
+
+    @Data
+    public static class Parent {
+
+        /**
+         * 属性1
+         */
+        private String f1;
+    }
+
+    @Data
+    public static class Son extends Parent {
+
+        /**
+         * 属性2
+         */
+        private String f2;
+
+        private Long en;
+    }
+
+    /**
+     *
+     * @param dto 动态
+     * @param debug 打算
+     * @return
+     */
     @PostMapping("/validator")
-    public String name(@Validated @RequestBody DTO dto) {
+    public String name(@Validated @RequestBody DTO dto, String debug, Son son) {
         return dto.getName();
     }
 }

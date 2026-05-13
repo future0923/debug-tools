@@ -30,6 +30,11 @@ import java.util.Map;
 public final class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     /**
+     * IDEA 侧连接 id，用于热部署响应回填并区分多应用结果。
+     */
+    private String connectionId;
+
+    /**
      * 目标 ClassLoader identity
      */
     private String identity;
@@ -46,6 +51,7 @@ public final class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     @Override
     public void binarySerialize(ByteBuf out) {
+        writeString(out, connectionId);
         writeString(out, identity);
         out.writeInt(filePathContentMap.size());
         for (Map.Entry<String, String> entry : filePathContentMap.entrySet()) {
@@ -56,6 +62,7 @@ public final class RemoteCompilerHotDeployRequestPacket extends Packet {
 
     @Override
     public void binaryDeserialization(ByteBuf in) {
+        this.connectionId = readString(in);
         this.identity = readString(in);
         int count = in.readInt();
         for (int i = 0; i < count; i++) {

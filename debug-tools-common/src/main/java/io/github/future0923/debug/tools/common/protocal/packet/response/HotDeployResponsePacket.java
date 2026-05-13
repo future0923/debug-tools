@@ -31,6 +31,8 @@ public class HotDeployResponsePacket extends EntityPacket<HotDeployResponsePacke
 
     private static final Logger logger = Logger.getLogger(HotDeployResponsePacket.class);
 
+    private String connectionId;
+
     private String applicationName;
 
     private String printResult;
@@ -42,13 +44,24 @@ public class HotDeployResponsePacket extends EntityPacket<HotDeployResponsePacke
 
     @Override
     public void doDeserialize(HotDeployResponsePacket packet) {
+        this.setConnectionId(packet.getConnectionId());
         this.setApplicationName(packet.getApplicationName());
         this.setPrintResult(packet.getPrintResult());
     }
 
     public static HotDeployResponsePacket of(boolean isSuccess, String printResult, String applicationName) {
+        return of(isSuccess, printResult, applicationName, null);
+    }
+
+    public static HotDeployResponsePacket of(
+            boolean isSuccess,
+            String printResult,
+            String applicationName,
+            String connectionId
+    ) {
         HotDeployResponsePacket packet = new HotDeployResponsePacket();
         packet.setResultFlag(isSuccess ? SUCCESS : FAIL);
+        packet.setConnectionId(connectionId);
         packet.setApplicationName(applicationName);
         packet.setPrintResult(printResult);
         return packet;

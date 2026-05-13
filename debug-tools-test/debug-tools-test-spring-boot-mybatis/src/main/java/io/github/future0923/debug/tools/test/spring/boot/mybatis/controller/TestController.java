@@ -26,7 +26,6 @@ import io.github.future0923.debug.tools.test.spring.boot.mybatis.mapper.UserMapp
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.BaseNoticeReq;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.EasyExcelTestDemo;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.User;
-import io.github.future0923.debug.tools.test.spring.boot.mybatis.model.UserVO;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.TestService;
 import io.github.future0923.debug.tools.test.spring.boot.mybatis.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -56,9 +55,6 @@ public class TestController {
     @Autowired
     private ObjectMapper objectMapper;
 
-
-
-
     @GetMapping("/a")
     public User a() {
         userService.a(null);
@@ -79,7 +75,7 @@ public class TestController {
     //}
 
     @GetMapping("/testEasyExcel")
-    public void testEasyExcel() throws JsonProcessingException {
+    public static void testEasyExcel(File a) throws JsonProcessingException {
         ExcelReader excelReader = EasyExcel.read(new File("/Users/wangzhongqi/Downloads/test.xlsx")).build();
         List<ReadSheet> readSheets = excelReader.excelExecutor().sheetList();
         ReadSheet readSheet = readSheets.get(0);

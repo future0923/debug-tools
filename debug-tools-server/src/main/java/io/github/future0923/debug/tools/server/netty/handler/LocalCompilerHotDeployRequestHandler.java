@@ -44,4 +44,9 @@ public class LocalCompilerHotDeployRequestHandler extends AbstractHotDeployReque
     protected ClassLoader getClassLoader(LocalCompilerHotDeployRequestPacket packet) throws DefaultClassLoaderException {
         return AllClassLoaderHttpHandler.getClassLoader(packet.getIdentity());
     }
+
+    @Override
+    protected String getConnectionId(LocalCompilerHotDeployRequestPacket packet) {
+        return packet.getConnectionId();
+    }
 }

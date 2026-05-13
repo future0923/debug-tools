@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 
@@ -45,8 +47,8 @@ public class TestController {
     }
 
     @GetMapping("test2")
-    public User test2() {
-        return userService.getById(1);
+    public List<User> test2() {
+        return Arrays.asList(userService.getById(1));
     }
 
     @GetMapping("test3")
