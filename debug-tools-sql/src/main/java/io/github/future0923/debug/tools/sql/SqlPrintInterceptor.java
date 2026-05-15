@@ -32,6 +32,7 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.trace.MethodTrace;
 import io.github.future0923.debug.tools.base.tuple.Tuple2;
 import io.github.future0923.debug.tools.base.utils.DebugToolsIgnoreSqlUtils;
+import io.github.future0923.debug.tools.base.utils.DebugToolsJvmUtils;
 import io.github.future0923.debug.tools.utils.SqlFileWriter;
 import io.github.future0923.debug.tools.vm.JvmToolsUtils;
 
@@ -70,7 +71,7 @@ public class SqlPrintInterceptor {
 
     public static PrintSqlType printSqlType = PrintSqlType.NO;
     private static Boolean autoSaveSql = false;
-    private static Integer sqlRetentionDays = 7;
+    private static String applicationName = DebugToolsJvmUtils.getApplicationName();
 
     public static void setPrintSqlType(String printSqlType) {
         SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
@@ -80,9 +81,9 @@ public class SqlPrintInterceptor {
         autoSaveSql = autoSave;
     }
 
-    public static void setSqlRetentionDays(Integer days) {
-        if (days != null) {
-            sqlRetentionDays = days;
+    public static void setApplicationName(String name) {
+        if (StrUtil.isNotBlank(name)) {
+            applicationName = name;
         }
     }
 
@@ -264,7 +265,7 @@ public class SqlPrintInterceptor {
             // 根据配置写入SQL记录到文件
             if (BooleanUtil.isTrue(autoSaveSql)) {
                 try {
-                    SqlFileWriter.writeSqlRecordWithRetention(resultSql, consume, dbType.getType(), sqlRetentionDays);
+                    SqlFileWriter.writeSqlRecord(resultSql, consume, dbType.getType(), applicationName);
                 } catch (Exception e) {
                     logger.error("Failed to write SQL record to file", e);
                 }
