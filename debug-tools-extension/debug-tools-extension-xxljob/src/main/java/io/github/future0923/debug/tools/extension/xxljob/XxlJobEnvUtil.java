@@ -20,20 +20,35 @@ import com.xxl.job.core.context.XxlJobContext;
 import com.xxl.job.core.log.XxlJobFileAppender;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 
+import java.lang.reflect.Constructor;
 import java.util.Date;
 
 /**
  * @author future0923
  */
+@SuppressWarnings("JavaReflectionMemberAccess")
 public class XxlJobEnvUtil {
 
-    public static void setXxlJobParam(String jobParam) {
-        String logFileName = XxlJobFileAppender.makeLogFileName(new Date(), -1);
-        XxlJobContext xxlJobContext = new XxlJobContext(-1, jobParam, logFileName, 1, 1);
-        if (DebugToolsStringUtils.isNotBlank(jobParam)) {
-            XxlJobContext.setXxlJobContext(xxlJobContext);
-        } else {
+    public static void setXxlJobParam(String jobParam) throws Exception {
+        if (DebugToolsStringUtils.isBlank(jobParam)) {
             XxlJobContext.setXxlJobContext(null);
+            return;
         }
+        String logFileName = XxlJobFileAppender.makeLogFileName(new Date(), -1);
+        XxlJobContext.setXxlJobContext(createXxlJobContext(jobParam, logFileName));
+    }
+
+    private static XxlJobContext createXxlJobContext(String jobParam, String logFileName) throws Exception {
+        try {
+            Constructor<XxlJobContext> constructor = XxlJobContext.class.getConstructor(long.class, String.class, long.class, long.class, String.class, int.class, int.class);
+            return constructor.newInstance(-1L, jobParam, -1L, System.currentTimeMillis(), logFileName, 1, 1);
+        } catch (NoSuchMethodException ignored) {
+            return createXxlJobContextFor2x(jobParam, logFileName);
+        }
+    }
+
+    private static XxlJobContext createXxlJobContextFor2x(String jobParam, String logFileName) throws Exception {
+        Constructor<XxlJobContext> constructor = XxlJobContext.class.getConstructor(long.class, String.class, String.class, int.class, int.class);
+        return constructor.newInstance(-1L, jobParam, logFileName, 1, 1);
     }
 }
