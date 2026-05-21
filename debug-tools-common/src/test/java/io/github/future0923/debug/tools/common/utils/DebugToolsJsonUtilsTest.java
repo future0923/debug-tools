@@ -126,4 +126,29 @@ public class DebugToolsJsonUtilsTest {
         TestDTO bean = DebugToolsJsonUtils.toBean(jsonPrettyStr, TestDTO.class);
         System.out.println(bean);
     }
+
+    @Test
+    void toBeanRecord() {
+        String json = "{\"sessionId\":\"1\",\"message\":\"2\"}";
+
+        TestRecord bean = DebugToolsJsonUtils.toBean(json, TestRecord.class);
+
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals("1", bean.sessionId());
+        Assertions.assertEquals("2", bean.message());
+    }
+
+    @Test
+    void toBeanRecordWithUnderlineKey() {
+        String json = "{\"session_id\":\"1\",\"message\":\"2\"}";
+
+        TestRecord bean = DebugToolsJsonUtils.toBean(json, TestRecord.class);
+
+        Assertions.assertNotNull(bean);
+        Assertions.assertEquals("1", bean.sessionId());
+        Assertions.assertEquals("2", bean.message());
+    }
+
+    private record TestRecord(String sessionId, String message) {
+    }
 }

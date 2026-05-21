@@ -16,33 +16,14 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
-import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
-@RestController
-@RequestMapping("/comment")
-public class CommentController {
-
-    /**
-     * 普通长度字符测试
-     */
-    @GetMapping("/normalComment")
-    public void normalComment() {
-
-    }
-
-    /**
-     * “昨夜闲潭梦落花”“我欲因之梦吴越”“铁马冰河入梦来“梦往往以一种独特的方式呈现我们的感受和期冀，
-     * 为我们打开更浩瀚的天空。我们也常常向别人讲述自己的梦，用文字记录自己的梦，以行动实现自己的梦
-     */
-    @GetMapping("/longComment")
-    public void longComment() {
-
-    }
-
-    @PostMapping
-    public ChatRequest chat(@Valid @RequestBody ChatRequest request) {
-        return request;
-    }
+public record ChatRequest(
+        String sessionId,
+        @NotBlank(message = "message must not be blank")
+        @Size(max = 4000, message = "message must be at most 4000 characters")
+        String message
+) {
 }

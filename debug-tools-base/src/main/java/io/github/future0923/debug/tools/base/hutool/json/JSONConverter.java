@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.base.hutool.json;
 
 import io.github.future0923.debug.tools.base.hutool.core.bean.BeanUtil;
+import io.github.future0923.debug.tools.base.hutool.core.bean.RecordUtil;
 import io.github.future0923.debug.tools.base.hutool.core.codec.Base64;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.convert.ConvertException;
@@ -134,6 +135,13 @@ public class JSONConverter implements Converter<JSON> {
 			if(null != deserializer) {
 				//noinspection unchecked
 				return (T) deserializer.deserialize((JSON) value);
+			}
+
+			if(value instanceof JSONObject
+					&& targetType instanceof Class
+					&& RecordUtil.isRecord((Class<?>) targetType)){
+				return (T) RecordUtil.newInstance((Class<?>) targetType,
+						new JSONObjectValueProvider((JSONObject) value, ignoreError));
 			}
 
 			// issue#2212@Github
