@@ -85,4 +85,14 @@ public interface Command {
      * 资源HotDeploy请求
      */
     Byte RESOURCE_HOT_DEPLOY_REQUEST = 14;
+
+    /**
+     * 运行目标方法流式响应
+     */
+    Byte RUN_TARGET_METHOD_STREAM_RESPONSE = 15;
+
+    /**
+     * 取消运行目标方法流式响应请求
+     */
+    Byte CANCEL_RUN_TARGET_METHOD_STREAM_REQUEST = 16;
 }

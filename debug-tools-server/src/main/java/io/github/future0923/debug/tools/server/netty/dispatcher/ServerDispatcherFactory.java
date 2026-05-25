@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.server.netty.dispatcher;
 
 import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTraceMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.CancelRunTargetMethodStreamRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
@@ -27,6 +28,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.RunTarget
 import io.github.future0923.debug.tools.common.protocal.packet.request.ServerCloseRequestPacket;
 import io.github.future0923.debug.tools.server.netty.handler.ChangeTraceMethodRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.ClearRunResultRequestHandler;
+import io.github.future0923.debug.tools.server.netty.handler.CancelRunTargetMethodStreamRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.HeartBeatRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.LocalCompilerHotDeployRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.RemoteCompilerHotDeployRequestHandler;
@@ -58,6 +60,7 @@ public final class ServerDispatcherFactory {
         dispatcher.register(RemoteCompilerHotDeployRequestPacket.class, RemoteCompilerHotDeployRequestHandler.INSTANCE);
         dispatcher.register(ResourceHotDeployRequestPacket.class, ResourceHotDeployRequestHandler.INSTANCE);
         dispatcher.register(ChangeTraceMethodRequestPacket.class, ChangeTraceMethodRequestHandler.INSTANCE);
+        dispatcher.register(CancelRunTargetMethodStreamRequestPacket.class, CancelRunTargetMethodStreamRequestHandler.INSTANCE);
         return dispatcher;
     }
 }

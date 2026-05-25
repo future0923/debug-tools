@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.common.codec;
 
 import io.github.future0923.debug.tools.common.protocal.Command;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
+import io.github.future0923.debug.tools.common.protocal.packet.request.CancelRunTargetMethodStreamRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTraceMethodRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
@@ -31,6 +32,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.response.HeartBea
 import io.github.future0923.debug.tools.common.protocal.packet.response.HotDeployResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunGroovyScriptResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
+import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodStreamResponsePacket;
 import io.github.future0923.debug.tools.common.protocal.serializer.BinaryNettySerializer;
 import io.github.future0923.debug.tools.common.protocal.serializer.NettySerializer;
 import io.github.future0923.debug.tools.common.protocal.serializer.SerializerAlgorithm;
@@ -63,6 +65,8 @@ public final class PacketCodecNetty {
         packetTypeMap.put(Command.REMOTE_COMPILER_HOT_DEPLOY_RESPONSE, HotDeployResponsePacket.class);
         packetTypeMap.put(Command.CHANGE_TRACE_METHOD_REQUEST, ChangeTraceMethodRequestPacket.class);
         packetTypeMap.put(Command.RESOURCE_HOT_DEPLOY_REQUEST, ResourceHotDeployRequestPacket.class);
+        packetTypeMap.put(Command.RUN_TARGET_METHOD_STREAM_RESPONSE, RunTargetMethodStreamResponsePacket.class);
+        packetTypeMap.put(Command.CANCEL_RUN_TARGET_METHOD_STREAM_REQUEST, CancelRunTargetMethodStreamRequestPacket.class);
     }
 
     public Packet decode(ByteBuf in) throws Exception {
