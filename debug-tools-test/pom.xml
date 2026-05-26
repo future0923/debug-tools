@@ -3,14 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.github.future0923</groupId>
-        <artifactId>debug-tools</artifactId>
-        <version>${revision}</version>
-    </parent>
     <name>debug-tools-test</name>
+    <groupId>io.github.future0923</groupId>
     <artifactId>debug-tools-test</artifactId>
+    <version>${revision}</version>
     <packaging>pom</packaging>
+    <properties>
+        <revision>5.0.0-alpha4</revision>
+        <spring-boot.version>2.7.4</spring-boot.version>
+        <lombok.version>1.18.38</lombok.version>
+        <maven-resource-plugin.version>3.3.1</maven-resource-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <solon.version>3.3.1</solon.version>
+        <xxl-job.version>2.4.1</xxl-job.version>
+    </properties>
     <modules>
         <module>debug-tools-test-application</module>
         <module>debug-tools-test-simple</module>
@@ -23,5 +29,32 @@
         <module>debug-tools-test-tomcat</module>
         <module>debug-tools-test-mapstruct</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxl-job.version}</version>
+                <scope>provided</scope>
+                <optional>true</optional>
+            </dependency>
+            <!--放在最后，让前面能覆盖-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.noear</groupId>
+                <artifactId>solon-parent</artifactId>
+                <version>${solon.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

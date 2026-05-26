@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.utils.JdkUnsafeUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DebugToolsResultUtils {
 
     private static final Map<String, Object> CACHE = new ConcurrentHashMap<>();
+
+    private static final String RECORD_COMPONENT = "record.component";
 
     private static final Logger log = Logger.getLogger(DebugToolsResultUtils.class);
 
@@ -96,14 +99,22 @@ public class DebugToolsResultUtils {
             for (String offsetStr : offsetArr) {
                 String[] split = offsetStr.split("@");
                 if (split.length == 2) {
-                    long offset = Long.parseLong(split[0]);
-                    String type = split[1];
-                    result = getValueByOffset(result, offset, type);
+                    result = getValueByOffset(result, split[0], split[1]);
                 }
             }
             return result;
         }
         return null;
+    }
+
+    public static Object getValueByOffset(Object object, String offset, String type) {
+        if (object == null) {
+            return null;
+        }
+        if (RECORD_COMPONENT.equals(type)) {
+            return getRecordComponentValue(object, offset);
+        }
+        return getValueByOffset(object, Long.parseLong(offset), type);
     }
 
     public static Object getValueByOffset(Object object, long offset, String type) {
@@ -156,7 +167,22 @@ public class DebugToolsResultUtils {
             Object[] array = (Object[]) object;
             return array(array, filedOffset);
         }
+        if (isRecord(object.getClass())) {
+            return record(object, filedOffset);
+        }
         return object(object, filedOffset);
+    }
+
+    private static List<RunResultDTO> record(Object object, String filedOffset) {
+        // record 组件字段在新版 JDK 中不能通过 Unsafe 字段偏移读取，改用组件 accessor 展开。
+        Object[] components = getRecordComponents(object.getClass());
+        List<RunResultDTO> result = new ArrayList<>(components.length);
+        for (Object component : components) {
+            String name = getRecordComponentName(component);
+            Object value = getRecordComponentValue(object, component);
+            result.add(new RunResultDTO(name, value, RunResultDTO.Type.PROPERTY, filedOffset + "/" + name + "@" + RECORD_COMPONENT));
+        }
+        return result;
     }
 
     private static List<RunResultDTO> object(Object object, String filedOffset) {
@@ -187,5 +213,54 @@ public class DebugToolsResultUtils {
             result.add(new RunResultDTO(entry.getKey(), entry.getValue(), RunResultDTO.Type.MAP, filedOffset + "/" + System.identityHashCode(entry.getKey()) + "@" + ResultVarClassType.MAP));
         }
         return result;
+    }
+
+    private static boolean isRecord(Class<?> clazz) {
+        try {
+            Method isRecord = Class.class.getMethod("isRecord");
+            return Boolean.TRUE.equals(isRecord.invoke(clazz));
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private static Object[] getRecordComponents(Class<?> clazz) {
+        try {
+            Method getRecordComponents = Class.class.getMethod("getRecordComponents");
+            return (Object[]) getRecordComponents.invoke(clazz);
+        } catch (Exception e) {
+            log.error("get record components error", e);
+            return new Object[0];
+        }
+    }
+
+    private static Object getRecordComponentValue(Object object, String componentName) {
+        for (Object component : getRecordComponents(object.getClass())) {
+            if (componentName.equals(getRecordComponentName(component))) {
+                return getRecordComponentValue(object, component);
+            }
+        }
+        return null;
+    }
+
+    private static String getRecordComponentName(Object component) {
+        try {
+            Method getName = component.getClass().getMethod("getName");
+            return (String) getName.invoke(component);
+        } catch (Exception e) {
+            log.error("get record component name error", e);
+            return null;
+        }
+    }
+
+    private static Object getRecordComponentValue(Object object, Object component) {
+        try {
+            Method getAccessor = component.getClass().getMethod("getAccessor");
+            Method accessor = (Method) getAccessor.invoke(component);
+            return accessor.invoke(object);
+        } catch (Exception e) {
+            log.error("get record component value error", e);
+            return null;
+        }
     }
 }

@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.base.hutool.json;
 
 import io.github.future0923.debug.tools.base.hutool.core.bean.BeanUtil;
+import io.github.future0923.debug.tools.base.hutool.core.bean.RecordUtil;
 import io.github.future0923.debug.tools.base.hutool.core.collection.ArrayIter;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
 import io.github.future0923.debug.tools.base.hutool.core.io.IoUtil;
@@ -24,6 +25,7 @@ import io.github.future0923.debug.tools.base.hutool.core.lang.Filter;
 import io.github.future0923.debug.tools.base.hutool.core.lang.mutable.Mutable;
 import io.github.future0923.debug.tools.base.hutool.core.lang.mutable.MutablePair;
 import io.github.future0923.debug.tools.base.hutool.core.util.ArrayUtil;
+import io.github.future0923.debug.tools.base.hutool.core.util.ReflectUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.StrUtil;
 import io.github.future0923.debug.tools.base.hutool.core.util.TypeUtil;
 import io.github.future0923.debug.tools.base.hutool.json.serialize.GlobalSerializeMapping;
@@ -32,6 +34,8 @@ import io.github.future0923.debug.tools.base.hutool.json.serialize.JSONSerialize
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
@@ -124,6 +128,9 @@ public class ObjectMapper {
 		} else if (source instanceof ResourceBundle) {
 			// JSONTokener
 			mapFromResourceBundle((ResourceBundle) source, jsonObject, filter);
+		} else if (RecordUtil.isRecord(source.getClass())) {
+			// Record字段访问器与字段同名，不会被普通JavaBean getter识别。
+			mapFromRecord(source, jsonObject, filter);
 		} else if (BeanUtil.isReadableBean(source.getClass())) {
 			// 普通Bean
 			// TODO 过滤器对Bean无效，需补充。
@@ -278,5 +285,20 @@ public class ObjectMapper {
 	 */
 	private static void mapFromBean(Object bean, JSONObject jsonObject) {
 		BeanUtil.beanToMap(bean, jsonObject, InternalJSONUtil.toCopyOptions(jsonObject.getConfig()));
+	}
+
+	/**
+	 * 从Record转换
+	 *
+	 * @param record     Record对象
+	 * @param jsonObject {@link JSONObject}
+	 * @param filter     键值对过滤编辑器
+	 */
+	private static void mapFromRecord(Object record, JSONObject jsonObject, Filter<MutablePair<String, Object>> filter) {
+		for (Map.Entry<String, Type> component : RecordUtil.getRecordComponents(record.getClass())) {
+			final String name = component.getKey();
+			final Method accessor = ReflectUtil.getMethod(record.getClass(), name);
+			jsonObject.set(name, ReflectUtil.invoke(record, accessor), filter, jsonObject.getConfig().isCheckDuplicate());
+		}
 	}
 }

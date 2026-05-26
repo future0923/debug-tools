@@ -19,6 +19,7 @@ package io.github.future0923.debug.tools.server.netty.dispatcher;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.common.protocal.packet.Packet;
 import io.github.future0923.debug.tools.common.protocal.packet.response.HeartBeatResponsePacket;
+import io.github.future0923.debug.tools.server.netty.handler.RunTargetMethodRequestHandler;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -77,5 +78,12 @@ public final class ServerDispatchHandler extends SimpleChannelInboundHandler<Pac
                 });
             }
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // IDEA 异常断连时兜底释放该连接发起的响应式订阅，避免在 IO 线程触发业务侧取消逻辑。
+        bizPool.submit(() -> RunTargetMethodRequestHandler.INSTANCE.cancelStreamsByChannel(ctx));
+        super.channelInactive(ctx);
     }
 }

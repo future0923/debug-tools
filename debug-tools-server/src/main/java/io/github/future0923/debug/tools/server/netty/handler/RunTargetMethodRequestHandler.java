@@ -57,6 +57,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,6 +92,22 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
         }
         activeSubscription.cancel();
         return true;
+    }
+
+    /**
+     * IDEA 连接异常断开时，只取消该连接创建的响应式订阅，避免污染其他正常连接。
+     */
+    public void cancelStreamsByChannel(ChannelHandlerContext ctx) {
+        if (ctx == null) {
+            return;
+        }
+        List<ActiveStreamSubscription> subscriptions = new ArrayList<>();
+        activeStreamSubscriptions.forEach((identity, subscription) -> {
+            if (subscription.belongsTo(ctx)) {
+                subscriptions.add(subscription);
+            }
+        });
+        subscriptions.forEach(ActiveStreamSubscription::cancelSilently);
     }
 
     @Override
@@ -455,17 +472,32 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
         }
 
         private void cancel() {
+            cancel(true);
+        }
+
+        private void cancelSilently() {
+            cancel(false);
+        }
+
+        private void cancel(boolean notifyClient) {
             if (!finished.compareAndSet(false, true)) {
                 return;
             }
-            activeStreamSubscriptions.remove(identity);
+            activeStreamSubscriptions.remove(identity, this);
             subscription.cancel();
+            if (!notifyClient) {
+                return;
+            }
             ctx.writeAndFlush(createStreamPacket(
                     runDTO,
                     sequence.incrementAndGet(),
                     RunTargetMethodStreamEventType.CANCELLED,
                     duration
             ));
+        }
+
+        private boolean belongsTo(ChannelHandlerContext ctx) {
+            return this.ctx.channel() == ctx.channel();
         }
     }
 

@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>5.0.0-alpha2</revision>
+        <revision>5.0.0-alpha4</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,6 +60,7 @@
         <hutool.version>5.8.29</hutool.version>
         <pl-joegreen-lambda.version>1.7</pl-joegreen-lambda.version>
         <xxl-job.version>2.4.1</xxl-job.version>
+<!--        <xxl-job.version>3.3.2</xxl-job.version>-->
         <apache-cli.version>1.8.0</apache-cli.version>
         <apache-common-text.version>1.14.0</apache-common-text.version>
         <apache-common-lang3.version>3.18.0</apache-common-lang3.version>
@@ -74,7 +75,6 @@
     <modules>
         <module>debug-tools-attach</module>
         <module>debug-tools-common</module>
-        <module>debug-tools-test</module>
         <module>debug-tools-base</module>
         <module>debug-tools-server</module>
         <module>debug-tools-boot</module>
