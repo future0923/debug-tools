@@ -89,6 +89,7 @@ public final class DebugToolsTcpServer {
     }
 
     public void start() throws InterruptedException {
+        DebugToolsNettyLoggerFactory.install();
         boss = new NioEventLoopGroup(1, r -> {
             Thread t = new Thread(r);
             t.setName("DebugTools-Netty-Boss");
@@ -107,8 +108,6 @@ public final class DebugToolsTcpServer {
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64 * 1024))
                 .childHandler(new ChannelInitializer<SocketChannel>() {

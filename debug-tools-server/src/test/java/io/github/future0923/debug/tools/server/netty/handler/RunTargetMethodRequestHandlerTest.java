@@ -23,7 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 
-import java.lang.reflect.Method;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -32,8 +33,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RunTargetMethodRequestHandlerTest {
 
     @Test
+    void handlerBytecodeDoesNotHardReferenceReactiveStreams() throws Exception {
+        String resourceName = RunTargetMethodRequestHandler.class.getSimpleName() + ".class";
+        try (InputStream inputStream = RunTargetMethodRequestHandler.class.getResourceAsStream(resourceName)) {
+            assertTrue(inputStream != null);
+            String classBytes = new String(inputStream.readAllBytes(), StandardCharsets.ISO_8859_1);
+            assertFalse(classBytes.contains("org/reactivestreams"));
+        }
+    }
+
+    @Test
     void cancelStreamsByChannelOnlyCancelsSubscriptionsOwnedByThatChannel() throws Exception {
-        RunTargetMethodRequestHandler handler = RunTargetMethodRequestHandler.INSTANCE;
+        ReactiveStreamResultHandler handler = new ReactiveStreamResultHandler(new RunTargetMethodResultWriter());
         EmbeddedChannel firstChannel = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
         EmbeddedChannel secondChannel = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
         RecordingSubscription firstSubscription = new RecordingSubscription();
@@ -49,22 +60,14 @@ class RunTargetMethodRequestHandlerTest {
     }
 
     private static void subscribeForTest(
-            RunTargetMethodRequestHandler handler,
+            ReactiveStreamResultHandler handler,
             String identity,
             ChannelHandlerContext ctx,
             RecordingSubscription subscription
-    ) throws Exception {
+    ) {
         io.github.future0923.debug.tools.common.dto.RunDTO runDTO = new io.github.future0923.debug.tools.common.dto.RunDTO();
         runDTO.setIdentity(identity);
-        Method method = RunTargetMethodRequestHandler.class.getDeclaredMethod(
-                "subscribeStreamResult",
-                Publisher.class,
-                Long.class,
-                io.github.future0923.debug.tools.common.dto.RunDTO.class,
-                ChannelHandlerContext.class
-        );
-        method.setAccessible(true);
-        method.invoke(handler, (Publisher<Object>) subscriber -> subscriber.onSubscribe(subscription), 0L, runDTO, ctx);
+        handler.writeIfReactiveStreamResult((Publisher<Object>) subscriber -> subscriber.onSubscribe(subscription), 0L, runDTO, ctx);
     }
 
     private static class RecordingSubscription implements Subscription {

@@ -16,9 +16,9 @@
  */
 package io.github.future0923.debug.tools.test.spring.boot.mybatis.controller;
 
-import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/comment")
@@ -39,10 +39,5 @@ public class CommentController {
     @GetMapping("/longComment")
     public void longComment() {
 
-    }
-
-    @PostMapping
-    public ChatRequest chat(@Valid @RequestBody ChatRequest request) {
-        return request;
     }
 }

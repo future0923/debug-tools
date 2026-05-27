@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.github.future0923.debug.tools.test.spring.boot.three.mapper.UserMapper">
+
+    <insert id="insertXml" parameterType="io.github.future0923.debug.tools.test.spring.boot.three.entity.User">
+        insert into dp_user (id, name, age, version) values (#{id}, #{name}, #{age1}, #{version})
+    </insert>
+</mapper>
