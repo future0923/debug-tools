@@ -58,6 +58,16 @@ public enum DataSourceDriverClassEnum {
     ),
 
     /**
+     * kingbase
+     */
+    KINGBASE(
+            "kingbase",
+            "com.kingbase8",
+            Collections.singletonList("com.kingbase8.Driver"),
+            (sta, parameters) -> formatStringSql(sta.toString(), parameters)
+    ),
+
+    /**
      * sqlserver
      */
     SQLSERVER(
