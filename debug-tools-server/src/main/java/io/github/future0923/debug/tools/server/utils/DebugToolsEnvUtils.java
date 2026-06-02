@@ -23,7 +23,6 @@ import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.common.dto.RunDTO;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
-import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -208,14 +207,14 @@ public class DebugToolsEnvUtils {
      * @return Bean定义对象，如果Spring环境工具类不存在则返回null
      * @throws Exception 反射调用异常
      */
-    public static BeanDefinition getBeanDefinition(String beanName) throws Exception {
+    public static Object getBeanDefinition(String beanName) throws Exception {
         Class<?> springEnvUtil = getSpringEnvUtilClass();
         if (springEnvUtil == null) {
             return null;
         }
         DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.beans.factory.BeanFactory");
         Method getBeanDefinition = springEnvUtil.getMethod("getBeanDefinition", String.class);
-        return (BeanDefinition) getBeanDefinition.invoke(null, beanName);
+        return getBeanDefinition.invoke(null, beanName);
     }
 
     /**

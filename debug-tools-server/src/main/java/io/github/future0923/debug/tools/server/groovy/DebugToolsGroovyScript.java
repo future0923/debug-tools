@@ -19,7 +19,6 @@ package io.github.future0923.debug.tools.server.groovy;
 import groovy.lang.Script;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
-import org.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
@@ -127,7 +126,7 @@ public abstract class DebugToolsGroovyScript extends Script {
      * @return Bean定义信息
      * @throws Exception 如果获取过程中出现异常
      */
-    public BeanDefinition gtbd(String beanName) throws Exception {
+    public Object gtbd(String beanName) throws Exception {
         return getBeanDefinition(beanName);
     }
 
@@ -138,7 +137,7 @@ public abstract class DebugToolsGroovyScript extends Script {
      * @return Bean定义信息
      * @throws Exception 如果获取过程中出现异常
      */
-    public BeanDefinition getBeanDefinition(String beanName) throws Exception {
+    public Object getBeanDefinition(String beanName) throws Exception {
         return DebugToolsEnvUtils.getBeanDefinition(beanName);
     }
     /**
