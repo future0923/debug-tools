@@ -16,6 +16,7 @@
  */
 package io.github.future0923.debug.tools.base.classloader;
 
+import io.github.future0923.debug.tools.base.constants.ProjectConstants;
 import io.github.future0923.debug.tools.base.logging.Logger;
 
 import java.net.URL;
@@ -52,6 +53,9 @@ public class DebugToolsExtensionClassLoader extends URLClassLoader {
             return aClass;
         } catch (Exception ignore) {
             // ignore
+        }
+        if (name != null && name.startsWith(ProjectConstants.PROJECT_PACKAGE_PREFIX)) {
+            return DebugToolsExtensionClassLoader.class.getClassLoader().loadClass(name);
         }
         return super.loadClass(name, resolve);
     }

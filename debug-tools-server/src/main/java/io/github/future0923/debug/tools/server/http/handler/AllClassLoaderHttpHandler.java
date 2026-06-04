@@ -37,6 +37,14 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
 
     public static final String PATH = "/allClassLoader";
 
+    private static final String LAUNCHED_URL_CLASS_LOADER = "org.springframework.boot.loader.LaunchedURLClassLoader";
+
+    private static final String LAUNCHED_CLASS_LOADER = "org.springframework.boot.loader.launch.LaunchedClassLoader";
+
+    private static final String RESTART_CLASS_LOADER = "org.springframework.boot.devtools.restart.classloader.RestartClassLoader";
+
+    private static final String URL_CLASS_LOADER = "java.net.URLClassLoader";
+
     private static final Map<String, ClassLoader> classLoaderMap = new ConcurrentHashMap<>();
 
     private AllClassLoaderHttpHandler() {
@@ -78,38 +86,38 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
         final Map<String, ClassLoader> loaderMap = getClassLoaderMap();
         AllClassLoaderRes res = new AllClassLoaderRes();
         res.setItemList(loaderMap.values().stream().map(ClassLoaderItemAdapterUtils::Adapted).collect(Collectors.toSet()));
-        for (AllClassLoaderRes.Item item : res.getItemList()) {
-            if ("org.springframework.boot.loader.LaunchedURLClassLoader".equals(item.getName())) {
-                res.setDefaultIdentity(item.getIdentity());
-                break;
-            }
-            if ("org.springframework.boot.loader.launch.LaunchedClassLoader".equals(item.getName())) {
-                res.setDefaultIdentity(item.getIdentity());
-                break;
-            }
-            if ("org.springframework.boot.devtools.restart.classloader.RestartClassLoader".equals(item.getName())) {
-                res.setDefaultIdentity(item.getIdentity());
-                break;
-            }
-        }
-        if (res.getDefaultIdentity() == null) {
-            for (AllClassLoaderRes.Item item : res.getItemList()) {
-                if (item.getName().contains("AppClassLoader")) {
-                    res.setDefaultIdentity(item.getIdentity());
-                    break;
-                }
-            }
-        }
+        res.setDefaultIdentity(getDefaultIdentity(res.getItemList()));
         return res;
+    }
+
+    static String getDefaultIdentity(Iterable<AllClassLoaderRes.Item> items) {
+        for (AllClassLoaderRes.Item item : items) {
+            if (isFrameworkClassLoader(item.getName())) {
+                return item.getIdentity();
+            }
+        }
+        for (AllClassLoaderRes.Item item : items) {
+            if (URL_CLASS_LOADER.equals(item.getName())) {
+                return item.getIdentity();
+            }
+        }
+        for (AllClassLoaderRes.Item item : items) {
+            if (item.getName().contains("AppClassLoader")) {
+                return item.getIdentity();
+            }
+        }
+        return null;
     }
 
     public static ClassLoader getDefaultClassLoader() {
         Map<String, ClassLoader> map = getClassLoaderMap();
         for (ClassLoader classLoader : map.values()) {
-            String classLoaderName = classLoader.getClass().getName();
-            if ("org.springframework.boot.loader.LaunchedURLClassLoader".equals(classLoaderName)
-                    || "org.springframework.boot.loader.launch.LaunchedClassLoader".equals(classLoaderName)
-                    || "org.springframework.boot.devtools.restart.classloader.RestartClassLoader".equals(classLoaderName)) {
+            if (isFrameworkClassLoader(classLoader.getClass().getName())) {
+                return classLoader;
+            }
+        }
+        for (ClassLoader classLoader : map.values()) {
+            if (URL_CLASS_LOADER.equals(classLoader.getClass().getName())) {
                 return classLoader;
             }
         }
@@ -119,5 +127,11 @@ public class AllClassLoaderHttpHandler extends BaseHttpHandler<Void, AllClassLoa
             }
         }
         return null;
+    }
+
+    private static boolean isFrameworkClassLoader(String classLoaderName) {
+        return LAUNCHED_URL_CLASS_LOADER.equals(classLoaderName)
+                || LAUNCHED_CLASS_LOADER.equals(classLoaderName)
+                || RESTART_CLASS_LOADER.equals(classLoaderName);
     }
 }
