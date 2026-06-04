@@ -33,6 +33,7 @@ import io.github.future0923.debug.tools.server.DebugToolsBootstrap;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.trace.TraceMethodClassFileTransformer;
 import io.github.future0923.debug.tools.server.utils.BeanInstanceUtils;
+import io.github.future0923.debug.tools.server.utils.ClassLoaderResourceSyncUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils;
 import io.github.future0923.debug.tools.server.utils.DebugToolsResultUtils;
 import io.netty.channel.ChannelHandlerContext;
@@ -89,6 +90,11 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
                 ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
                 return;
             }
+        } else {
+            classLoader = AllClassLoaderHttpHandler.getDefaultClassLoader();
+        }
+        if (classLoader != null) {
+            ClassLoaderResourceSyncUtils.syncToSystemClassLoader(classLoader);
             Thread.currentThread().setContextClassLoader(classLoader);
         }
         Class<?> targetClass;
