@@ -18,6 +18,7 @@ package io.github.future0923.debug.tools.extension.spring.method;
 
 import io.github.future0923.debug.tools.base.hutool.core.io.FileUtil;
 import io.github.future0923.debug.tools.base.hutool.json.JSON;
+import io.github.future0923.debug.tools.base.hutool.json.JSONObject;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.base.utils.DebugToolsClassUtils;
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
@@ -91,16 +92,21 @@ public class SpringParamConvertUtils {
             }
         } else if (RunContentType.JSON_ENTITY.getType().equals(runContentDTO.getType())) {
             Type targetType = ResolvableType.forMethodParameter(parameter).getType();
+            Object bean;
             if (useExternalHutoolJson(parameter.getParameterType())) {
                 Object externalHutoolBean = toBeanByExternalHutool(runContentDTO.getContent(), targetType);
                 if (externalHutoolBean != null) {
+                    postProcessFileFields(externalHutoolBean, runContentDTO.getContent());
                     return externalHutoolBean;
                 }
             }
             if (runContentDTO.getContent() instanceof JSON) {
-                return DebugToolsJsonUtils.toBean((JSON) runContentDTO.getContent(), targetType, true);
+                bean = DebugToolsJsonUtils.toBean((JSON) runContentDTO.getContent(), targetType, true);
+            } else {
+                bean = DebugToolsJsonUtils.toBean(DebugToolsJsonUtils.toJsonStr(runContentDTO.getContent()), targetType, true);
             }
-            return DebugToolsJsonUtils.toBean(DebugToolsJsonUtils.toJsonStr(runContentDTO.getContent()), targetType, true);
+            postProcessFileFields(bean, runContentDTO.getContent());
+            return bean;
         } else if (RunContentType.SIMPLE.getType().equals(runContentDTO.getType())) {
             if (DebugToolsClassUtils.isSimpleValueType(parameter.getParameterType())) {
                 try {
@@ -178,9 +184,7 @@ public class SpringParamConvertUtils {
                 for (Object item : (Iterable<?>) runContentDTO.getContent()) {
                     File file = new File(item.toString());
                     try {
-                        String originalFilename = file.getName();
-                        String contentType = FileUtil.getMimeType(file.getPath());
-                        multipartFiles.add(new MockMultipartFile(originalFilename, originalFilename, contentType, FileUtil.getInputStream(file)));
+                        multipartFiles.add(toMockMultipartFile(file));
                     } catch (IOException e) {
                         log.error("转换MockMultipartFile异常", e);
                     }
@@ -197,9 +201,7 @@ public class SpringParamConvertUtils {
             // 处理单个MultipartFile
             if (MultipartFile.class.isAssignableFrom(parameter.getParameterType())) {
                 try {
-                    String originalFilename = file.getName();
-                    String contentType = FileUtil.getMimeType(file.getPath());
-                    return new MockMultipartFile(originalFilename, originalFilename, contentType, FileUtil.getInputStream(file));
+                    return toMockMultipartFile(file);
                 } catch (IOException e) {
                     log.error("转换MockMultipartFile异常", e);
                     return null;
@@ -214,6 +216,59 @@ public class SpringParamConvertUtils {
             }
         }
         return null;
+    }
+
+    private static void postProcessFileFields(Object bean, Object content) {
+        if (bean == null || content == null) {
+            return;
+        }
+        JSONObject jsonObject = toJsonObject(content);
+        if (jsonObject == null) {
+            return;
+        }
+        Class<?> current = bean.getClass();
+        while (current != null && current != Object.class) {
+            for (Field field : current.getDeclaredFields()) {
+                Class<?> fieldType = field.getType();
+                if (!File.class.isAssignableFrom(fieldType) && !MultipartFile.class.isAssignableFrom(fieldType)) {
+                    continue;
+                }
+                Object pathValue = jsonObject.get(field.getName());
+                if (!(pathValue instanceof CharSequence) || DebugToolsStringUtils.isBlank(pathValue.toString())) {
+                    continue;
+                }
+                try {
+                    field.setAccessible(true);
+                    if (File.class.isAssignableFrom(fieldType)) {
+                        field.set(bean, new File(pathValue.toString()));
+                    } else {
+                        File file = new File(pathValue.toString());
+                        field.set(bean, toMockMultipartFile(file));
+                    }
+                } catch (Exception e) {
+                    log.error("转换JSON实体文件字段[{}]失败", e, field.getName());
+                }
+            }
+            current = current.getSuperclass();
+        }
+    }
+
+    private static JSONObject toJsonObject(Object content) {
+        if (content instanceof JSONObject) {
+            return (JSONObject) content;
+        }
+        try {
+            return DebugToolsJsonUtils.parseObj(content);
+        } catch (Exception e) {
+            log.debug("解析JSON实体文件字段失败", e);
+            return null;
+        }
+    }
+
+    private static MockMultipartFile toMockMultipartFile(File file) throws IOException {
+        String originalFilename = file.getName();
+        String contentType = FileUtil.getMimeType(file.getPath());
+        return new MockMultipartFile(originalFilename, originalFilename, contentType, FileUtil.getInputStream(file));
     }
 
     private static boolean useExternalHutoolJson(Class<?> parameterType) {

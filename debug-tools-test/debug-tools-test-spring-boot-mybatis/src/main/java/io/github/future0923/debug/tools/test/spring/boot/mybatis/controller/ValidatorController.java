@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.File;
 
 /**
  * @author future0923
@@ -42,6 +43,8 @@ public class ValidatorController {
         @Length(min = 6, max = 20, message = "用户名长度在6-20个字符之间")
         @NotBlank
         private String name;
+
+        private File file;
 
         /**
          * 年龄
