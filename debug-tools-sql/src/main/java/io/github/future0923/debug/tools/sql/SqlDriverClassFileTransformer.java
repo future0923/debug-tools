@@ -47,14 +47,21 @@ public class SqlDriverClassFileTransformer implements ClassFileTransformer {
             ClassPool classPool = JavassistUtil.getClassPool(loader);
             CtClass ctClass = classPool.get(dotClassName);
             CtMethod connectMethod = ctClass.getDeclaredMethod("connect", new CtClass[]{classPool.get("java.lang.String"), classPool.get("java.util.Properties")});
-            connectMethod.insertAfter("{ " +
-                    "   return " + SqlPrintInterceptor.class.getName() + ".proxyConnection((java.sql.Connection)$_); " +
-                    "}");
+            connectMethod.insertAfter(buildProxyConnectionCode());
             logger.info("Print {} log bytecode enhancement successful", DataSourceDriverClassEnum.getSqlDriverType(dotClassName));
             return ctClass.toBytecode();
         } catch (Throwable t) {
             logger.error("Failed to print SQL log bytecode enhancement", t);
         }
         return null;
+    }
+
+    private String buildProxyConnectionCode() {
+        String interceptorClassName = SqlPrintInterceptor.class.getName();
+        return "{ " +
+                "   java.lang.Class __debugToolsInterceptorClass = java.lang.ClassLoader.getSystemClassLoader().loadClass(\"" + interceptorClassName + "\");" +
+                "   java.lang.reflect.Method __debugToolsProxyConnectionMethod = __debugToolsInterceptorClass.getDeclaredMethod(\"proxyConnection\", new java.lang.Class[]{java.sql.Connection.class});" +
+                "   return (java.sql.Connection) __debugToolsProxyConnectionMethod.invoke(null, new java.lang.Object[]{$_});" +
+                "}";
     }
 }
