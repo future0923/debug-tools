@@ -95,4 +95,9 @@ public interface Command {
      * 取消运行目标方法流式响应请求
      */
     Byte CANCEL_RUN_TARGET_METHOD_STREAM_REQUEST = 16;
+
+    /**
+     * 重连后补领运行目标方法响应请求
+     */
+    Byte RECOVER_RUN_TARGET_METHOD_RESPONSE_REQUEST = 17;
 }

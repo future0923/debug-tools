@@ -41,6 +41,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Optional;
 
 /**
  * 运行方法请求
@@ -55,9 +56,11 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
 
     private final RunTargetMethodResultWriter resultWriter = new RunTargetMethodResultWriter();
 
-    private final ReactiveStreamResultHandler reactiveStreamResultHandler = new ReactiveStreamResultHandler(resultWriter);
+    private final RunTargetMethodResponseRegistry responseRegistry = new RunTargetMethodResponseRegistry();
 
     private final RunMethodAroundInvoker aroundInvoker = new RunMethodAroundInvoker();
+
+    private final ReactiveStreamResultHandler reactiveStreamResultHandler = new ReactiveStreamResultHandler(resultWriter, responseRegistry);
 
     public boolean cancelStream(String identity) {
         return reactiveStreamResultHandler.cancelStream(identity);
@@ -65,6 +68,10 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
 
     public void cancelStreamsByChannel(ChannelHandlerContext ctx) {
         reactiveStreamResultHandler.cancelStreamsByChannel(ctx);
+    }
+
+    public Optional<RunTargetMethodResponsePacket> findCompletedResponse(String identity) {
+        return responseRegistry.find(identity);
     }
 
     @Override
@@ -76,7 +83,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             ArgsParseException exception = new ArgsParseException("目标类为空");
             String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
             DebugToolsResultUtils.putCache(offsetPath, exception);
-            ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         ClassLoader classLoader = null;
@@ -87,7 +94,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
                 ArgsParseException exception = new ArgsParseException("未找到[" + runDTO.getClassLoader().getName() + "]类加载器");
                 String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
                 DebugToolsResultUtils.putCache(offsetPath, exception);
-                ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+                writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
                 return;
             }
         } else {
@@ -103,7 +110,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
         } catch (Exception e) {
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
-            ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, e, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, e, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         Method targetMethod;
@@ -113,7 +120,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             ArgsParseException exception = new ArgsParseException("未找到目标方法");
             String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
             DebugToolsResultUtils.putCache(offsetPath, exception);
-            ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
             return;
         }
         DebugToolsEnvUtils.setRequest(runDTO);
@@ -128,7 +135,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
                 ArgsParseException exception = new ArgsParseException("获取目标实例失败", e);
                 String offsetPath = RunResultDTO.genOffsetPathRandom(exception);
                 DebugToolsResultUtils.putCache(offsetPath, exception);
-                ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+                writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, exception, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
                 return;
             }
         }
@@ -156,7 +163,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             }
             String offsetPath = RunResultDTO.genOffsetPathRandom(throwable);
             DebugToolsResultUtils.putCache(offsetPath, throwable);
-            ctx.writeAndFlush(RunTargetMethodResponsePacket.of(runDTO, throwable, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            writeResponse(ctx, RunTargetMethodResponsePacket.of(runDTO, throwable, offsetPath, DebugToolsBootstrap.serverConfig.getApplicationName()));
             aroundInvocation.onException(throwable);
         } finally {
             aroundInvocation.onFinally(result, throwable);
@@ -191,7 +198,12 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
         if (!voidType && reactiveStreamResultHandler.writeIfReactiveStreamResult(result, duration, runDTO, ctx)) {
             return;
         }
-        resultWriter.writeNormalResult(result, duration, runDTO, ctx, voidType, traceMethod);
+        resultWriter.writeNormalResult(result, duration, runDTO, ctx, voidType, traceMethod, responseRegistry);
+    }
+
+    private void writeResponse(ChannelHandlerContext ctx, RunTargetMethodResponsePacket packet) {
+        responseRegistry.record(packet);
+        ctx.writeAndFlush(packet);
     }
 
 }

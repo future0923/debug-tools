@@ -26,6 +26,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -85,5 +86,26 @@ public final class ServerDispatchHandler extends SimpleChannelInboundHandler<Pac
         // IDEA 异常断连时兜底释放该连接发起的响应式订阅，避免在 IO 线程触发业务侧取消逻辑。
         bizPool.submit(() -> RunTargetMethodRequestHandler.INSTANCE.cancelStreamsByChannel(ctx));
         super.channelInactive(ctx);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        if (!isExpectedSocketClose(cause)) {
+            logger.warning("Netty channel error", cause);
+        }
+        ctx.close();
+    }
+
+    private boolean isExpectedSocketClose(Throwable cause) {
+        if (!(cause instanceof IOException)) {
+            return false;
+        }
+        String message = cause.getMessage();
+        if (message == null) {
+            return false;
+        }
+        return message.contains("Connection reset by peer")
+                || message.contains("Broken pipe")
+                || message.contains("Connection aborted");
     }
 }

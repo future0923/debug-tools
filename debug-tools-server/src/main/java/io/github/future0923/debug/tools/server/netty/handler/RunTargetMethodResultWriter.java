@@ -37,7 +37,15 @@ import java.util.List;
 
 final class RunTargetMethodResultWriter {
 
-    void writeNormalResult(Object result, Long duration, RunDTO runDTO, ChannelHandlerContext ctx, boolean voidType, boolean traceMethod) {
+    void writeNormalResult(
+            Object result,
+            Long duration,
+            RunDTO runDTO,
+            ChannelHandlerContext ctx,
+            boolean voidType,
+            boolean traceMethod,
+            RunTargetMethodResponseRegistry responseRegistry
+    ) {
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
         packet.setRunInfo(runDTO, DebugToolsBootstrap.serverConfig.getApplicationName());
         packet.setDuration(duration);
@@ -65,6 +73,7 @@ final class RunTargetMethodResultWriter {
             DebugToolsResultUtils.putCache(offsetPath, traceResult);
             packet.setTraceOffsetPath(offsetPath);
         }
+        responseRegistry.record(packet);
         ctx.writeAndFlush(packet);
     }
 

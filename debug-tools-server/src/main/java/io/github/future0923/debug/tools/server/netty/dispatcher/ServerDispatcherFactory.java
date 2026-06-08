@@ -21,6 +21,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunR
 import io.github.future0923.debug.tools.common.protocal.packet.request.CancelRunTargetMethodStreamRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RecoverRunTargetMethodResponseRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
@@ -32,6 +33,7 @@ import io.github.future0923.debug.tools.server.netty.handler.CancelRunTargetMeth
 import io.github.future0923.debug.tools.server.netty.handler.HeartBeatRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.LocalCompilerHotDeployRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.RemoteCompilerHotDeployRequestHandler;
+import io.github.future0923.debug.tools.server.netty.handler.RecoverRunTargetMethodResponseRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.ResourceHotDeployRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.RunGroovyScriptRequestHandler;
 import io.github.future0923.debug.tools.server.netty.handler.ServerCloseRequestHandler;
@@ -61,6 +63,7 @@ public final class ServerDispatcherFactory {
         dispatcher.register(ResourceHotDeployRequestPacket.class, ResourceHotDeployRequestHandler.INSTANCE);
         dispatcher.register(ChangeTraceMethodRequestPacket.class, ChangeTraceMethodRequestHandler.INSTANCE);
         dispatcher.register(CancelRunTargetMethodStreamRequestPacket.class, CancelRunTargetMethodStreamRequestHandler.INSTANCE);
+        dispatcher.register(RecoverRunTargetMethodResponseRequestPacket.class, RecoverRunTargetMethodResponseRequestHandler.INSTANCE);
         return dispatcher;
     }
 }

@@ -1,0 +1,49 @@
+/*
+ * Copyright (C) 2024-2025 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package io.github.future0923.debug.tools.common.protocal.packet.request;
+
+import io.github.future0923.debug.tools.common.protocal.Command;
+import io.github.future0923.debug.tools.common.protocal.packet.EntityPacket;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * IDEA 重连后按 request identity 补领已完成的方法调用响应。
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class RecoverRunTargetMethodResponseRequestPacket extends EntityPacket<RecoverRunTargetMethodResponseRequestPacket> {
+
+    private String identity;
+
+    public RecoverRunTargetMethodResponseRequestPacket() {
+    }
+
+    public RecoverRunTargetMethodResponseRequestPacket(String identity) {
+        this.identity = identity;
+    }
+
+    @Override
+    public byte getCommand() {
+        return Command.RECOVER_RUN_TARGET_METHOD_RESPONSE_REQUEST;
+    }
+
+    @Override
+    public void doDeserialize(RecoverRunTargetMethodResponseRequestPacket packet) {
+        this.setIdentity(packet.getIdentity());
+    }
+}

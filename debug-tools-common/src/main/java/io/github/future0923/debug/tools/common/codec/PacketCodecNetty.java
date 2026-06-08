@@ -23,6 +23,7 @@ import io.github.future0923.debug.tools.common.protocal.packet.request.ChangeTra
 import io.github.future0923.debug.tools.common.protocal.packet.request.ClearRunResultRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.HeartBeatRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.LocalCompilerHotDeployRequestPacket;
+import io.github.future0923.debug.tools.common.protocal.packet.request.RecoverRunTargetMethodResponseRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RemoteCompilerHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.ResourceHotDeployRequestPacket;
 import io.github.future0923.debug.tools.common.protocal.packet.request.RunGroovyScriptRequestPacket;
@@ -67,6 +68,7 @@ public final class PacketCodecNetty {
         packetTypeMap.put(Command.RESOURCE_HOT_DEPLOY_REQUEST, ResourceHotDeployRequestPacket.class);
         packetTypeMap.put(Command.RUN_TARGET_METHOD_STREAM_RESPONSE, RunTargetMethodStreamResponsePacket.class);
         packetTypeMap.put(Command.CANCEL_RUN_TARGET_METHOD_STREAM_REQUEST, CancelRunTargetMethodStreamRequestPacket.class);
+        packetTypeMap.put(Command.RECOVER_RUN_TARGET_METHOD_RESPONSE_REQUEST, RecoverRunTargetMethodResponseRequestPacket.class);
     }
 
     public Packet decode(ByteBuf in) throws Exception {

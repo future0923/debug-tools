@@ -43,10 +43,17 @@ final class ReactiveStreamResultHandler {
 
     private final RunTargetMethodResultWriter resultWriter;
 
+    private final RunTargetMethodResponseRegistry responseRegistry;
+
     private final Map<String, ActiveStreamSubscription> activeStreamSubscriptions = new ConcurrentHashMap<>();
 
     ReactiveStreamResultHandler(RunTargetMethodResultWriter resultWriter) {
+        this(resultWriter, new RunTargetMethodResponseRegistry());
+    }
+
+    ReactiveStreamResultHandler(RunTargetMethodResultWriter resultWriter, RunTargetMethodResponseRegistry responseRegistry) {
         this.resultWriter = resultWriter;
+        this.responseRegistry = responseRegistry;
     }
 
     boolean writeIfReactiveStreamResult(Object result, Long duration, RunDTO runDTO, ChannelHandlerContext ctx) {
@@ -111,7 +118,7 @@ final class ReactiveStreamResultHandler {
             publisherClass = Class.forName(REACTIVE_STREAMS_PUBLISHER_CLASS_NAME, false, classLoader);
             subscriberClass = Class.forName(REACTIVE_STREAMS_SUBSCRIBER_CLASS_NAME, false, classLoader);
         } catch (ClassNotFoundException | LinkageError e) {
-            resultWriter.writeNormalResult(publisher, duration, runDTO, ctx, false, false);
+            resultWriter.writeNormalResult(publisher, duration, runDTO, ctx, false, false, responseRegistry);
             return;
         }
         AtomicLong sequence = new AtomicLong(0);
