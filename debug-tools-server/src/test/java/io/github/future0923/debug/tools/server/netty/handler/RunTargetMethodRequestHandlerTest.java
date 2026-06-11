@@ -25,7 +25,9 @@ import org.reactivestreams.Subscription;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -59,6 +61,23 @@ class RunTargetMethodRequestHandlerTest {
         assertFalse(secondSubscription.cancelled.get());
     }
 
+    @Test
+    void setRequestIsNoOpWhenSpringWebIsAbsent() throws Exception {
+        String classPath = Arrays.stream(System.getProperty("java.class.path").split(System.getProperty("path.separator")))
+                .filter(path -> !path.contains("spring-web-"))
+                .collect(Collectors.joining(System.getProperty("path.separator")));
+        Process process = new ProcessBuilder(
+                System.getProperty("java.home") + "/bin/java",
+                "-cp",
+                classPath,
+                SetRequestWithoutSpringWeb.class.getName()
+        ).redirectErrorStream(true).start();
+
+        int exitCode = process.waitFor();
+
+        assertTrue(exitCode == 0, new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
+    }
+
     private static void subscribeForTest(
             ReactiveStreamResultHandler handler,
             String identity,
@@ -81,6 +100,13 @@ class RunTargetMethodRequestHandlerTest {
         @Override
         public void cancel() {
             cancelled.set(true);
+        }
+    }
+
+    public static class SetRequestWithoutSpringWeb {
+
+        public static void main(String[] args) {
+            io.github.future0923.debug.tools.server.utils.DebugToolsEnvUtils.setRequest(new io.github.future0923.debug.tools.common.dto.RunDTO());
         }
     }
 }

@@ -96,7 +96,7 @@ public class ValidatorController {
      * @return
      */
     @PostMapping("/validator")
-    public String name(@Validated @RequestBody DTO dto, String debug, Son son) {
-        return dto.getName();
+    public DTO name(@Validated @RequestBody DTO dto, String debug, Son son) {
+        return dto;
     }
 }

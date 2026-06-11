@@ -3,33 +3,26 @@ import { test } from 'node:test'
 import { join } from 'node:path'
 import {
   assetNamesFromGithubRelease,
+  buildGitPushTagCommand,
   buildGithubReleaseApiUrl,
   buildGiteeApiUrl,
   buildGiteeReleasePayload,
+  githubReleaseBody,
   parseArgs,
   parseEnvFile,
-  releaseBody,
+  verifyFileDigest,
 } from './sync-gitee-release.mjs'
 
-test('parseArgs defaults to dry run for debug-tools v4.6.1', () => {
-  assert.deepEqual(parseArgs([]), {
-    execute: false,
-    githubOwner: 'future0923',
-    githubRepo: 'debug-tools',
-    giteeOwner: 'future94',
-    giteeRepo: 'debug-tools',
-    tag: 'v4.6.1',
-    targetCommitish: 'main',
-    outDir: join(process.cwd(), 'dist', 'gitee-release', 'v4.6.1'),
-    downloadTimeoutMs: 120000,
-  })
+test('parseArgs requires an explicit tag for release syncs', () => {
+  assert.throws(() => parseArgs([]), /--tag is required/)
 })
 
 test('parseArgs reads common overrides', () => {
-  assert.equal(parseArgs(['--execute']).execute, true)
+  assert.equal(parseArgs(['--tag', 'v5.0.0', '--execute']).execute, true)
   assert.equal(parseArgs(['--tag', 'v5.0.0']).tag, 'v5.0.0')
-  assert.equal(parseArgs(['--target-commitish', '385a256']).targetCommitish, '385a256')
-  assert.equal(parseArgs(['--download-timeout-ms', '5000']).downloadTimeoutMs, 5000)
+  assert.equal(parseArgs(['--tag', 'v5.0.0', '--target-commitish', '385a256']).targetCommitish, '385a256')
+  assert.equal(parseArgs(['--tag', 'v5.0.0', '--download-timeout-ms', '5000']).downloadTimeoutMs, 5000)
+  assert.equal(parseArgs(['--tag', 'v5.0.0', '--gitee-remote', 'mirror']).giteeRemote, 'mirror')
 })
 
 test('buildGithubReleaseApiUrl points at the release metadata endpoint', () => {
@@ -47,15 +40,19 @@ test('assetNamesFromGithubRelease keeps downloadable release assets only', () =>
   assert.deepEqual(
     assetNamesFromGithubRelease({
       assets: [
-        { name: 'debug-tools-agent.jar', browser_download_url: 'https://example.com/agent.jar' },
+        {
+          name: 'debug-tools-agent.jar',
+          browser_download_url: 'https://example.com/agent.jar',
+          digest: 'sha256:abc123',
+        },
         { name: 'debug-tools-boot.jar', browser_download_url: 'https://example.com/boot.jar' },
         { name: 'checksums.txt', browser_download_url: 'https://example.com/checksums.txt' },
         { name: '', browser_download_url: 'https://example.com/blank' },
       ],
     }),
     [
-      { name: 'debug-tools-agent.jar', url: 'https://example.com/agent.jar' },
-      { name: 'debug-tools-boot.jar', url: 'https://example.com/boot.jar' },
+      { name: 'debug-tools-agent.jar', url: 'https://example.com/agent.jar', digest: 'sha256:abc123' },
+      { name: 'debug-tools-boot.jar', url: 'https://example.com/boot.jar', digest: '' },
     ],
   )
 })
@@ -70,14 +67,9 @@ test('buildGiteeApiUrl encodes repository paths', () => {
   )
 })
 
-test('releaseBody describes the product without public sync metadata', () => {
-  const body = releaseBody()
-  assert.match(body, /秒级热部署/)
-  assert.match(body, /调用任意 Java 方法/)
-  assert.match(body, /SQL 语句/)
-  assert.doesNotMatch(body, /GitHub/i)
-  assert.doesNotMatch(body, /同步/)
-  assert.doesNotMatch(body, /checksums\.txt/)
+test('githubReleaseBody reuses GitHub release notes for Gitee', () => {
+  assert.equal(githubReleaseBody({ body: '- real release notes' }), '- real release notes')
+  assert.equal(githubReleaseBody({ body: null }), '')
 })
 
 test('buildGiteeReleasePayload includes fields required by create and update APIs', () => {
@@ -102,4 +94,20 @@ test('parseEnvFile reads shell-style token assignments', () => {
     GITEE_ACCESS_TOKEN: 'abc123',
     OTHER: 'hello world',
   })
+})
+
+test('buildGitPushTagCommand pushes only the requested tag to Gitee', () => {
+  assert.deepEqual(buildGitPushTagCommand('gitee', 'v5.0.0'), {
+    command: 'git',
+    args: ['push', 'gitee', 'refs/tags/v5.0.0'],
+  })
+})
+
+test('verifyFileDigest accepts GitHub sha256 digests and rejects mismatches', async () => {
+  const filePath = join(process.cwd(), 'scripts', 'sync-gitee-release.test.mjs')
+  await assert.doesNotReject(verifyFileDigest(filePath, ''))
+  await assert.rejects(
+    verifyFileDigest(filePath, 'sha256:0000000000000000000000000000000000000000000000000000000000000000'),
+    /Digest mismatch/,
+  )
 })

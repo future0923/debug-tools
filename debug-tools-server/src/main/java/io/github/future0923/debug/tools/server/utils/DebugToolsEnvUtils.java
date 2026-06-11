@@ -461,7 +461,10 @@ public class DebugToolsEnvUtils {
      * @param runDTO 包含请求信息的DTO对象
      */
     public static void setRequest(RunDTO runDTO) {
-        DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "org.springframework.web.context.request.RequestContextHolder");
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (!DebugToolsClassUtils.loadedDebugToolsClass(classLoader, "org.springframework.web.context.request.RequestContextHolder")) {
+            return;
+        }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest");
             Class<?> springServletUtil = getSpringServletUtil();

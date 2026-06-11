@@ -1,5 +1,7 @@
 import { createWriteStream } from 'node:fs'
 import { mkdir, readFile, rename, rm, stat } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { spawn } from 'node:child_process'
 import { basename, dirname, join, resolve } from 'node:path'
 import { pipeline } from 'node:stream/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -15,8 +17,9 @@ export function parseArgs(argv) {
     githubRepo: 'debug-tools',
     giteeOwner: 'future94',
     giteeRepo: 'debug-tools',
-    tag: 'v4.6.1',
+    tag: '',
     targetCommitish: 'main',
+    giteeRemote: 'gitee',
     outDir: '',
     downloadTimeoutMs: 120000,
   }
@@ -29,6 +32,8 @@ export function parseArgs(argv) {
       options.tag = requiredValue(argv, ++index, arg)
     } else if (arg === '--target-commitish') {
       options.targetCommitish = requiredValue(argv, ++index, arg)
+    } else if (arg === '--gitee-remote') {
+      options.giteeRemote = requiredValue(argv, ++index, arg)
     } else if (arg === '--github-owner') {
       options.githubOwner = requiredValue(argv, ++index, arg)
     } else if (arg === '--github-repo') {
@@ -48,6 +53,9 @@ export function parseArgs(argv) {
     }
   }
 
+  if (!options.help && !options.tag) {
+    throw new Error('--tag is required')
+  }
   if (!options.outDir) {
     options.outDir = join(process.cwd(), 'dist', 'gitee-release', options.tag)
   }
@@ -70,7 +78,7 @@ export function buildGithubReleaseApiUrl({ owner, repo, tag }) {
 export function assetNamesFromGithubRelease(release) {
   return (release.assets || [])
     .filter((asset) => asset.name && asset.name !== 'checksums.txt' && asset.browser_download_url)
-    .map((asset) => ({ name: asset.name, url: asset.browser_download_url }))
+    .map((asset) => ({ name: asset.name, url: asset.browser_download_url, digest: asset.digest || '' }))
 }
 
 export function buildGiteeApiUrl(path, params = {}) {
@@ -81,16 +89,8 @@ export function buildGiteeApiUrl(path, params = {}) {
   return `${giteeBaseUrl}${resolvedPath}`
 }
 
-export function releaseBody() {
-  return [
-    '- 秒级热部署，修改代码后无需完整重启应用即可快速生效。',
-    '- 秒级热重载，支持类、代理类、Spring、Solon、MyBatis 等常见场景。',
-    '- 调用任意 Java 方法，无需额外编写测试入口即可验证业务逻辑。',
-    '- 支持本地附加和远程附加，配合远程调试缩短排查链路。',
-    '- 自动打印 SQL 语句与耗时，方便定位慢查询和参数问题。',
-    '- 支持搜索 HttpUrl，快速跳转到对应接口方法。',
-    '- 支持 xxl-job、Groovy 脚本执行和多种框架扩展能力。',
-  ].join('\n')
+export function githubReleaseBody(release) {
+  return release.body || ''
 }
 
 export function buildGiteeReleasePayload({ tag, targetCommitish, body }) {
@@ -158,6 +158,7 @@ function unquoteEnvValue(value) {
 
 async function syncGiteeRelease(options, token) {
   const githubRelease = await fetchGithubRelease(options)
+  options.githubRelease = githubRelease
   const releaseAssets = assetNamesFromGithubRelease(githubRelease)
   if (releaseAssets.length === 0) {
     throw new Error(`No downloadable assets found on GitHub release ${options.githubOwner}/${options.githubRepo}@${options.tag}`)
@@ -172,7 +173,9 @@ async function syncGiteeRelease(options, token) {
   console.log()
 
   for (const asset of releaseAssets) {
-    await downloadFile(asset.url, join(options.outDir, asset.name), options.downloadTimeoutMs)
+    const assetPath = join(options.outDir, asset.name)
+    await downloadFile(asset.url, assetPath, options.downloadTimeoutMs)
+    await verifyFileDigest(assetPath, asset.digest)
   }
 
   if (!options.execute) {
@@ -186,6 +189,7 @@ async function syncGiteeRelease(options, token) {
     return
   }
 
+  await pushGiteeTag(options)
   const release = await ensureGiteeRelease(options, token)
   await replaceGiteeAssets(options, token, release, releaseAssets.map((asset) => asset.name))
   console.log()
@@ -253,7 +257,7 @@ async function ensureGiteeRelease(options, token) {
   const releasePayload = buildGiteeReleasePayload({
     tag: options.tag,
     targetCommitish: options.targetCommitish,
-    body: releaseBody(),
+    body: githubReleaseBody(options.githubRelease),
   })
 
   if (!existing) {
@@ -296,8 +300,51 @@ async function replaceGiteeAssets(options, token, release, assetNames) {
 
   for (const assetName of assetNames) {
     console.log(`Uploading Gitee asset ${assetName}`)
-    await uploadGiteeAsset(options, token, release.id, join(options.outDir, assetName))
+    const uploaded = await uploadGiteeAsset(options, token, release.id, join(options.outDir, assetName))
+    if (uploaded.browser_download_url) {
+      console.log(`  ${uploaded.browser_download_url}`)
+    }
   }
+}
+
+export async function verifyFileDigest(filePath, digest) {
+  if (!digest) return
+  const [algorithm, expected] = digest.split(':')
+  if (algorithm !== 'sha256' || !expected) {
+    throw new Error(`Unsupported digest format for ${basename(filePath)}: ${digest}`)
+  }
+  const bytes = await readFile(filePath)
+  const actual = createHash('sha256').update(bytes).digest('hex')
+  if (actual !== expected) {
+    throw new Error(`Digest mismatch for ${basename(filePath)}: expected ${expected}, got ${actual}`)
+  }
+}
+
+export function buildGitPushTagCommand(remote, tag) {
+  return {
+    command: 'git',
+    args: ['push', remote, `refs/tags/${tag}`],
+  }
+}
+
+async function pushGiteeTag(options) {
+  const { command, args } = buildGitPushTagCommand(options.giteeRemote, options.tag)
+  console.log(`Pushing ${options.tag} tag to ${options.giteeRemote}`)
+  await runCommand(command, args)
+}
+
+async function runCommand(command, args) {
+  await new Promise((resolvePromise, reject) => {
+    const child = spawn(command, args, { stdio: 'inherit' })
+    child.on('error', reject)
+    child.on('exit', (code) => {
+      if (code === 0) {
+        resolvePromise()
+        return
+      }
+      reject(new Error(`${command} ${args.join(' ')} exited with ${code}`))
+    })
+  })
 }
 
 async function uploadGiteeAsset(options, token, releaseId, filePath) {
@@ -357,8 +404,9 @@ Token:
 
 Options:
   --execute                 Write changes to Gitee. Without this, only dry-runs.
-  --tag <tag>               Release tag to sync. Default: v4.6.1
+  --tag <tag>               Release tag to sync. Required.
   --target-commitish <ref>  Gitee release target ref. Default: main
+  --gitee-remote <remote>   Git remote used for tag pushes. Default: gitee
   --github-owner <owner>    GitHub owner. Default: future0923
   --github-repo <repo>      GitHub repo. Default: debug-tools
   --gitee-owner <owner>     Gitee owner. Default: future94
