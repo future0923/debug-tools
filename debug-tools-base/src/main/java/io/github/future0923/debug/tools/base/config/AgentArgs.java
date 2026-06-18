@@ -67,6 +67,16 @@ public class AgentArgs {
     private String applicationName;
 
     /**
+     * IDEA 项目名称，用于隔离本地 SQL 历史。
+     */
+    private String projectName;
+
+    /**
+     * IDEA 项目路径 hash，用于区分同名项目。
+     */
+    private String projectPathHash;
+
+    /**
      * 是否打印执行的SQL语句 {@link PrintSqlType}
      */
     private String printSql;

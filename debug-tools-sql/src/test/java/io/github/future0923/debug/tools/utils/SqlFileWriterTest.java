@@ -49,6 +49,30 @@ class SqlFileWriterTest {
     }
 
     @Test
+    void writesSqlRecordUnderProjectAndMainClassWhenProjectContextExists() throws Exception {
+        String oldUserHome = System.getProperty("user.home");
+        System.setProperty("user.home", homeDir.toString());
+        try {
+            SqlFileWriter.writeSqlRecord(
+                    "select 1",
+                    12,
+                    "mysql",
+                    "com.foo.OrderApplication",
+                    "order service",
+                    "a8f31c2b"
+            );
+
+            Path sqlFile = homeDir
+                    .resolve(".debugTools/sql/order-service-a8f31c2b/com.foo.OrderApplication")
+                    .resolve(LocalDate.now() + ".sql");
+            assertTrue(Files.exists(sqlFile));
+            assertTrue(new String(Files.readAllBytes(sqlFile)).contains("select 1;"));
+        } finally {
+            System.setProperty("user.home", oldUserHome);
+        }
+    }
+
+    @Test
     void doesNotDeleteOlderSqlFilesAutomatically() throws Exception {
         String oldUserHome = System.getProperty("user.home");
         System.setProperty("user.home", homeDir.toString());

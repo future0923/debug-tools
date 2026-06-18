@@ -72,6 +72,8 @@ public class SqlPrintInterceptor {
     public static PrintSqlType printSqlType = PrintSqlType.NO;
     private static Boolean autoSaveSql = false;
     private static String applicationName = DebugToolsJvmUtils.getApplicationName();
+    private static String projectName;
+    private static String projectPathHash;
 
     public static void setPrintSqlType(String printSqlType) {
         SqlPrintInterceptor.printSqlType = PrintSqlType.of(printSqlType);
@@ -85,6 +87,11 @@ public class SqlPrintInterceptor {
         if (StrUtil.isNotBlank(name)) {
             applicationName = name;
         }
+    }
+
+    public static void setProjectContext(String name, String pathHash) {
+        projectName = name;
+        projectPathHash = pathHash;
     }
 
     public static Connection proxyConnection(final Connection connection) {
@@ -265,7 +272,7 @@ public class SqlPrintInterceptor {
             // 根据配置写入SQL记录到文件
             if (BooleanUtil.isTrue(autoSaveSql)) {
                 try {
-                    SqlFileWriter.writeSqlRecord(resultSql, consume, dbType.getType(), applicationName);
+                    SqlFileWriter.writeSqlRecord(resultSql, consume, dbType.getType(), applicationName, projectName, projectPathHash);
                 } catch (Exception e) {
                     logger.error("Failed to write SQL record to file", e);
                 }

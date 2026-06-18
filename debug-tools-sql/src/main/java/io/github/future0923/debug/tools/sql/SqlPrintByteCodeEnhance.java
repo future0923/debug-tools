@@ -40,6 +40,7 @@ public class SqlPrintByteCodeEnhance {
         if (PrintSqlType.isPrint(agentArgs.getPrintSql()) || BooleanUtil.toBoolean(agentArgs.getTraceSql())) {
             SqlPrintInterceptor.setAutoSaveSql(BooleanUtil.toBoolean(agentArgs.getAutoSaveSql()));
             SqlPrintInterceptor.setApplicationName(agentArgs.getApplicationName());
+            SqlPrintInterceptor.setProjectContext(agentArgs.getProjectName(), agentArgs.getProjectPathHash());
             DebugToolsIgnoreSqlUtils.create(agentArgs.getIgnoreSqlConfigPath());
             inst.addTransformer(new SqlDriverClassFileTransformer(), true);
         }

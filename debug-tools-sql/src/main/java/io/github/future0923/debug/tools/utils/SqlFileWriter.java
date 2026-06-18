@@ -46,6 +46,14 @@ public class SqlFileWriter {
      * 写入 SQL 记录到当前应用当天的历史文件。
      */
     public static void writeSqlRecord(String sql, long consumeTime, String dbType, String applicationName) {
+        writeSqlRecord(sql, consumeTime, dbType, applicationName, null, null);
+    }
+
+    /**
+     * 写入 SQL 记录；存在 IDEA 项目上下文时按项目和主类隔离。
+     */
+    public static void writeSqlRecord(
+            String sql, long consumeTime, String dbType, String applicationName, String projectName, String projectPathHash) {
         lock.lock();
         try {
             LocalDateTime now = LocalDateTime.now();
@@ -57,7 +65,7 @@ public class SqlFileWriter {
                     timeStr, dbType, consumeTime, sql
             );
 
-            Path sqlDir = Paths.get(System.getProperty("user.home"), ".debugTools", SQL_DIR, safeApplicationName(applicationName));
+            Path sqlDir = sqlDir(applicationName, projectName, projectPathHash);
             if (!Files.exists(sqlDir)) {
                 Files.createDirectories(sqlDir);
             }
@@ -75,6 +83,15 @@ public class SqlFileWriter {
         } finally {
             lock.unlock();
         }
+    }
+
+    private static Path sqlDir(String applicationName, String projectName, String projectPathHash) {
+        Path root = Paths.get(System.getProperty("user.home"), ".debugTools", SQL_DIR);
+        if (StrUtil.isBlank(projectName) || StrUtil.isBlank(projectPathHash)) {
+            return root.resolve(safeApplicationName(applicationName));
+        }
+        String projectDirName = safeApplicationName(projectName + "-" + projectPathHash);
+        return root.resolve(projectDirName).resolve(safeApplicationName(applicationName));
     }
 
     private static String safeApplicationName(String applicationName) {
