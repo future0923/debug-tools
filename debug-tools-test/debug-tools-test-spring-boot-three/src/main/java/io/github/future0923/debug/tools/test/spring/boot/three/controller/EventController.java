@@ -37,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping("/event")
-    public String sendEvent(HttpServletRequest request) {
+    public String sendEvent() {
         ActionEvent event = new ActionEvent();
         eventPublisher.publishEvent(event);
         return "事件已发送";

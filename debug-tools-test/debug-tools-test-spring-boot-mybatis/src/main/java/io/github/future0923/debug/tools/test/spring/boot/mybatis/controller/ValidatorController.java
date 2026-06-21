@@ -46,6 +46,8 @@ public class ValidatorController {
 
         private File file;
 
+        private Class aClass;
+
         /**
          * 年龄
          */
@@ -96,7 +98,7 @@ public class ValidatorController {
      * @return
      */
     @PostMapping("/validator")
-    public DTO name(@Validated @RequestBody DTO dto, String debug, Son son) {
+    public DTO name(@Validated @RequestBody DTO dto, String debug, Son son, Class<?> aClass) {
         return dto;
     }
 }
