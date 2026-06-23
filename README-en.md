@@ -8,6 +8,10 @@
     <a href="https://github.com/future0923/debug-tools/blob/main/README-en.md" >
       English
     </a>
+    |
+    <a href="https://linux.do" >
+    LinuxDO Friend Link
+    </a>
 </p>
 
 <p align="center">
@@ -30,79 +34,85 @@
 <p align="center">
     <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg?label=license" alt="GPL 3.0" />
     <img src="https://img.shields.io/jetbrains/plugin/d/24463?style=flat&color=blue" alt="github contributors"/>
-    <img src="https://img.shields.io/github/stars/future0923/debug-tools.svg?style=flat&label=stars" alt="github stars"/>
-    <img src="https://img.shields.io/github/forks/future0923/debug-tools.svg?style=flat&label=forks" alt="github forks"/>
-    <img src="https://img.shields.io/github/contributors/future0923/debug-tools.svg?style=flat&label=contributors&color=blue" alt="github contributors"/>
-    <img src='https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark' alt='star' />
-    <img src='https://gitee.com/future94/debug-tools/badge/fork.svg?theme=dark' alt='fork' />
-    <img src="https://img.shields.io/badge/JDK-8-blue.svg" alt="jdk 8" />
-    <img src="https://img.shields.io/badge/JDK-11-blue.svg" alt="jdk 11" />
-    <img src="https://img.shields.io/badge/JDK-17-blue.svg" alt="jdk 17" />
-    <img src="https://img.shields.io/badge/JDK-21-blue.svg" alt="jdk 21" />
-    <img src="https://img.shields.io/badge/JDK-25-blue.svg" alt="jdk 25" />
     <img src="https://img.shields.io/badge/QQ群-518757118-blue.svg" alt="518757118" />
-    <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="518757118" />
+    <img src="https://img.shields.io/badge/Email-future94@qq.com-blue.svg" alt="future94@qq.com" />
 </p>
 
-## Features
+# Features
 
-- [Hot deployment in seconds](https://debug-tools.cc/en/guide/hot-deploy.html)：The traditional deployment process is generally to submit code -> pull code -> package -> deploy -> restart the project before the written code can take effect. Hot deployment can skip this tedious process. After the developer modifies the code, there is no need to manually trigger packaging or restart the service. The application can load the new logic in real time and run, greatly shortening the feedback cycle. After we introduced hot deployment in development/testing environments, the overall development efficiency of the team can be greatly improved, especially for high-frequency iteration scenarios in agile development mode.
-- [Hot reload in seconds](https://debug-tools.cc/en/guide/hot-reload.html): When writing code in the traditional way, you need to restart the application to make it effective. However, hot reload can make the written code effective immediately without restarting the application, so that the code changes written by the developer can take effect instantly, greatly improving the iteration efficiency. Supports changes in properties and methods of classes (including proxy classes), Spring, Solon, Mybatis and other mainstream frameworks.
-- [Call any Java method](https://debug-tools.cc/en/guide/attach-local.html): There is no need to call it layer by layer after complex business verification from the Controller layer like API. The method can be directly called to test whether the result is achieved without writing test cases. Combined with hot reload, it can be modified quickly without restarting.
-- [Call remote method](https://debug-tools.cc/en/guide/attach-remote.html): Trigger the remote method to run with remote debug to achieve the purpose of remote debugging. Through hot deployment, you can quickly debug the application.
-- [SQL statements and time consumption](https://debug-tools.cc/en/guide/sql.html): Without modifying any application code, you can print the executed SQL statements and time consumption.
-- [Search Http Url](https://www.debug-tools.cc/guide/search-http.html)：Jump directly to the corresponding method definition location through the given URL information. Built-in powerful URL information extraction function, all forms of URLs can be accurately located.
-- [xxl-job](https://debug-tools.cc/en/guide/xxl-job.html): You can call client-side methods without going through xxl-job Server, and support context parameter passing.
-- [groovy](https://debug-tools.cc/en/guide/groovy-execute.html): Execute Groovy scripts, you can run code to obtain or modify attached application information for debugging.
+## Call Any Java Method
 
-## Demonstration of the effect.
+DebugTools supports directly calling Java methods in your project from IntelliJ IDEA. Both local and remote calls are supported, and multiple applications and methods can be called at the same time.
 
-- hot deploy
+You do not need to add a Controller, write temporary test cases, or trigger the call layer by layer from a request entry. Select the target method, fill in the parameters, and execute it to quickly verify business logic.
 
-![hot_deploy.gif](/images/gif/hot_deploy.gif)
+**Use Cases**
+- Call ordinary class methods, static methods, Spring Bean methods, Dubbo services, XXL-JOB tasks, MQ consumer methods, MyBatis Mapper methods, streaming SSE responses, and more.
+- Verify the return result of a Service, Mapper, utility class, or component method.
+- Skip outer processes such as Controller, gateway, authentication, and parameter assembly, and debug core business logic directly.
+- Quickly call Spring-managed Bean methods, including methods inside frameworks such as Dubbo, XXL-JOB, and MQ.
+- Call MyBatis Mapper methods to verify SQL parameters, query results, and execution time.
+- Pass complex parameters, Header parameters, or XXL-JOB parameters to methods.
+- Remotely call methods in the target application and locate issues with remote Debug.
+- Combine with **hot reload** to verify changes immediately after modifying code.
 
-- hot reload
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/quick-start.html).
 
-![hot_reload.gif](/images/gif/hot_reload.gif)
+## Hot Reload
 
-- call any Java method
+In traditional development, you need to restart the application before code changes take effect. Hot reload lets code changes take effect immediately **without restarting the application**, greatly improving iteration efficiency.
 
-![quick_debug.gif](/images/gif/quick_debug.gif)
+- Supports property and method changes for classes (including proxy classes), Spring, Solon, MyBatis, and other mainstream frameworks.
+- Supports middleware utility classes.
 
-- search http url
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/hot-reload.html).
 
-![search_url.gif](/images/gif/search_url.gif)
+## Hot Deployment
 
+The traditional deployment process is usually submit code -> pull code -> package -> deploy -> restart the project before code changes take effect.
 
-## Quick Start
+Hot deployment skips this tedious process. After developers modify code, the application can load the new logic in real time and run it without manually triggering packaging or restarting the service, greatly shortening the feedback cycle.
 
-### Installation
+After introducing hot deployment in development and testing environments, overall team development efficiency can be greatly improved, especially in agile development scenarios with frequent iterations.
 
-It is very easy to install DebugTools. You can quickly install it by following the installation [document](https://debug-tools.cc/en/guide/install.html#install-plugin).
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/hot-deploy.html).
 
-### Usage
+## SQL Statements and Execution Time
 
-- [Hot Deployment](https://debug-tools.cc/en/guide/hot-deploy.html)
-- [Hot Reload](https://debug-tools.cc/en/guide/hot-reload.html)
-- [Calling Any Java Method](https://debug-tools.cc/en/guide/attach-local.html)
-- [Calling Remote Method](https://debug-tools.cc/en/guide/attach-remote.html)
-- [SQL Statements and Time](https://debug-tools.cc/en/guide/sql.html)
-- [xxl-job](https://debug-tools.cc/en/guide/xxl-job.html)
-- [groovy](https://debug-tools.cc/en/guide/groovy-execute.html)
+Without modifying any application code, you can print executed SQL statements, execution time, and execution history.
 
-## Support this project
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/sql.html).
 
-This project is completely open source, complex to implement and requires many compatibility issues. If this project helps you save development time, please click <a target="_blank" href="https://github.com/future0923/debug-tools"><img src="https://img.shields.io/github/stars/future0923/debug-tools?style=flat&logo=GitHub" style="display: inline-block; vertical-align: middle;" /></a> <a target="_blank" href="https://gitee.com/future94/debug-tools"><img src="https://gitee.com/future94/debug-tools/badge/star.svg?theme=dark" style="display: inline-block; vertical-align: middle;" /></a>. Your recognition will make more people discover it, and your support is my motivation to update.
+## Search HttpUrl
 
-If the project does not achieve the expected results, please submit <a target="_blank" href="https://github.com/future0923/debug-tools/issues"><img src="https://img.shields.io/github/issues-closed/future0923/debug-tools?style=flat&logo=github" style="display: inline-block; vertical-align: middle;" /></a> feedback, and I will deal with it as soon as possible.
+Jump directly to the corresponding method definition location through the given URL information.
 
-If you are interested in DebugTools, you are sincerely invited to join the DebugTools open source project! Here, we work together to solve practical problems with code. Whether you are good at Java, Idea plug-in development, or are keen on front-end development, or have unique insights into architecture design and document writing, you can find a stage here. We encourage the collision of different ideas and look forward to your new ideas and solutions. The code of this project is completely open source. Let us work together to polish the project to be more perfect and leave our wonderful mark in the open source community!
+The built-in URL information extraction feature can accurately locate URLs in various formats.
 
-## Contact me
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/search-http.html).
 
-- Issue: [issues](https://github.com/future0923/debug-tools/issues)
-- Email: [future94@qq.com](mailto:future94@qq.com)
+## Groovy
+
+Groovy naturally supports Java syntax. By executing Groovy scripts, you can run code to obtain or modify information in the attached application for debugging.
+
+Groovy scripts run inside the target JVM and can access Java classes, Spring Beans, and built-in functions provided by DebugTools.
+
+For detailed usage, see the [documentation](https://debug-tools.cc/en/guide/method/groovy-execute.html).
+
+# Support This Project
+
+This project is fully open source, complex to implement, and needs to handle many compatibility cases. If it has helped you save development time, please consider giving it a Star. Your support motivates me to keep updating it.
+
+> Buy me a coffee or milk tea so the author can stay energized and write better code!
+
+<div style="display:flex; gap:12px;">
+  <img src="/images/39fb4dee427ef71afcd03793b0d61747.jpg" width="220" />
+  <img src="/images/531ac581e7d2a861ed683bbcbf548dc2.jpg" width="220" />
+</div>
+
+# Contact Me
+
 - QQ group: [518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
 - WeChat
 
-![wechat.png](images/wechat.png)
+<img src="images/wechat.png" width="200" height="200" v-zoom  alt=""/>
