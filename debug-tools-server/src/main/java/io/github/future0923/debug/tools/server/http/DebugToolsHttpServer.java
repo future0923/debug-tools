@@ -27,6 +27,7 @@ import io.github.future0923.debug.tools.server.http.handler.IndexHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultDetailHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultTraceHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RunResultTypeHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.SpringConfigHttpHandler;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -65,6 +66,7 @@ public class DebugToolsHttpServer {
         httpServer.createContext(RunResultTraceHttpHandler.PATH, RunResultTraceHttpHandler.INSTANCE);
         httpServer.createContext(GetPrintSqlTypeHttpHandler.PATH, GetPrintSqlTypeHttpHandler.INSTANCE);
         httpServer.createContext(ChangePrintSqlTypeHttpHandler.PATH, ChangePrintSqlTypeHttpHandler.INSTANCE);
+        httpServer.createContext(SpringConfigHttpHandler.PATH, SpringConfigHttpHandler.INSTANCE);
     }
 
     public void start() {

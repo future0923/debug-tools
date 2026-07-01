@@ -8,10 +8,6 @@
     <a href="https://github.com/future0923/debug-tools/blob/main/README-en.md" >
       English
     </a>
-    |
-    <a href="https://linux.do" >
-    LinuxDO Friend Link
-    </a>
 </p>
 
 <p align="center">
@@ -110,9 +106,6 @@ This project is fully open source, complex to implement, and needs to handle man
   <img src="/images/531ac581e7d2a861ed683bbcbf548dc2.jpg" width="220" />
 </div>
 
-# Contact Me
+# Community
 
-- QQ group: [518757118](https://qm.qq.com/cgi-bin/qm/qr?k=ztAKCGYQkhbTnwlgcumIUbEKOtbJTQ4h&jump_from=webapi&authKey=uLgjTI6vb2aVmmQF3hKRmTSLCJlO6ku0scrmMXWaHagtO3aztN+ZJMOs7xeHNuKO)
-- WeChat
-
-<img src="images/wechat.png" width="200" height="200" v-zoom  alt=""/>
+This open-source project is linked to and endorsed by the [LINUX DO Community](https://linux.do).

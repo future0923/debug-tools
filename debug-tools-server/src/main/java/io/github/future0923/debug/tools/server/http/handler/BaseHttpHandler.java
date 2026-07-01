@@ -51,7 +51,8 @@ public abstract class BaseHttpHandler<Req, Res> implements HttpHandler {
         } else if (reqClass.isAssignableFrom(String.class)) {
             req = (Req) requestBody;
         } else {
-            req = DebugToolsJsonUtils.toBean(requestBody, reqClass);
+            // 使用 parse 而不是 parseObj，支持 /spring/config 这类顶层 JSON 数组请求体。
+            req = DebugToolsJsonUtils.toBean(requestBody, reqClass, false);
         }
         Headers responseHeaders = httpExchange.getResponseHeaders();
         Res res = doHandle(req, responseHeaders);

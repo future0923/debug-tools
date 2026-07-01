@@ -49,7 +49,6 @@ public class FeignClientWatchEventListener implements WatchEventListener {
 
     @Override
     public void onEvent(WatchFileEvent event) {
-        logger.info("{}, {}", event.getEventType(), event.getURI().toString());
         // 创建了class新文件
         if (FileEvent.CREATE.equals(event.getEventType()) && event.isFile() && event.getURI().toString().endsWith(".class")) {
             String className;
