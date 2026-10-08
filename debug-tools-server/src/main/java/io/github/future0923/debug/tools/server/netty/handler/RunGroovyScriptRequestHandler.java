@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.server.netty.handler;
 
 import groovy.lang.GroovyShell;
+import io.github.future0923.debug.tools.server.http.handler.GroovyDebugHttpHandler;
 import io.github.future0923.debug.tools.base.classloader.GroovyScriptClassLoader;
 import io.github.future0923.debug.tools.base.exception.DefaultClassLoaderException;
 import io.github.future0923.debug.tools.base.hutool.core.convert.Convert;
@@ -49,6 +50,7 @@ public class RunGroovyScriptRequestHandler implements PacketHandler<RunGroovyScr
     @Override
     public void handle(ChannelHandlerContext ctx, RunGroovyScriptRequestPacket packet) {
         CompilerConfiguration configuration = new CompilerConfiguration();
+        configuration.setDebug(packet.getDebugSourceName() != null);
         configuration.setScriptBaseClass(DebugToolsGroovyScript.class.getName());
         String applicationName = DebugToolsBootstrap.serverConfig.getApplicationName();
         GroovyScriptClassLoader groovyScriptClassLoader = GroovyScriptClassLoader.init(AllClassLoaderHttpHandler.getDebugToolsClassLoader());
@@ -67,15 +69,27 @@ public class RunGroovyScriptRequestHandler implements PacketHandler<RunGroovyScr
         GroovyShell groovyShell = new GroovyShell(groovyScriptClassLoader, configuration);
         Object evaluateResult;
         try {
-            evaluateResult = groovyShell.evaluate(packet.getScript());
+            if (packet.getDebugSourceName() == null) {
+                evaluateResult = groovyShell.evaluate(packet.getScript());
+            } else {
+                // 显式文件名写入 SourceFile，保持原脚本行号；每次执行使用独立 GroovyShell。
+                if (!GroovyDebugHttpHandler.RUNTIME_ID.equals(packet.getDebugRuntimeId())) {
+                    throw new IllegalArgumentException("Groovy debugger runtime changed; reconnect the debugger");
+                }
+                if (!packet.getDebugSourceName().matches("DebugToolsGroovy_[0-9a-f]{64}\\.groovy")) {
+                    throw new IllegalArgumentException("Invalid Groovy debug source name");
+                }
+                evaluateResult = groovyShell.evaluate(packet.getScript(), packet.getDebugSourceName());
+            }
         } catch (Exception e) {
-            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
             String offsetPath = RunResultDTO.genOffsetPathRandom(e);
             DebugToolsResultUtils.putCache(offsetPath, e);
             ctx.writeAndFlush(RunGroovyScriptResponsePacket.of(e, offsetPath, applicationName, packet.getConnectionId()));
             return;
+        } finally {
+            // 暂停后继续、编译失败或脚本抛出 Error 都必须恢复业务线程上下文。
+            Thread.currentThread().setContextClassLoader(oldContextClassLoader);
         }
-        Thread.currentThread().setContextClassLoader(oldContextClassLoader);
         RunGroovyScriptResponsePacket responsePacket = new RunGroovyScriptResponsePacket();
         responsePacket.setApplicationName(applicationName);
         responsePacket.setConnectionId(packet.getConnectionId());

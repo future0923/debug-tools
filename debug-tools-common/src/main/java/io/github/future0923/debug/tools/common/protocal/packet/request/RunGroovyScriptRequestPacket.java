@@ -46,6 +46,12 @@ public class RunGroovyScriptRequestPacket extends EntityPacket<RunGroovyScriptRe
      */
     private String connectionId;
 
+    /** 调试源码标识；普通运行和旧客户端不传。 */
+    private String debugSourceName;
+
+    /** 调试握手得到的 JVM 标识，防止连接切换后向错误进程执行。 */
+    private String debugRuntimeId;
+
     @Override
     public byte getCommand() {
         return Command.RUN_GROOVY_SCRIPT_REQUEST;
@@ -56,5 +62,7 @@ public class RunGroovyScriptRequestPacket extends EntityPacket<RunGroovyScriptRe
         this.setScript(packet.getScript());
         this.setIdentity(packet.getIdentity());
         this.setConnectionId(packet.getConnectionId());
+        this.setDebugSourceName(packet.getDebugSourceName());
+        this.setDebugRuntimeId(packet.getDebugRuntimeId());
     }
 }

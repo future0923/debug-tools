@@ -17,6 +17,7 @@
 package io.github.future0923.debug.tools.server.http;
 
 import com.sun.net.httpserver.HttpServer;
+import io.github.future0923.debug.tools.server.http.handler.GroovyDebugHttpHandler;
 import io.github.future0923.debug.tools.base.logging.Logger;
 import io.github.future0923.debug.tools.server.http.handler.AllClassLoaderHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.ChangePrintSqlTypeHttpHandler;
@@ -61,6 +62,7 @@ public class DebugToolsHttpServer {
             return;
         }
         httpServer.createContext(IndexHttpHandler.PATH, IndexHttpHandler.INSTANCE);
+        httpServer.createContext(GroovyDebugHttpHandler.PATH, GroovyDebugHttpHandler.INSTANCE);
         httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
