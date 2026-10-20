@@ -23,8 +23,8 @@ fi
 # 根据编译器目标选择文件名，交叉编译时也不会错误覆盖另一架构的库。
 TARGET_TRIPLE="$("$CXX" -dumpmachine)"
 case "$TARGET_TRIPLE" in
-    aarch64*-linux-* | arm64*-linux-*) LIB_NAME=libJniLibrary-arm64.so ;;
-    x86_64*-linux-*) LIB_NAME=libJniLibrary-x64.so ;;
+    aarch64*-linux* | arm64*-linux*) LIB_NAME=libJniLibrary-arm64.so ;;
+    x86_64*-linux*) LIB_NAME=libJniLibrary-x64.so ;;
     *) echo "错误: 不支持的 Linux 编译目标 $TARGET_TRIPLE" >&2; exit 1 ;;
 esac
 
