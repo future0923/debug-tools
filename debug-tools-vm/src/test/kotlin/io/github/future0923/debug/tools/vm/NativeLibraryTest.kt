@@ -43,14 +43,14 @@ class NativeLibraryTest {
             Triple("Windows 11", "amd64", "libJniLibrary-x64.dll")
         )
         for ((os, arch, expected) in cases) {
-            val output = probe("select", listOf("-Dos.name=$os", "-Dos.arch=$arch"))
+            val output = probe("select", listOf("-Ddebug.tools.test.os=$os", "-Ddebug.tools.test.arch=$arch"))
             assertTrue("$os/$arch: $output", output.contains("SELECTED:$expected"))
         }
     }
 
     @Test
     fun rejectsUnsupportedLinuxArchitecture() {
-        val output = probe("select", listOf("-Dos.name=Linux", "-Dos.arch=riscv64"), expectedExit = 1)
+        val output = probe("select", listOf("-Ddebug.tools.test.os=Linux", "-Ddebug.tools.test.arch=riscv64"), expectedExit = 1)
         assertTrue(output, output.contains("unsupported Linux architecture: riscv64"))
     }
 
@@ -96,6 +96,10 @@ object NativeLibraryProbe {
     @JvmStatic
     fun main(args: Array<String>) {
         if (args[0] == "select") {
+            // JDK 8 也会按 os.name 选择文件系统；先初始化真实平台，再只模拟被测工具类。
+            java.nio.file.FileSystems.getDefault()
+            System.setProperty("os.name", System.getProperty("debug.tools.test.os"))
+            System.setProperty("os.arch", System.getProperty("debug.tools.test.arch"))
             val method = JvmToolsUtils::class.java.getDeclaredMethod("getLibName")
             method.isAccessible = true
             println("SELECTED:${method.invoke(null)}")
