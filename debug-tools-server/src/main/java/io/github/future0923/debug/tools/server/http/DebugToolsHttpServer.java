@@ -32,6 +32,16 @@ import io.github.future0923.debug.tools.server.http.handler.SpringConfigHttpHand
 import io.github.future0923.debug.tools.server.http.handler.SpringReadyHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RecentLogsHttpHandler;
 import io.github.future0923.debug.tools.server.http.handler.RecentSqlHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.ResultInspectionHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.RuntimeDiagnosticsHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.BusinessLogCaptureHttpHandler;
+import io.github.future0923.debug.tools.server.utils.BusinessLogCapture;
+import io.github.future0923.debug.tools.server.http.handler.ResultReleaseHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.SqlDiagnosticsHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.SpringDiagnosticsHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.AgentOperationsHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.MethodWatchHttpHandler;
+import io.github.future0923.debug.tools.server.http.handler.TraceSelectionHttpHandler;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -48,22 +58,31 @@ public class DebugToolsHttpServer {
 
     private HttpServer httpServer;
 
+    private final io.github.future0923.debug.tools.server.http.handler.AsyncContextHttpHandler asyncContextHandler = new io.github.future0923.debug.tools.server.http.handler.AsyncContextHttpHandler();
+
+    private final MethodWatchHttpHandler watchHandler = new MethodWatchHttpHandler();
+
+    private final AgentOperationsHttpHandler operationsHandler = new AgentOperationsHttpHandler();
+
     @Getter
     private final int port;
 
     private volatile boolean started = false;
 
     public DebugToolsHttpServer(int port) {
-        this.port = port;
+        int boundPort = port;
         try {
             this.httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+            boundPort = httpServer.getAddress().getPort();
         } catch (IOException e) {
             logger.error("start http server bind port in {} error", e, port);
-            return;
         }
+        this.port = boundPort;
+        if (httpServer == null) return;
         httpServer.createContext(IndexHttpHandler.PATH, IndexHttpHandler.INSTANCE);
         httpServer.createContext(GroovyDebugHttpHandler.PATH, GroovyDebugHttpHandler.INSTANCE);
         httpServer.createContext(RunResultTypeHttpHandler.PATH, RunResultTypeHttpHandler.INSTANCE);
+        httpServer.createContext(ResultInspectionHttpHandler.PATH, ResultInspectionHttpHandler.INSTANCE);
         httpServer.createContext(RunResultDetailHttpHandler.PATH, RunResultDetailHttpHandler.INSTANCE);
         httpServer.createContext(AllClassLoaderHttpHandler.PATH, AllClassLoaderHttpHandler.INSTANCE);
         httpServer.createContext(ClassLoaderHasClassHttpHandler.PATH, ClassLoaderHasClassHttpHandler.INSTANCE);
@@ -74,7 +93,20 @@ public class DebugToolsHttpServer {
         httpServer.createContext(SpringConfigHttpHandler.PATH, SpringConfigHttpHandler.INSTANCE);
         httpServer.createContext(SpringReadyHttpHandler.PATH, SpringReadyHttpHandler.INSTANCE);
         httpServer.createContext(RecentLogsHttpHandler.PATH, RecentLogsHttpHandler.INSTANCE);
+        httpServer.createContext(BusinessLogCaptureHttpHandler.PATH, BusinessLogCaptureHttpHandler.INSTANCE);
         httpServer.createContext(RecentSqlHttpHandler.PATH, RecentSqlHttpHandler.INSTANCE);
+        httpServer.createContext(ResultReleaseHttpHandler.PATH, ResultReleaseHttpHandler.INSTANCE);
+        httpServer.createContext(SqlDiagnosticsHttpHandler.PATH, SqlDiagnosticsHttpHandler.INSTANCE);
+        httpServer.createContext(SpringDiagnosticsHttpHandler.PATH, SpringDiagnosticsHttpHandler.INSTANCE);
+        httpServer.createContext(TraceSelectionHttpHandler.PATH, TraceSelectionHttpHandler.INSTANCE);
+        httpServer.createContext(MethodWatchHttpHandler.PATH, watchHandler);
+        httpServer.createContext(io.github.future0923.debug.tools.server.http.handler.AsyncContextHttpHandler.PATH, asyncContextHandler);
+        httpServer.createContext(AgentOperationsHttpHandler.PATH, operationsHandler);
+        httpServer.createContext("/capabilities", new RuntimeDiagnosticsHttpHandler("capabilities"));
+        httpServer.createContext("/runtime/invocation", new RuntimeDiagnosticsHttpHandler("invocation"));
+        httpServer.createContext("/runtime/jvm", new RuntimeDiagnosticsHttpHandler("jvm"));
+        httpServer.createContext("/runtime/threads", new RuntimeDiagnosticsHttpHandler("threads"));
+        httpServer.createContext("/runtime/classes", new RuntimeDiagnosticsHttpHandler("classes"));
     }
 
     public void start() {
@@ -86,6 +118,10 @@ public class DebugToolsHttpServer {
     }
 
     public void close() {
+        BusinessLogCapture.closeAll();
+        operationsHandler.close();
+        watchHandler.close();
+        asyncContextHandler.close();
         if (httpServer != null) {
             httpServer.stop(0);
             started = false;

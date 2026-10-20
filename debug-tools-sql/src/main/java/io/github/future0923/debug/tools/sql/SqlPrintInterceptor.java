@@ -73,7 +73,7 @@ public class SqlPrintInterceptor {
 
     private static final String JPA_PROXY_CLASS_NAME = "org.springframework.aop.framework.JdkDynamicAopProxy";
 
-    public static PrintSqlType printSqlType = PrintSqlType.NO;
+    public static volatile PrintSqlType printSqlType = PrintSqlType.NO;
     private static Boolean autoSaveSql = false;
     private static Boolean compressSqlPreserveBlockComments = true;
     private static String applicationName = DebugToolsJvmUtils.getApplicationName();

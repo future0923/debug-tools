@@ -27,7 +27,7 @@ public class RecentLogsHttpHandler extends BaseHttpHandler<RecentLogsHttpHandler
     private RecentLogsHttpHandler() { }
     @Override protected List<DebugToolsLogBuffer.Record> doHandle(Request req, Headers headers) {
         Request request = req == null ? new Request() : req;
-        return DebugToolsLogBuffer.recent(request.limit, request.since, request.level, request.keyword);
+        return DebugToolsLogBuffer.recent(request.limit, request.since, request.level, request.keyword, request.invocationId);
     }
-    public static class Request { public int limit = 100; public long since; public String level; public String keyword; }
+    public static class Request { public int limit = 100; public long since; public String level; public String keyword; public String invocationId; }
 }

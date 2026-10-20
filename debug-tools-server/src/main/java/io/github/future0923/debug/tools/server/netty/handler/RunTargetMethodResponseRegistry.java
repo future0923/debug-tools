@@ -18,36 +18,25 @@ package io.github.future0923.debug.tools.server.netty.handler;
 
 import io.github.future0923.debug.tools.base.utils.DebugToolsStringUtils;
 import io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket;
+import java.util.*;
+import java.util.function.LongSupplier;
 
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-/**
- * 保存已完成的方法调用响应，IDEA 断线重连后可按 request identity 补领最终响应。
- */
+/** 完成响应最多保留512条/30分钟；缓存缺失不表示业务未执行。 */
 final class RunTargetMethodResponseRegistry {
-
-    private final ConcurrentMap<String, RunTargetMethodResponsePacket> responses = new ConcurrentHashMap<>();
-
-    void record(RunTargetMethodResponsePacket packet) {
-        if (packet == null || DebugToolsStringUtils.isBlank(packet.getIdentity())) {
-            return;
-        }
-        responses.put(packet.getIdentity(), packet);
+    private final Map<String,Entry> responses=new LinkedHashMap<>();
+    private final LongSupplier clock;
+    RunTargetMethodResponseRegistry() { this(System::currentTimeMillis); }
+    RunTargetMethodResponseRegistry(LongSupplier clock) { this.clock=clock; }
+    synchronized void record(RunTargetMethodResponsePacket packet) {
+        if(packet==null || DebugToolsStringUtils.isBlank(packet.getIdentity()))return;
+        cleanup();responses.put(packet.getIdentity(),new Entry(packet,clock.getAsLong()));
+        while(responses.size()>512)responses.remove(responses.keySet().iterator().next());
     }
-
-    Optional<RunTargetMethodResponsePacket> find(String identity) {
-        if (DebugToolsStringUtils.isBlank(identity)) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(responses.get(identity));
+    synchronized Optional<RunTargetMethodResponsePacket> find(String identity) {
+        if(DebugToolsStringUtils.isBlank(identity))return Optional.empty();
+        cleanup();Entry entry=responses.get(identity);return Optional.ofNullable(entry==null?null:entry.packet);
     }
-
-    void remove(String identity) {
-        if (DebugToolsStringUtils.isBlank(identity)) {
-            return;
-        }
-        responses.remove(identity);
-    }
+    synchronized void remove(String identity) { responses.remove(identity); }
+    private void cleanup() { long cutoff=clock.getAsLong()-1800000;responses.values().removeIf(entry->entry.createdAt<cutoff); }
+    private static final class Entry { final RunTargetMethodResponsePacket packet;final long createdAt;Entry(RunTargetMethodResponsePacket packet,long createdAt){this.packet=packet;this.createdAt=createdAt;} }
 }

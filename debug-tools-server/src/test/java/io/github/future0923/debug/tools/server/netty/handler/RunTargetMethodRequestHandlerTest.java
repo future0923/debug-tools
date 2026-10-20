@@ -35,6 +35,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class RunTargetMethodRequestHandlerTest {
 
     @Test
+    void rejectsChangedAgentBeforeClassResolutionOrBusinessExecution() throws Exception {
+        io.github.future0923.debug.tools.common.dto.RunDTO request = new io.github.future0923.debug.tools.common.dto.RunDTO();
+        request.setIdentity("stale-target-test"); request.setExpectedAgentInstanceId("old-instance"); request.setTargetClassName("must.not.be.loaded.Business"); request.setTargetMethodName("charge");
+        EmbeddedChannel channel = new EmbeddedChannel(new ChannelInboundHandlerAdapter());
+        try {
+            RunTargetMethodRequestHandler.INSTANCE.handle(channel.pipeline().firstContext(), new io.github.future0923.debug.tools.common.protocal.packet.request.RunTargetMethodRequestPacket(request));
+            io.github.future0923.debug.tools.common.protocal.packet.response.RunTargetMethodResponsePacket response = channel.readOutbound();
+            assertTrue(response.getThrowable().contains("TARGET_INSTANCE_CHANGED"));
+            assertTrue("stale-target-test".equals(response.getIdentity()));
+        } finally { channel.finishAndReleaseAll(); }
+    }
+
+    @Test
     void handlerBytecodeDoesNotHardReferenceReactiveStreams() throws Exception {
         String resourceName = RunTargetMethodRequestHandler.class.getSimpleName() + ".class";
         try (InputStream inputStream = RunTargetMethodRequestHandler.class.getResourceAsStream(resourceName)) {

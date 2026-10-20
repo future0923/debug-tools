@@ -26,6 +26,10 @@ import java.util.Properties;
 public class NonRegisteringDriver {
 
     public Connection connect(String url, Properties properties) {
+        // 模拟真实 JDBC driver：不支持的协议返回 null，供字节码增强回归验证。
+        if (url == null || !url.startsWith("jdbc:mysql:")) {
+            return null;
+        }
         return (Connection) Proxy.newProxyInstance(
                 Connection.class.getClassLoader(),
                 new Class[]{Connection.class},

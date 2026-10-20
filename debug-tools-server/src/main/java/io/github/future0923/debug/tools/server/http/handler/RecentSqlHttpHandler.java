@@ -26,7 +26,7 @@ public class RecentSqlHttpHandler extends BaseHttpHandler<RecentSqlHttpHandler.R
     private RecentSqlHttpHandler() { }
     @Override protected List<SqlRecentBuffer.Record> doHandle(Request req, Headers headers) {
         Request request = req == null ? new Request() : req;
-        return SqlRecentBuffer.recent(request.limit, request.since, request.keyword);
+        return SqlRecentBuffer.recent(request.limit, request.since, request.keyword, request.invocationId);
     }
-    public static class Request { public int limit = 50; public long since; public String keyword; }
+    public static class Request { public int limit = 50; public long since; public String keyword; public String invocationId; }
 }

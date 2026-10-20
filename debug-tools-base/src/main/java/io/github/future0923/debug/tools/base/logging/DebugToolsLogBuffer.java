@@ -31,21 +31,37 @@ public final class DebugToolsLogBuffer {
     private DebugToolsLogBuffer() { }
 
     public static synchronized void add(String level, String logger, String thread, String message, String throwable) {
-        String safe = message == null ? "" : message;
-        int size = safe.length() * 2;
-        RECORDS.addLast(new Record(System.currentTimeMillis(), level, logger, thread, safe, throwable));
-        bytes += size;
+        add(System.currentTimeMillis(), "DEBUG_TOOLS", level, logger, thread, message, throwable);
+    }
+
+    /** 业务日志与 agent 日志保留来源和原时间戳，所有文本均计入缓冲预算。 */
+    public static synchronized void add(long timestamp, String source, String level, String logger, String thread, String message, String throwable) {
+        add(timestamp, source, level, logger, thread, message, throwable, io.github.future0923.debug.tools.base.trace.InvocationContext.currentId());
+    }
+
+    /** 异步日志框架可传入事件创建时冻结的关联 ID。 */
+    public static synchronized void add(long timestamp, String source, String level, String logger, String thread, String message, String throwable, String invocationId) {
+        Record record = new Record(timestamp, cut(level, 32), cut(logger, 1024), cut(thread, 1024), cut(message, 16384), cut(throwable, 16384), cut(source, 64), cut(invocationId,128));
+        RECORDS.addLast(record);
+        bytes += size(record);
         while (RECORDS.size() > MAX_ENTRIES || bytes > MAX_BYTES) {
             Record removed = RECORDS.removeFirst();
-            bytes -= removed.message == null ? 0 : removed.message.length() * 2;
+            bytes -= size(removed);
         }
     }
 
+    private static String cut(String value, int max) { return value == null ? "" : value.substring(0, Math.min(value.length(), max)); }
+    private static int size(Record value) { return 2 * (value.level.length() + value.logger.length() + value.thread.length() + value.message.length() + value.throwable.length() + value.source.length() + value.invocationId.length()); }
+
     public static synchronized List<Record> recent(int limit, long since, String level, String keyword) {
+        return recent(limit,since,level,keyword,null);
+    }
+    public static synchronized List<Record> recent(int limit, long since, String level, String keyword, String invocationId) {
         List<Record> result = new ArrayList<>();
         int max = Math.max(1, Math.min(limit, 200));
         for (Record record : RECORDS) {
             if (record.timestamp < since) continue;
+            if (invocationId != null && !invocationId.equals(record.invocationId)) continue;
             if (level != null && !level.isEmpty() && !level.equalsIgnoreCase(record.level)) continue;
             if (keyword != null && !keyword.isEmpty() && !record.message.contains(keyword)) continue;
             result.add(record);
@@ -61,8 +77,17 @@ public final class DebugToolsLogBuffer {
         public final String thread;
         public final String message;
         public final String throwable;
+        public final String source;
+        public final String invocationId;
         public Record(long timestamp, String level, String logger, String thread, String message, String throwable) {
-            this.timestamp = timestamp; this.level = level; this.logger = logger; this.thread = thread; this.message = message; this.throwable = throwable;
+            this(timestamp, level, logger, thread, message, throwable, "DEBUG_TOOLS");
+        }
+        public Record(long timestamp, String level, String logger, String thread, String message, String throwable, String source) {
+            this(timestamp,level,logger,thread,message,throwable,source,"");
+        }
+        public Record(long timestamp, String level, String logger, String thread, String message, String throwable, String source, String invocationId) {
+            this.invocationId=invocationId;
+            this.timestamp = timestamp; this.level = level; this.logger = logger; this.thread = thread; this.message = message; this.throwable = throwable; this.source = source;
         }
     }
 }

@@ -42,7 +42,7 @@
     </developers>
 
     <properties>
-        <revision>5.3.0</revision>
+        <revision>5.3.1</revision>
         <compiler.version>8</compiler.version>
         <target.version>8</target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,7 +52,7 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
         <maven-resource-plugin.version>3.3.1</maven-resource-plugin.version>
         <flatten-maven-plugin.version>1.2.7</flatten-maven-plugin.version>
         <arthas.version>3.7.2</arthas.version>
@@ -65,7 +65,10 @@
         <apache-common-text.version>1.14.0</apache-common-text.version>
         <apache-common-lang3.version>3.18.0</apache-common-lang3.version>
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
-        <groovy.version>4.0.22</groovy.version>
+        <!-- Groovy 需解析目标 JDK 25 字节码；4.0.22 的 ASM 无法识别 major 69。 -->
+        <groovy.version>4.0.28</groovy.version>
+        <!-- 观察器需要解析目标 JDK 21/25 字节码，不沿用 Spring Boot BOM 的旧版本。 -->
+        <byte-buddy.version>1.17.8</byte-buddy.version>
         <solon.version>3.3.1</solon.version>
         <javassist.version>3.30.2-GA</javassist.version>
         <openfeign.version>3.0.1</openfeign.version>
@@ -144,6 +147,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
@@ -249,6 +262,15 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- 默认生命周期也运行现代 Surefire，避免 JDK 21+ 使用旧提供器而出现零测试。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>-Djdk.attach.allowAttachSelf=true</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>

@@ -76,6 +76,22 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
 
     @Override
     public void handle(ChannelHandlerContext ctx, RunTargetMethodRequestPacket packet) throws Exception {
+        RunDTO request = packet.getRunDTO();
+        String id = request.getIdentity();
+        if (request.getExpectedAgentInstanceId() != null && !io.github.future0923.debug.tools.server.http.handler.RuntimeDiagnosticsHttpHandler.INSTANCE_ID.equals(request.getExpectedAgentInstanceId())) {
+            writeResponse(ctx, RunTargetMethodResponsePacket.of(request, new IllegalStateException("TARGET_INSTANCE_CHANGED: invocation rejected before execution"), null, DebugToolsBootstrap.serverConfig.getApplicationName()));
+            return;
+        }
+        io.github.future0923.debug.tools.server.utils.InvocationDiagnostics.start(id, request.getTargetClassName(), request.getTargetMethodName());
+        try (io.github.future0923.debug.tools.base.trace.InvocationContext.Scope ignored = io.github.future0923.debug.tools.base.trace.InvocationContext.open(id)) {
+            handleInvocation(ctx, packet);
+        } finally {
+            io.github.future0923.debug.tools.server.utils.InvocationDiagnostics.finish(id, responseRegistry.find(id).isPresent());
+        }
+    }
+
+    /** 保留原调用协议，诊断 scope 负责在所有返回路径恢复线程状态。 */
+    private void handleInvocation(ChannelHandlerContext ctx, RunTargetMethodRequestPacket packet) throws Exception {
         RunDTO runDTO = packet.getRunDTO();
         ClassLoader orgClassLoader = Thread.currentThread().getContextClassLoader();
         String targetClassName = runDTO.getTargetClassName();
@@ -104,7 +120,7 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
             ClassLoaderResourceSyncUtils.syncToSystemClassLoader(classLoader);
             Thread.currentThread().setContextClassLoader(classLoader);
         }
-        try {
+        try (io.github.future0923.debug.tools.server.utils.InvocationLogContext ignored = io.github.future0923.debug.tools.server.utils.InvocationLogContext.open(classLoader, runDTO.getIdentity())) {
             Class<?> targetClass;
             try {
                 targetClass = DebugToolsClassUtils.loadClass(targetClassName, classLoader);
@@ -187,7 +203,11 @@ public class RunTargetMethodRequestHandler implements PacketHandler<RunTargetMet
                     long end = System.currentTimeMillis();
                     printResult(result, end - start, runDTO, ctx, voidType, traceMethod);
                     return result;
-                } catch (Throwable ignored) {
+                } catch (Throwable failure) {
+                    // 已进入代理的业务调用失败后不得再反射调用一次，否则可能重复产生副作用。
+                    if (failure instanceof Exception) throw (Exception) failure;
+                    if (failure instanceof Error) throw (Error) failure;
+                    throw new RuntimeException(failure);
                 }
             }
         }

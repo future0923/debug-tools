@@ -33,6 +33,9 @@ public class RunDTO {
      */
     private String identity;
 
+    /** 可选 agent 实例约束；新版 MCP 防止重连到重启 JVM 后误执行。 */
+    private String expectedAgentInstanceId;
+
     /**
      * 请求头信息
      */

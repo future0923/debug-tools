@@ -36,6 +36,13 @@ public class GroovyScriptClassLoader extends ClassLoader {
         return getInstance();
     }
 
+    /** 独立脚本执行使用实例级 loader，避免更新 UI 调试器的全局 loader。 */
+    public static GroovyScriptClassLoader isolated(ClassLoader parent, ClassLoader applicationLoader) {
+        GroovyScriptClassLoader loader = new GroovyScriptClassLoader(parent);
+        loader.setDefaultClassLoader(applicationLoader);
+        return loader;
+    }
+
     private GroovyScriptClassLoader(ClassLoader classLoader) {
         super(classLoader);
     }

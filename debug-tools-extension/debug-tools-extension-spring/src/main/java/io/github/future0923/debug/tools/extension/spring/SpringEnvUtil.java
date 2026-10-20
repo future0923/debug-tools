@@ -356,6 +356,12 @@ public class SpringEnvUtil {
         return beanList;
     }
 
+    /** MCP 诊断复用已发现上下文，读定义时不初始化业务 Bean。 */
+    public static Map<String, Object> inspectSpringRuntime(Map<String, Object> request) {
+        initSpringContext();
+        return SpringRuntimeDiagnostics.inspect(applicationContexts, request);
+    }
+
     public static Object getSpringConfig(String value) {
         initSpringContext();
         for (ApplicationContext applicationContext : applicationContexts) {

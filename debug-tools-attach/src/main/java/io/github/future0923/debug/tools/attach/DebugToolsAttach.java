@@ -48,6 +48,9 @@ public class DebugToolsAttach {
 
     private static final Logger logger = Logger.getLogger(DebugToolsAttach.class);
 
+    /** tools.jar 成功加载后由两个 agent 入口共享，失败时仍允许重试。 */
+    private static boolean toolsJarLoaded;
+
     /**
      * 启动入口
      *
@@ -57,12 +60,7 @@ public class DebugToolsAttach {
      */
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
         AgentArgs parse = AgentArgs.parse(agentArgs);
-        if (parse.getLogLevel() != null) {
-            Logger.setLevel(parse.getLogLevel());
-        }
-        String javaHome = System.getProperty("java.home");
-        logger.info("JAVA_HOME:{}", javaHome);
-        loadToolsJar(javaHome);
+        applyRuntimeConfig(parse);
         if (ProjectConstants.DEBUG) {
             // 开启javassist debug
             CtClass.debugDump = "debug/javassist";
@@ -92,8 +90,20 @@ public class DebugToolsAttach {
      * @throws Exception 启动失败
      */
     public static void agentmain(String agentArgs, Instrumentation inst) throws Exception {
+        AgentArgs parse = AgentArgs.parse(agentArgs);
+        applyRuntimeConfig(parse);
         AgentConfig.INSTANCE.createExtensionJar();
-        startServer(AgentArgs.parse(agentArgs), inst);
+        startServer(parse, inst);
+    }
+
+    /** 两种加载方式都先应用日志级别，再准备动态编译环境。 */
+    private static void applyRuntimeConfig(AgentArgs agentArgs) {
+        if (agentArgs.getLogLevel() != null) {
+            Logger.setLevel(agentArgs.getLogLevel());
+        }
+        String javaHome = System.getProperty("java.home");
+        logger.info("JAVA_HOME:{}", javaHome);
+        loadToolsJar(javaHome);
     }
 
     /**
@@ -101,9 +111,13 @@ public class DebugToolsAttach {
      *
      * @param javaHome java home
      */
-    private static void loadToolsJar(String javaHome) {
+    private static synchronized void loadToolsJar(String javaHome) {
+        if (toolsJarLoaded) {
+            return;
+        }
         try {
             Class.forName("com.sun.tools.javac.processing.JavacProcessingEnvironment");
+            toolsJarLoaded = true;
         } catch (ClassNotFoundException e) {
             File toolsJar;
             try {
@@ -119,6 +133,9 @@ public class DebugToolsAttach {
                     Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
                     addURL.setAccessible(true);
                     addURL.invoke(sysLoader, toolsJar.toURI().toURL());
+                    // 确认编译器可用后才标记成功，避免失败后永久跳过加载。
+                    Class.forName("com.sun.tools.javac.processing.JavacProcessingEnvironment");
+                    toolsJarLoaded = true;
                     logger.info("Loaded tools.jar file in {}", sysLoader.getClass().getName());
                 } catch (Exception ex) {
                     logger.warning("Failed to load the tools.jar file, so remote dynamic compilation cannot be used. If you want to use remote dynamic compilation, please only use the jdk environment, not the jre. {}", ex.getMessage());

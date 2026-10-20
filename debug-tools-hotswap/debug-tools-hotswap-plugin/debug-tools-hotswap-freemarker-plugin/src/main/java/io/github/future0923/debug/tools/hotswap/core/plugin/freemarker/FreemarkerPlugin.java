@@ -45,7 +45,8 @@ public class FreemarkerPlugin {
 
     private static final Logger logger = Logger.getLogger(FreemarkerPlugin.class);
 
-    private static Command clearCacheCommand;
+    // 注册与类重定义可能发生在不同线程，保证清缓存命令及时可见。
+    private static volatile Command clearCacheCommand;
 
     @Init
     private static Scheduler scheduler;
@@ -64,7 +65,7 @@ public class FreemarkerPlugin {
     }
 
     public void registerFreemarkerServlet(Object freemarkerServlet) {
-        clearCacheCommand = new FreemarkerClearCacheCommand(ReflectionHelper.get(ReflectionHelper.get(freemarkerServlet, "config"), "objectWrapper"));
+        registerObjectWrapper(ReflectionHelper.get(ReflectionHelper.get(freemarkerServlet, "config"), "objectWrapper"));
     }
 
     /**
@@ -80,6 +81,10 @@ public class FreemarkerPlugin {
     }
 
     public static void registerObjectWrapper(Object objectWrapper) {
+        // 未取得包装器时不创建命令，避免延迟执行时访问空对象。
+        if (objectWrapper == null) {
+            return;
+        }
         clearCacheCommand = new FreemarkerClearCacheCommand(objectWrapper);
     }
 
@@ -107,6 +112,11 @@ public class FreemarkerPlugin {
      */
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public static void redefineClass() {
-        scheduler.scheduleCommand(clearCacheCommand, 500);
+        // 未使用或尚未初始化 FreeMarker 的应用也会触发类重定义事件。
+        Command command = clearCacheCommand;
+        if (command == null) {
+            return;
+        }
+        scheduler.scheduleCommand(command, 500);
     }
 }

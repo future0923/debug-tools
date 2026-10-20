@@ -16,25 +16,27 @@
  */
 package io.github.future0923.debug.tools.server.http;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * @author future0923
- */
+/** 使用临时端口验证真实 HTTP 生命周期，避免手工调试 sleep 阻塞完整测试。 */
 class DebugToolsHttpServerTest {
-
-    private static DebugToolsHttpServer debugToolsHttpServer;
-
-    @BeforeAll
-    public static void before() {
-        debugToolsHttpServer = new DebugToolsHttpServer(8888);
+    @Test void servesCapabilitiesAndClosesAfterRequest() throws Exception {
+        DebugToolsHttpServer server=new DebugToolsHttpServer(0);
+        server.start();
+        HttpURLConnection connection=(HttpURLConnection)new URL("http://127.0.0.1:"+server.getPort()+"/capabilities").openConnection();
+        connection.setConnectTimeout(2000);connection.setReadTimeout(2000);
+        connection.setRequestMethod("POST");connection.setDoOutput(true);
+        try {
+            try(java.io.OutputStream request=connection.getOutputStream()){request.write("{}".getBytes(java.nio.charset.StandardCharsets.UTF_8));}
+            assertTrue(server.getPort()>0);
+            assertEquals(200,connection.getResponseCode());
+            java.io.ByteArrayOutputStream output=new java.io.ByteArrayOutputStream();
+            try(java.io.InputStream input=connection.getInputStream()){byte[] buffer=new byte[1024];int n;while((n=input.read(buffer))!=-1)output.write(buffer,0,n);}
+            String body=new String(output.toByteArray(),java.nio.charset.StandardCharsets.UTF_8);
+            assertTrue(body.contains("agentInstanceId"));assertTrue(body.contains("invocation.targetBinding"));
+        } finally {connection.disconnect();server.close();}
     }
-
-    @Test
-    public void start() throws InterruptedException {
-        debugToolsHttpServer.start();
-        Thread.sleep(10000000L);
-    }
-
 }

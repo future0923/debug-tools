@@ -35,30 +35,53 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author future0923
  */
 public class DebugToolsResultUtils {
 
-    private static final Map<String, Object> CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Object> CACHE = new java.util.LinkedHashMap<>();
+    private static final Map<String, Long> CACHE_TIMES = new java.util.HashMap<>();
+    private static final int MAX_ROOTS = 1024;
+    private static final long RETENTION_MILLIS = 30 * 60 * 1000L;
 
     private static final String RECORD_COMPONENT = "record.component";
 
     private static final Logger log = Logger.getLogger(DebugToolsResultUtils.class);
 
-    public static void putCache(String offsetPath, Object object) {
+    public static synchronized void putCache(String offsetPath, Object object) {
         if (offsetPath == null || object == null) {
             return;
         }
+        cleanExpired();
         CACHE.put(offsetPath, object);
+        CACHE_TIMES.put(offsetPath, System.currentTimeMillis());
+        while (CACHE.size() > MAX_ROOTS) { String oldest = CACHE.keySet().iterator().next(); CACHE.remove(oldest); CACHE_TIMES.remove(oldest); }
     }
 
-    public static void removeCache(String offsetPath) {
+    public static synchronized void removeCache(String offsetPath) {
         if (DebugToolsStringUtils.isNotBlank(offsetPath)) {
             CACHE.remove(offsetPath);
+            CACHE_TIMES.remove(offsetPath);
         }
+    }
+
+    /** 仅释放调用方明确指定的根对象；拒绝字段路径，避免清理含义不明确。 */
+    public static synchronized boolean releaseRoot(String offsetPath) {
+        if (offsetPath == null || offsetPath.trim().isEmpty() || offsetPath.length() > 512 || offsetPath.contains("/")) {
+            throw new IllegalArgumentException("A root offsetPath (without field segments) is required");
+        }
+        cleanExpired(); CACHE_TIMES.remove(offsetPath);
+        return CACHE.remove(offsetPath) != null;
+    }
+
+    /** 根缓存有固定容量与保留时间；字段展开不会刷新 TTL。 */
+    private static synchronized Object cachedRoot(String root) { cleanExpired(); return CACHE.get(root); }
+    private static void cleanExpired() {
+        long cutoff = System.currentTimeMillis() - RETENTION_MILLIS;
+        java.util.Iterator<Map.Entry<String, Long>> iterator = CACHE_TIMES.entrySet().iterator();
+        while (iterator.hasNext()) { Map.Entry<String, Long> entry = iterator.next(); if (entry.getValue() < cutoff) { CACHE.remove(entry.getKey()); iterator.remove(); } }
     }
 
     public static Object getValueByOffset(String offsetPath) {
@@ -67,9 +90,9 @@ public class DebugToolsResultUtils {
         }
         int index = offsetPath.indexOf("/");
         if (index == -1) {
-            return CACHE.get(offsetPath);
+            return cachedRoot(offsetPath);
         } else {
-            Object object = CACHE.get(offsetPath.substring(0, index));
+            Object object = cachedRoot(offsetPath.substring(0, index));
             if (object == null) {
                 return null;
             }

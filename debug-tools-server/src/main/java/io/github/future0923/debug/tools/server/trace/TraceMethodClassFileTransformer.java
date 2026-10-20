@@ -75,7 +75,7 @@ public class TraceMethodClassFileTransformer {
      * 忽略的方法
      */
     @Getter
-    private static final Set<String> IGNORED_METHOD_SET = new HashSet<>();
+    private static final Set<String> IGNORED_METHOD_SET = ConcurrentHashMap.newKeySet();
 
     /**
      * 该类中的getter和setter方法集合
@@ -130,34 +130,34 @@ public class TraceMethodClassFileTransformer {
      * @param methodDescription 方法描述符
      * @throws Exception 异常
      */
-    public static void traceMethod(String className, String methodName, String methodDescription) throws Exception {
+    public static synchronized void traceMethod(String className, String methodName, String methodDescription) throws Exception {
         MethodTrace.redefineTraceMethodProcessing = true;
-        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
-        RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(
-                qualifierNameKey,
-                key -> redefineClass(className, methodName, methodDescription)
-        );
-        MethodTrace.redefineTraceMethodProcessing = false;
+        try {
+            String key = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
+            RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfAbsent(key, ignored -> redefineClass(className, methodName, methodDescription));
+            IGNORED_METHOD_SET.remove(key);
+        } finally { MethodTrace.redefineTraceMethodProcessing = false; }
     }
 
-    /**
-     * 取消转换方法
-     *
-     * @param className         类
-     * @param methodName        方法
-     * @param methodDescription 方法描述符
-     * @throws Exception 异常
-     */
-    public static void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
+    /** 只有底层 reset 确认成功才移除记录，失败时保留以供重试。 */
+    public static synchronized void cancelTraceMethod(String className, String methodName, String methodDescription) throws Exception {
         MethodTrace.redefineTraceMethodProcessing = true;
-        String qualifierNameKey = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
-        RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.computeIfPresent(qualifierNameKey, (k, transformer) -> {
-            transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION);
-            // 返回 null 表示移除
-            return null;
-        });
-        IGNORED_METHOD_SET.add(qualifierNameKey);
-        MethodTrace.redefineTraceMethodProcessing = false;
+        try {
+            String key = DebugToolsClassUtils.getQualifierMethod(className, methodName, methodDescription);
+            ResettableClassFileTransformer transformer = RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.get(key);
+            if (transformer != null) {
+                if (!transformer.reset(DebugToolsBootstrap.INSTANCE.getInstrumentation(), AgentBuilder.RedefinitionStrategy.RETRANSFORMATION))
+                    throw new IllegalStateException("Trace transformer reset was not confirmed");
+                RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.remove(key, transformer);
+            }
+            IGNORED_METHOD_SET.add(key);
+        } finally { MethodTrace.redefineTraceMethodProcessing = false; }
+    }
+
+    /** 返回实际注册表快照，不能把注册成功解释为业务调用已经发生。 */
+    public static java.util.List<String> selectedTraceMethods() {
+        java.util.List<String> result = new java.util.ArrayList<>(RESETTABLE_CLASS_FILE_TRANSFORMER_MAP.keySet());
+        java.util.Collections.sort(result); return result;
     }
 
     /**

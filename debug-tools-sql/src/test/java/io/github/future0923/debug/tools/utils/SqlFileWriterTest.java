@@ -42,7 +42,7 @@ class SqlFileWriterTest {
                     .resolve(".debugTools/sql/order-service")
                     .resolve(LocalDate.now() + ".sql");
             assertTrue(Files.exists(sqlFile));
-            assertTrue(new String(Files.readAllBytes(sqlFile)).contains("select 1;"));
+            assertTrue(new String(Files.readAllBytes(sqlFile)).contains("\nselect 1\n"));
         } finally {
             System.setProperty("user.home", oldUserHome);
         }
@@ -66,7 +66,7 @@ class SqlFileWriterTest {
                     .resolve(".debugTools/sql/order-service-a8f31c2b/com.foo.OrderApplication")
                     .resolve(LocalDate.now() + ".sql");
             assertTrue(Files.exists(sqlFile));
-            assertTrue(new String(Files.readAllBytes(sqlFile)).contains("select 1;"));
+            assertTrue(new String(Files.readAllBytes(sqlFile)).contains("\nselect 1\n"));
         } finally {
             System.setProperty("user.home", oldUserHome);
         }

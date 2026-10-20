@@ -41,7 +41,7 @@ import java.util.Map;
  *
  * @author future0923
  */
-public class DynamicCompiler {
+public class DynamicCompiler implements java.io.Closeable {
 
     private static final Logger logger = Logger.getLogger(DynamicCompiler.class);
 
@@ -219,6 +219,12 @@ public class DynamicCompiler {
     /**
      * 返回动态编译的类加载器
      */
+    /** 独立 MCP 编译任务完成后释放标准文件管理器持有的 jar 句柄。 */
+    @Override
+    public void close() throws java.io.IOException {
+        standardFileManager.close();
+    }
+
     public DynamicClassLoader getClassLoader() {
         return dynamicClassLoader;
     }

@@ -37,6 +37,15 @@ class RunTargetMethodResponseRegistryTest {
     }
 
     @Test
+    void boundsResponseCountAndExpiresOldResponses() {
+        java.util.concurrent.atomic.AtomicLong clock = new java.util.concurrent.atomic.AtomicLong(10000000L);
+        RunTargetMethodResponseRegistry registry = new RunTargetMethodResponseRegistry(clock::get);
+        for (int i=0; i<513; i++) { RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket(); packet.setIdentity("bounded-"+i); registry.record(packet); }
+        assertTrue(!registry.find("bounded-0").isPresent()); assertTrue(registry.find("bounded-512").isPresent());
+        clock.addAndGet(1800001); assertTrue(!registry.find("bounded-512").isPresent());
+    }
+
+    @Test
     void ignoresBlankIdentityResponses() {
         RunTargetMethodResponseRegistry registry = new RunTargetMethodResponseRegistry();
         RunTargetMethodResponsePacket packet = new RunTargetMethodResponsePacket();
