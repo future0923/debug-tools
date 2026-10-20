@@ -1,0 +1,115 @@
+name: Linux aarch64 JNI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/native-linux-aarch64.yml'
+      - 'debug-tools-vm/**'
+      - 'debug-tools-base/src/main/java/io/github/future0923/debug/tools/base/utils/DebugToolsOSUtils.java'
+  pull_request:
+    paths:
+      - '.github/workflows/native-linux-aarch64.yml'
+      - 'debug-tools-vm/**'
+      - 'debug-tools-base/src/main/java/io/github/future0923/debug/tools/base/utils/DebugToolsOSUtils.java'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '8'
+          architecture: aarch64
+      # 只在旧 glibc 容器中编译；JDK 头文件来自宿主机，不在容器中执行 JVM。
+      - name: Build with glibc 2.17 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = aarch64
+          image=quay.io/pypa/manylinux2014_aarch64
+          docker pull "$image"
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -v "$GITHUB_WORKSPACE:/work" -v "$JAVA_HOME:/opt/jdk:ro" \
+            -e COMPILE_JAVA_HOME=/opt/jdk -e OUTPUT_DIR=/work/native-artifact \
+            -w /work "$image" bash debug-tools-vm/shell/compile-linux.sh
+          {
+            git rev-parse HEAD
+            docker image inspect "$image" --format '{{index .RepoDigests 0}}'
+          } > native-artifact/build-info.txt
+      - name: Verify ELF architecture and glibc symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          library=native-artifact/libJniLibrary-arm64.so
+          file "$library"
+          readelf -h "$library" | tee native-artifact/elf-header.txt
+          readelf -h "$library" | grep -q 'Machine:.*AArch64'
+          readelf --version-info "$library" | tee native-artifact/elf-versions.txt
+          python3 - "$library" <<'PY'
+          import re, subprocess, sys
+          versions = subprocess.check_output(['readelf', '--version-info', sys.argv[1]], text=True)
+          required = {tuple(map(int, value.split('.'))) for value in re.findall(r'GLIBC_([0-9.]+)', versions)}
+          assert required and max(required) <= (2, 17), required
+          assert 'GLIBCXX_' not in versions and 'CXXABI_' not in versions, versions
+          PY
+          (cd native-artifact && sha256sum libJniLibrary-arm64.so > SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-aarch64-jni
+          path: native-artifact/
+          if-no-files-found: error
+          retention-days: 30
+
+  smoke:
+    needs: build
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['8', '17', '21', '25']
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: linux-aarch64-jni
+          path: native-artifact
+      - name: Install the exact build artifact
+        run: |
+          (cd native-artifact && sha256sum --check SHA256SUMS)
+          cp native-artifact/libJniLibrary-arm64.so debug-tools-server/src/main/resources/lib/
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          architecture: aarch64
+      - name: Remember the runtime under test
+        run: echo "NATIVE_TEST_JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          architecture: aarch64
+          cache: maven
+      # 构建用 JDK 21；Surefire 与其子进程使用矩阵指定的真实目标 JVM。
+      - name: Test platform selection, cache migration and JNI calls
+        run: >-
+          mvn -B -ntp -pl debug-tools-vm -am test
+          -P'!surefire-java-lt21'
+          -Djvm="$NATIVE_TEST_JAVA_HOME/bin/java"
+          -Ddebug.tools.native.test=true
+          -Dspotless.skip=true -Dlicense.skip=true
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: native-tests-java-${{ matrix.java }}
+          path: debug-tools-vm/target/surefire-reports/
+          if-no-files-found: warn

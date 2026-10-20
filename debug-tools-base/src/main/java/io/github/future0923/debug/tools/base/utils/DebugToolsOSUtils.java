@@ -114,7 +114,7 @@ public class DebugToolsOSUtils {
         if (value.matches("^(arm|arm32)$")) {
             return "arm_32";
         }
-        if ("aarch64".equals(value)) {
+        if ("aarch64".equals(value) || "arm64".equals(value)) {
             return "aarch_64";
         }
         if (value.matches("^(mips|mips32)$")) {

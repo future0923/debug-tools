@@ -43,10 +43,9 @@ public class JvmToolsUtils {
             return;
         }
 
-        // 目前只针对mac特殊处理
-        if (DebugToolsOSUtils.isMac() && DebugToolsJvmUtils.changeJdk(Boolean.FALSE)) {
+        // 共享缓存目录中的旧库可能来自另一种 CPU 架构，Linux 也需要重新提取。
+        if ((DebugToolsOSUtils.isMac() || DebugToolsOSUtils.isLinux()) && DebugToolsJvmUtils.changeJdk(Boolean.FALSE)) {
             storeLib(getLibName());
-            AgentConfig.INSTANCE.setCurrentOsArchAndStore(DebugToolsOSUtils.arch());
             return;
         }
 
@@ -77,7 +76,13 @@ public class JvmToolsUtils {
         if (DebugToolsOSUtils.isMac()) {
             return DebugToolsOSUtils.isArm64() ? "libJniLibrary-arm64.dylib" : "libJniLibrary.dylib";
         } else if (DebugToolsOSUtils.isLinux()) {
-            return "libJniLibrary-x64.so";
+            if (DebugToolsOSUtils.isArm64()) {
+                return "libJniLibrary-arm64.so";
+            }
+            if (DebugToolsOSUtils.isX86_64()) {
+                return "libJniLibrary-x64.so";
+            }
+            throw new IllegalStateException("unsupported Linux architecture: " + DebugToolsOSUtils.arch());
         } else if (DebugToolsOSUtils.isWindows()) {
             return "libJniLibrary-x64.dll";
         } else {
@@ -94,13 +99,15 @@ public class JvmToolsUtils {
         }
         File jniLibraryFile;
         try {
-            // 使用版本号新建lib文件，防止多版本插件冲突
-            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), "DebugToolsJniLibrary-"+ProjectConstants.VERSION, DebugToolsFileUtils.extName(libName, true));
+            // 版本与架构共同隔离文件，避免同版本不同架构复用已提取的旧库。
+            String prefix = "DebugToolsJniLibrary-" + ProjectConstants.VERSION + "-" + DebugToolsOSUtils.arch();
+            jniLibraryFile = DebugToolsFileUtils.getTmpLibFile(jniLibraryUrl.openStream(), prefix, DebugToolsFileUtils.extName(libName, true));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         initVmTool(jniLibraryFile.getAbsolutePath());
         AgentConfig.INSTANCE.setJniLibraryPathAndStore(jniLibraryFile.getAbsolutePath());
+        AgentConfig.INSTANCE.setCurrentOsArchAndStore(DebugToolsOSUtils.arch());
     }
 
 }
