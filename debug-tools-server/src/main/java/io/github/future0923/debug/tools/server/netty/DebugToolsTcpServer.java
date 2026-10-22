@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.net.InetSocketAddress;
 
 /**
  * tcp server
@@ -123,7 +124,12 @@ public final class DebugToolsTcpServer {
                 });
         int bindPort = DebugToolsBootstrap.serverConfig.getTcpPort();
         serverChannel = bootstrap.bind(bindPort).sync().channel();
-        logger.info("Netty TCP server started, bind port {}", bindPort);
+        logger.info("Netty TCP server started, bind port {}", getPort());
+    }
+
+    /** 端口为 0 时返回操作系统实际分配的端口，供跨系统启动握手使用。 */
+    public int getPort() {
+        return ((InetSocketAddress) serverChannel.localAddress()).getPort();
     }
 
     public void stop() {

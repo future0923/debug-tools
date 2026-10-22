@@ -59,6 +59,7 @@ public class DebugToolsAttach {
      * @throws Exception 启动失败
      */
     public static void premain(String agentArgs, Instrumentation inst) throws Exception {
+        DebugToolsStartupHandshake.starting();
         AgentArgs parse = AgentArgs.parse(agentArgs);
         applyRuntimeConfig(parse);
         if (ProjectConstants.DEBUG) {
@@ -76,6 +77,7 @@ public class DebugToolsAttach {
         }
         if (Objects.equals(parse.getServer(), "true")) {
             startServer(parse, inst);
+            DebugToolsStartupHandshake.ready();
         }
         if (Objects.equals(parse.getAutoAttach(), "true")) {
             autoAttach();

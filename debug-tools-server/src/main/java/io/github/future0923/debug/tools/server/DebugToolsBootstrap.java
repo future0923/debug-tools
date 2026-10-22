@@ -75,6 +75,11 @@ public class DebugToolsBootstrap {
         serverConfig.setHttpPort(httpPort);
         startTcpServer(tcpPort);
         startHttpServer(httpPort);
+        // 回传真实绑定值，不能把请求中的端口 0 当作可连接端口。
+        this.tcpPort = tcpServer.getPort();
+        this.httpPort = httpServer.getPort();
+        serverConfig.setTcpPort(this.tcpPort);
+        serverConfig.setHttpPort(this.httpPort);
         started = true;
     }
 
