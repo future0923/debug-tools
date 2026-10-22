@@ -480,6 +480,11 @@ public class DebugToolsEnvUtils {
         if (!DebugToolsClassUtils.loadedDebugToolsClass(classLoader, "org.springframework.web.context.request.RequestContextHolder")) {
             return;
         }
+        // Spring 与新版 Sa-Token 使用不同的上下文存储，必须在两者初始化之前统一判断。
+        if (runDTO == null || !runDTO.shouldInitializeWebContext()) {
+            clearRequest();
+            return;
+        }
         try {
             DebugToolsClassUtils.loadDebugToolsClass(appClassLoader, "javax.servlet.http.HttpServletRequest");
             Class<?> springServletUtil = getSpringServletUtil();
