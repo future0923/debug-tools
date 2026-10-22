@@ -31,15 +31,18 @@ import javax.servlet.http.HttpServletResponse;
 public class SpringServletUtil {
 
     public static void setRequest(RunDTO runDTO) {
-        if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
-            MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
-            MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-            runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
-            ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest, mockHttpServletResponse);
-            RequestContextHolder.setRequestAttributes(requestAttributes);
-        } else {
+        // 未显式启用且无 Header 时保留非 Web 调用语义。
+        if (runDTO == null || !runDTO.shouldInitializeWebContext()) {
             clearRequest();
+            return;
         }
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
+        if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
+            runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
+        }
+        ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest, mockHttpServletResponse);
+        RequestContextHolder.setRequestAttributes(requestAttributes);
     }
 
     public static void clearRequest() {

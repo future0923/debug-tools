@@ -41,6 +41,14 @@ public class RunDTO {
      */
     private Map<String, String> headers;
 
+    /** 无 Header 时仍初始化模拟 Web 请求上下文；默认沿用有 Header 才初始化的行为。 */
+    private boolean initializeWebContext;
+
+    /** 统一插件调用与扩展模块的上下文初始化条件。 */
+    public boolean shouldInitializeWebContext() {
+        return initializeWebContext || (headers != null && !headers.isEmpty());
+    }
+
     /**
      * 使用的类加载器
      */

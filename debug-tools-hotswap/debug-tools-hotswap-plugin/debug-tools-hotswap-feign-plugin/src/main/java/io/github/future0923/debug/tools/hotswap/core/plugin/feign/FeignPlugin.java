@@ -23,6 +23,7 @@ import io.github.future0923.debug.tools.hotswap.core.annotation.LoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.OnClassLoadEvent;
 import io.github.future0923.debug.tools.hotswap.core.annotation.Plugin;
 import io.github.future0923.debug.tools.hotswap.core.command.Scheduler;
+import io.github.future0923.debug.tools.hotswap.core.config.PluginManager;
 import io.github.future0923.debug.tools.hotswap.core.plugin.feign.command.FeignClientReloadCommand;
 import io.github.future0923.debug.tools.hotswap.core.plugin.feign.utils.FeignUtils;
 import io.github.future0923.debug.tools.hotswap.core.plugin.feign.watcher.FeignClientWatchEventListener;
@@ -38,6 +39,7 @@ import javassist.CtMethod;
 import javassist.NotFoundException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Set;
@@ -92,6 +94,35 @@ public class FeignPlugin {
     public void init(ClassLoader classLoader, Object feignClientsRegistrar) {
         FeignPlugin.userClassLoader = classLoader;
         FeignPlugin.feignClientsRegistrar = feignClientsRegistrar;
+        syncToUserClassLoader(classLoader);
+    }
+
+    /**
+     * 在 Spring Boot (LaunchedURLClassLoader) 场景下，ClassLoaderDefineClassPatcher 会向业务类加载器复制定义一份独立的 FeignPlugin 类；
+     * buildInitializePlugin / buildCallPluginMethod 作用于 AgentClassLoader 中的 FeignPlugin，而插桩的静态方法直接调用会落到业务类加载器中的 FeignPlugin 类上，需同步静态字段。
+     */
+    private static void syncToUserClassLoader(ClassLoader classLoader) {
+        if (classLoader == null || classLoader == FeignPlugin.class.getClassLoader()) {
+            return;
+        }
+        try {
+            Class<?> targetClass = classLoader.loadClass(FeignPlugin.class.getName());
+            if (targetClass != FeignPlugin.class) {
+                setStaticField(targetClass, "scheduler", scheduler);
+                setStaticField(targetClass, "watcher", watcher);
+                setStaticField(targetClass, "appClassLoader", classLoader);
+                setStaticField(targetClass, "userClassLoader", userClassLoader);
+                setStaticField(targetClass, "feignClientsRegistrar", feignClientsRegistrar);
+            }
+        } catch (Throwable e) {
+            logger.error("Unable to sync FeignPlugin state to classloader {}.", e, classLoader);
+        }
+    }
+
+    private static void setStaticField(Class<?> targetClass, String fieldName, Object value) throws ReflectiveOperationException {
+        Field field = targetClass.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(null, value);
     }
 
     @OnClassLoadEvent(classNameRegexp = "org.springframework.cloud.openfeign.FeignClientsRegistrar")
@@ -148,11 +179,16 @@ public class FeignPlugin {
 
     public static void registerBasePackage(final String basePackage) {
         String classNameRegExp = DebugToolsStringUtils.getClassNameRegExp(basePackage);
+        ClassLoader classLoader = FeignPlugin.getUserClassLoader();
+        if (classLoader == null) {
+            logger.error("Unable to resolve feign base package {}, user/app classloader is null.", classNameRegExp);
+            return;
+        }
         Enumeration<URL> resourceUrls;
         try {
-            resourceUrls = ClassLoaderHelper.getResources(FeignPlugin.getUserClassLoader(), classNameRegExp);
+            resourceUrls = ClassLoaderHelper.getResources(classLoader, classNameRegExp);
         } catch (IOException e) {
-            logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, FeignPlugin.getUserClassLoader());
+            logger.error("Unable to resolve mapper base package {} in classloader {}.", classNameRegExp, classLoader);
             return;
         }
         while (resourceUrls.hasMoreElements()) {
@@ -160,7 +196,13 @@ public class FeignPlugin {
             if (!IOUtils.isFileURL(basePackageURL)) {
                 logger.debug("feign basePackage '{}' - unable to watch files on URL '{}' for changes (JAR file?), limited hotswap reload support. Use extraClassPath configuration to locate class file on filesystem.", basePackage, basePackageURL);
             } else {
-                watcher.addEventListener(FeignPlugin.getUserClassLoader(), basePackage, basePackageURL, new FeignClientWatchEventListener(scheduler, FeignPlugin.getUserClassLoader(), basePackage));
+                Watcher currentWatcher = getWatcher();
+                Scheduler currentScheduler = getScheduler();
+                if (currentWatcher == null || currentScheduler == null) {
+                    logger.error("Unable to register feign watch listener for basePackage '{}', watcher or scheduler is null.", basePackage);
+                    return;
+                }
+                currentWatcher.addEventListener(classLoader, basePackage, basePackageURL, new FeignClientWatchEventListener(currentScheduler, classLoader, basePackage));
             }
         }
     }
@@ -171,8 +213,21 @@ public class FeignPlugin {
     @OnClassLoadEvent(classNameRegexp = ".*", events = LoadEvent.REDEFINE)
     public static void redefineFeignClass(final Class<?> clazz, final ClassLoader appClassLoader, final byte[] bytes) {
         if (FeignUtils.isFeignClient(appClassLoader, clazz)) {
-            scheduler.scheduleCommand(new FeignClientReloadCommand(appClassLoader, clazz.getName(), bytes, ""), 1000);
+            Scheduler currentScheduler = getScheduler();
+            if (currentScheduler == null) {
+                logger.error("Unable to schedule feign reload command for class '{}', scheduler is null.", clazz.getName());
+                return;
+            }
+            currentScheduler.scheduleCommand(new FeignClientReloadCommand(appClassLoader, clazz.getName(), bytes, ""), 1000);
         }
+    }
+
+    private static Watcher getWatcher() {
+        return watcher != null ? watcher : PluginManager.getInstance().getWatcher();
+    }
+
+    private static Scheduler getScheduler() {
+        return scheduler != null ? scheduler : PluginManager.getInstance().getScheduler();
     }
 
     public static ClassLoader getUserClassLoader() {
