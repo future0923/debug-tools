@@ -30,15 +30,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class SpringJakartaUtil {
 
     public static void setRequest(RunDTO runDTO) {
-        if (runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
-            MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
-            MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
+        if (runDTO != null && runDTO.getHeaders() != null && !runDTO.getHeaders().isEmpty()) {
             runDTO.getHeaders().forEach(mockHttpServletRequest::addHeader);
-            ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest, mockHttpServletResponse);
-            RequestContextHolder.setRequestAttributes(requestAttributes);
-        } else {
-            clearRequest();
         }
+        ServletRequestAttributes requestAttributes = new ServletRequestAttributes(mockHttpServletRequest, mockHttpServletResponse);
+        RequestContextHolder.setRequestAttributes(requestAttributes);
     }
 
     public static void clearRequest() {
